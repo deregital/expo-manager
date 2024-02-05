@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import Provider from '@/app/_trpc/Provider';
+import TRPCProvider from '@/app/_trpc/Provider';
 import { cn } from '@/lib/utils';
+import NextAuthProvider from '@/app/_auth/NextAuthProvider';
 
 export const fontSans = Inter({
   subsets: ['latin'],
@@ -27,7 +28,9 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <Provider>{children}</Provider>
+        <NextAuthProvider>
+          <TRPCProvider>{children}</TRPCProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

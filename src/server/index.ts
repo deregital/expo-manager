@@ -18,7 +18,9 @@ export const appRouter = router({
         greeting: `Hello, ${input?.text ?? 'World'}!`,
       };
     }),
-  protectedHello: protectedProcedure.query(() => {
+  protectedHello: protectedProcedure.query(async () => {
+    await sleep(1000);
+
     return {
       greeting: 'Hello, World!',
     };
