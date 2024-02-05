@@ -6,20 +6,24 @@ import React from 'react';
 
 const Greeting = () => {
   const trpcUtils = trpc.useUtils();
-  const { data, isLoading } = trpc.hello.useQuery({
-    text: 'Prueba',
-  });
+  const { data, isLoading, error } = trpc.hello.useQuery();
   return (
     <>
       <Button
         onClick={() => {
-          trpcUtils.hello.reset({ text: 'Prueba' });
+          trpcUtils.hello.reset();
         }}
       >
         Saludar
       </Button>
       <div className="font-bold text-black">
-        {isLoading ? 'Loading...' : data?.greeting}
+        {error ? (
+          <div>Error: {error.message}</div>
+        ) : isLoading ? (
+          'Loading...'
+        ) : (
+          data?.greeting
+        )}
       </div>
     </>
   );

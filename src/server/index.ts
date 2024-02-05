@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { publicProcedure, router } from './trpc';
+import { protectedProcedure, publicProcedure, router } from './trpc';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -18,6 +18,11 @@ export const appRouter = router({
         greeting: `Hello, ${input?.text ?? 'World'}!`,
       };
     }),
+  protectedHello: protectedProcedure.query(() => {
+    return {
+      greeting: 'Hello, World!',
+    };
+  }),
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;
