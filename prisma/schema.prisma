@@ -6,12 +6,132 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
-    url      = env("DATABASE_URL_DEV")
+    provider     = "postgresql"
+    url          = env("DATABASE_URL_LOCAL")
+    relationMode = "foreignKeys"
 }
 
-model User {
-    id    Int     @id @default(autoincrement())
-    email String  @unique
-    name  String?
+model Cuenta {
+    id            String @id @default(uuid())
+    nombreUsuario String @unique @map("nombre_usuario")
+    contrasena    String
+
+    comentarios Comentario[]
+    etiquetas   Etiqueta[]   @relation("CUENTA_X_ETIQUETA")
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@map("CUENTA")
+}
+
+model Perfil {
+    id        String  @id @default(uuid())
+    idLegible String? @unique @map("id_legible")
+
+    nombreCompleto String    @map("nombre_completo")
+    nombrePila     String?   @map("nombre_pila")
+    telefono       String
+    genero         String?
+    edad           Int?
+    fotoUrl        String?   @map("foto_url")
+    aceptoContacto Boolean?  @map("acepto_contacto")
+    aceptoFecha    DateTime? @map("acepto_fecha")
+
+    comentarios Comentario[]
+    etiquetas   Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@map("PERFIL")
+}
+
+model Comentario {
+    id String @id @default(uuid())
+
+    contenido String // maybe JSON?
+    perfilId  String @map("perfil_id")
+    perfil    Perfil @relation(fields: [perfilId], references: [id])
+    creadoPor String @map("creado_por")
+    cuenta    Cuenta @relation(fields: [creadoPor], references: [id])
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@map("COMENTARIO")
+}
+
+model Etiqueta {
+    id String @id @default(uuid())
+
+    nombre  String
+    grupoId String @map("grupo_id")
+
+    grupo      EtiquetaGrupo       @relation(fields: [grupoId], references: [id], onDelete: Cascade)
+    perfiles   Perfil[]            @relation("PERFIL_X_ETIQUETA")
+    mensajes   HistorialMensajes[] @relation("MENSAJE_X_ETIQUETA")
+    plantillas Plantilla[]         @relation("PLANTILLA_X_ETIQUETA")
+    cuentas    Cuenta[]            @relation("CUENTA_X_ETIQUETA")
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@map("ETIQUETA")
+}
+
+model EtiquetaGrupo {
+    id String @id @default(uuid())
+
+    nombre      String
+    color       String
+    esExclusivo Boolean @map("es_exclusivo")
+
+    Etiqueta Etiqueta[]
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@map("GRUPO_ETIQUETA")
+}
+
+model HistorialMensajes {
+    id String @id @default(uuid())
+
+    contenido String
+
+    etiquetas Etiqueta[] @relation("MENSAJE_X_ETIQUETA")
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@map("HISTORIAL_MENSAJES")
+}
+
+model Plantilla {
+    id String @id @default(uuid())
+
+    titulo    String
+    contenido Json
+    estado    EstadoPlantilla
+    categoria CategoriaPlantilla
+
+    etiquetas Etiqueta[] @relation("PLANTILLA_X_ETIQUETA")
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@map("PLANTILLA")
+}
+
+enum EstadoPlantilla {
+    APROBADA
+    PENDIENTE
+    RECHAZADA
+}
+
+enum CategoriaPlantilla {
+    MARKETING
+    UTILIDAD
+    AUTENTICACION
 }

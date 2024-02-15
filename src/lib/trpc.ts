@@ -15,9 +15,18 @@ export function getBaseUrl() {
   // assume localhost
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
+
 export const trpc = createTRPCNext<AppRouter>({
   config(opts) {
     return {
+      queryClientConfig: {
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+            refetchOnMount: false,
+          },
+        },
+      },
       links: [
         httpBatchLink({
           /**

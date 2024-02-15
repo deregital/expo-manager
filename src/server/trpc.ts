@@ -12,6 +12,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     ...opts,
   };
 };
+
 const t = initTRPC.context<typeof createTRPCContext>().create({
   errorFormatter({ shape, error }) {
     return {
