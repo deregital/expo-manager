@@ -50,4 +50,12 @@ export const modelosRouter = router({
             },
         });
     }),
+    createModelo: publicProcedure.input(z.object({
+        nombreCompleto: z.string(),
+        telefono: z.string(),
+    })).mutation(async ({ input, ctx }) => {
+        return await ctx.prisma.perfil.create({
+            data: input,
+        });
+    }),
 });
