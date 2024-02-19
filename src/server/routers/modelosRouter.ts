@@ -2,7 +2,7 @@ import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
-export const modelosRouter = router({
+export const modeloRouter = router({
     getAll: publicProcedure.query(async ({ ctx }) => {
         return await ctx.prisma.perfil.findMany({
             include: {
