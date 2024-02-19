@@ -8,7 +8,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const appRouter = router({
   perfil: perfilRouter,
-  modelos: modeloRouter,
+  modelo: modeloRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;
