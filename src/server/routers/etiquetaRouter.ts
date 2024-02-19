@@ -21,4 +21,23 @@ export const etiquetaRouter = router({
             },
         });
     }),
+    edit: publicProcedure.input(z.object({
+        id: z.string().uuid(),
+        nombre: z.string().optional(),
+        grupoId: z.string().uuid().optional(),
+    })).mutation(async ({ input, ctx }) => {
+        return await ctx.prisma.etiqueta.update({
+            where: {
+                id: input.id,
+            },
+            data: {
+                nombre: input.nombre,
+                grupo: {
+                    connect: {
+                        id: input.grupoId,
+                    },
+                }
+            },
+        });
+    }),
 });
