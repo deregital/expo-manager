@@ -3,5 +3,15 @@ import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
 export const etiquetaRouter = router({
-
+    create: publicProcedure.input(z.object({
+        nombre: z.string(),
+        grupoId: z.string().uuid(),
+    })).mutation(async ({ input, ctx }) => {
+        return await ctx.prisma.etiqueta.create({
+            data: {
+                nombre: input.nombre,
+                grupoId: input.grupoId,
+            },
+        });
+    }),
 });
