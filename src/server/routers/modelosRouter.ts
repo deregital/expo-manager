@@ -65,4 +65,39 @@ export const modelosRouter = router({
             },
         });
     }),
+    editModelo: publicProcedure.input(z.object({
+        id: z.string().uuid(),
+        idLegible: z.string().optional(),
+        nombreCompleto: z.string().optional(),
+        nombrePila: z.string().optional(),
+        telefono: z.string().optional(),
+        genero: z.string().optional(),
+        edad: z.number().optional(),
+        etiquetas: z.array(z.object({
+            id: z.string().uuid(),
+            nombre: z.string(),
+            grupoId: z.string().uuid(),
+        })).optional(),
+    })).mutation(async ({ input, ctx }) => {
+        return await ctx.prisma.perfil.update({
+            where: {
+                id: input.id,
+            },
+            data: {
+                nombreCompleto: input.nombreCompleto,
+                idLegible: input.idLegible,
+                nombrePila: input.nombrePila,
+                telefono: input.telefono,
+                genero: input.genero,
+                edad: input.edad,
+                etiquetas: {
+                    connect: (input.etiquetas ?? []).map((etiqueta) => {
+                        return {
+                            id: etiqueta.id,
+                        }
+                    }),
+                },
+            }
+        });
+    }),
 });
