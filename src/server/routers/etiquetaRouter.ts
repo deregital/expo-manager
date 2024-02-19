@@ -14,4 +14,11 @@ export const etiquetaRouter = router({
             },
         });
     }),
+    delete: publicProcedure.input(z.string().uuid()).mutation(async ({ input, ctx }) => {
+        return await ctx.prisma.etiqueta.delete({
+            where: {
+                id: input,
+            },
+        });
+    }),
 });
