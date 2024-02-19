@@ -4,12 +4,19 @@ import { z } from 'zod';
 
 export const modelosRouter = router({
     getAll: publicProcedure.query(async ({ ctx }) => {
-        return await ctx.prisma.perfil.findMany();
+        return await ctx.prisma.perfil.findMany({
+            include: {
+                etiquetas: true,
+            },
+        });
     }),
     getById: publicProcedure.input(z.string().uuid()).query(async ({ input, ctx }) => {
         return await ctx.prisma.perfil.findUnique({
             where: {
                 id: input,
+            },
+            include: {
+                etiquetas: true,
             },
         });
     }),
@@ -22,8 +29,7 @@ export const modelosRouter = router({
                     },
                 },
             },
-            select: {
-                nombrePila: true,
+            include: {
                 etiquetas: true,
             },
         });
@@ -39,18 +45,12 @@ export const modelosRouter = router({
                     },
                 },
             },
-            select: {
-                id: true,
-                nombrePila: true,
-                etiquetas: {
-                    select: {
-                        grupo: true,
-                    }
-                },
+            include: {
+                etiquetas: true,
             },
         });
     }),
-    createModelo: publicProcedure.input(z.object({
+    create: publicProcedure.input(z.object({
         nombreCompleto: z.string(),
         telefono: z.string(),
     })).mutation(async ({ input, ctx }) => {
@@ -58,14 +58,14 @@ export const modelosRouter = router({
             data: input,
         });
     }),
-    deleteModelo: publicProcedure.input(z.string().uuid()).mutation(async ({ input, ctx }) => {
+    delete: publicProcedure.input(z.string().uuid()).mutation(async ({ input, ctx }) => {
         return await ctx.prisma.perfil.delete({
             where: {
                 id: input,
             },
         });
     }),
-    editModelo: publicProcedure.input(z.object({
+    edit: publicProcedure.input(z.object({
         id: z.string().uuid(),
         idLegible: z.string().optional(),
         nombreCompleto: z.string().optional(),
@@ -97,7 +97,7 @@ export const modelosRouter = router({
                         }
                     }),
                 },
-            }
+            },
         });
     }),
 });
