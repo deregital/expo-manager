@@ -58,4 +58,11 @@ export const modelosRouter = router({
             data: input,
         });
     }),
+    deleteModelo: publicProcedure.input(z.string().uuid()).mutation(async ({ input, ctx }) => {
+        return await ctx.prisma.perfil.delete({
+            where: {
+                id: input,
+            },
+        });
+    }),
 });
