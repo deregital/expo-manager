@@ -14,7 +14,7 @@ export const etiquetaRouter = router({
                     connect: {
                         id: input.grupoId,
                     },
-                }
+                },
             },
         });
     }),
@@ -40,7 +40,34 @@ export const etiquetaRouter = router({
                     connect: {
                         id: input.grupoId,
                     },
-                }
+                },
+            },
+        });
+    }),
+    getAll: publicProcedure.query(async ({ ctx }) => {
+        return await ctx.prisma.etiqueta.findMany({
+            include: {
+                grupo: true,
+            },
+        });
+    }),
+    getById: publicProcedure.input(z.string().uuid()).query(async ({ input, ctx }) => {
+        return await ctx.prisma.etiqueta.findUnique({
+            where: {
+                id: input,
+            },
+            include: {
+                grupo: true,
+            },
+        });
+    }),
+    getByGrupoEtiqueta: publicProcedure.input(z.string().uuid()).query(async ({ input, ctx }) => {
+        return await ctx.prisma.etiqueta.findMany({
+            where: {
+                grupoId: input,
+            },
+            include: {
+                grupo: true,
             },
         });
     }),
