@@ -10,7 +10,11 @@ export const etiquetaRouter = router({
         return await ctx.prisma.etiqueta.create({
             data: {
                 nombre: input.nombre,
-                grupoId: input.grupoId,
+                grupo: {
+                    connect: {
+                        id: input.grupoId,
+                    },
+                }
             },
         });
     }),
