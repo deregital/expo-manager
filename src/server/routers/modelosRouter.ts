@@ -91,7 +91,7 @@ export const modeloRouter = router({
                 genero: input.genero,
                 edad: input.edad,
                 etiquetas: {
-                    connect: (input.etiquetas ?? []).map((etiqueta) => {
+                    set: (input.etiquetas ?? []).map((etiqueta) => {
                         return {
                             id: etiqueta.id,
                         }
