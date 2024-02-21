@@ -70,10 +70,16 @@ export const whatsappRouter = router({
             },
         });
     }),
-    deleteTemplate: publicProcedure.input(z.string().uuid()).mutation(async ({ input, ctx }) => {
+    deleteTemplate: publicProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
+        await fetch(`https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?name=${input}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${process.env.BEARER_TOKEN}`,
+            },
+        })
         return await ctx.prisma.plantilla.delete({
             where: {
-                id: input,
+                titulo: input,
             },
         });
     }),
