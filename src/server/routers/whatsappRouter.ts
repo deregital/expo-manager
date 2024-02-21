@@ -60,6 +60,16 @@ export const whatsappRouter = router({
             }
         });
     }),
+    getTemplates: publicProcedure.query(async ({ ctx }) => {
+        return await ctx.prisma.plantilla.findMany();
+    }),
+    getTemplateById: publicProcedure.input(z.string().uuid()).query(async ({ input, ctx }) => {
+        return await ctx.prisma.plantilla.findUnique({
+            where: {
+                id: input,
+            },
+        });
+    }),
     sendMessage: publicProcedure.input(z.object({
         etiquetas: z.string().array(),
         plantillaName: z.string(),
