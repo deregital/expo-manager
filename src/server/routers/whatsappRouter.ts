@@ -1,25 +1,9 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
+import { Template } from '@/server/types/whatsapp';
+import { Components } from '@/server/types/whatsapp';
 
- interface Components {
-    type?: string;
-    text?: string;
-    buttons?: [
-            {
-            text?: string,
-            type?: string,
-            }
-    ];
-}
-
-interface Template {
-    name: string;
-    category: string;
-    allow_category_change: boolean;
-    language:  string;
-    components: Components[];
-}
 
 export const whatsappRouter = router({
     createTemplate: publicProcedure.input(z.object({
