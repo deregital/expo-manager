@@ -53,4 +53,44 @@ export const whatsappRouter = router({
             }
         });
     }),
+    sendMessage: publicProcedure.input(z.object({
+        etiquetas: z.string().array(),
+        plantillaName: z.string(),
+    })).mutation(async ({ input, ctx }) => {
+        const telefonos = await ctx.prisma.perfil.findMany({
+            where: {
+                etiquetas: {
+                    some: {
+                        id: { in: input.etiquetas },
+                    },
+                },
+            },
+            select: {
+                telefono: true,
+            },
+        });
+        telefonos.forEach(async (telefono) => {
+            await fetch(`https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.BEARER_TOKEN}`,
+                },
+                body: JSON.stringify(
+                    {
+                        "messaging_product": "whatsapp",
+                        "to": `${telefono.telefono}`,
+                        "type": "template",
+                        "template": {
+                            "name": `${input.plantillaName}`,
+                            "language": {
+                                "code": "es_AR"
+                            },
+                        },
+                    },
+                ),
+            });
+        });
+        return 'Mensajes enviados';
+    }),
 })
