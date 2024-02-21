@@ -70,6 +70,13 @@ export const whatsappRouter = router({
             },
         });
     }),
+    deleteTemplate: publicProcedure.input(z.string().uuid()).mutation(async ({ input, ctx }) => {
+        return await ctx.prisma.plantilla.delete({
+            where: {
+                id: input,
+            },
+        });
+    }),
     sendMessage: publicProcedure.input(z.object({
         etiquetas: z.string().array(),
         plantillaName: z.string(),
