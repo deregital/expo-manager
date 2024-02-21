@@ -2,51 +2,74 @@ import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
+ interface Components {
+    type?: string;
+    text?: string;
+    buttons?: [
+            {
+            text?: string,
+            type?: string,
+            }
+    ];
+}
+
+interface Template {
+    name: string;
+    category: string;
+    allow_category_change: boolean;
+    language:  string;
+    components: Components[];
+}
 
 export const whatsappRouter = router({
     createTemplate: publicProcedure.input(z.object({
         name: z.string().min(1).max(512).toLowerCase().trim(),
         content: z.string().max(768).min(1),
+        buttons: z.array(z.string().max(25)).max(10),
     })).mutation(async ({ input, ctx }) => {
+
+        const contenido: Template  = {
+            "name": `${input.name}`,	
+            "category": "UTILITY",
+            "allow_category_change": true,
+            "language": "es_AR",
+            "components": [
+                {
+                    "type": "BODY",
+                    "text": `${input.content}`
+                },
+            ],
+        };
+
+        let buttons_json: Components = {
+            "buttons": [{}],
+            "type": "BUTTONS",
+        }
+
+        if (input.buttons.length > 0) {
+            input.buttons.forEach((button) => {
+                const json_buttons = {
+                        "text": `${button}`,
+                        "type": "QUICK_REPLY",
+                }
+                buttons_json.buttons!.push(json_buttons);
+            })
+            buttons_json.buttons!.shift();
+            contenido.components.push(buttons_json);
+        }
+
         await fetch(`https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${process.env.BEARER_TOKEN}`,
             },
-            body: JSON.stringify(
-                {
-                    "name": `${input.name}`,	
-                    "category": "UTILITY",
-                    "allow_category_change": true,
-                    "language": "es_AR",
-                    "components": [
-                        {
-                            "type": "BODY",
-                            "text": `${input.content}`
-                        },
-                    ],
-                },
-            ),
+            body: JSON.stringify(contenido),
         });
-        const contenido = JSON.stringify(
-            {
-                "name": `${input.name}`,	
-                "category": "UTILITY",
-                "allow_category_change": true,
-                "language": "es_AR",
-                "components": [
-                    {
-                        "type": "BODY",
-                        "text": `${input.content}`
-                    },
-                ],
-            },
-        );
         return await ctx.prisma.plantilla.create({
             data: {
                 titulo: input.name,
-                contenido: contenido,
+                contenido: JSON.stringify(contenido),
                 estado: 'PENDIENTE',
                 categoria: 'UTILIDAD'
 
