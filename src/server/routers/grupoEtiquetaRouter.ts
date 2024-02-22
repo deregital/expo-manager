@@ -33,4 +33,21 @@ export const grupoEtiquetaRouter = router({
             }
         });
     }),
+    edit: protectedProcedure.input(z.object({
+        id: z.string().uuid(),
+        nombre: z.string().optional(),
+        color: z.string().length(7).startsWith('#').toLowerCase().optional(),
+        esExclusivo: z.boolean().optional(),
+    })).mutation(async ({ input, ctx }) => {
+        return await ctx.prisma.etiquetaGrupo.update({
+            where: {
+                id: input.id,
+            },
+            data: {
+                nombre: input.nombre,
+                color: input.color,
+                esExclusivo: input.esExclusivo,
+            }
+        });
+    }),
 })
