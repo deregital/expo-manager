@@ -1,8 +1,7 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { Template } from '@/server/types/whatsapp';
-import { Components } from '@/server/types/whatsapp';
+import { Template, Components } from '@/server/types/whatsapp';
 
 
 export const whatsappRouter = router({
