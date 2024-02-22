@@ -1,7 +1,7 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { Template, Components } from '@/server/types/whatsapp';
+import { Template, Buttons } from '@/server/types/whatsapp';
 
 
 export const whatsappRouter = router({
@@ -24,20 +24,19 @@ export const whatsappRouter = router({
             ],
         };
 
-        let buttons_json: Components = {
-            "buttons": [{}],
+        let buttons_json: Buttons = {
+            "buttons": [],
             "type": "BUTTONS",
         }
 
         if (input.buttons.length > 0) {
             input.buttons.forEach((button) => {
-                const json_buttons = {
+                const each_button = {
                         "text": `${button}`,
                         "type": "QUICK_REPLY",
-                }
-                buttons_json.buttons!.push(json_buttons);
+                } satisfies Buttons['buttons'][number];
+                buttons_json.buttons.push(each_button);
             })
-            buttons_json.buttons!.shift();
             contenido.components.push(buttons_json);
         }
 

@@ -1,18 +1,21 @@
-export interface Components {
-    type?: string;
-    text?: string;
-    buttons?: [
-            {
-            text?: string,
-            type?: string,
-            }
-    ];
+export type Body = {
+    type: "BODY";
+    text: string;
+}
+export type Buttons = {
+    buttons: {
+        text: string;
+        type: "QUICK_REPLY";
+    }[]
+    type: "BUTTONS";
 }
 
-export interface Template {
+export type Template = {
     name: string;
     category: string;
     allow_category_change: boolean;
     language:  string;
     components: Components[];
 }
+
+export type Components =  | Body | Buttons; 
