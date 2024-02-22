@@ -19,10 +19,7 @@ const Sidebar = () => {
       />
       <div className="flex-1">
         <ul className="divide-y-2 divide-black/80">
-          <SidebarLink
-            to="/dashboard"
-            icon={<HomeIcon height={24} width={24} />}
-          >
+          <SidebarLink to="/" icon={<HomeIcon height={24} width={24} />}>
             Dashboard
           </SidebarLink>
           <SidebarLink
