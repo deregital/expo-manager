@@ -2,7 +2,8 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
+import { redirect } from 'next/navigation';
 import React from 'react';
 
 const LoginPage = () => {
@@ -16,6 +17,12 @@ const LoginPage = () => {
       callbackUrl: '/',
       redirect: true,
     });
+  }
+
+  const session = useSession();
+
+  if (session.status === 'authenticated') {
+    redirect('/');
   }
 
   return (
