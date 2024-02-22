@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
+import VerificarAuth from '@/components/auth/VerificarAuth';
 
 export const metadata: Metadata = {
   title: 'Expo Manager',
@@ -18,6 +19,7 @@ export default function RootLayout({
       <div className="grid grid-rows-[auto,1fr]">
         <Topbar />
         <main className="h-[calc(100vh-4rem)] flex-1 bg-red-500">
+          <VerificarAuth />
           {children}
         </main>
       </div>
