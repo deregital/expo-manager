@@ -16,4 +16,21 @@ export const grupoEtiquetaRouter = router({
             }
         });
     }),
+    getAll: protectedProcedure.query(async ({ ctx }) => {
+        return await ctx.prisma.etiquetaGrupo.findMany({
+            include: {
+                Etiqueta: true,
+            }
+        });
+    }),
+    getById: protectedProcedure.input(z.string().uuid()).query(async ({ input, ctx }) => {
+        return await ctx.prisma.etiquetaGrupo.findUnique({
+            where: {
+                id: input,
+            },
+            include: {
+                Etiqueta: true,
+            }
+        });
+    }),
 })
