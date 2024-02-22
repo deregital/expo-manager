@@ -12,9 +12,10 @@ datasource db {
 }
 
 model Cuenta {
-    id            String @id @default(uuid())
-    nombreUsuario String @unique @map("nombre_usuario")
+    id            String  @id @default(uuid())
+    nombreUsuario String  @unique @map("nombre_usuario")
     contrasena    String
+    esAdmin       Boolean @default(false) @map("es_admin")
 
     comentarios Comentario[]
     etiquetas   Etiqueta[]   @relation("CUENTA_X_ETIQUETA")
@@ -111,7 +112,7 @@ model HistorialMensajes {
 model Plantilla {
     id String @id @default(uuid())
 
-    titulo    String @unique
+    titulo    String             @unique
     contenido Json
     estado    EstadoPlantilla
     categoria CategoriaPlantilla
