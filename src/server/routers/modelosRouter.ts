@@ -73,11 +73,7 @@ export const modeloRouter = router({
         telefono: z.string().optional(),
         genero: z.string().optional(),
         edad: z.number().optional(),
-        etiquetas: z.array(z.object({
-            id: z.string().uuid(),
-            nombre: z.string(),
-            grupoId: z.string().uuid(),
-        })).optional(),
+        etiquetas: z.array(z.string()).optional(),
     })).mutation(async ({ input, ctx }) => {
         return await ctx.prisma.perfil.update({
             where: {
@@ -93,7 +89,7 @@ export const modeloRouter = router({
                 etiquetas: {
                     set: (input.etiquetas ?? []).map((etiqueta) => {
                         return {
-                            id: etiqueta.id,
+                            id: etiqueta,
                         }
                     }),
                 },

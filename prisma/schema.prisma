@@ -111,7 +111,7 @@ model HistorialMensajes {
 model Plantilla {
     id String @id @default(uuid())
 
-    titulo    String
+    titulo    String @unique
     contenido Json
     estado    EstadoPlantilla
     categoria CategoriaPlantilla
