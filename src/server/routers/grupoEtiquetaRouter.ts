@@ -50,4 +50,11 @@ export const grupoEtiquetaRouter = router({
             }
         });
     }),
+    delete: protectedProcedure.input(z.string().uuid()).mutation(async ({ input, ctx }) => {
+        return await ctx.prisma.etiquetaGrupo.delete({
+            where: {
+                id: input,
+            }
+        });
+    }),
 })
