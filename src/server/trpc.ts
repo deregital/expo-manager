@@ -34,7 +34,22 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
 
-  const etiquetas = await ctx.prisma.cuenta.findUnique({
+  const user = await ctx.prisma.cuenta.findUnique({
+    where: {
+      id: ctx.session.user.id,
+    },
+    select: {
+      esAdmin: true,
+    },
+  });
+
+  const etiquetasTotales = await ctx.prisma.etiqueta.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  const etiquetasNoAdmin = await ctx.prisma.cuenta.findUnique({
     where: {
       id: ctx.session.user.id,
     },
@@ -43,9 +58,11 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     },
   });
 
-  const etiquetasVisibles = etiquetas
-    ? etiquetas.etiquetas.map((e) => e.id)
-    : [];
+  const etiquetasVisibles = user?.esAdmin
+    ? etiquetasTotales.map((e) => e.id)
+    : etiquetasNoAdmin
+      ? etiquetasNoAdmin.etiquetas.map((e) => e.id)
+      : [];
 
   return next({
     ctx: {
