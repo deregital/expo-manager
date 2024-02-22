@@ -36,7 +36,9 @@ export default function RootLayout({
               <Sidebar />
               <div className="grid grid-rows-[auto,1fr]">
                 <Topbar />
-                <main className="flex-1 bg-red-500">{children}</main>
+                <main className="h-[calc(100vh-4rem)] flex-1 bg-red-500">
+                  {children}
+                </main>
               </div>
             </div>
           </TRPCProvider>
