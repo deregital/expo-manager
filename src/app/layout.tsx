@@ -4,6 +4,8 @@ import './globals.css';
 import TRPCProvider from '@/app/_trpc/Provider';
 import { cn } from '@/lib/utils';
 import NextAuthProvider from '@/app/_auth/NextAuthProvider';
+import Sidebar from '@/components/layout/Sidebar';
+import Topbar from '@/components/layout/Topbar';
 
 export const fontSans = Inter({
   subsets: ['latin'],
@@ -24,12 +26,20 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          'bg-background min-h-screen font-sans antialiased',
+          'min-h-screen bg-background font-sans antialiased',
           fontSans.variable
         )}
       >
         <NextAuthProvider>
-          <TRPCProvider>{children}</TRPCProvider>
+          <TRPCProvider>
+            <div className="grid grid-cols-[auto,1fr]">
+              <Sidebar />
+              <div className="grid grid-rows-[auto,1fr]">
+                <Topbar />
+                <main className="flex-1 bg-red-500">{children}</main>
+              </div>
+            </div>
+          </TRPCProvider>
         </NextAuthProvider>
       </body>
     </html>
