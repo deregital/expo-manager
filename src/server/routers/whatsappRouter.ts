@@ -5,7 +5,7 @@ import { Template, Components } from '@/server/types/whatsapp';
 
 
 export const whatsappRouter = router({
-    createTemplate: publicProcedure.input(z.object({
+    createTemplate: protectedProcedure.input(z.object({
         name: z.string().min(1).max(512).toLowerCase().trim(),
         content: z.string().max(768).min(1),
         buttons: z.array(z.string().max(25)).max(10),
@@ -59,17 +59,17 @@ export const whatsappRouter = router({
             }
         });
     }),
-    getTemplates: publicProcedure.query(async ({ ctx }) => {
+    getTemplates: protectedProcedure.query(async ({ ctx }) => {
         return await ctx.prisma.plantilla.findMany();
     }),
-    getTemplateById: publicProcedure.input(z.string().uuid()).query(async ({ input, ctx }) => {
+    getTemplateById: protectedProcedure.input(z.string().uuid()).query(async ({ input, ctx }) => {
         return await ctx.prisma.plantilla.findUnique({
             where: {
                 id: input,
             },
         });
     }),
-    deleteTemplate: publicProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
+    deleteTemplate: protectedProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
         await fetch(`https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?name=${input}`, {
         method: 'DELETE',
         headers: {
@@ -82,7 +82,7 @@ export const whatsappRouter = router({
             },
         });
     }),
-    sendMessage: publicProcedure.input(z.object({
+    sendMessage: protectedProcedure.input(z.object({
         etiquetas: z.string().array(),
         plantillaName: z.string(),
     })).mutation(async ({ input, ctx }) => {
