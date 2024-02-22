@@ -1,10 +1,11 @@
 import SidebarLink from '@/components/layout/SidebarLink';
 import Image from 'next/image';
 import React from 'react';
-import { HomeIcon } from 'lucide-react';
 import ModeloIcon from '@/components/icons/ModeloIcon';
 import ChatIcon from '@/components/icons/ChatIcon';
 import EtiquetaIcon from '@/components/icons/EtiquetaIcon';
+import ConfigIcon from '@/components/icons/ConfigIcon';
+import HomeIcon from '@/components/icons/HomeIcon';
 
 const Sidebar = () => {
   return (
@@ -45,7 +46,12 @@ const Sidebar = () => {
         </ul>
       </div>
       <div className="justify-self-end">
-        <p>Configuración</p>
+        <SidebarLink
+          to="/configuracion"
+          icon={<ConfigIcon height={24} width={24} />}
+        >
+          Configuración
+        </SidebarLink>
       </div>
     </div>
   );
