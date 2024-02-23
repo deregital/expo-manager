@@ -127,13 +127,13 @@ model Plantilla {
 }
 
 enum EstadoPlantilla {
-    APROBADA
+    APRROVED
     PENDING
-    RECHAZADA
+    REJECTED
 }
 
 enum CategoriaPlantilla {
     MARKETING
     UTILITY
-    AUTENTICACION
+    AUTHENTICATION
 }
