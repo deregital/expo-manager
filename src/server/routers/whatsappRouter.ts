@@ -1,7 +1,7 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { Template, Buttons, TemplateResponse } from '@/server/types/whatsapp';
+import { Template, Buttons, TemplateResponse, Components, TemplateEdit, TemplateEditResponse } from '@/server/types/whatsapp';
 
 
 export const whatsappRouter = router({
@@ -58,6 +58,7 @@ export const whatsappRouter = router({
 
             }
         });
+        
     }),
     getTemplates: protectedProcedure.query(async ({ ctx }) => {
         return await ctx.prisma.plantilla.findMany();
@@ -68,6 +69,57 @@ export const whatsappRouter = router({
                 id: input,
             },
         });
+    }),
+    editTemplate: protectedProcedure.input(z.object({
+        id: z.string().uuid(),
+        metaId: z.string(),
+        content: z.string().max(768).min(1),
+        buttons: z.array(z.string().max(25)).max(10),
+    })).mutation(async ({ input, ctx }) => {
+        const contenido: TemplateEdit  = {
+            "components": [
+                {
+                    "type": "BODY",
+                    "text": `${input.content}`
+                },
+            ],
+        };
+
+        let buttons_json: Buttons = {
+            "buttons": [],
+            "type": "BUTTONS",
+        }
+
+        if (input.buttons.length > 0) {
+            input.buttons.forEach((button) => {
+                const each_button = {
+                        "text": `${button}`,
+                        "type": "QUICK_REPLY",
+                } satisfies Buttons['buttons'][number];
+                buttons_json.buttons.push(each_button);
+            })
+            contenido.components.push(buttons_json);
+        }
+
+        const res: TemplateEditResponse = await fetch(`https://graph.facebook.com/v18.0/${input.metaId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.BEARER_TOKEN}`,
+            },
+            body: JSON.stringify(contenido),
+        }).then((res) => res.json());
+        if (res.success === true) {
+            await ctx.prisma.plantilla.update({
+                where: {
+                    id: input.id,
+                },
+                data: {
+                    contenido: JSON.stringify(contenido),
+                },
+            });
+        }
+        return res.success;
     }),
     deleteTemplate: protectedProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
         await fetch(`https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?name=${input}`, {

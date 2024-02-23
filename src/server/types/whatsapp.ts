@@ -18,6 +18,14 @@ export type Template = {
     components: Components[];
 }
 
+export type TemplateEdit = {
+    components: Components[];
+}
+
+export type TemplateEditResponse = {
+    success: boolean;
+}
+
 export type TemplateResponse = {
     id: string;
     status: "APROBADA" | "PENDING" | "RECHAZADA";
