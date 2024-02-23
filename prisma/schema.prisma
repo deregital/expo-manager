@@ -114,6 +114,7 @@ model Plantilla {
 
     titulo    String             @unique
     contenido Json
+    metaId    String         @map("meta_id")
     estado    EstadoPlantilla
     categoria CategoriaPlantilla
 
@@ -127,12 +128,12 @@ model Plantilla {
 
 enum EstadoPlantilla {
     APROBADA
-    PENDIENTE
+    PENDING
     RECHAZADA
 }
 
 enum CategoriaPlantilla {
     MARKETING
-    UTILIDAD
+    UTILITY
     AUTENTICACION
 }
