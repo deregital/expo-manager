@@ -18,4 +18,10 @@ export type Template = {
     components: Components[];
 }
 
+export type TemplateResponse = {
+    id: string;
+    status: "APROBADA" | "PENDING" | "RECHAZADA";
+    category: "MARKETING" | "UTILITY" | "AUTENTICACION";
+}
+
 export type Components =  | Body | Buttons; 
