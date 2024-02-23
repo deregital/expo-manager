@@ -1,7 +1,7 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { Template, Buttons } from '@/server/types/whatsapp';
+import { Template, Buttons, TemplateResponse } from '@/server/types/whatsapp';
 
 
 export const whatsappRouter = router({
@@ -40,20 +40,21 @@ export const whatsappRouter = router({
             contenido.components.push(buttons_json);
         }
 
-        await fetch(`https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates`, {
+         const res: TemplateResponse = await fetch(`https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${process.env.BEARER_TOKEN}`,
             },
             body: JSON.stringify(contenido),
-        });
+        }).then((res) => res.json());
         return await ctx.prisma.plantilla.create({
             data: {
                 titulo: input.name,
                 contenido: JSON.stringify(contenido),
-                estado: 'PENDIENTE',
-                categoria: 'UTILIDAD'
+                metaId: res.id,
+                estado: res.status,
+                categoria: res.category,
 
             }
         });
