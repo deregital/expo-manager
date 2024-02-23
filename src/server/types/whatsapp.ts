@@ -1,3 +1,5 @@
+import { CategoriaPlantilla, EstadoPlantilla } from "@prisma/client";
+
 export type Body = {
     type: "BODY";
     text: string;
@@ -28,8 +30,8 @@ export type TemplateEditResponse = {
 
 export type TemplateResponse = {
     id: string;
-    status: "APROBADA" | "PENDING" | "RECHAZADA";
-    category: "MARKETING" | "UTILITY" | "AUTENTICACION";
+    status: EstadoPlantilla;
+    category: CategoriaPlantilla;
 }
 
 export type Components =  | Body | Buttons; 
