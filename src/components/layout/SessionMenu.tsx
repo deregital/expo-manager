@@ -15,7 +15,16 @@ const SessionMenu = ({}: SessionMenuProps) => {
   return (
     <div className="flex items-center gap-x-4">
       {session?.user?.username}
-      <Button onClick={() => signOut()}>Cerrar Sesión</Button>
+      <Button
+        onClick={() =>
+          signOut({
+            redirect: true,
+            callbackUrl: '/login',
+          })
+        }
+      >
+        Cerrar Sesión
+      </Button>
     </div>
   );
 };
