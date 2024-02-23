@@ -1,30 +1,44 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { TRPCError } from '@trpc/server';
+import next from 'next';
 import { z } from 'zod';
 
 export const modeloRouter = router({
-    getAll: publicProcedure.query(async ({ ctx }) => {
-        return await ctx.prisma.perfil.findMany({
-            include: {
-                etiquetas: true,
-            },
-        });
-    }),
-    getById: publicProcedure.input(z.string().uuid()).query(async ({ input, ctx }) => {
-        return await ctx.prisma.perfil.findUnique({
-            where: {
-                id: input,
-            },
-            include: {
-                etiquetas: true,
-            },
-        });
-    }),
-    getByEtiqueta: publicProcedure.input(z.string().array()).query(async ({ input, ctx }) => {
+    getAll: protectedProcedure.query(async ({ ctx }) => {
         return await ctx.prisma.perfil.findMany({
             where: {
                 etiquetas: {
                     some: {
+                        id: { in: ctx.etiquetasVisibles },
+                    },
+                },
+            },
+            include: {
+                etiquetas: true,
+            },
+        });
+    }),
+    getById: protectedProcedure.input(z.string().uuid()).query(async ({ input, ctx }) => {
+        return await ctx.prisma.perfil.findUnique({
+            where: {
+                id: input, 
+                etiquetas: {
+                    some: {
+                        id: { in: ctx.etiquetasVisibles },
+                    },
+                },
+            },
+            include: {
+                etiquetas: true,
+            },
+        });
+    }),
+    getByEtiqueta: protectedProcedure.input(z.string().array()).query(async ({ input, ctx }) => {
+        return await ctx.prisma.perfil.findMany({
+            where: {
+                etiquetas: {
+                    some: {
+                        id: { in: ctx.etiquetasVisibles },
                         nombre: { in: input },
                     },
                 },
@@ -34,11 +48,12 @@ export const modeloRouter = router({
             },
         });
     }),
-    getByGrupoEtiqueta: publicProcedure.input(z.string().array()).query(async ({ input, ctx }) => {
+    getByGrupoEtiqueta: protectedProcedure.input(z.string().array()).query(async ({ input, ctx }) => {
         return await ctx.prisma.perfil.findMany({
             where: {
                 etiquetas: {
                     some: {
+                        id: { in: ctx.etiquetasVisibles },
                         grupo: {
                             nombre: { in: input },
                         },
