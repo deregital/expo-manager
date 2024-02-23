@@ -44,27 +44,34 @@ export const etiquetaRouter = router({
             },
         });
     }),
-    getAll: publicProcedure.query(async ({ ctx }) => {
+    getAll: protectedProcedure.query(async ({ ctx }) => {
         return await ctx.prisma.etiqueta.findMany({
+            where: {
+                id: { in: ctx.etiquetasVisibles },
+            },
             include: {
                 grupo: true,
             },
         });
     }),
-    getById: publicProcedure.input(z.string().uuid()).query(async ({ input, ctx }) => {
+    getById: protectedProcedure.input(z.string().uuid()).query(async ({ input, ctx }) => {
         return await ctx.prisma.etiqueta.findUnique({
             where: {
                 id: input,
+                AND: {
+                    id: { in: ctx.etiquetasVisibles },
+                },
             },
             include: {
                 grupo: true,
             },
         });
     }),
-    getByGrupoEtiqueta: publicProcedure.input(z.string().uuid()).query(async ({ input, ctx }) => {
+    getByGrupoEtiqueta: protectedProcedure.input(z.string().uuid()).query(async ({ input, ctx }) => {
         return await ctx.prisma.etiqueta.findMany({
             where: {
                 grupoId: input,
+                id: { in: ctx.etiquetasVisibles },
             },
             include: {
                 grupo: true,
