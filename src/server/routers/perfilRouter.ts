@@ -1,5 +1,4 @@
-import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
-import { TRPCError } from '@trpc/server';
+import { publicProcedure, router } from '@/server/trpc';
 import { z } from 'zod';
 
 export const perfilRouter = router({
