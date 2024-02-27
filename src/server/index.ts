@@ -1,6 +1,4 @@
-import { z } from 'zod';
-import { protectedProcedure, publicProcedure, router } from './trpc';
-import { TRPCError } from '@trpc/server';
+import { router } from './trpc';
 import { perfilRouter } from '@/server/routers/perfilRouter';
 import { modeloRouter } from '@/server/routers/modelosRouter';
 import { etiquetaRouter } from '@/server/routers/etiquetaRouter';

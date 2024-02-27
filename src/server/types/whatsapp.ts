@@ -1,37 +1,37 @@
-import { CategoriaPlantilla, EstadoPlantilla } from "@prisma/client";
+import { CategoriaPlantilla, EstadoPlantilla } from '@prisma/client';
 
 export type Body = {
-    type: "BODY";
-    text: string;
-}
+  type: 'BODY';
+  text: string;
+};
 export type Buttons = {
-    buttons: {
-        text: string;
-        type: "QUICK_REPLY";
-    }[]
-    type: "BUTTONS";
-}
+  buttons: {
+    text: string;
+    type: 'QUICK_REPLY';
+  }[];
+  type: 'BUTTONS';
+};
 
 export type Template = {
-    name: string;
-    category: string;
-    allow_category_change: boolean;
-    language:  string;
-    components: Components[];
-}
+  name: string;
+  category: string;
+  allow_category_change: boolean;
+  language: string;
+  components: Components[];
+};
 
 export type TemplateEdit = {
-    components: Components[];
-}
+  components: Components[];
+};
 
 export type TemplateEditResponse = {
-    success: boolean;
-}
+  success: boolean;
+};
 
 export type TemplateResponse = {
-    id: string;
-    status: EstadoPlantilla;
-    category: CategoriaPlantilla;
-}
+  id: string;
+  status: EstadoPlantilla;
+  category: CategoriaPlantilla;
+};
 
-export type Components =  | Body | Buttons; 
+export type Components = Body | Buttons;
