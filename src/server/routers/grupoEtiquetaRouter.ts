@@ -22,7 +22,7 @@ export const grupoEtiquetaRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.prisma.etiquetaGrupo.findMany({
       include: {
-        Etiqueta: true,
+        etiquetas: true,
       },
     });
   }),
@@ -34,7 +34,7 @@ export const grupoEtiquetaRouter = router({
           id: input,
         },
         include: {
-          Etiqueta: true,
+          etiquetas: true,
         },
       });
     }),
