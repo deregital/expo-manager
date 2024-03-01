@@ -96,7 +96,7 @@ export default function EtiquetaModal() {
               className="h-fit rounded-lg bg-green-300 px-20 py-1 text-black/80 hover:bg-green-400"
               onClick={sendEtiqueta}
             >
-              Guardar
+              {tipo === 'CREATE' ? 'Crear' : 'Editar'}
             </AlertDialogAction>
             <AlertDialogCancel
               onClick={handleCancel}
