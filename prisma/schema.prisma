@@ -88,7 +88,7 @@ model EtiquetaGrupo {
     color       String
     esExclusivo Boolean @map("es_exclusivo")
 
-    Etiqueta Etiqueta[]
+    etiquetas Etiqueta[]
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -114,7 +114,7 @@ model Plantilla {
 
     titulo    String             @unique
     contenido Json
-    metaId    String         @map("meta_id")
+    metaId    String             @map("meta_id")
     estado    EstadoPlantilla
     categoria CategoriaPlantilla
 

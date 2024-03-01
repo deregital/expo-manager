@@ -4,13 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { signIn, useSession } from 'next-auth/react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 const Greeting = () => {
   const session = useSession();
-  const { data } = trpc.perfil.getById.useQuery(
-    '5b368fb6-6162-46e4-a09b-821a505ed93d'
-  );
+
+  const [search, setSearch] = useState<string | undefined>('');
+  const utils = trpc.useUtils();
+  const { data: etiquetas } = trpc.etiqueta.getByNombre.useQuery(search);
+
+  useEffect(() => {
+    if (search) {
+      utils.etiqueta.getByNombre.refetch(search);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   async function handleLogin(formData: FormData) {
     const username = formData.get('username');
@@ -29,8 +37,9 @@ const Greeting = () => {
       <div className="flex flex-col gap-4">
         {session.data ? (
           <>
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} />
             <p>Welcome, {session.data.user?.username}</p>
-            <pre>{JSON.stringify(data, null, 2)}</pre>
+            <pre>{JSON.stringify(etiquetas, null, 2)}</pre>
           </>
         ) : (
           <form action={handleLogin} className="flex flex-col gap-4">
