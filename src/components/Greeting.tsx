@@ -13,6 +13,9 @@ const Greeting = () => {
     '5b368fb6-6162-46e4-a09b-821a505ed93d'
   );
 
+  const { data: GrupoEtiqueta, isLoading } =
+    trpc.grupoEtiqueta.getAll.useQuery();
+
   const sendMessage = trpc.whatsapp.sendMessage.useMutation();
 
   async function send() {
@@ -45,7 +48,7 @@ const Greeting = () => {
             <p>Welcome, {session.data.user?.username}</p>
             {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
             <Button onClick={send}>Send</Button>
-            <EtiquetaModal />
+            {isLoading ? <p>Loading...</p> : <EtiquetaModal />}
           </>
         ) : (
           <form action={handleLogin} className="flex flex-col gap-4">

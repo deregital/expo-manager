@@ -35,3 +35,19 @@ export type TemplateResponse = {
 };
 
 export type Components = Body | Buttons;
+
+export type GrupoEtiqueta = {
+  Etiqueta: {
+    id: string;
+    created_at: string;
+    updated_at: string;
+    nombre: string;
+    grupoId: string;
+  }[];
+  id: string;
+  created_at: string;
+  updated_at: string;
+  nombre: string;
+  color: string;
+  esExclusivo: boolean;
+};
