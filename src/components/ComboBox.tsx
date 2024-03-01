@@ -18,7 +18,7 @@ export default function ComboBox({ data }: { data: GrupoEtiqueta[] }) {
   const grupoId = useModalData((state) => state.grupoId);
   const nombre = useModalData((state) => state.nombre);
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(tipo === 'CREATE' ? '' : nombre);
+  const [value, setValue] = useState(tipo === 'CREATE' ? '' : grupoId);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -30,7 +30,7 @@ export default function ComboBox({ data }: { data: GrupoEtiqueta[] }) {
           className="w-[200px] justify-between"
         >
           {value
-            ? data.find((grupo) => grupo.nombre === value)?.nombre
+            ? data.find((grupo) => grupo.id === value)?.nombre
             : 'Buscar grupo...'}
         </Button>
       </PopoverTrigger>
@@ -45,7 +45,7 @@ export default function ComboBox({ data }: { data: GrupoEtiqueta[] }) {
                 key={grupo.id}
                 value={grupo.nombre}
                 onSelect={() => {
-                  setValue(grupo.nombre === value ? '' : grupo.nombre);
+                  setValue(grupo.id === value ? '' : grupo.id);
                   setOpen(false);
                   useModalData.setState({
                     grupoId: grupo.id,
