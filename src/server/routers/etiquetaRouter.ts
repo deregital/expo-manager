@@ -125,12 +125,30 @@ export const etiquetaRouter = router({
             },
           },
         },
-        include: {
+        select: {
           etiquetas: {
             where: {
               id: { in: ctx.etiquetasVisibles },
             },
+            include: {
+              _count: true,
+            },
+            orderBy: {
+              nombre: 'asc',
+            },
           },
+          _count: {
+            select: {
+              etiquetas: true,
+            },
+          },
+          color: true,
+          esExclusivo: true,
+          nombre: true,
+          id: true,
+        },
+        orderBy: {
+          created_at: 'desc',
         },
       });
 
