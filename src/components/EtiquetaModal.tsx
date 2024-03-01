@@ -3,6 +3,7 @@ import { trpc } from '@/lib/trpc';
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogTrigger,
 } from './ui/alert-dialog';
@@ -54,6 +55,16 @@ export default function EtiquetaModal() {
       etiquetaId: '',
     });
   }
+
+  async function handleCancel() {
+    setValue('');
+    useModalData.setState({
+      tipo: 'CREATE',
+      grupoId: '',
+      nombre: '',
+      etiquetaId: '',
+    });
+  }
   return (
     <>
       <AlertDialog>
@@ -87,6 +98,12 @@ export default function EtiquetaModal() {
             >
               Guardar
             </AlertDialogAction>
+            <AlertDialogCancel
+              onClick={handleCancel}
+              className="absolute right-0 top-0 h-fit w-fit rounded-full text-[#212529]"
+            >
+              X
+            </AlertDialogCancel>
           </div>
         </AlertDialogContent>
       </AlertDialog>
