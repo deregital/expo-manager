@@ -14,11 +14,13 @@ import { cn } from '@/lib/utils';
 import { useModalData } from './EtiquetaModal';
 
 export default function ComboBox({ data }: { data: GrupoEtiqueta[] }) {
-  const tipo = useModalData((state) => state.tipo);
-  const grupoId = useModalData((state) => state.grupoId);
-  const nombre = useModalData((state) => state.nombre);
+  const modalData = useModalData((state) => ({
+    tipo: state.tipo,
+    nombre: state.nombre,
+    grupoId: state.grupoId,
+  }));
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(tipo === 'CREATE' ? '' : grupoId);
+  // const [value, setValue] = useState(tipo === 'CREATE' ? '' : grupoId);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -29,8 +31,8 @@ export default function ComboBox({ data }: { data: GrupoEtiqueta[] }) {
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {value
-            ? data.find((grupo) => grupo.id === value)?.nombre
+          {modalData.grupoId
+            ? data.find((grupo) => grupo.id === modalData.grupoId)?.nombre
             : 'Buscar grupo...'}
         </Button>
       </PopoverTrigger>
@@ -45,7 +47,6 @@ export default function ComboBox({ data }: { data: GrupoEtiqueta[] }) {
                 key={grupo.id}
                 value={grupo.nombre}
                 onSelect={() => {
-                  setValue(grupo.id === value ? '' : grupo.id);
                   setOpen(false);
                   useModalData.setState({
                     grupoId: grupo.id,
@@ -57,7 +58,7 @@ export default function ComboBox({ data }: { data: GrupoEtiqueta[] }) {
                 <CheckIcon
                   className={cn(
                     'ml-auto h-4 w-4',
-                    value === grupo.nombre ? 'opacity-100' : 'opacity-0'
+                    modalData.grupoId === grupo.id ? 'opacity-100' : 'opacity-0'
                   )}
                 />
               </CommandItem>

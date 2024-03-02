@@ -2,7 +2,6 @@
 import { trpc } from '@/lib/trpc';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogTrigger,
@@ -10,14 +9,15 @@ import {
 import { Input } from './ui/input';
 import ComboBox from './ComboBox';
 import { useState } from 'react';
-import create from 'zustand';
+import { create } from 'zustand';
+import { Button } from './ui/button';
 
-interface ModalData {
+type ModalData = {
   tipo: 'CREATE' | 'EDIT';
   grupoId: string;
   nombre: string;
   etiquetaId: string;
-}
+};
 export const useModalData = create<ModalData>(() => ({
   tipo: 'EDIT',
   grupoId: '18958be2-fc07-40a1-88e3-424176f6bb2e',
@@ -28,25 +28,36 @@ export const useModalData = create<ModalData>(() => ({
 export default function EtiquetaModal() {
   const { data: getGrupoEtiquetas, isLoading } =
     trpc.grupoEtiqueta.getAll.useQuery();
-  const tipo = useModalData((state) => state.tipo);
-  const nombre = useModalData((state) => state.nombre);
-  const [value, setValue] = useState(tipo === 'CREATE' ? '' : nombre);
+  const modalData = useModalData((state) => ({
+    tipo: state.tipo,
+    nombre: state.nombre,
+  }));
+  const [value, setValue] = useState(
+    modalData.tipo === 'CREATE' ? '' : modalData.nombre
+  );
+  const [open, setOpen] = useState(false);
   const createEtiqueta = trpc.etiqueta.create.useMutation();
   const editEtiqueta = trpc.etiqueta.edit.useMutation();
 
   async function sendEtiqueta() {
     setValue('');
-    if (tipo === 'CREATE') {
-      createEtiqueta.mutateAsync({
-        nombre: value,
-        grupoId: useModalData.getState().grupoId,
-      });
+    if (modalData.tipo === 'CREATE') {
+      await createEtiqueta
+        .mutateAsync({
+          nombre: value,
+          grupoId: useModalData.getState().grupoId,
+        })
+        .then((response) => setOpen(!open))
+        .catch((error) => console.log(error));
     } else {
-      editEtiqueta.mutateAsync({
-        id: useModalData.getState().etiquetaId,
-        nombre: value,
-        grupoId: useModalData.getState().grupoId,
-      });
+      await editEtiqueta
+        .mutateAsync({
+          id: useModalData.getState().etiquetaId,
+          nombre: value,
+          grupoId: useModalData.getState().grupoId,
+        })
+        .then((response) => setOpen(!open))
+        .catch((error) => console.log(error));
     }
     useModalData.setState({
       tipo: 'CREATE',
@@ -67,7 +78,7 @@ export default function EtiquetaModal() {
   }
   return (
     <>
-      <AlertDialog>
+      <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogTrigger>Open</AlertDialogTrigger>
         <AlertDialogContent className="flex w-full flex-col gap-y-3 rounded-md bg-gray-400 p-10">
           <div className="flex flex-col gap-y-0.5">
@@ -87,17 +98,17 @@ export default function EtiquetaModal() {
               {isLoading ? (
                 <p>Loading...</p>
               ) : (
-                <ComboBox data={getGrupoEtiquetas!} />
+                <ComboBox data={getGrupoEtiquetas ?? []} />
               )}
             </div>
           </div>
           <div className="flex items-center justify-start gap-3">
-            <AlertDialogAction
+            <Button
               className="h-fit rounded-lg bg-green-300 px-20 py-1 text-black/80 hover:bg-green-400"
               onClick={sendEtiqueta}
             >
-              {tipo === 'CREATE' ? 'Crear' : 'Editar'}
-            </AlertDialogAction>
+              {modalData.tipo === 'CREATE' ? 'Crear' : 'Editar'}
+            </Button>
             <AlertDialogCancel
               onClick={handleCancel}
               className="absolute right-0 top-0 h-fit w-fit rounded-full text-[#212529]"
