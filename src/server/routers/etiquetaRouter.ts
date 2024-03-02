@@ -91,4 +91,67 @@ export const etiquetaRouter = router({
         },
       });
     }),
+  getByNombre: protectedProcedure
+    .input(z.string().optional())
+    .query(async ({ input, ctx }) => {
+      const gruposMatch = await ctx.prisma.etiquetaGrupo.findMany({
+        where: {
+          AND: {
+            OR: [
+              {
+                nombre: {
+                  contains: input,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                etiquetas: {
+                  some: {
+                    AND: {
+                      nombre: {
+                        contains: input,
+                        mode: 'insensitive',
+                      },
+                      id: { in: ctx.etiquetasVisibles },
+                    },
+                  },
+                },
+              },
+            ],
+            etiquetas: {
+              some: {
+                id: { in: ctx.etiquetasVisibles },
+              },
+            },
+          },
+        },
+        select: {
+          etiquetas: {
+            where: {
+              id: { in: ctx.etiquetasVisibles },
+            },
+            include: {
+              _count: true,
+            },
+            orderBy: {
+              nombre: 'asc',
+            },
+          },
+          _count: {
+            select: {
+              etiquetas: true,
+            },
+          },
+          color: true,
+          esExclusivo: true,
+          nombre: true,
+          id: true,
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+      });
+
+      return gruposMatch;
+    }),
 });
