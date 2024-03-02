@@ -5,12 +5,12 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogTrigger,
-} from './ui/alert-dialog';
-import { Input } from './ui/input';
-import ComboBox from './ComboBox';
+} from '@/components/ui/alert-dialog';
+import { Input } from '../ui/input';
+import ComboBox from './GrupoEtiquetaComboBox';
 import { useState } from 'react';
 import { create } from 'zustand';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 
 type ModalData = {
   tipo: 'CREATE' | 'EDIT';
@@ -25,38 +25,34 @@ export const useModalData = create<ModalData>(() => ({
   etiquetaId: 'cd844b57-4de8-4a2f-a5fc-87f765e63f2d',
 }));
 
-export default function EtiquetaModal() {
+const EtiquetaModal = () => {
   const { data: getGrupoEtiquetas, isLoading } =
     trpc.grupoEtiqueta.getAll.useQuery();
   const modalData = useModalData((state) => ({
     tipo: state.tipo,
     nombre: state.nombre,
   }));
-  const [value, setValue] = useState(
-    modalData.tipo === 'CREATE' ? '' : modalData.nombre
-  );
   const [open, setOpen] = useState(false);
   const createEtiqueta = trpc.etiqueta.create.useMutation();
   const editEtiqueta = trpc.etiqueta.edit.useMutation();
 
   async function sendEtiqueta() {
-    setValue('');
     if (modalData.tipo === 'CREATE') {
       await createEtiqueta
         .mutateAsync({
-          nombre: value,
+          nombre: modalData.nombre,
           grupoId: useModalData.getState().grupoId,
         })
-        .then((response) => setOpen(!open))
+        .then(() => setOpen(!open))
         .catch((error) => console.log(error));
-    } else {
+    } else if (modalData.tipo === 'EDIT') {
       await editEtiqueta
         .mutateAsync({
           id: useModalData.getState().etiquetaId,
-          nombre: value,
+          nombre: modalData.nombre,
           grupoId: useModalData.getState().grupoId,
         })
-        .then((response) => setOpen(!open))
+        .then(() => setOpen(!open))
         .catch((error) => console.log(error));
     }
     useModalData.setState({
@@ -68,7 +64,6 @@ export default function EtiquetaModal() {
   }
 
   async function handleCancel() {
-    setValue('');
     useModalData.setState({
       tipo: 'CREATE',
       grupoId: '',
@@ -76,24 +71,27 @@ export default function EtiquetaModal() {
       etiquetaId: '',
     });
   }
+
   return (
     <>
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogTrigger>Open</AlertDialogTrigger>
-        <AlertDialogContent className="flex w-full flex-col gap-y-3 rounded-md bg-gray-400 p-10">
-          <div className="flex flex-col gap-y-0.5">
-            <p className="w-fit rounded-lg bg-gray-300 px-3 py-1.5 text-base font-semibold">
+        <AlertDialogContent className='flex w-full flex-col gap-y-3 rounded-md bg-gray-400 p-10'>
+          <div className='flex flex-col gap-y-0.5'>
+            <p className='w-fit rounded-lg bg-gray-300 px-3 py-1.5 text-base font-semibold'>
               Nombre de la etiqueta
             </p>
-            <div className="flex gap-x-3">
+            <div className='flex gap-x-3'>
               <Input
-                className="bg-white text-black"
-                type="text"
-                name="etiqueta"
-                id="etiqueta"
-                placeholder="Nombre de la etiqueta"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
+                className='bg-white text-black'
+                type='text'
+                name='etiqueta'
+                id='etiqueta'
+                placeholder='Nombre de la etiqueta'
+                value={modalData.nombre}
+                onChange={(e) =>
+                  useModalData.setState({ nombre: e.target.value })
+                }
               />
               {isLoading ? (
                 <p>Loading...</p>
@@ -102,16 +100,16 @@ export default function EtiquetaModal() {
               )}
             </div>
           </div>
-          <div className="flex items-center justify-start gap-3">
+          <div className='flex items-center justify-start gap-3'>
             <Button
-              className="h-fit rounded-lg bg-green-300 px-20 py-1 text-black/80 hover:bg-green-400"
+              className='h-fit rounded-lg bg-green-300 px-20 py-1 text-black/80 hover:bg-green-400'
               onClick={sendEtiqueta}
             >
               {modalData.tipo === 'CREATE' ? 'Crear' : 'Editar'}
             </Button>
             <AlertDialogCancel
               onClick={handleCancel}
-              className="absolute right-0 top-0 h-fit w-fit rounded-full text-[#212529]"
+              className='absolute right-0 top-0 h-fit w-fit rounded-full text-[#212529]'
             >
               X
             </AlertDialogCancel>
@@ -120,4 +118,6 @@ export default function EtiquetaModal() {
       </AlertDialog>
     </>
   );
-}
+};
+
+export default EtiquetaModal;
