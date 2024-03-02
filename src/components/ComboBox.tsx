@@ -8,7 +8,7 @@ import {
   CommandInput,
   CommandItem,
 } from './ui/command';
-import { GrupoEtiqueta } from '@/server/types/whatsapp';
+import { GrupoEtiqueta } from '@/server/types/grupoEtiquetas';
 import { CheckIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useModalData } from './EtiquetaModal';
