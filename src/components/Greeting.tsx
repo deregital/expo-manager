@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { signIn, useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
+import EtiquetaModal from './EtiquetaModal';
 
 const Greeting = () => {
   const session = useSession();
@@ -19,6 +20,21 @@ const Greeting = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
+
+  const { data: GrupoEtiqueta, isLoading } =
+    trpc.grupoEtiqueta.getAll.useQuery();
+
+  const sendMessage = trpc.whatsapp.sendMessage.useMutation();
+
+  async function send() {
+    sendMessage.mutateAsync({
+      etiquetas: [
+        '14d603e9-ade8-4c05-a5c0-250ef1e269c9',
+        '6e438455-fc82-4f29-9e7a-c8023f3298e6',
+      ],
+      plantillaName: 'agradecimiento',
+    });
+  }
 
   async function handleLogin(formData: FormData) {
     const username = formData.get('username');
@@ -39,6 +55,9 @@ const Greeting = () => {
           <>
             <Input value={search} onChange={(e) => setSearch(e.target.value)} />
             <p>Welcome, {session.data.user?.username}</p>
+            {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
+            <Button onClick={send}>Send</Button>
+            {isLoading ? <p>Loading...</p> : <EtiquetaModal />}
             <pre>{JSON.stringify(etiquetas, null, 2)}</pre>
           </>
         ) : (
