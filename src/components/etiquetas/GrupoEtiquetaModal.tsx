@@ -9,6 +9,8 @@ import {
 import { create } from 'zustand';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
+import { trpc } from '@/lib/trpc';
+import { LockIcon, UnlockIcon } from 'lucide-react';
 
 type GrupoEtiquetaModalData = {
   tipo: 'CREATE' | 'EDIT';
@@ -28,6 +30,15 @@ export const useGrupoEtiquetaModalData = create<GrupoEtiquetaModalData>(() => ({
 
 export default function GrupoEtiquetaModal() {
   const [open, setOpen] = useState(false);
+  const grupoEtiquetaCreate = trpc.grupoEtiqueta.create.useMutation();
+  const grupoEtiquetaEdit = trpc.grupoEtiqueta.edit.useMutation();
+  const modalData = useGrupoEtiquetaModalData((state) => ({
+    tipo: state.tipo,
+    nombre: state.nombre,
+    grupoId: state.grupoId,
+    color: state.color,
+    esExclusivo: state.esExclusivo,
+  }));
 
   async function handleCancel() {
     useGrupoEtiquetaModalData.setState({
@@ -39,10 +50,35 @@ export default function GrupoEtiquetaModal() {
     });
   }
 
+  async function handleSubmit() {
+    if (useGrupoEtiquetaModalData.getState().tipo === 'CREATE') {
+      await grupoEtiquetaCreate
+        .mutateAsync({
+          nombre: useGrupoEtiquetaModalData.getState().nombre,
+          color: useGrupoEtiquetaModalData.getState().color,
+          esExclusivo: useGrupoEtiquetaModalData.getState().esExclusivo,
+        })
+        .then(() => setOpen(!open))
+        .catch(() => setOpen(open));
+    } else {
+      await grupoEtiquetaEdit
+        .mutateAsync({
+          id: useGrupoEtiquetaModalData.getState().grupoId,
+          nombre: useGrupoEtiquetaModalData.getState().nombre,
+          color: useGrupoEtiquetaModalData.getState().color,
+          esExclusivo: useGrupoEtiquetaModalData.getState().esExclusivo,
+        })
+        .then(() => setOpen(!open))
+        .catch(() => setOpen(open));
+    }
+  }
+
   return (
     <>
       <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogTrigger>Open</AlertDialogTrigger>
+        <AlertDialogTrigger className='rounded-md bg-gray-400 px-10 py-3 text-black hover:bg-gray-300'>
+          Grupo de etiquetas
+        </AlertDialogTrigger>
         <AlertDialogContent className='flex flex-col gap-y-3 bg-gray-400'>
           <div className='flex flex-col gap-y-1'>
             <p className='w-fit rounded-md border border-black bg-gray-300 px-3 py-1.5 text-sm'>
@@ -55,10 +91,31 @@ export default function GrupoEtiquetaModal() {
                 id='grupo'
                 placeholder='Nombre del grupo'
               />
+              <LockIcon
+                onClick={() => {
+                  useGrupoEtiquetaModalData.setState({
+                    esExclusivo:
+                      !useGrupoEtiquetaModalData.getState().esExclusivo,
+                  });
+                }}
+                className={`${useGrupoEtiquetaModalData.getState().esExclusivo ? 'block' : 'hidden'} h-6 w-6 hover:cursor-pointer`}
+              />
+              <UnlockIcon
+                onClick={() => {
+                  useGrupoEtiquetaModalData.setState({
+                    esExclusivo:
+                      !useGrupoEtiquetaModalData.getState().esExclusivo,
+                  });
+                }}
+                className={`${useGrupoEtiquetaModalData.getState().esExclusivo ? 'hidden' : 'block'} h-6 w-6 hover:cursor-pointer`}
+              />
             </div>
           </div>
-          <Button className='h-fit w-1/2 rounded-lg bg-green-500 px-10 py-1 text-black hover:bg-green-400'>
-            Guardar
+          <Button
+            onClick={handleSubmit}
+            className='h-fit w-1/2 rounded-lg bg-green-500 px-10 py-1 text-black hover:bg-green-400'
+          >
+            {modalData.tipo === 'CREATE' ? 'Crear' : 'Editar'}
           </Button>
           <AlertDialogCancel
             onClick={handleCancel}
