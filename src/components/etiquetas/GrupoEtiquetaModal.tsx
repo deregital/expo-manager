@@ -11,6 +11,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { trpc } from '@/lib/trpc';
 import { LockIcon, UnlockIcon } from 'lucide-react';
+import ColorPicker from './ColorPicker';
 
 type GrupoEtiquetaModalData = {
   tipo: 'CREATE' | 'EDIT';
@@ -90,6 +91,12 @@ export default function GrupoEtiquetaModal() {
                 name='grupo'
                 id='grupo'
                 placeholder='Nombre del grupo'
+                value={useGrupoEtiquetaModalData.getState().nombre}
+                onChange={(e) => {
+                  useGrupoEtiquetaModalData.setState({
+                    nombre: e.target.value,
+                  });
+                }}
               />
               <LockIcon
                 onClick={() => {
@@ -109,6 +116,7 @@ export default function GrupoEtiquetaModal() {
                 }}
                 className={`${useGrupoEtiquetaModalData.getState().esExclusivo ? 'hidden' : 'block'} h-6 w-6 hover:cursor-pointer`}
               />
+              <ColorPicker />
             </div>
           </div>
           <Button
