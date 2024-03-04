@@ -22,10 +22,10 @@ type GrupoEtiquetaModalData = {
 };
 
 export const useGrupoEtiquetaModalData = create<GrupoEtiquetaModalData>(() => ({
-  tipo: 'CREATE',
-  nombre: '',
-  grupoId: '',
-  color: '',
+  tipo: 'EDIT',
+  nombre: 'Inteligencia',
+  grupoId: 'a23d6cbe-67fa-4981-a642-2c037d6bb453',
+  color: '#0070ff',
   esExclusivo: false,
 }));
 
@@ -59,7 +59,16 @@ export default function GrupoEtiquetaModal() {
           color: useGrupoEtiquetaModalData.getState().color,
           esExclusivo: useGrupoEtiquetaModalData.getState().esExclusivo,
         })
-        .then(() => setOpen(!open))
+        .then(() => {
+          setOpen(!open);
+          useGrupoEtiquetaModalData.setState({
+            tipo: 'CREATE',
+            nombre: '',
+            grupoId: '',
+            color: '',
+            esExclusivo: false,
+          });
+        })
         .catch(() => setOpen(open));
     } else {
       await grupoEtiquetaEdit
@@ -69,7 +78,16 @@ export default function GrupoEtiquetaModal() {
           color: useGrupoEtiquetaModalData.getState().color,
           esExclusivo: useGrupoEtiquetaModalData.getState().esExclusivo,
         })
-        .then(() => setOpen(!open))
+        .then(() => {
+          setOpen(!open);
+          useGrupoEtiquetaModalData.setState({
+            tipo: 'CREATE',
+            nombre: '',
+            grupoId: '',
+            color: '',
+            esExclusivo: false,
+          });
+        })
         .catch(() => setOpen(open));
     }
   }
@@ -85,7 +103,7 @@ export default function GrupoEtiquetaModal() {
             <p className='w-fit rounded-md border border-black bg-gray-300 px-3 py-1.5 text-sm'>
               Nombre del grupo de etiquetas
             </p>
-            <div className='flex items-center gap-x-2'>
+            <div className='relative flex items-center gap-x-2'>
               <Input
                 type='text'
                 name='grupo'
