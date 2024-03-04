@@ -11,16 +11,13 @@ export default function ColorPicker() {
     tipo: state.tipo,
     color: state.color,
   }));
-  const [hsva, setHsva] = useState(
-    modalData.tipo === 'EDIT'
-      ? hexToHsva(modalData.color)
-      : { h: 0, s: 0, v: 68, a: 1 }
-  );
   const [open, setOpen] = useState(false);
   return (
     <>
       <Button
-        style={{ backgroundColor: `${hsvaToHex(hsva)}` }}
+        style={{
+          backgroundColor: `${useGrupoEtiquetaModalData.getState().color}`,
+        }}
         onClick={() => setOpen(!open)}
       >
         Elegir Color
@@ -34,7 +31,6 @@ export default function ColorPicker() {
           }
           disableAlpha={true}
           onChange={(color) => {
-            setHsva(color.hsva);
             useGrupoEtiquetaModalData.setState({
               color: hsvaToHex(color.hsva),
             });
