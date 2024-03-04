@@ -21,14 +21,7 @@ export default function ColorPicker() {
     <>
       <Button
         style={{ backgroundColor: `${hsvaToHex(hsva)}` }}
-        onClick={() => {
-          console.log(
-            modalData.tipo === 'EDIT'
-              ? hexToHsva(modalData.color)
-              : { h: 0, s: 0, v: 68, a: 1 }
-          );
-          setOpen(!open);
-        }}
+        onClick={() => setOpen(!open)}
       >
         Elegir Color
       </Button>
@@ -42,7 +35,6 @@ export default function ColorPicker() {
           disableAlpha={true}
           onChange={(color) => {
             setHsva(color.hsva);
-            console.log(hsvaToHex(color.hsva));
             useGrupoEtiquetaModalData.setState({
               color: hsvaToHex(color.hsva),
             });
