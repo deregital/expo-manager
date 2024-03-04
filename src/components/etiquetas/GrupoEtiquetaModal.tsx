@@ -12,6 +12,8 @@ import { Button } from '../ui/button';
 import { trpc } from '@/lib/trpc';
 import { LockIcon, UnlockIcon } from 'lucide-react';
 import ColorPicker from './ColorPicker';
+import { hsvaToHex } from '@uiw/color-convert';
+import { cn } from '@/lib/utils';
 
 type GrupoEtiquetaModalData = {
   tipo: 'CREATE' | 'EDIT';
@@ -46,50 +48,43 @@ export default function GrupoEtiquetaModal() {
       tipo: 'CREATE',
       nombre: '',
       grupoId: '',
-      color: '',
+      color: `${hsvaToHex({ h: 0, s: 0, v: 68, a: 1 })}`,
       esExclusivo: false,
     });
   }
 
   async function handleSubmit() {
+    const { tipo, nombre, grupoId, color, esExclusivo } =
+      useGrupoEtiquetaModalData.getState();
     if (useGrupoEtiquetaModalData.getState().tipo === 'CREATE') {
       await grupoEtiquetaCreate
         .mutateAsync({
-          nombre: useGrupoEtiquetaModalData.getState().nombre,
-          color: useGrupoEtiquetaModalData.getState().color,
-          esExclusivo: useGrupoEtiquetaModalData.getState().esExclusivo,
+          nombre: nombre,
+          color: color,
+          esExclusivo: esExclusivo,
         })
         .then(() => {
           setOpen(!open);
-          useGrupoEtiquetaModalData.setState({
-            tipo: 'CREATE',
-            nombre: '',
-            grupoId: '',
-            color: '',
-            esExclusivo: false,
-          });
         })
         .catch(() => setOpen(open));
     } else {
       await grupoEtiquetaEdit
         .mutateAsync({
-          id: useGrupoEtiquetaModalData.getState().grupoId,
-          nombre: useGrupoEtiquetaModalData.getState().nombre,
-          color: useGrupoEtiquetaModalData.getState().color,
-          esExclusivo: useGrupoEtiquetaModalData.getState().esExclusivo,
+          id: grupoId,
+          nombre: nombre,
+          color: color,
+          esExclusivo: esExclusivo,
         })
-        .then(() => {
-          setOpen(!open);
-          useGrupoEtiquetaModalData.setState({
-            tipo: 'CREATE',
-            nombre: '',
-            grupoId: '',
-            color: '',
-            esExclusivo: false,
-          });
-        })
+        .then(() => setOpen(!open))
         .catch(() => setOpen(open));
     }
+    useGrupoEtiquetaModalData.setState({
+      tipo: 'CREATE',
+      nombre: '',
+      grupoId: '',
+      color: `${hsvaToHex({ h: 0, s: 0, v: 68, a: 1 })}`,
+      esExclusivo: false,
+    });
   }
 
   return (
@@ -123,7 +118,10 @@ export default function GrupoEtiquetaModal() {
                       !useGrupoEtiquetaModalData.getState().esExclusivo,
                   });
                 }}
-                className={`${useGrupoEtiquetaModalData.getState().esExclusivo ? 'block' : 'hidden'} h-6 w-6 hover:cursor-pointer`}
+                className={cn('h-6 w-6 hover:cursor-pointer', {
+                  block: useGrupoEtiquetaModalData.getState().esExclusivo,
+                  hidden: !useGrupoEtiquetaModalData.getState().esExclusivo,
+                })}
               />
               <UnlockIcon
                 onClick={() => {
@@ -132,7 +130,10 @@ export default function GrupoEtiquetaModal() {
                       !useGrupoEtiquetaModalData.getState().esExclusivo,
                   });
                 }}
-                className={`${useGrupoEtiquetaModalData.getState().esExclusivo ? 'hidden' : 'block'} h-6 w-6 hover:cursor-pointer`}
+                className={cn('h-6 w-6 hover:cursor-pointer', {
+                  hidden: useGrupoEtiquetaModalData.getState().esExclusivo,
+                  block: !useGrupoEtiquetaModalData.getState().esExclusivo,
+                })}
               />
               <ColorPicker />
             </div>

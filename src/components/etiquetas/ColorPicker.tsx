@@ -22,7 +22,11 @@ export default function ColorPicker() {
       <Button
         style={{ backgroundColor: `${hsvaToHex(hsva)}` }}
         onClick={() => {
-          console.log(hsvaToHex(hsva));
+          console.log(
+            modalData.tipo === 'EDIT'
+              ? hexToHsva(modalData.color)
+              : { h: 0, s: 0, v: 68, a: 1 }
+          );
           setOpen(!open);
         }}
       >
@@ -30,7 +34,11 @@ export default function ColorPicker() {
       </Button>
       <div className='absolute -right-5 top-12 flex flex-col gap-y-2'>
         <Colorful
-          color={hsva}
+          color={
+            hexToHsva(modalData.color)
+              ? hexToHsva(modalData.color)
+              : { h: 0, s: 0, v: 68, a: 1 }
+          }
           disableAlpha={true}
           onChange={(color) => {
             setHsva(color.hsva);
