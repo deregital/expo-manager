@@ -2,16 +2,25 @@
 import { useState } from 'react';
 import Colorful from '@uiw/react-color-colorful';
 import { hsvaToHex } from '@uiw/color-convert';
+import { hexToHsva } from '@uiw/color-convert';
 import { useGrupoEtiquetaModalData } from './GrupoEtiquetaModal';
 import { Button } from '../ui/button';
 
 export default function ColorPicker() {
-  const [hsva, setHsva] = useState({ h: 0, s: 0, v: 68, a: 1 });
+  const modalData = useGrupoEtiquetaModalData((state) => ({
+    tipo: state.tipo,
+    color: state.color,
+  }));
+  const [hsva, setHsva] = useState(
+    modalData.tipo === 'EDIT'
+      ? hexToHsva(modalData.color)
+      : { h: 0, s: 0, v: 68, a: 1 }
+  );
   const [open, setOpen] = useState(false);
   return (
     <>
       <Button
-        className={`${open ? 'hidden' : 'block'} bg-[${hsvaToHex(hsva)}] hover:bg-[${hsvaToHex(hsva)}]`}
+        style={{ backgroundColor: `${hsvaToHex(hsva)}` }}
         onClick={() => {
           console.log(hsvaToHex(hsva));
           setOpen(!open);
@@ -19,7 +28,7 @@ export default function ColorPicker() {
       >
         Elegir Color
       </Button>
-      <div className='flex flex-col gap-y-2'>
+      <div className='absolute -right-5 top-12 flex flex-col gap-y-2'>
         <Colorful
           color={hsva}
           disableAlpha={true}
@@ -32,12 +41,6 @@ export default function ColorPicker() {
           }}
           className={`${open ? 'block' : 'hidden'}`}
         />
-        <Button
-          className={`${open ? 'block' : 'hidden'}`}
-          onClick={() => setOpen(!open)}
-        >
-          Guardar color
-        </Button>
       </div>
     </>
   );
