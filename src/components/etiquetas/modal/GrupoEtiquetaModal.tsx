@@ -2,13 +2,21 @@
 import { useState } from 'react';
 import { create } from 'zustand';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import { LockIcon, UnlockIcon } from 'lucide-react';
 import ColorPicker from '@/components/ui/ColorPicker';
 import { hsvaToHex } from '@uiw/color-convert';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
+import EditFillIcon from '@/components/icons/EditFillIcon';
+import { EtiquetaGrupo } from '@prisma/client';
+
+interface GrupoEtiquetaModalProps {
+  action: 'EDIT' | 'CREATE';
+  grupo?: Omit<EtiquetaGrupo, 'created_at' | 'updated_at'>;
+}
 
 type GrupoEtiquetaModalData = {
   tipo: 'CREATE' | 'EDIT';
@@ -19,15 +27,16 @@ type GrupoEtiquetaModalData = {
 };
 
 export const useGrupoEtiquetaModalData = create<GrupoEtiquetaModalData>(() => ({
-  tipo: 'EDIT',
-  nombre: 'Inteligencia',
-  grupoId: 'a23d6cbe-67fa-4981-a642-2c037d6bb453',
-  color: '#0070ff',
+  tipo: 'CREATE',
+  nombre: '',
+  grupoId: '',
+  color: '',
   esExclusivo: false,
 }));
 
-const GrupoEtiquetaModal = () => {
+const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
   const [open, setOpen] = useState(false);
+  const utils = trpc.useUtils();
   const grupoEtiquetaCreate = trpc.grupoEtiqueta.create.useMutation();
   const grupoEtiquetaEdit = trpc.grupoEtiqueta.edit.useMutation();
   const modalData = useGrupoEtiquetaModalData((state) => ({
@@ -59,9 +68,9 @@ const GrupoEtiquetaModal = () => {
           esExclusivo: esExclusivo,
         })
         .then(() => {
-          setOpen(!open);
+          setOpen(false);
         })
-        .catch(() => setOpen(open));
+        .catch(() => setOpen(true));
     } else {
       await grupoEtiquetaEdit
         .mutateAsync({
@@ -70,8 +79,8 @@ const GrupoEtiquetaModal = () => {
           color: color,
           esExclusivo: esExclusivo,
         })
-        .then(() => setOpen(!open))
-        .catch(() => setOpen(open));
+        .then(() => setOpen(false))
+        .catch(() => setOpen(true));
     }
     useGrupoEtiquetaModalData.setState({
       tipo: 'CREATE',
@@ -80,16 +89,63 @@ const GrupoEtiquetaModal = () => {
       color: `${hsvaToHex({ h: 0, s: 0, v: 68, a: 1 })}`,
       esExclusivo: false,
     });
+
+    utils.etiqueta.getByNombre.invalidate();
   }
 
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger className='rounded-md bg-gray-400 px-10 py-3 text-black hover:bg-gray-300'>
-          Grupo de etiquetas
+        <DialogTrigger asChild>
+          {action === 'CREATE' ? (
+            <Button
+              className='rounded-md bg-gray-400 px-5 py-0.5 text-gray-950 hover:bg-gray-300'
+              onClick={() => {
+                setOpen(true);
+                useGrupoEtiquetaModalData.setState({
+                  tipo: 'CREATE',
+                  nombre: '',
+                  grupoId: '',
+                  color: `${hsvaToHex({ h: 0, s: 0, v: 68, a: 1 })}`,
+                  esExclusivo: false,
+                });
+              }}
+            >
+              <span>
+                <EtiquetasFillIcon className='mr-3 h-6 w-6' />
+              </span>
+              Crear grupo de etiquetas
+            </Button>
+          ) : (
+            <div
+              onClick={(e) => {
+                e.preventDefault();
+                setOpen(true);
+                useGrupoEtiquetaModalData.setState({
+                  tipo: 'EDIT',
+                  grupoId: grupo?.id ?? '',
+                  nombre: grupo?.nombre ?? '',
+                  color: grupo?.color ?? '',
+                  esExclusivo: grupo?.esExclusivo ?? false,
+                });
+              }}
+              className={cn(
+                buttonVariants({
+                  variant: 'ghost',
+                }),
+                'flex h-fit items-center rounded-full p-0.5'
+              )}
+            >
+              <EditFillIcon />
+            </div>
+          )}
         </DialogTrigger>
         <DialogContent
-          onCloseAutoFocus={handleCancel}
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+            setOpen(false);
+            handleCancel();
+          }}
           className='flex flex-col gap-y-3 bg-gray-400'
         >
           <div className='flex flex-col gap-y-1'>
@@ -102,7 +158,7 @@ const GrupoEtiquetaModal = () => {
                 name='grupo'
                 id='grupo'
                 placeholder='Nombre del grupo'
-                value={useGrupoEtiquetaModalData.getState().nombre}
+                value={modalData.nombre}
                 onChange={(e) => {
                   useGrupoEtiquetaModalData.setState({
                     nombre: e.target.value,
@@ -117,8 +173,8 @@ const GrupoEtiquetaModal = () => {
                   });
                 }}
                 className={cn('h-6 w-6 hover:cursor-pointer', {
-                  block: useGrupoEtiquetaModalData.getState().esExclusivo,
-                  hidden: !useGrupoEtiquetaModalData.getState().esExclusivo,
+                  block: modalData.esExclusivo,
+                  hidden: !modalData.esExclusivo,
                 })}
               />
               <UnlockIcon

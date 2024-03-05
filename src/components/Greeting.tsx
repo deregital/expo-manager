@@ -58,7 +58,7 @@ const Greeting = () => {
             {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
             <Button onClick={send}>Send</Button>
             {isLoading ? <p>Loading...</p> : <EtiquetaModal />}
-            <GrupoEtiquetaModal />
+            <GrupoEtiquetaModal action='EDIT' />
             <pre>{JSON.stringify(etiquetas, null, 2)}</pre>
           </>
         ) : (
