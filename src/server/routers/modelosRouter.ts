@@ -125,4 +125,53 @@ export const modeloRouter = router({
         },
       });
     }),
+  getModelosByFiltro: protectedProcedure
+    .input(
+      z.object({
+        nombre: z.string().optional(),
+        grupoId: z.string().uuid().optional(),
+        etiquetaId: z.string().uuid().optional(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.prisma.perfil.findMany({
+        where: {
+          AND: [
+            {
+              OR: [
+                {
+                  nombreCompleto: {
+                    contains: input.nombre,
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  idLegible: {
+                    contains: input.nombre,
+                    mode: 'insensitive',
+                  },
+                },
+              ],
+            },
+            {
+              etiquetas: {
+                some: {
+                  id: input.etiquetaId,
+                },
+              },
+            },
+            {
+              etiquetas: {
+                some: {
+                  id: { in: ctx.etiquetasVisibles },
+                  grupo: {
+                    id: input.grupoId,
+                  },
+                },
+              },
+            },
+          ],
+        },
+      });
+    }),
 });
