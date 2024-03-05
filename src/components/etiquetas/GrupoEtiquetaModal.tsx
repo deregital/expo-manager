@@ -119,8 +119,8 @@ export default function GrupoEtiquetaModal() {
                   });
                 }}
                 className={cn('h-6 w-6 hover:cursor-pointer', {
-                  block: useGrupoEtiquetaModalData.getState().esExclusivo,
-                  hidden: !useGrupoEtiquetaModalData.getState().esExclusivo,
+                  'block': useGrupoEtiquetaModalData.getState().esExclusivo,
+                  'hidden': !useGrupoEtiquetaModalData.getState().esExclusivo,
                 })}
               />
               <UnlockIcon
@@ -131,8 +131,8 @@ export default function GrupoEtiquetaModal() {
                   });
                 }}
                 className={cn('h-6 w-6 hover:cursor-pointer', {
-                  hidden: useGrupoEtiquetaModalData.getState().esExclusivo,
-                  block: !useGrupoEtiquetaModalData.getState().esExclusivo,
+                  'hidden': useGrupoEtiquetaModalData.getState().esExclusivo,
+                  'block': !useGrupoEtiquetaModalData.getState().esExclusivo,
                 })}
               />
               <ColorPicker />
