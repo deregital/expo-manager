@@ -5,7 +5,7 @@ export const grupoEtiquetaRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        nombre: z.string(),
+        nombre: z.string().min(1),
         color: z.string().length(7).startsWith('#').toLowerCase(),
         esExclusivo: z.boolean(),
       })
@@ -42,7 +42,7 @@ export const grupoEtiquetaRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        nombre: z.string().optional(),
+        nombre: z.string().min(1).optional(),
         color: z.string().length(7).startsWith('#').toLowerCase().optional(),
         esExclusivo: z.boolean().optional(),
       })

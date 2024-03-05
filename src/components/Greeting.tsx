@@ -6,6 +6,7 @@ import { trpc } from '@/lib/trpc';
 import { signIn, useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 import EtiquetaModal from './etiquetas/EtiquetaModal';
+import GrupoEtiquetaModal from './etiquetas/GrupoEtiquetaModal';
 
 const Greeting = () => {
   const session = useSession();
@@ -57,6 +58,7 @@ const Greeting = () => {
             {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
             <Button onClick={send}>Send</Button>
             {isLoading ? <p>Loading...</p> : <EtiquetaModal />}
+            <GrupoEtiquetaModal />
             <pre>{JSON.stringify(etiquetas, null, 2)}</pre>
           </>
         ) : (
