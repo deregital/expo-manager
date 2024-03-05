@@ -1,11 +1,6 @@
 'use client';
 import { trpc } from '@/lib/trpc';
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '../ui/input';
 import ComboBox from './GrupoEtiquetaComboBox';
 import { useState } from 'react';
@@ -74,9 +69,12 @@ const EtiquetaModal = () => {
 
   return (
     <>
-      <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogTrigger>Open</AlertDialogTrigger>
-        <AlertDialogContent className='flex w-full flex-col gap-y-3 rounded-md bg-gray-400 p-10'>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger>Open</DialogTrigger>
+        <DialogContent
+          onCloseAutoFocus={handleCancel}
+          className='flex w-full flex-col gap-y-3 rounded-md bg-gray-400 p-10'
+        >
           <div className='flex flex-col gap-y-0.5'>
             <p className='w-fit rounded-lg bg-gray-300 px-3 py-1.5 text-base font-semibold'>
               Nombre de la etiqueta
@@ -107,15 +105,9 @@ const EtiquetaModal = () => {
             >
               {modalData.tipo === 'CREATE' ? 'Crear' : 'Editar'}
             </Button>
-            <AlertDialogCancel
-              onClick={handleCancel}
-              className='absolute right-0 top-0 h-fit w-fit rounded-full text-[#212529]'
-            >
-              X
-            </AlertDialogCancel>
           </div>
-        </AlertDialogContent>
-      </AlertDialog>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

@@ -1,12 +1,12 @@
 'use client';
 import { useState } from 'react';
 import Colorful from '@uiw/react-color-colorful';
-import { hsvaToHex } from '@uiw/color-convert';
-import { hexToHsva } from '@uiw/color-convert';
+import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
 import { useGrupoEtiquetaModalData } from './GrupoEtiquetaModal';
 import { Button } from '../ui/button';
+import { getTextColorByBg } from '@/lib/utils';
 
-export default function ColorPicker() {
+const ColorPicker = () => {
   const modalData = useGrupoEtiquetaModalData((state) => ({
     tipo: state.tipo,
     color: state.color,
@@ -17,6 +17,7 @@ export default function ColorPicker() {
       <Button
         style={{
           backgroundColor: `${useGrupoEtiquetaModalData.getState().color}`,
+          color: getTextColorByBg(useGrupoEtiquetaModalData.getState().color),
         }}
         onClick={() => setOpen(!open)}
       >
@@ -40,4 +41,6 @@ export default function ColorPicker() {
       </div>
     </>
   );
-}
+};
+
+export default ColorPicker;
