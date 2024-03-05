@@ -28,7 +28,10 @@ const config = {
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         background: colors.blue[50],
-        sidebar: colors.neutral[100],
+        sidebar: {
+          background: colors.neutral[100],
+          foreground: '#212529',
+        },
         topbar: colors.white,
         foreground: 'hsl(var(--foreground))',
         primary: {
