@@ -11,7 +11,7 @@ interface GrupoTriggerProps {
 const GrupoTrigger = ({ grupo }: GrupoTriggerProps) => {
   return (
     <div className='flex w-full justify-between hover:no-underline'>
-      <p className='text-start font-bold'>{grupo.nombre}</p>
+      <p className='pl-3 text-start font-bold'>{grupo.nombre}</p>
       <p className='mr-2 text-sm font-semibold'>
         {grupo._count.etiquetas}
         {' etiqueta'}

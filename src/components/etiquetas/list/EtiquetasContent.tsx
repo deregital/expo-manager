@@ -13,7 +13,7 @@ interface EtiquetasContentProps {
 const EtiquetasContent = ({ etiqueta, background }: EtiquetasContentProps) => {
   return (
     <div
-      className=' mb-2 ml-1.5 mt-1.5 flex justify-between rounded-md p-2 text-black shadow-md shadow-black/30'
+      className='mb-2 ml-1.5 mt-1.5 flex justify-between rounded-md px-4 py-2 text-black shadow-md shadow-black/30'
       style={{
         backgroundColor: `${background}50`,
         // color: getTextColorByBg(background),
