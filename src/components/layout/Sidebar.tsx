@@ -9,42 +9,42 @@ import HomeIcon from '@/components/icons/HomeIcon';
 
 const Sidebar = () => {
   return (
-    <div className="flex w-48 flex-col bg-blue-500">
+    <div className='flex w-48 flex-col border-r-[3px] border-black/20 bg-sidebar'>
       <Image
-        src="/img/logo.webp"
-        className="w-full select-none px-2 pb-10 pt-5"
-        alt="Expo Manager"
+        src='/img/logo.webp'
+        className='w-full select-none px-2 pb-10 pt-5'
+        alt='Expo Manager'
         width={100}
         height={100}
       />
-      <div className="flex-1">
-        <ul className="divide-y-2 divide-black/80">
-          <SidebarLink to="/" icon={<HomeIcon height={24} width={24} />}>
+      <div className='flex-1'>
+        <ul className='divide-y-2 divide-black/80'>
+          <SidebarLink to='/' icon={<HomeIcon height={24} width={24} />}>
             Dashboard
           </SidebarLink>
           <SidebarLink
-            to="/modelos"
+            to='/modelos'
             icon={<ModeloIcon height={24} width={24} />}
           >
             Modelos
           </SidebarLink>
           <SidebarLink
-            to="/mensajes"
+            to='/mensajes'
             icon={<ChatIcon height={24} width={24} />}
           >
             Mensajes
           </SidebarLink>
           <SidebarLink
-            to="/etiquetas"
+            to='/etiquetas'
             icon={<EtiquetaIcon height={24} width={24} />}
           >
             Etiquetas
           </SidebarLink>
         </ul>
       </div>
-      <div className="justify-self-end">
+      <div className='justify-self-end'>
         <SidebarLink
-          to="/configuracion"
+          to='/configuracion'
           icon={<ConfigIcon height={24} width={24} />}
         >
           Configuración

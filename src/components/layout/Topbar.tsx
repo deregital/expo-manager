@@ -3,7 +3,7 @@ import React from 'react';
 
 const Topbar = () => {
   return (
-    <header className="flex h-16 items-center justify-end bg-lime-500 pr-4">
+    <header className='flex h-16 items-center justify-end border-b-[3px] border-black/20 bg-topbar pr-4'>
       <SessionMenu />
     </header>
   );
