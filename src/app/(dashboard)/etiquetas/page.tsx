@@ -3,8 +3,8 @@ import { useDebounceValue } from 'usehooks-ts';
 import React from 'react';
 import { trpc } from '@/lib/trpc';
 
-import EtiquetasList from '@/components/etiquetas/EtiquetasList';
-import SearchInput from '@/components/etiquetas/SearchInput';
+import EtiquetasList from '@/components/etiquetas/list/EtiquetasList';
+import SearchInput from '@/components/etiquetas/list/SearchInput';
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useDebounceValue('', 500);

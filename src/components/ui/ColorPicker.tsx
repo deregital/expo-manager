@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import Colorful from '@uiw/react-color-colorful';
 import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
-import { useGrupoEtiquetaModalData } from './GrupoEtiquetaModal';
-import { Button } from '../ui/button';
+import { useGrupoEtiquetaModalData } from '@/components/etiquetas/modal/GrupoEtiquetaModal';
+import { Button } from './button';
 import { getTextColorByBg } from '@/lib/utils';
 
 const ColorPicker = () => {

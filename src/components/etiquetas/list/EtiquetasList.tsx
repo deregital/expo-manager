@@ -1,5 +1,5 @@
-import EtiquetasContent from '@/components/etiquetas/EtiquetasContent';
-import GrupoTrigger from '@/components/etiquetas/GrupoTrigger';
+import EtiquetasContent from '@/components/etiquetas/list/EtiquetasContent';
+import GrupoTrigger from '@/components/etiquetas/list/GrupoTrigger';
 import {
   Accordion,
   AccordionContent,

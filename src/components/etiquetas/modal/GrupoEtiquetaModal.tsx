@@ -1,11 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { create } from 'zustand';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import { LockIcon, UnlockIcon } from 'lucide-react';
-import ColorPicker from './ColorPicker';
+import ColorPicker from '@/components/ui/ColorPicker';
 import { hsvaToHex } from '@uiw/color-convert';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';

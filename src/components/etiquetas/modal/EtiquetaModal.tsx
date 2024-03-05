@@ -1,11 +1,11 @@
 'use client';
 import { trpc } from '@/lib/trpc';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '../ui/input';
+import { Input } from '@/components/ui/input';
 import ComboBox from './GrupoEtiquetaComboBox';
 import { useState } from 'react';
 import { create } from 'zustand';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 
 type ModalData = {
   tipo: 'CREATE' | 'EDIT';

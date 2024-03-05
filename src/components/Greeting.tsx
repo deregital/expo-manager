@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { signIn, useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
-import EtiquetaModal from './etiquetas/EtiquetaModal';
-import GrupoEtiquetaModal from './etiquetas/GrupoEtiquetaModal';
+import EtiquetaModal from './etiquetas/modal/EtiquetaModal';
+import GrupoEtiquetaModal from './etiquetas/modal/GrupoEtiquetaModal';
 
 const Greeting = () => {
   const session = useSession();
