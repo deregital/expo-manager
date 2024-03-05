@@ -1,5 +1,4 @@
 import ModeloIcon from '@/components/icons/ModeloIcon';
-import { getTextColorByBg } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import React from 'react';
 
@@ -14,10 +13,10 @@ interface EtiquetasContentProps {
 const EtiquetasContent = ({ etiqueta, background }: EtiquetasContentProps) => {
   return (
     <div
-      className='my-1.5 flex justify-between rounded-md p-2'
+      className=' mb-2 ml-1.5 mt-1.5 flex justify-between rounded-md p-2 text-black shadow-md shadow-black/30'
       style={{
-        backgroundColor: `${background}32`,
-        color: getTextColorByBg(background),
+        backgroundColor: `${background}50`,
+        // color: getTextColorByBg(background),
       }}
     >
       <p className='capitalize'>{etiqueta.nombre}</p>
