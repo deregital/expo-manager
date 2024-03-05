@@ -18,7 +18,7 @@ const RootLayout = ({
       <Sidebar />
       <div className='grid grid-rows-[auto,1fr]'>
         <Topbar />
-        <main className='h-[calc(100vh-4rem)] flex-1 bg-background'>
+        <main className='h-[calc(100vh-4rem)] flex-1 overflow-y-scroll bg-background'>
           <VerificarAuth />
           {children}
         </main>
