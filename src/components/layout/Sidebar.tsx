@@ -3,49 +3,65 @@ import Image from 'next/image';
 import React from 'react';
 import ModeloIcon from '@/components/icons/ModeloIcon';
 import ChatIcon from '@/components/icons/ChatIcon';
-import EtiquetaIcon from '@/components/icons/EtiquetaIcon';
+import EtiquetaIcon from '@/components/icons/EtiquetasIcon';
 import ConfigIcon from '@/components/icons/ConfigIcon';
 import HomeIcon from '@/components/icons/HomeIcon';
+import HomeFillIcon from '@/components/icons/HomeFillIcon';
+import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
+import ChatFillIcon from '@/components/icons/ChatFillIcon';
+import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
+import ConfigFillIcon from '@/components/icons/ConfigFillIcon';
 
 const Sidebar = () => {
   return (
-    <div className="flex w-48 flex-col bg-blue-500">
+    <div className='flex w-48 flex-col border-r-[3px] border-black/20 bg-sidebar-background'>
       <Image
-        src="/img/logo.webp"
-        className="w-full select-none px-2 pb-10 pt-5"
-        alt="Expo Manager"
+        src='/img/logo.webp'
+        className='w-full select-none px-2 pb-10 pt-5'
+        alt='Expo Manager'
         width={100}
         height={100}
       />
-      <div className="flex-1">
-        <ul className="divide-y-2 divide-black/80">
-          <SidebarLink to="/" icon={<HomeIcon height={24} width={24} />}>
+      <div className='flex-1'>
+        <ul className='divide-y-2 divide-black/80'>
+          <SidebarLink
+            to='/'
+            icon={<HomeIcon height={24} width={24} />}
+            iconActive={<HomeFillIcon height={24} width={24} />}
+          >
             Dashboard
           </SidebarLink>
           <SidebarLink
-            to="/modelos"
+            to='/modelos'
             icon={<ModeloIcon height={24} width={24} />}
+            iconActive={<ModeloFillIcon height={24} width={24} />}
           >
             Modelos
           </SidebarLink>
           <SidebarLink
-            to="/mensajes"
+            to='/mensajes'
             icon={<ChatIcon height={24} width={24} />}
+            iconActive={<ChatFillIcon height={24} width={24} />}
           >
             Mensajes
           </SidebarLink>
           <SidebarLink
-            to="/etiquetas"
+            to='/etiquetas'
             icon={<EtiquetaIcon height={24} width={24} />}
+            iconActive={<EtiquetasFillIcon height={24} width={24} />}
           >
             Etiquetas
           </SidebarLink>
         </ul>
       </div>
-      <div className="justify-self-end">
+      <div className='justify-self-end'>
         <SidebarLink
-          to="/configuracion"
+          to='/configuracion'
           icon={<ConfigIcon height={24} width={24} />}
+          iconActive={
+            <ConfigFillIcon height={24} width={24} className='h-6 w-6' />
+          }
+          textClassName='text-lg'
         >
           Configuración
         </SidebarLink>
