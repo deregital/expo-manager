@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Popover,
   PopoverContent,
@@ -13,7 +13,7 @@ import {
   CommandItem,
 } from '@/components/ui/command';
 import { CheckIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, getTextColorByBg } from '@/lib/utils';
 import { useEtiquetaModalData } from './EtiquetaModal';
 import { RouterOutputs } from '@/server';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
@@ -30,6 +30,10 @@ const ComboBox = ({
   }));
   const [open, setOpen] = useState(false);
 
+  const currentGrupo = useMemo(() => {
+    return data.find((grupo) => grupo.id === modalData.grupoId);
+  }, [data, modalData.grupoId]);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger className='text-black' asChild>
@@ -38,11 +42,13 @@ const ComboBox = ({
           role='combobox'
           aria-expanded={open}
           className='flex w-full max-w-[200px] justify-between gap-x-2 truncate'
+          style={{
+            backgroundColor: currentGrupo?.color,
+            color: getTextColorByBg(currentGrupo?.color ?? '#000'),
+          }}
         >
           <span className='max-w-[calc(100%-30px)] truncate'>
-            {modalData.grupoId
-              ? data.find((grupo) => grupo.id === modalData.grupoId)?.nombre
-              : 'Buscar grupo...'}
+            {modalData.grupoId ? currentGrupo?.nombre : 'Buscar grupo...'}
           </span>
           <EtiquetasFillIcon className='h-5 w-5' />
         </Button>
@@ -51,10 +57,20 @@ const ComboBox = ({
         <Command>
           <CommandInput placeholder='Buscar grupo...' className='h-9' />
           <CommandEmpty>Grupo no encontrado.</CommandEmpty>
-          <CommandGroup>
+          <CommandGroup className='divide-y-2 divide-black/80 p-0'>
             {data.map((grupo) => (
               <CommandItem
-                className='cursor-pointer hover:bg-gray-100'
+                className='cursor-pointer rounded-none transition-colors'
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${grupo.color}dd`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = grupo.color;
+                }}
+                style={{
+                  backgroundColor: grupo.color,
+                  color: getTextColorByBg(grupo.color),
+                }}
                 key={grupo.id}
                 value={grupo.nombre}
                 onSelect={() => {
@@ -64,7 +80,9 @@ const ComboBox = ({
                   });
                 }}
               >
-                {grupo.nombre ? grupo.nombre : 'No hay nombre'}
+                <span className='truncate'>
+                  {grupo.nombre ? grupo.nombre : 'No hay nombre'}
+                </span>
                 <CheckIcon
                   className={cn(
                     'ml-auto h-4 w-4',
