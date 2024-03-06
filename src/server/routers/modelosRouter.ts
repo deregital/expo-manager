@@ -125,7 +125,7 @@ export const modeloRouter = router({
         },
       });
     }),
-  getModelosByFiltro: protectedProcedure
+  getByFiltro: protectedProcedure
     .input(
       z.object({
         nombre: z.string().optional(),
