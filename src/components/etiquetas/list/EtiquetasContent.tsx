@@ -1,3 +1,4 @@
+import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
 import ModeloIcon from '@/components/icons/ModeloIcon';
 import { RouterOutputs } from '@/server';
 import React from 'react';
@@ -21,6 +22,7 @@ const EtiquetasContent = ({ etiqueta, background }: EtiquetasContentProps) => {
     >
       <p className='capitalize'>{etiqueta.nombre}</p>
       <div className='flex items-center gap-x-2'>
+        <EtiquetaModal action='EDIT' etiqueta={etiqueta} />
         <ModeloIcon className='h-4 w-4' />
         <p className='text-sm font-semibold'>{etiqueta._count.perfiles}</p>
       </div>

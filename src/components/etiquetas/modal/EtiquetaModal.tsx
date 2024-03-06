@@ -6,6 +6,18 @@ import ComboBox from './GrupoEtiquetaComboBox';
 import { useState } from 'react';
 import { create } from 'zustand';
 import { Button } from '@/components/ui/button';
+import { Etiqueta } from '@prisma/client';
+import EtiquetaFillIcon from '@/components/icons/EtiquetaFillIcon';
+import ModalTrigger, {
+  ModalTriggerCreate,
+  ModalTriggerEdit,
+} from '@/components/etiquetas/modal/ModalTrigger';
+import EditFillIcon from '@/components/icons/EditFillIcon';
+
+interface EtiquetaModalProps {
+  action: 'CREATE' | 'EDIT';
+  etiqueta?: Omit<Etiqueta, 'created_at' | 'updated_at'>;
+}
 
 type ModalData = {
   tipo: 'CREATE' | 'EDIT';
@@ -13,17 +25,18 @@ type ModalData = {
   nombre: string;
   etiquetaId: string;
 };
-export const useModalData = create<ModalData>(() => ({
-  tipo: 'EDIT',
-  grupoId: '18958be2-fc07-40a1-88e3-424176f6bb2e',
-  nombre: 'hola',
-  etiquetaId: 'cd844b57-4de8-4a2f-a5fc-87f765e63f2d',
+export const useEtiquetaModalData = create<ModalData>(() => ({
+  tipo: 'CREATE',
+  grupoId: '',
+  nombre: '',
+  etiquetaId: '',
 }));
 
-const EtiquetaModal = () => {
+const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
   const { data: getGrupoEtiquetas, isLoading } =
     trpc.grupoEtiqueta.getAll.useQuery();
-  const modalData = useModalData((state) => ({
+  const utils = trpc.useUtils();
+  const modalData = useEtiquetaModalData((state) => ({
     tipo: state.tipo,
     nombre: state.nombre,
   }));
@@ -36,30 +49,32 @@ const EtiquetaModal = () => {
       await createEtiqueta
         .mutateAsync({
           nombre: modalData.nombre,
-          grupoId: useModalData.getState().grupoId,
+          grupoId: useEtiquetaModalData.getState().grupoId,
         })
         .then(() => setOpen(!open))
         .catch((error) => console.log(error));
     } else if (modalData.tipo === 'EDIT') {
       await editEtiqueta
         .mutateAsync({
-          id: useModalData.getState().etiquetaId,
+          id: useEtiquetaModalData.getState().etiquetaId,
           nombre: modalData.nombre,
-          grupoId: useModalData.getState().grupoId,
+          grupoId: useEtiquetaModalData.getState().grupoId,
         })
         .then(() => setOpen(!open))
         .catch((error) => console.log(error));
     }
-    useModalData.setState({
+    useEtiquetaModalData.setState({
       tipo: 'CREATE',
       grupoId: '',
       nombre: '',
       etiquetaId: '',
     });
+
+    utils.etiqueta.getByNombre.invalidate();
   }
 
   async function handleCancel() {
-    useModalData.setState({
+    useEtiquetaModalData.setState({
       tipo: 'CREATE',
       grupoId: '',
       nombre: '',
@@ -70,7 +85,40 @@ const EtiquetaModal = () => {
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger>Open</DialogTrigger>
+        <DialogTrigger asChild>
+          <ModalTrigger action={action}>
+            <ModalTriggerCreate
+              onClick={() => {
+                setOpen(true);
+                useEtiquetaModalData.setState({
+                  tipo: 'CREATE',
+                  nombre: '',
+                  grupoId: '',
+                  etiquetaId: '',
+                });
+              }}
+            >
+              <span>
+                <EtiquetaFillIcon className='mr-3 h-6 w-6' />
+              </span>
+              Crear etiqueta
+            </ModalTriggerCreate>
+            <ModalTriggerEdit
+              onClick={(e) => {
+                e.preventDefault();
+                setOpen(true);
+                useEtiquetaModalData.setState({
+                  tipo: 'EDIT',
+                  etiquetaId: etiqueta?.id ?? '',
+                  nombre: etiqueta?.nombre ?? '',
+                  grupoId: etiqueta?.grupoId ?? '',
+                });
+              }}
+            >
+              <EditFillIcon />
+            </ModalTriggerEdit>
+          </ModalTrigger>
+        </DialogTrigger>
         <DialogContent
           onCloseAutoFocus={handleCancel}
           className='flex w-full flex-col gap-y-3 rounded-md bg-gray-400 p-10'
@@ -88,7 +136,7 @@ const EtiquetaModal = () => {
                 placeholder='Nombre de la etiqueta'
                 value={modalData.nombre}
                 onChange={(e) =>
-                  useModalData.setState({ nombre: e.target.value })
+                  useEtiquetaModalData.setState({ nombre: e.target.value })
                 }
               />
               {isLoading ? (

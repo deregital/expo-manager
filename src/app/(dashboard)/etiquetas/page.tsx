@@ -6,6 +6,7 @@ import { trpc } from '@/lib/trpc';
 import EtiquetasList from '@/components/etiquetas/list/EtiquetasList';
 import SearchInput from '@/components/etiquetas/list/SearchInput';
 import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
+import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useDebounceValue('', 500);
@@ -15,7 +16,10 @@ const EtiquetasPage = () => {
     <div className='p-4'>
       <div className='flex justify-between'>
         {/* div para botones de crear e input */}
-        <GrupoEtiquetaModal action='CREATE' />
+        <div className='flex gap-x-4'>
+          <GrupoEtiquetaModal action='CREATE' />
+          <EtiquetaModal action='CREATE' />
+        </div>
 
         <SearchInput onChange={setSearch} />
       </div>

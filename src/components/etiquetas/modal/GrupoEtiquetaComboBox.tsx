@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/command';
 import { CheckIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useModalData } from './EtiquetaModal';
+import { useEtiquetaModalData } from './EtiquetaModal';
 import { RouterOutputs } from '@/server';
 
 const ComboBox = ({
@@ -22,7 +22,7 @@ const ComboBox = ({
 }: {
   data: RouterOutputs['grupoEtiqueta']['getAll'];
 }) => {
-  const modalData = useModalData((state) => ({
+  const modalData = useEtiquetaModalData((state) => ({
     tipo: state.tipo,
     nombre: state.nombre,
     grupoId: state.grupoId,
@@ -55,7 +55,7 @@ const ComboBox = ({
                 value={grupo.nombre}
                 onSelect={() => {
                   setOpen(false);
-                  useModalData.setState({
+                  useEtiquetaModalData.setState({
                     grupoId: grupo.id,
                   });
                 }}
