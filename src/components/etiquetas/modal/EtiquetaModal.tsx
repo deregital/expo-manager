@@ -8,7 +8,7 @@ import { create } from 'zustand';
 import { Button } from '@/components/ui/button';
 import { Etiqueta } from '@prisma/client';
 import EtiquetaFillIcon from '@/components/icons/EtiquetaFillIcon';
-import ModalTrigger, {
+import {
   ModalTriggerCreate,
   ModalTriggerEdit,
 } from '@/components/etiquetas/modal/ModalTrigger';
@@ -86,38 +86,41 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <ModalTrigger action={action}>
-            <ModalTriggerCreate
-              onClick={() => {
-                setOpen(true);
-                useEtiquetaModalData.setState({
-                  tipo: 'CREATE',
-                  nombre: '',
-                  grupoId: '',
-                  etiquetaId: '',
-                });
-              }}
-            >
-              <span>
-                <EtiquetaFillIcon className='mr-3 h-6 w-6' />
-              </span>
-              Crear etiqueta
-            </ModalTriggerCreate>
-            <ModalTriggerEdit
-              onClick={(e) => {
-                e.preventDefault();
-                setOpen(true);
-                useEtiquetaModalData.setState({
-                  tipo: 'EDIT',
-                  etiquetaId: etiqueta?.id ?? '',
-                  nombre: etiqueta?.nombre ?? '',
-                  grupoId: etiqueta?.grupoId ?? '',
-                });
-              }}
-            >
-              <EditFillIcon />
-            </ModalTriggerEdit>
-          </ModalTrigger>
+          <>
+            {action === 'CREATE' ? (
+              <ModalTriggerCreate
+                onClick={() => {
+                  setOpen(true);
+                  useEtiquetaModalData.setState({
+                    tipo: 'CREATE',
+                    nombre: '',
+                    grupoId: '',
+                    etiquetaId: '',
+                  });
+                }}
+              >
+                <span>
+                  <EtiquetaFillIcon className='mr-3 h-6 w-6' />
+                </span>
+                Crear etiqueta
+              </ModalTriggerCreate>
+            ) : (
+              <ModalTriggerEdit
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpen(true);
+                  useEtiquetaModalData.setState({
+                    tipo: 'EDIT',
+                    etiquetaId: etiqueta?.id ?? '',
+                    nombre: etiqueta?.nombre ?? '',
+                    grupoId: etiqueta?.grupoId ?? '',
+                  });
+                }}
+              >
+                <EditFillIcon />
+              </ModalTriggerEdit>
+            )}
+          </>
         </DialogTrigger>
         <DialogContent
           onCloseAutoFocus={handleCancel}

@@ -2,32 +2,6 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import React from 'react';
 
-interface ModalTriggerProps {
-  action: 'CREATE' | 'EDIT';
-  children: [
-    React.ReactElement<ButtonCreateProps>,
-    React.ReactElement<ButtonEditProps>,
-  ];
-}
-
-const ModalTrigger = React.forwardRef<HTMLDivElement, ModalTriggerProps>(
-  ({ action, children }, _ref) => {
-    if (
-      children[0].type !== ModalTriggerCreate ||
-      children[1].type !== ModalTriggerEdit
-    ) {
-      console.error(
-        'ModalTrigger children must be ModalTriggerCreate and ModalTriggerEdit, in that order'
-      );
-      return null;
-    }
-    return <>{action === 'CREATE' ? children[0] : children[1]}</>;
-  }
-);
-
-ModalTrigger.displayName = 'ModalTrigger';
-export default ModalTrigger;
-
 interface ButtonCreateProps {
   children: React.ReactNode;
   onClick: () => void;
