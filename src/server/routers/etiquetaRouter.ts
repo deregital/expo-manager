@@ -5,7 +5,7 @@ export const etiquetaRouter = router({
   create: publicProcedure
     .input(
       z.object({
-        nombre: z.string(),
+        nombre: z.string().min(1),
         grupoId: z.string().uuid(),
       })
     )
@@ -34,7 +34,7 @@ export const etiquetaRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        nombre: z.string().optional(),
+        nombre: z.string().min(1).optional(),
         grupoId: z.string().uuid().optional(),
       })
     )

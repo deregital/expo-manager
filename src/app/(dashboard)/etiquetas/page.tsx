@@ -3,8 +3,10 @@ import { useDebounceValue } from 'usehooks-ts';
 import React from 'react';
 import { trpc } from '@/lib/trpc';
 
-import EtiquetasList from '@/components/etiquetas/EtiquetasList';
-import SearchInput from '@/components/etiquetas/SearchInput';
+import EtiquetasList from '@/components/etiquetas/list/EtiquetasList';
+import SearchInput from '@/components/etiquetas/list/SearchInput';
+import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
+import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useDebounceValue('', 500);
@@ -12,9 +14,12 @@ const EtiquetasPage = () => {
 
   return (
     <div className='p-4'>
-      <div className='flex justify-between'>
+      <div className='flex flex-col justify-between gap-4 md:flex-row'>
         {/* div para botones de crear e input */}
-        <p>EtiquetasPage</p>
+        <div className='flex flex-col gap-4 md:flex-row'>
+          <GrupoEtiquetaModal action='CREATE' />
+          <EtiquetaModal action='CREATE' />
+        </div>
 
         <SearchInput onChange={setSearch} />
       </div>

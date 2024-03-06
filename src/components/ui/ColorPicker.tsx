@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import Colorful from '@uiw/react-color-colorful';
 import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
-import { useGrupoEtiquetaModalData } from './GrupoEtiquetaModal';
-import { Button } from '../ui/button';
+import { useGrupoEtiquetaModalData } from '@/components/etiquetas/modal/GrupoEtiquetaModal';
+import { Button } from './button';
 import { getTextColorByBg } from '@/lib/utils';
 
 const ColorPicker = () => {
@@ -23,7 +23,7 @@ const ColorPicker = () => {
       >
         Elegir Color
       </Button>
-      <div className='absolute -right-5 top-12 flex flex-col gap-y-2'>
+      <div className='absolute top-12 flex -translate-x-[29%] flex-col gap-y-2'>
         <Colorful
           color={
             hexToHsva(modalData.color)

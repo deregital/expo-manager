@@ -5,15 +5,15 @@ import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { signIn, useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
-import EtiquetaModal from './etiquetas/EtiquetaModal';
-import GrupoEtiquetaModal from './etiquetas/GrupoEtiquetaModal';
+import EtiquetaModal from './etiquetas/modal/EtiquetaModal';
+import GrupoEtiquetaModal from './etiquetas/modal/GrupoEtiquetaModal';
 
 const Greeting = () => {
   const session = useSession();
 
   const [search, setSearch] = useState<string | undefined>('');
   const utils = trpc.useUtils();
-  const { data: etiquetas } = trpc.etiqueta.getByNombre.useQuery(search);
+  const { data: etiquetas } = trpc.modelo.getAll.useQuery();
 
   useEffect(() => {
     if (search) {
@@ -57,8 +57,8 @@ const Greeting = () => {
             <p>Welcome, {session.data.user?.username}</p>
             {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
             <Button onClick={send}>Send</Button>
-            {isLoading ? <p>Loading...</p> : <EtiquetaModal />}
-            <GrupoEtiquetaModal />
+            {isLoading ? <p>Loading...</p> : <EtiquetaModal action='CREATE' />}
+            <GrupoEtiquetaModal action='EDIT' />
             <pre>{JSON.stringify(etiquetas, null, 2)}</pre>
           </>
         ) : (
