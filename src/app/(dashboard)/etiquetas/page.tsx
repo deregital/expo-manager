@@ -14,9 +14,9 @@ const EtiquetasPage = () => {
 
   return (
     <div className='p-4'>
-      <div className='flex justify-between'>
+      <div className='flex flex-col justify-between gap-4 md:flex-row'>
         {/* div para botones de crear e input */}
-        <div className='flex gap-x-4'>
+        <div className='flex flex-col gap-4 md:flex-row'>
           <GrupoEtiquetaModal action='CREATE' />
           <EtiquetaModal action='CREATE' />
         </div>

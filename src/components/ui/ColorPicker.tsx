@@ -23,7 +23,7 @@ const ColorPicker = () => {
       >
         Elegir Color
       </Button>
-      <div className='absolute -right-5 top-12 flex flex-col gap-y-2'>
+      <div className='absolute top-12 flex -translate-x-[29%] flex-col gap-y-2'>
         <Colorful
           color={
             hexToHsva(modalData.color)

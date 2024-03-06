@@ -14,7 +14,7 @@ import ConfigFillIcon from '@/components/icons/ConfigFillIcon';
 
 const Sidebar = () => {
   return (
-    <div className='flex w-48 flex-col border-r-[3px] border-black/20 bg-sidebar-background'>
+    <div className='hidden w-48 flex-col border-r-[3px] border-black/20 bg-sidebar-background md:flex'>
       <Image
         src='/img/logo.webp'
         className='w-full select-none px-2 pb-10 pt-5'

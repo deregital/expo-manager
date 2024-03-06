@@ -16,6 +16,7 @@ import { CheckIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEtiquetaModalData } from './EtiquetaModal';
 import { RouterOutputs } from '@/server';
+import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 
 const ComboBox = ({
   data,
@@ -36,14 +37,17 @@ const ComboBox = ({
           variant='outline'
           role='combobox'
           aria-expanded={open}
-          className='w-[200px] justify-between'
+          className='flex w-full max-w-[200px] justify-between gap-x-2 truncate'
         >
-          {modalData.grupoId
-            ? data.find((grupo) => grupo.id === modalData.grupoId)?.nombre
-            : 'Buscar grupo...'}
+          <span className='max-w-[calc(100%-30px)] truncate'>
+            {modalData.grupoId
+              ? data.find((grupo) => grupo.id === modalData.grupoId)?.nombre
+              : 'Buscar grupo...'}
+          </span>
+          <EtiquetasFillIcon className='h-5 w-5' />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[200px] p-0'>
+      <PopoverContent side='bottom' className='w-[200px] p-0'>
         <Command>
           <CommandInput placeholder='Buscar grupo...' className='h-9' />
           <CommandEmpty>Grupo no encontrado.</CommandEmpty>
