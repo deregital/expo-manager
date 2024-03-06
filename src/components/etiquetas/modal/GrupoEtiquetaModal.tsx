@@ -37,8 +37,8 @@ export const useGrupoEtiquetaModalData = create<GrupoEtiquetaModalData>(() => ({
 const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
   const [open, setOpen] = useState(false);
   const utils = trpc.useUtils();
-  const grupoEtiquetaCreate = trpc.grupoEtiqueta.create.useMutation();
-  const grupoEtiquetaEdit = trpc.grupoEtiqueta.edit.useMutation();
+  const createGrupoEtiqueta = trpc.grupoEtiqueta.create.useMutation();
+  const editGrupoEtiqueta = trpc.grupoEtiqueta.edit.useMutation();
   const modalData = useGrupoEtiquetaModalData((state) => ({
     tipo: state.tipo,
     nombre: state.nombre,
@@ -55,13 +55,15 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
       color: `${hsvaToHex({ h: 0, s: 0, v: 68, a: 1 })}`,
       esExclusivo: false,
     });
+    createGrupoEtiqueta.reset();
+    editGrupoEtiqueta.reset();
   }
 
   async function handleSubmit() {
     const { tipo, nombre, grupoId, color, esExclusivo } =
       useGrupoEtiquetaModalData.getState();
     if (tipo === 'CREATE') {
-      await grupoEtiquetaCreate
+      await createGrupoEtiqueta
         .mutateAsync({
           nombre: nombre,
           color: color,
@@ -72,7 +74,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
         })
         .catch(() => setOpen(true));
     } else {
-      await grupoEtiquetaEdit
+      await editGrupoEtiqueta
         .mutateAsync({
           id: grupoId,
           nombre: nombre,
@@ -82,13 +84,16 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
         .then(() => setOpen(false))
         .catch(() => setOpen(true));
     }
-    useGrupoEtiquetaModalData.setState({
-      tipo: 'CREATE',
-      nombre: '',
-      grupoId: '',
-      color: `${hsvaToHex({ h: 0, s: 0, v: 68, a: 1 })}`,
-      esExclusivo: false,
-    });
+
+    if (createGrupoEtiqueta.isSuccess || editGrupoEtiqueta.isSuccess) {
+      useGrupoEtiquetaModalData.setState({
+        tipo: 'CREATE',
+        nombre: '',
+        grupoId: '',
+        color: `${hsvaToHex({ h: 0, s: 0, v: 68, a: 1 })}`,
+        esExclusivo: false,
+      });
+    }
 
     utils.etiqueta.getByNombre.invalidate();
   }
@@ -146,11 +151,12 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
             setOpen(false);
             handleCancel();
           }}
-          className='flex flex-col gap-y-3 bg-gray-400'
+          className='flex w-full flex-col gap-y-3 rounded-md bg-slate-100 px-5 py-3 md:mx-auto md:max-w-2xl'
         >
           <div className='flex flex-col gap-y-1'>
-            <p className='w-fit rounded-md border border-black bg-gray-300 px-3 py-1.5 text-sm'>
-              Nombre del grupo de etiquetas
+            <p className='w-fit py-1.5 text-base font-semibold'>
+              {(modalData.tipo === 'CREATE' && 'Crear grupo de etiquetas') ||
+                (modalData.tipo === 'EDIT' && 'Editar grupo de etiquetas')}
             </p>
             <div className='relative flex items-center gap-x-2'>
               <Input
@@ -165,37 +171,42 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
                   });
                 }}
               />
-              <LockIcon
-                onClick={() => {
-                  useGrupoEtiquetaModalData.setState({
-                    esExclusivo:
-                      !useGrupoEtiquetaModalData.getState().esExclusivo,
-                  });
-                }}
-                className={cn('h-6 w-6 hover:cursor-pointer', {
-                  block: modalData.esExclusivo,
-                  hidden: !modalData.esExclusivo,
-                })}
-              />
-              <UnlockIcon
-                onClick={() => {
-                  useGrupoEtiquetaModalData.setState({
-                    esExclusivo:
-                      !useGrupoEtiquetaModalData.getState().esExclusivo,
-                  });
-                }}
-                className={cn('h-6 w-6 hover:cursor-pointer', {
-                  hidden: useGrupoEtiquetaModalData.getState().esExclusivo,
-                  block: !useGrupoEtiquetaModalData.getState().esExclusivo,
-                })}
-              />
-              <ColorPicker />
+              <div className='flex items-center gap-x-2'>
+                {modalData.esExclusivo ? (
+                  <LockIcon
+                    onClick={() => {
+                      useGrupoEtiquetaModalData.setState({
+                        esExclusivo:
+                          !useGrupoEtiquetaModalData.getState().esExclusivo,
+                      });
+                    }}
+                    className={cn('h-6 w-6 hover:cursor-pointer')}
+                  />
+                ) : (
+                  <UnlockIcon
+                    onClick={() => {
+                      useGrupoEtiquetaModalData.setState({
+                        esExclusivo:
+                          !useGrupoEtiquetaModalData.getState().esExclusivo,
+                      });
+                    }}
+                    className={cn('h-6 w-6 hover:cursor-pointer')}
+                  />
+                )}
+
+                <ColorPicker />
+              </div>
             </div>
           </div>
-          <Button
-            onClick={handleSubmit}
-            className='h-fit w-1/2 rounded-lg bg-green-500 px-10 py-1 text-black hover:bg-green-400'
-          >
+          {createGrupoEtiqueta.isError || editGrupoEtiqueta.isError ? (
+            <p className='text-sm font-semibold text-red-500'>
+              {createGrupoEtiqueta.isError
+                ? 'Error al crear el grupo, asegúrese de poner un nombre un color'
+                : ''}
+              {editGrupoEtiqueta.isError ? 'Error al editar la etiqueta' : ''}
+            </p>
+          ) : null}
+          <Button className='w-full max-w-32' onClick={handleSubmit}>
             {modalData.tipo === 'CREATE' ? 'Crear' : 'Editar'}
           </Button>
         </DialogContent>

@@ -63,12 +63,15 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
         .then(() => setOpen(!open))
         .catch((error) => console.log(error));
     }
-    useEtiquetaModalData.setState({
-      tipo: 'CREATE',
-      grupoId: '',
-      nombre: '',
-      etiquetaId: '',
-    });
+
+    if (createEtiqueta.isSuccess || editEtiqueta.isSuccess) {
+      useEtiquetaModalData.setState({
+        tipo: 'CREATE',
+        grupoId: '',
+        nombre: '',
+        etiquetaId: '',
+      });
+    }
 
     utils.etiqueta.getByNombre.invalidate();
   }
@@ -80,6 +83,8 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
       nombre: '',
       etiquetaId: '',
     });
+    createEtiqueta.reset();
+    editEtiqueta.reset();
   }
 
   return (
@@ -124,11 +129,12 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
         </DialogTrigger>
         <DialogContent
           onCloseAutoFocus={handleCancel}
-          className='flex w-full flex-col gap-y-3 rounded-md bg-gray-400 p-10'
+          className='flex w-full flex-col gap-y-3 rounded-md bg-slate-100 px-5 py-3 md:mx-auto md:max-w-2xl'
         >
           <div className='flex flex-col gap-y-0.5'>
-            <p className='w-fit rounded-lg bg-gray-300 px-3 py-1.5 text-base font-semibold'>
-              Nombre de la etiqueta
+            <p className='w-fit py-1.5 text-base font-semibold'>
+              {(modalData.tipo === 'CREATE' && 'Crear etiqueta') ||
+                (modalData.tipo === 'EDIT' && 'Editar etiqueta')}
             </p>
             <div className='flex gap-x-3'>
               <Input
@@ -149,14 +155,17 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
               )}
             </div>
           </div>
-          <div className='flex items-center justify-start gap-3'>
-            <Button
-              className='h-fit rounded-lg bg-green-300 px-20 py-1 text-black/80 hover:bg-green-400'
-              onClick={sendEtiqueta}
-            >
-              {modalData.tipo === 'CREATE' ? 'Crear' : 'Editar'}
-            </Button>
-          </div>
+          {createEtiqueta.isError || editEtiqueta.isError ? (
+            <p className='text-sm font-semibold text-red-500'>
+              {createEtiqueta.isError
+                ? 'Error al crear la etiqueta, asegúrese de poner un nombre y seleccionar un grupo de etiquetas'
+                : ''}
+              {editEtiqueta.isError ? 'Error al editar la etiqueta' : ''}
+            </p>
+          ) : null}
+          <Button className='w-full max-w-32' onClick={sendEtiqueta}>
+            {modalData.tipo === 'CREATE' ? 'Crear' : 'Editar'}
+          </Button>
         </DialogContent>
       </Dialog>
     </>
