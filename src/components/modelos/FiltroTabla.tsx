@@ -5,12 +5,21 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ComboBoxModelos from './ComboBoxModelos';
 import EtiquetaComboBoxModelos from './EtiquetaComboBox';
 import { SearchIcon } from 'lucide-react';
+import { useDebounceValue } from 'usehooks-ts';
+import { useEffect } from 'react';
 
 export default function FiltroTabla() {
   const searchParams = new URLSearchParams(useSearchParams());
+  const [search, setSearch] = useDebounceValue('', 500);
+  searchParams.get('nombre') && setSearch(searchParams.get('nombre') ?? '');
   const pathname = usePathname();
   const router = useRouter();
   const { data: Grupos } = trpc.grupoEtiqueta.getAll.useQuery();
+
+  useEffect(() => {
+    searchParams.set('nombre', search);
+    router.push(`${pathname}?${searchParams.toString()}`);
+  }, [search]);
   return (
     <div className='flex items-center justify-between'>
       <div className='flex items-center justify-center gap-x-5'>
@@ -23,10 +32,7 @@ export default function FiltroTabla() {
         </span>
         <Input
           placeholder='Buscar por nombre o id legible'
-          onChange={(e) => {
-            searchParams.set('nombre', e.target.value);
-            router.push(`${pathname}?${searchParams.toString()}`);
-          }}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </div>
     </div>
