@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Button } from '../ui/button';
 import {
@@ -28,6 +28,9 @@ const EtiquetaComboBoxModelos = () => {
       : trpc.etiqueta.getByGrupoEtiqueta.useQuery(
           `${searchParams.get('grupoId')}`
         );
+  useEffect(() => {
+    setetiquetaId(searchParams.get('etiqueta') ?? '');
+  }, [searchParams.get('etiqueta')]);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger className='text-black' asChild>

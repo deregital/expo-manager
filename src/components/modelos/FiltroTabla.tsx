@@ -11,7 +11,6 @@ import { useEffect } from 'react';
 export default function FiltroTabla() {
   const searchParams = new URLSearchParams(useSearchParams());
   const [search, setSearch] = useDebounceValue('', 500);
-  searchParams.get('nombre') && setSearch(searchParams.get('nombre') ?? '');
   const pathname = usePathname();
   const router = useRouter();
   const { data: Grupos } = trpc.grupoEtiqueta.getAll.useQuery();

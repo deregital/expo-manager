@@ -57,6 +57,7 @@ const ComboBoxModelos = ({
                   } else {
                     setGrupoId(grupo.id);
                     searchParams.set('grupoId', grupo.id);
+                    searchParams.delete('etiqueta');
                     router.push(`${pathname}?${searchParams.toString()}`);
                   }
                 }}
