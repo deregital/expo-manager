@@ -19,8 +19,8 @@ const ComboBoxModelos = ({
   data: RouterOutputs['grupoEtiqueta']['getAll'];
 }) => {
   const [open, setOpen] = useState(false);
-  const [grupoId, setGrupoId] = useState('');
   const searchParams = new URLSearchParams(useSearchParams());
+  const [grupoId, setGrupoId] = useState(searchParams.get('grupoId') ?? '');
   const pathname = usePathname();
   const router = useRouter();
 

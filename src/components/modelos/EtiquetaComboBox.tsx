@@ -16,8 +16,10 @@ import { trpc } from '@/lib/trpc';
 
 const EtiquetaComboBoxModelos = () => {
   const [open, setOpen] = useState(false);
-  const [etiquetaId, setetiquetaId] = useState('');
   const searchParams = new URLSearchParams(useSearchParams());
+  const [etiquetaId, setetiquetaId] = useState(
+    searchParams.get('etiqueta') ?? ''
+  );
   const pathname = usePathname();
   const router = useRouter();
   const { data } =
