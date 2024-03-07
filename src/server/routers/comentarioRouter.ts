@@ -27,6 +27,24 @@ export const comentarioRouter = router({
         });
   
       }),
+
+      read: protectedProcedure
+    .output(
+      z.array(
+        z.object({
+          id: z.string(),
+          contenido: z.string(),
+          perfilId: z.string(),
+          creadoPor: z.string(),
+        })
+      )
+    )
+    .query(async ({ ctx }) => {
+      return await ctx.prisma.comentario.findMany(); //  todos los comentarios
+    }),
+
+
+
   });
 
 
