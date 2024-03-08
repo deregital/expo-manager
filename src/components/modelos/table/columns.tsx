@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RouterOutputs } from '@/server';
 import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowDown, ArrowUp } from 'lucide-react';
 
 export const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
   {
@@ -12,7 +12,7 @@ export const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
     header: ({ column }) => {
       return (
         <div
-          className='flex items-center justify-center'
+          className='mx-auto w-full'
           style={{
             width: `${column.getSize()}px`,
           }}
@@ -22,7 +22,12 @@ export const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
             ID
-            <ArrowUpDown className='ml-2 h-4 w-4' />
+            {
+              {
+                asc: <ArrowDown className='ml-2 h-4 w-4 transform' />,
+                desc: <ArrowUp className='ml-2 h-4 w-4' />,
+              }[column.getIsSorted() === 'desc' ? 'desc' : 'asc']
+            }
           </Button>
         </div>
       );
@@ -34,7 +39,23 @@ export const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
   },
   {
     accessorKey: 'nombreCompleto',
-    header: 'Nombre',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant='ghost'
+          className='pl-0'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Nombre
+          {
+            {
+              asc: <ArrowDown className='ml-2 h-4 w-4 transform' />,
+              desc: <ArrowUp className='ml-2 h-4 w-4' />,
+            }[column.getIsSorted() === 'desc' ? 'desc' : 'asc']
+          }
+        </Button>
+      );
+    },
   },
   {
     accessorKey: 'edad',
