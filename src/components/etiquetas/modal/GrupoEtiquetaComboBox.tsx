@@ -44,7 +44,7 @@ const ComboBox = ({
           className='flex w-full max-w-[200px] justify-between gap-x-2 truncate'
           style={{
             backgroundColor: currentGrupo?.color,
-            color: getTextColorByBg(currentGrupo?.color ?? '#000'),
+            color: getTextColorByBg(currentGrupo?.color ?? '#ffffff'),
           }}
         >
           <span className='max-w-[calc(100%-30px)] truncate'>
