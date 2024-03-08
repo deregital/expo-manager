@@ -21,10 +21,11 @@ const EtiquetasContent = ({
   const searchParams = new URLSearchParams(useSearchParams());
   const router = useRouter();
 
-  function redirectTable() {
+  function redirectTable(e: React.MouseEvent<SVGElement>) {
+    e.preventDefault();
     searchParams.set('etiqueta', etiqueta.id);
     searchParams.set('grupoId', grupoId);
-    router.push(`http://localhost:3000/modelos?${searchParams.toString()}`);
+    router.push(`/modelos?${searchParams.toString()}`);
   }
 
   return (
@@ -40,7 +41,7 @@ const EtiquetasContent = ({
         <EtiquetaModal action='EDIT' etiqueta={etiqueta} />
         <ModeloIcon
           className='h-4 w-4 hover:cursor-pointer hover:text-gray-700'
-          onClick={redirectTable}
+          onClick={(event) => redirectTable(event)}
         />
         <p className='text-sm font-semibold'>{etiqueta._count.perfiles}</p>
       </div>

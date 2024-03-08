@@ -13,9 +13,10 @@ interface GrupoTriggerProps {
 const GrupoTrigger = ({ grupo }: GrupoTriggerProps) => {
   const searchParams = new URLSearchParams(useSearchParams());
   const router = useRouter();
-  function redirectTable() {
+  function redirectTable(e: React.MouseEvent<HTMLParagraphElement>) {
+    e.preventDefault();
     searchParams.set('grupoId', grupo.id);
-    router.push(`http://localhost:3000/modelos?${searchParams.toString()}`);
+    router.push(`/modelos?${searchParams.toString()}`);
   }
   return (
     <div className='flex w-full justify-between hover:no-underline'>
@@ -24,7 +25,10 @@ const GrupoTrigger = ({ grupo }: GrupoTriggerProps) => {
         <div onClick={(e) => e.preventDefault()}>
           <GrupoEtiquetaModal action='EDIT' grupo={grupo} />
         </div>
-        <p className='mr-2 text-sm font-semibold' onClick={redirectTable}>
+        <p
+          className='mr-2 text-sm font-semibold hover:underline'
+          onClick={(event) => redirectTable(event)}
+        >
           {grupo._count.etiquetas}
           {' etiqueta'}
           {grupo._count.etiquetas > 1 ? 's' : ''}
