@@ -16,8 +16,13 @@ export default function FiltroTabla() {
   const { data: Grupos } = trpc.grupoEtiqueta.getAll.useQuery();
 
   useEffect(() => {
-    searchParams.set('nombre', search);
-    router.push(`${pathname}?${searchParams.toString()}`);
+    if (search === '') {
+      searchParams.delete('nombre');
+      router.push(`${pathname}?${searchParams.toString()}`);
+    } else {
+      searchParams.set('nombre', search);
+      router.push(`${pathname}?${searchParams.toString()}`);
+    }
   }, [search]);
   return (
     <div className='flex items-center justify-between'>
