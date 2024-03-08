@@ -17,7 +17,7 @@ import { trpc } from '@/lib/trpc';
 const EtiquetaComboBoxModelos = () => {
   const [open, setOpen] = useState(false);
   const searchParams = new URLSearchParams(useSearchParams());
-  const [etiquetaId, setetiquetaId] = useState(
+  const [etiquetaId, setEtiquetaId] = useState(
     searchParams.get('etiqueta') ?? ''
   );
   const pathname = usePathname();
@@ -29,7 +29,7 @@ const EtiquetaComboBoxModelos = () => {
           `${searchParams.get('grupoId')}`
         );
   useEffect(() => {
-    setetiquetaId(searchParams.get('etiqueta') ?? '');
+    setEtiquetaId(searchParams.get('etiqueta') ?? '');
   }, [searchParams.get('etiqueta')]);
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -58,14 +58,13 @@ const EtiquetaComboBoxModelos = () => {
                 onSelect={() => {
                   setOpen(false);
                   if (etiqueta.id === etiquetaId) {
-                    setetiquetaId('');
+                    setEtiquetaId('');
                     searchParams.delete('etiqueta');
-                    router.push(`${pathname}?${searchParams.toString()}`);
                   } else {
-                    setetiquetaId(etiqueta.id);
+                    setEtiquetaId(etiqueta.id);
                     searchParams.set('etiqueta', etiqueta.id);
-                    router.push(`${pathname}?${searchParams.toString()}`);
                   }
+                  router.push(`${pathname}?${searchParams.toString()}`);
                 }}
               >
                 {etiqueta.nombre ? etiqueta.nombre : 'No hay nombre'}

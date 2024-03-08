@@ -13,21 +13,20 @@ export default function FiltroTabla() {
   const [search, setSearch] = useDebounceValue('', 500);
   const pathname = usePathname();
   const router = useRouter();
-  const { data: Grupos } = trpc.grupoEtiqueta.getAll.useQuery();
+  const { data: grupos } = trpc.grupoEtiqueta.getAll.useQuery();
 
   useEffect(() => {
     if (search === '') {
       searchParams.delete('nombre');
-      router.push(`${pathname}?${searchParams.toString()}`);
     } else {
       searchParams.set('nombre', search);
-      router.push(`${pathname}?${searchParams.toString()}`);
     }
+    router.push(`${pathname}?${searchParams.toString()}`);
   }, [search]);
   return (
     <div className='flex items-center justify-between'>
       <div className='flex items-center justify-center gap-x-5'>
-        <ComboBoxModelos data={Grupos ?? []} />
+        <ComboBoxModelos data={grupos ?? []} />
         <EtiquetaComboBoxModelos />
       </div>
       <div className='relative w-full max-w-[300px] pr-5'>

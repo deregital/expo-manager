@@ -53,13 +53,12 @@ const ComboBoxModelos = ({
                   if (grupo.id === grupoId) {
                     setGrupoId('');
                     searchParams.delete('grupoId');
-                    router.push(`${pathname}?${searchParams.toString()}`);
                   } else {
                     setGrupoId(grupo.id);
                     searchParams.set('grupoId', grupo.id);
                     searchParams.delete('etiqueta');
-                    router.push(`${pathname}?${searchParams.toString()}`);
                   }
+                  router.push(`${pathname}?${searchParams.toString()}`);
                 }}
               >
                 {grupo.nombre ? grupo.nombre : 'No hay nombre'}
