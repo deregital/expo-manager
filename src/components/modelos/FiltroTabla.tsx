@@ -8,7 +8,7 @@ import { SearchIcon } from 'lucide-react';
 import { useDebounceValue } from 'usehooks-ts';
 import { useEffect } from 'react';
 
-export default function FiltroTabla() {
+const FiltroTabla = () => {
   const searchParams = new URLSearchParams(useSearchParams());
   const [search, setSearch] = useDebounceValue('', 500);
   const pathname = usePathname();
@@ -22,7 +22,9 @@ export default function FiltroTabla() {
       searchParams.set('nombre', search);
     }
     router.push(`${pathname}?${searchParams.toString()}`);
-  }, [search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, router, search]);
+
   return (
     <div className='flex items-center justify-between'>
       <div className='flex items-center justify-center gap-x-5'>
@@ -40,4 +42,6 @@ export default function FiltroTabla() {
       </div>
     </div>
   );
-}
+};
+
+export default FiltroTabla;

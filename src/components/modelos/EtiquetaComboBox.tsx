@@ -28,9 +28,12 @@ const EtiquetaComboBoxModelos = () => {
       : trpc.etiqueta.getByGrupoEtiqueta.useQuery(
           `${searchParams.get('grupoId')}`
         );
+
   useEffect(() => {
     setEtiquetaId(searchParams.get('etiqueta') ?? '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.get('etiqueta')]);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger className='text-black' asChild>
