@@ -21,7 +21,7 @@ const ModelosPage = () => {
     <div>
       <p>ModelosPage</p>
       <FiltroTabla />
-      <DataTable columns={columns} data={data ?? []} />
+      <DataTable columns={columns} data={modelos ?? []} />
     </div>
   );
 };
