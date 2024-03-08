@@ -6,7 +6,12 @@ import { trpc } from '@/lib/trpc';
 import React from 'react';
 
 const ModelosPage = () => {
-  const { data } = trpc.modelo.getAll.useQuery();
+  const { data } = trpc.modelo.getByFiltro.useQuery({
+    // cambiar por el filtro de searchParams
+    etiquetaId: undefined,
+    grupoId: undefined,
+    nombre: '',
+  });
 
   return (
     <div>
