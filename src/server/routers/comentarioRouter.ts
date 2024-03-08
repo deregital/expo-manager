@@ -39,8 +39,23 @@ export const comentarioRouter = router({
         })
       )
     )
-    .query(async ({ ctx }) => {
-      return await ctx.prisma.comentario.findMany(); //  todos los comentarios
+    .query(async ({ ctx, input }) => {
+      // Verificamos si el input está definido
+      if (!input) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'El campo perfilId es requerido.'
+        });
+      }
+
+      const { perfilId } = input;
+
+      const comentarios = await ctx.prisma.comentario.findMany({
+        where: {
+          perfilId: perfilId // Filtramos por el perfilId obtenido del input
+        }
+      });
+      return comentarios;
     }),
 
 
