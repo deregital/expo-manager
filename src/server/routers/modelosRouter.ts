@@ -172,6 +172,17 @@ export const modeloRouter = router({
             },
           ],
         },
+        include: {
+          etiquetas: {
+            include: {
+              grupo: {
+                select: {
+                  color: true,
+                },
+              },
+            },
+          },
+        },
       });
     }),
 });
