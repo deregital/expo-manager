@@ -2,7 +2,7 @@
 import { trpc } from '@/lib/trpc';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import ComboBox from './GrupoEtiquetaComboBox';
+import GrupoEtiquetaComboBox from './GrupoEtiquetaComboBox';
 import { useState } from 'react';
 import { create } from 'zustand';
 import { Button } from '@/components/ui/button';
@@ -151,7 +151,7 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
               {isLoading ? (
                 <p>Loading...</p>
               ) : (
-                <ComboBox data={getGrupoEtiquetas ?? []} />
+                <GrupoEtiquetaComboBox data={getGrupoEtiquetas ?? []} />
               )}
             </div>
           </div>
