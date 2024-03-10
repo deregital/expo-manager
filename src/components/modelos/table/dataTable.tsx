@@ -23,11 +23,13 @@ import { useState } from 'react';
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading?: boolean;
 }
 
 export const DataTable = <TData, TValue>({
   columns,
   data,
+  isLoading,
 }: DataTableProps<TData, TValue>) => {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -69,7 +71,16 @@ export const DataTable = <TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
+          {isLoading ? (
+            <tr>
+              <td
+                colSpan={table.getHeaderGroups()[0].headers.length}
+                className='h-full w-full py-3 text-center'
+              >
+                Cargando...
+              </td>
+            </tr>
+          ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row, idx) => (
               <TableRow
                 className={cn(

@@ -9,7 +9,8 @@ import { useSearchParams } from 'next/navigation';
 
 const ModelosPage = () => {
   const searchParams = new URLSearchParams(useSearchParams());
-  const { data: modelos } = trpc.modelo.getByFiltro.useQuery(getParams());
+  const { data: modelos, isLoading } =
+    trpc.modelo.getByFiltro.useQuery(getParams());
   function getParams() {
     return {
       nombre: searchParams.get('nombre') ?? undefined,
@@ -23,7 +24,7 @@ const ModelosPage = () => {
         Gestor de Modelos
       </p>
       <FiltroTabla />
-      <DataTable columns={columns} data={modelos ?? []} />
+      <DataTable isLoading={isLoading} columns={columns} data={modelos ?? []} />
     </div>
   );
 };
