@@ -71,6 +71,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
         })
         .then(() => {
           setOpen(false);
+          utils.grupoEtiqueta.getAll.invalidate();
         })
         .catch(() => setOpen(true));
     } else {
