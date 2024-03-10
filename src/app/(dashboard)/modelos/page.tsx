@@ -1,8 +1,11 @@
 'use client';
-import FiltroTabla from '@/components/modelos/FiltroTabla';
-import { trpc } from '@/lib/trpc';
-import { useSearchParams } from 'next/navigation';
+
 import React from 'react';
+import { columns } from '@/components/modelos/table/columns';
+import { DataTable } from '@/components/modelos/table/dataTable';
+import { trpc } from '@/lib/trpc';
+import FiltroTabla from '@/components/modelos/FiltroTabla';
+import { useSearchParams } from 'next/navigation';
 
 const ModelosPage = () => {
   const searchParams = new URLSearchParams(useSearchParams());
@@ -18,13 +21,7 @@ const ModelosPage = () => {
     <div>
       <p>ModelosPage</p>
       <FiltroTabla />
-      {modelos
-        ? modelos.map((modelo) => (
-            <div key={modelo.id}>
-              <p>{modelo.nombreCompleto}</p>
-            </div>
-          ))
-        : 'Cargando...'}
+      <DataTable columns={columns} data={modelos ?? []} />
     </div>
   );
 };
