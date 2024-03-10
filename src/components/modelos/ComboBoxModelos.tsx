@@ -19,11 +19,13 @@ const ComboBoxModelos = ({
     <ComboBox
       open={open}
       setOpen={setOpen}
-      triggerText={
-        grupoId
-          ? data.find((grupo) => grupo.id === grupoId)?.nombre ??
-            'Buscar grupo...'
-          : 'Buscar grupo...'
+      triggerChildren={
+        <span className='truncate'>
+          {grupoId
+            ? data.find((grupo) => grupo.id === grupoId)?.nombre ??
+              'Buscar grupo...'
+            : 'Buscar grupo...'}
+        </span>
       }
       data={data}
       id='id'

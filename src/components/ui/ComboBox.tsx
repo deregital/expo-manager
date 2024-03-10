@@ -22,7 +22,7 @@ interface ComboBoxProps<
 > {
   open: boolean;
   setOpen: (_open: boolean) => void;
-  triggerText: string;
+  triggerChildren: React.ReactNode;
   data: TData[];
   id: Id;
   value: keyof TData;
@@ -30,6 +30,8 @@ interface ComboBoxProps<
   selectedIf: TData[Id];
   checkClassName?: string;
   itemStyle?: React.CSSProperties;
+  buttonStyle?: React.CSSProperties;
+  buttonClassName?: string;
 }
 
 const ComboBox = <
@@ -38,7 +40,7 @@ const ComboBox = <
 >({
   open,
   setOpen,
-  triggerText,
+  triggerChildren,
   data,
   id,
   value,
@@ -46,6 +48,8 @@ const ComboBox = <
   checkClassName,
   selectedIf,
   itemStyle,
+  buttonStyle,
+  buttonClassName,
 }: ComboBoxProps<TData, Id>) => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -54,9 +58,10 @@ const ComboBox = <
           variant='outline'
           role='combobox'
           aria-expanded={open}
-          className='w-[200px] justify-between'
+          className={cn('w-[200px] justify-between', buttonClassName)}
+          style={buttonStyle}
         >
-          <span className='truncate'>{triggerText}</span>
+          {triggerChildren}
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-[200px] p-0'>

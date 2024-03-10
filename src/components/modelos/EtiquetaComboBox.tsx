@@ -29,11 +29,13 @@ const EtiquetaComboBoxModelos = () => {
     <ComboBox
       open={open}
       setOpen={setOpen}
-      triggerText={
-        etiquetaId
-          ? data?.find((etiqueta) => etiqueta.id === etiquetaId)?.nombre ??
-            'Buscar etiqueta...'
-          : 'Buscar etiqueta...'
+      triggerChildren={
+        <span className='truncate'>
+          {etiquetaId
+            ? data?.find((etiqueta) => etiqueta.id === etiquetaId)?.nombre ??
+              'Buscar etiqueta...'
+            : 'Buscar etiqueta...'}
+        </span>
       }
       data={data ?? []}
       id='id'
