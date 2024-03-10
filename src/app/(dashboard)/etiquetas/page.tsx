@@ -15,7 +15,7 @@ const EtiquetasPage = () => {
   return (
     <>
       <p className='p-3 text-xl font-bold md:p-5 md:text-3xl'>
-        Gestor de Modelos
+        Gestor de Etiquetas
       </p>
       <div className='flex flex-col justify-between gap-4 px-3 md:flex-row md:px-5'>
         {/* div para botones de crear e input */}
