@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { trpc } from '@/lib/trpc';
 import ComboBox from '@/components/ui/ComboBox';
+import EtiquetaFillIcon from '@/components/icons/EtiquetaFillIcon';
 
 const EtiquetaComboBoxModelos = () => {
   const [open, setOpen] = useState(false);
@@ -30,12 +31,15 @@ const EtiquetaComboBoxModelos = () => {
       open={open}
       setOpen={setOpen}
       triggerChildren={
-        <span className='truncate'>
-          {etiquetaId
-            ? data?.find((etiqueta) => etiqueta.id === etiquetaId)?.nombre ??
-              'Buscar etiqueta...'
-            : 'Buscar etiqueta...'}
-        </span>
+        <>
+          <span className='truncate'>
+            {etiquetaId
+              ? data?.find((etiqueta) => etiqueta.id === etiquetaId)?.nombre ??
+                'Buscar etiqueta...'
+              : 'Buscar etiqueta...'}
+          </span>
+          <EtiquetaFillIcon className='h-5 w-5' />
+        </>
       }
       data={data ?? []}
       id='id'
@@ -52,6 +56,7 @@ const EtiquetaComboBoxModelos = () => {
         router.push(`${pathname}?${searchParams.toString()}`);
       }}
       selectedIf={etiquetaId}
+      wFullMobile
     />
   );
 };

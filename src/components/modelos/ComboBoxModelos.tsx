@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { RouterOutputs } from '@/server';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ComboBox from '@/components/ui/ComboBox';
+import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 
 const ComboBoxModelos = ({
   data,
@@ -20,12 +21,15 @@ const ComboBoxModelos = ({
       open={open}
       setOpen={setOpen}
       triggerChildren={
-        <span className='truncate'>
-          {grupoId
-            ? data.find((grupo) => grupo.id === grupoId)?.nombre ??
-              'Buscar grupo...'
-            : 'Buscar grupo...'}
-        </span>
+        <>
+          <span className='truncate'>
+            {grupoId
+              ? data.find((grupo) => grupo.id === grupoId)?.nombre ??
+                'Buscar grupo...'
+              : 'Buscar grupo...'}
+          </span>
+          <EtiquetasFillIcon className='h-5 w-5' />
+        </>
       }
       data={data}
       id='id'
@@ -43,6 +47,7 @@ const ComboBoxModelos = ({
         router.push(`${pathname}?${searchParams.toString()}`);
       }}
       selectedIf={grupoId}
+      wFullMobile
     />
   );
 };
