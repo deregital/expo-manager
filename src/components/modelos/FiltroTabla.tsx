@@ -1,12 +1,11 @@
 'use client';
 import { trpc } from '@/lib/trpc';
-import { Input } from '../ui/input';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ComboBoxModelos from './ComboBoxModelos';
 import EtiquetaComboBoxModelos from './EtiquetaComboBox';
-import { SearchIcon } from 'lucide-react';
 import { useDebounceValue } from 'usehooks-ts';
 import { useEffect } from 'react';
+import SearchInput from '@/components/ui/SearchInput';
 
 const FiltroTabla = () => {
   const searchParams = new URLSearchParams(useSearchParams());
@@ -26,18 +25,15 @@ const FiltroTabla = () => {
   }, [pathname, router, search]);
 
   return (
-    <div className='flex items-center justify-between'>
-      <div className='flex items-center justify-center gap-x-5'>
+    <div className='flex flex-col items-center justify-between gap-4 p-3 md:flex-row md:p-5'>
+      <div className='flex w-full flex-col items-center gap-4 md:flex-row'>
         <ComboBoxModelos data={grupos ?? []} />
         <EtiquetaComboBoxModelos />
       </div>
-      <div className='relative w-full max-w-[300px] pr-5'>
-        <span className='pointer-events-none absolute inset-y-0 right-5 flex cursor-crosshair items-center pr-3 text-muted-foreground'>
-          <SearchIcon className='h-5 w-5' />
-        </span>
-        <Input
+      <div className='relative w-full md:max-w-[300px]'>
+        <SearchInput
           placeholder='Buscar por nombre o id legible'
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={setSearch}
         />
       </div>
     </div>

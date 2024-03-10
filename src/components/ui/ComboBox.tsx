@@ -32,6 +32,7 @@ interface ComboBoxProps<
   itemStyle?: React.CSSProperties;
   buttonStyle?: React.CSSProperties;
   buttonClassName?: string;
+  wFullMobile?: boolean;
 }
 
 const ComboBox = <
@@ -50,6 +51,7 @@ const ComboBox = <
   itemStyle,
   buttonStyle,
   buttonClassName,
+  wFullMobile,
 }: ComboBoxProps<TData, Id>) => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -58,13 +60,22 @@ const ComboBox = <
           variant='outline'
           role='combobox'
           aria-expanded={open}
-          className={cn('w-[200px] justify-between', buttonClassName)}
+          className={cn(
+            'w-[200px] justify-between',
+            wFullMobile && 'w-full md:w-[200px]',
+            buttonClassName
+          )}
           style={buttonStyle}
         >
           {triggerChildren}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[200px] p-0'>
+      <PopoverContent
+        className={cn(
+          'w-full max-w-[200px] p-0 md:max-w-[200px]',
+          wFullMobile && 'w-[--radix-popper-anchor-width] max-w-full'
+        )}
+      >
         <Command>
           <CommandInput placeholder='Buscar grupo...' className='h-9' />
           <CommandEmpty>Grupo no encontrado.</CommandEmpty>
