@@ -8,10 +8,13 @@ import React, { useEffect, useState } from 'react';
 import EtiquetaModal from './etiquetas/modal/EtiquetaModal';
 import GrupoEtiquetaModal from './etiquetas/modal/GrupoEtiquetaModal';
 
+
 const Greeting = () => {
   const session = useSession();
 
   const [search, setSearch] = useState<string | undefined>('');
+  const [contenido, setContenido] = useState<string>('');
+  const [perfilId, setPerfilId] = useState<string>(''); // State para el perfilId
   const utils = trpc.useUtils();
   const { data: etiquetas } = trpc.modelo.getAll.useQuery();
 
@@ -25,6 +28,8 @@ const Greeting = () => {
   const { isLoading } = trpc.grupoEtiqueta.getAll.useQuery();
 
   const sendMessage = trpc.whatsapp.sendMessage.useMutation();
+
+  const createComentario = trpc.comentario.create.useMutation();
 
   async function send() {
     sendMessage.mutateAsync({
@@ -48,6 +53,18 @@ const Greeting = () => {
     });
   }
 
+  // Función que maneja el envío de comentario
+  async function handleSendComment() {
+    await createComentario.mutateAsync({
+      contenido,
+      perfilId,
+    });
+
+    // Limpio los campos después de enviar el comentario
+    setContenido('');
+    setPerfilId('');
+  }
+
   return (
     <>
       <div className='flex flex-col gap-4'>
@@ -59,6 +76,17 @@ const Greeting = () => {
             <Button onClick={send}>Send</Button>
             {isLoading ? <p>Loading...</p> : <EtiquetaModal action='CREATE' />}
             <GrupoEtiquetaModal action='EDIT' />
+            <Input
+              value={perfilId}
+              onChange={(e) => setPerfilId(e.target.value)}
+              placeholder='Perfil ID'
+            />
+            <Input
+              value={contenido}
+              onChange={(e) => setContenido(e.target.value)}
+              placeholder='Comentario'
+            />
+            <Button onClick={handleSendComment}>Send Comment</Button>
             <pre>{JSON.stringify(etiquetas, null, 2)}</pre>
           </>
         ) : (
