@@ -25,7 +25,7 @@ const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
           className='my-2 border-0'
         >
           <AccordionTrigger
-            className='rounded-xl px-2'
+            className='rounded-xl px-2 py-1.5'
             style={{
               backgroundColor: grupo.color,
               color: getTextColorByBg(grupo.color),

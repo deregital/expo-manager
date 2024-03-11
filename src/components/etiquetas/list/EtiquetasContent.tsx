@@ -39,11 +39,11 @@ const EtiquetasContent = ({
       <p className='capitalize'>{etiqueta.nombre}</p>
       <div className='flex items-center gap-x-2'>
         <EtiquetaModal action='EDIT' etiqueta={etiqueta} />
+        <p className='text-sm font-semibold'>{etiqueta._count.perfiles}</p>
         <ModeloIcon
           className='h-4 w-4 hover:cursor-pointer hover:text-gray-700'
           onClick={(event) => redirectTable(event)}
         />
-        <p className='text-sm font-semibold'>{etiqueta._count.perfiles}</p>
       </div>
     </div>
   );
