@@ -1,4 +1,4 @@
-import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
+import { protectedProcedure, router } from '@/server/trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
@@ -7,7 +7,7 @@ export const comentarioRouter = router({
     .input(
       z.object({
         contenido: z.string().min(1),
-        perfilId: z.string(),
+        perfilId: z.string().uuid(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -28,14 +28,14 @@ export const comentarioRouter = router({
   
       }),
 
-      read: protectedProcedure
+      getByPerfilId: protectedProcedure
 
       .input(z.object({
-        perfilId: z.string(),
+        perfilId: z.string().uuid(),
       }))
       .query(async ({ ctx, input }) => {
         // Verificamos si el input está definido
-        if (!input || !input.perfilId) {
+        if (!input.perfilId) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
             message: 'El campo perfilId es requerido.'
@@ -55,7 +55,7 @@ export const comentarioRouter = router({
     update: protectedProcedure
     .input(
       z.object({
-        id: z.string(), // Se requiere el ID del comentario a actualizar
+        id: z.string().uuid(), // Se requiere el ID del comentario a actualizar
         contenido: z.string().min(1), 
       })
     )
@@ -92,7 +92,7 @@ export const comentarioRouter = router({
     delete: protectedProcedure
     .input(
       z.object({
-        id: z.string(), // Se requiere el ID del comentario a borrar
+        id: z.string().uuid(), // Se requiere el ID del comentario a borrar
       })
     )
     .mutation(async ({ input, ctx }) => {
