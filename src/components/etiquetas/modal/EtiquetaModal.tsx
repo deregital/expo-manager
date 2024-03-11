@@ -13,6 +13,7 @@ import {
   ModalTriggerEdit,
 } from '@/components/etiquetas/modal/ModalTrigger';
 import EditFillIcon from '@/components/icons/EditFillIcon';
+import { toast } from 'sonner';
 
 interface EtiquetaModalProps {
   action: 'CREATE' | 'EDIT';
@@ -51,8 +52,16 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
           nombre: modalData.nombre,
           grupoId: useEtiquetaModalData.getState().grupoId,
         })
-        .then(() => setOpen(!open))
-        .catch((error) => console.log(error));
+        .then(() => {
+          setOpen(!open);
+          toast.success('Etiqueta creada con éxito');
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error(
+            'Error al crear la etiqueta, asegúrese de poner un nombre y seleccionar un grupo de etiquetas'
+          );
+        });
     } else if (modalData.tipo === 'EDIT') {
       await editEtiqueta
         .mutateAsync({
@@ -60,8 +69,14 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
           nombre: modalData.nombre,
           grupoId: useEtiquetaModalData.getState().grupoId,
         })
-        .then(() => setOpen(!open))
-        .catch((error) => console.log(error));
+        .then(() => {
+          setOpen(!open);
+          toast.success('Etiqueta editada con éxito');
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error('Error al editar la etiqueta');
+        });
     }
 
     if (createEtiqueta.isSuccess || editEtiqueta.isSuccess) {
@@ -155,14 +170,14 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
               )}
             </div>
           </div>
-          {createEtiqueta.isError || editEtiqueta.isError ? (
+          {/* {createEtiqueta.isError || editEtiqueta.isError ? (
             <p className='text-sm font-semibold text-red-500'>
               {createEtiqueta.isError
                 ? 'Error al crear la etiqueta, asegúrese de poner un nombre y seleccionar un grupo de etiquetas'
                 : ''}
               {editEtiqueta.isError ? 'Error al editar la etiqueta' : ''}
             </p>
-          ) : null}
+          ) : null} */}
           <Button className='w-full max-w-32' onClick={sendEtiqueta}>
             {modalData.tipo === 'CREATE' ? 'Crear' : 'Editar'}
           </Button>
