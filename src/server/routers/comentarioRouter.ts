@@ -29,34 +29,28 @@ export const comentarioRouter = router({
       }),
 
       read: protectedProcedure
-    .output(
-      z.array(
-        z.object({
-          id: z.string(),
-          contenido: z.string(),
-          perfilId: z.string(),
-          creadoPor: z.string(),
-        })
-      )
-    )
-    .query(async ({ ctx, input }) => {
-      // Verificamos si el input está definido
-      if (!input) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'El campo perfilId es requerido.'
-        });
-      }
 
-      const { perfilId } = input;
-
-      const comentarios = await ctx.prisma.comentario.findMany({
-        where: {
-          perfilId: perfilId // Filtramos por el perfilId obtenido del input
+      .input(z.object({
+        perfilId: z.string(),
+      }))
+      .query(async ({ ctx, input }) => {
+        // Verificamos si el input está definido
+        if (!input || !input.perfilId) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'El campo perfilId es requerido.'
+          });
         }
-      });
-      return comentarios;
-    }),
+    
+        const { perfilId } = input;
+    
+        const comentarios = await ctx.prisma.comentario.findMany({
+          where: {
+            perfilId: perfilId // Filtramos por el perfilId obtenido del input
+          }
+        });
+        return comentarios;
+      }),
 
     update: protectedProcedure
     .input(
