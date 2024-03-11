@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import EditFillIcon from '@/components/icons/EditFillIcon';
 import { EtiquetaGrupo } from '@prisma/client';
+import { toast } from 'sonner';
 
 interface GrupoEtiquetaModalProps {
   action: 'EDIT' | 'CREATE';
@@ -71,8 +72,15 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
         })
         .then(() => {
           setOpen(false);
+          utils.grupoEtiqueta.getAll.invalidate();
+          toast.success('Grupo de etiquetas creado con éxito');
         })
-        .catch(() => setOpen(true));
+        .catch(() => {
+          setOpen(true);
+          toast.error(
+            'Error al crear el grupo de etiquetas, asegúrese de poner un nombre y un color'
+          );
+        });
     } else {
       await editGrupoEtiqueta
         .mutateAsync({
@@ -81,8 +89,14 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
           color: color,
           esExclusivo: esExclusivo,
         })
-        .then(() => setOpen(false))
-        .catch(() => setOpen(true));
+        .then(() => {
+          setOpen(false);
+          toast.success('Grupo de etiquetas editado con éxito');
+        })
+        .catch(() => {
+          setOpen(true);
+          toast.error('Error al editar el grupo de etiquetas');
+        });
     }
 
     if (createGrupoEtiqueta.isSuccess || editGrupoEtiqueta.isSuccess) {

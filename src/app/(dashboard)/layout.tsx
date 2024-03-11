@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
 import VerificarAuth from '@/components/auth/VerificarAuth';
+import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
   title: 'Expo Manager',
@@ -22,6 +23,7 @@ const RootLayout = ({
           <VerificarAuth />
           {children}
         </main>
+        <Toaster />
       </div>
     </div>
   );
