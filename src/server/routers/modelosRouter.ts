@@ -131,10 +131,16 @@ export const modeloRouter = router({
         nombre: z.string().optional(),
         grupoId: z.string().uuid().optional(),
         etiquetaId: z.string().uuid().optional(),
+        pagination: z.number(),
       })
     )
     .query(async ({ input, ctx }) => {
-      return await ctx.prisma.perfil.findMany({
+      const count = await ctx.prisma.perfil.count();
+      const taken =
+        count - (input.pagination - 1) * 5 < 5
+          ? count - (input.pagination - 1) * 5
+          : 5;
+      const modelos = await ctx.prisma.perfil.findMany({
         where: {
           AND: [
             {
@@ -172,6 +178,8 @@ export const modeloRouter = router({
             },
           ],
         },
+        take: taken,
+        skip: (input.pagination - 1) * 5,
         include: {
           etiquetas: {
             include: {
@@ -184,5 +192,9 @@ export const modeloRouter = router({
           },
         },
       });
+      return {
+        modelos,
+        pagination: Math.ceil(count / 5),
+      };
     }),
 });
