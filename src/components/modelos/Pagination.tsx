@@ -246,7 +246,7 @@ const PaginationComp = ({ count }: PaginationProps) => {
         <PaginationItem>
           <PaginationNext
             onClick={NextPagination}
-            className={`${Number(searchParams.get('pagination')) === count ? 'hidden' : 'flex'} hover:bg-black/30`}
+            className={`${Number(searchParams.get('pagination') ?? 1) === count ? 'hidden' : 'flex'} hover:bg-black/30`}
           />
         </PaginationItem>
       </PaginationContent>
