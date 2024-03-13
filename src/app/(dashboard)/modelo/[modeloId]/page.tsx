@@ -1,11 +1,48 @@
-import React from 'react';
+'use client';
+import ModeloPageContent, {
+  useModeloData,
+} from '@/components/modelo/ModeloPageContent';
+import { trpc } from '@/lib/trpc';
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
 
-interface ModeloPageProps {}
+interface ModeloPageProps {
+  params: {
+    modeloId: string;
+  };
+}
 
-const ModeloPage = ({}: ModeloPageProps) => {
+const ModeloPage = ({ params }: ModeloPageProps) => {
+  const { data: modelo, isLoading } = trpc.modelo.getById.useQuery(
+    params.modeloId
+  );
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!modelo) return;
+
+    useModeloData.setState({
+      id: modelo.id,
+      etiquetas: modelo.etiquetas,
+    });
+  }, [modelo, isLoading]);
+
   return (
-    <div>
-      <p>ModeloPage</p>
+    <div className='px-4 pt-4'>
+      <div className='flex items-center gap-x-4'>
+        <ArrowLeft
+          className='cursor-pointer transition-transform duration-200 ease-in-out hover:-translate-x-2'
+          onClick={() => router.back()}
+        />
+      </div>
+      {isLoading || !modelo ? (
+        <div>Loading...</div>
+      ) : (
+        <ModeloPageContent modelo={modelo} />
+      )}
     </div>
   );
 };
