@@ -33,6 +33,7 @@ interface ComboBoxProps<
   buttonStyle?: React.CSSProperties;
   buttonClassName?: string;
   wFullMobile?: boolean;
+  enabled?: Array<TData[Id]>;
 }
 
 const ComboBox = <
@@ -52,7 +53,13 @@ const ComboBox = <
   buttonStyle,
   buttonClassName,
   wFullMobile,
+  enabled,
 }: ComboBoxProps<TData, Id>) => {
+  const isGrupo = 'color' in (data[0] ?? {});
+  const placeholder = isGrupo ? 'Buscar grupo...' : 'Buscar etiqueta...';
+  const commandEmpty = isGrupo
+    ? 'Grupo no encontrado.'
+    : 'Etiqueta no encontrada.';
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger className='text-black' asChild>
@@ -77,17 +84,18 @@ const ComboBox = <
         )}
       >
         <Command>
-          <CommandInput placeholder='Buscar grupo...' className='h-9' />
-          <CommandEmpty>Grupo no encontrado.</CommandEmpty>
+          <CommandInput placeholder={placeholder} className='h-9' />
+          <CommandEmpty>{commandEmpty}</CommandEmpty>
           <CommandGroup className='p-0'>
             {data.map((item) => (
               <CommandItem
+                disabled={enabled && !enabled.includes(item[id])}
                 className='cursor-pointer hover:bg-gray-100'
                 key={item[id] as string}
                 value={item[id] as string}
                 onSelect={onSelect}
                 style={
-                  'color' in item
+                  isGrupo
                     ? {
                         backgroundColor: item.color as string,
                         color: getTextColorByBg(
