@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-import { Pagination } from '@/components/ui/pagination';
+import PaginationComp from './Pagination';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -80,7 +80,7 @@ export const DataTable = <TData, TValue>({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
+        <TableBody className='[&_tr:last-child]:border-0'>
           {isLoading ? (
             <tr>
               <td
@@ -117,7 +117,7 @@ export const DataTable = <TData, TValue>({
           )}
         </TableBody>
       </Table>
-      <Pagination table={table} />
+      <PaginationComp table={table} />
     </div>
   );
 };
