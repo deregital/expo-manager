@@ -17,7 +17,8 @@ const ModelosPage = () => {
       nombre: searchParams.get('nombre') ?? undefined,
       etiquetaId: searchParams.get('etiqueta') ?? undefined,
       grupoId: searchParams.get('grupoId') ?? undefined,
-      pagination: 2,
+      pagination: Number(searchParams.get('pagination') ?? 1),
+      perpage: 2,
     };
   }
   return (
@@ -31,7 +32,7 @@ const ModelosPage = () => {
         columns={columns}
         data={modelos?.modelos ?? []}
       />
-      <Pagination count={modelos?.pagination} />
+      <Pagination count={modelos?.pagination ?? 0} />
     </div>
   );
 };
