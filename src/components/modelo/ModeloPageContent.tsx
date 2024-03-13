@@ -35,7 +35,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           priority
           className='aspect-square w-20 rounded-lg md:w-[150px]'
         />
-        <div className='flex flex-col justify-between'>
+        <div className='flex w-full flex-col justify-between'>
           <div className='flex flex-col gap-4 md:flex-row md:items-end'>
             <h2 className='text-xl font-bold md:text-3xl'>
               {modelo?.nombreCompleto}
