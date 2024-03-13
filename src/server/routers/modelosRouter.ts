@@ -29,7 +29,16 @@ export const modeloRouter = router({
           },
         },
         include: {
-          etiquetas: true,
+          etiquetas: {
+            include: {
+              grupo: {
+                select: {
+                  color: true,
+                  esExclusivo: true,
+                },
+              },
+            },
+          },
         },
       });
     }),
