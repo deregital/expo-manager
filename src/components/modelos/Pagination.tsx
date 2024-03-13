@@ -39,20 +39,20 @@ const PaginationComp = ({ count }: PaginationProps) => {
         'pagination',
         (Number(searchParams.get('pagination')) - 1).toString()
       );
-      router.push(`/modelos?${searchParams.toString()}`);
     }
+    router.push(`/modelos?${searchParams.toString()}`);
   }
   function NextPagination(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
-    if (!searchParams.get('pagination')) {
+    if (searchParams.get('pagination') === null) {
       searchParams.set('pagination', '2');
     } else {
       searchParams.set(
         'pagination',
         (Number(searchParams.get('pagination')) + 1).toString()
       );
-      router.push(`/modelos?${searchParams.toString()}`);
     }
+    router.push(`/modelos?${searchParams.toString()}`);
   }
   return (
     <Pagination>
