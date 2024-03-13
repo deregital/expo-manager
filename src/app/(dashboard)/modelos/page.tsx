@@ -6,7 +6,6 @@ import { DataTable } from '@/components/modelos/table/dataTable';
 import { trpc } from '@/lib/trpc';
 import FiltroTabla from '@/components/modelos/FiltroTabla';
 import { useSearchParams } from 'next/navigation';
-import Pagination from '@/components/modelos/Pagination';
 
 const ModelosPage = () => {
   const searchParams = new URLSearchParams(useSearchParams());
@@ -17,8 +16,8 @@ const ModelosPage = () => {
       nombre: searchParams.get('nombre') ?? undefined,
       etiquetaId: searchParams.get('etiqueta') ?? undefined,
       grupoId: searchParams.get('grupoId') ?? undefined,
-      pagination: Number(searchParams.get('pagination') ?? 1),
-      perpage: 2,
+      // pagination: Number(searchParams.get('pagination') ?? 1),
+      // perpage: 2,
     };
   }
   return (
@@ -32,7 +31,7 @@ const ModelosPage = () => {
         columns={columns}
         data={modelos?.modelos ?? []}
       />
-      <Pagination count={modelos?.pagination ?? 0} />
+      {/* <Pagination count={modelos?.pagination ?? 0} /> */}
     </div>
   );
 };

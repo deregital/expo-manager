@@ -3,10 +3,12 @@ import * as React from 'react';
 import {
   ColumnDef,
   SortingState,
+  PaginationState,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
+  getPaginationRowModel,
 } from '@tanstack/react-table';
 
 import {
@@ -19,6 +21,7 @@ import {
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import { Pagination } from '@/components/ui/pagination';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -32,6 +35,10 @@ export const DataTable = <TData, TValue>({
   isLoading,
 }: DataTableProps<TData, TValue>) => {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const table = useReactTable({
     data,
@@ -39,8 +46,11 @@ export const DataTable = <TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onPaginationChange: setPagination,
+    getPaginationRowModel: getPaginationRowModel(),
     state: {
       sorting,
+      pagination,
     },
     defaultColumn: {
       size: 200, //starting column size
@@ -107,6 +117,7 @@ export const DataTable = <TData, TValue>({
           )}
         </TableBody>
       </Table>
+      <Pagination table={table} />
     </div>
   );
 };
