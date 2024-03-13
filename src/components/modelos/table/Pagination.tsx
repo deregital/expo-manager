@@ -11,7 +11,7 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
 
   return (
     <>
-      <div className='bg-transparent px-5 py-3 text-black'>
+      <div className='border-t border-black/30 bg-transparent px-5 py-3 text-black'>
         <div className='flex items-center justify-between px-2'>
           <div
             id='buttons-pagination'
@@ -62,7 +62,7 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
                 const page = e.target.value ? Number(e.target.value) - 1 : 0;
                 table.setPageIndex(page);
               }}
-              className='w-8 rounded-md border text-center text-black'
+              className='w-14 rounded-md border text-center text-black'
             />
           </span>
           <select
@@ -72,7 +72,7 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
             }}
             className='rounded border bg-white/90 p-1'
           >
-            {[2, 10, 20, 30, 40, 50].map((pageSize) => (
+            {[2, 5, 10, 15, 20].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
                 Show {pageSize}
               </option>
