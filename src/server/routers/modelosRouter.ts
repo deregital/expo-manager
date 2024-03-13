@@ -33,6 +33,7 @@ export const modeloRouter = router({
             include: {
               grupo: {
                 select: {
+                  id: true,
                   color: true,
                   esExclusivo: true,
                 },
