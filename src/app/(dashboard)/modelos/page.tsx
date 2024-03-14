@@ -31,7 +31,6 @@ const ModelosPage = () => {
         columns={columns}
         data={modelos?.modelos ?? []}
       />
-      {/* <Pagination count={modelos?.pagination ?? 0} /> */}
     </div>
   );
 };
