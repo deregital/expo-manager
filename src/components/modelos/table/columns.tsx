@@ -8,7 +8,7 @@ import { ColumnDef, SortDirection } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
 export const columns: ColumnDef<
-  RouterOutputs['modelo']['getByFiltro']['modelos'][number]
+  RouterOutputs['modelo']['getByFiltro'][number]
 >[] = [
   {
     accessorKey: 'idLegible',
