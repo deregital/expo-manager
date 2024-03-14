@@ -3,10 +3,12 @@ import * as React from 'react';
 import {
   ColumnDef,
   SortingState,
+  PaginationState,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
+  getPaginationRowModel,
 } from '@tanstack/react-table';
 
 import {
@@ -20,6 +22,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import PaginationComp from './Pagination';
 
 interface DataTableProps<TData extends { id: string }, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -34,6 +37,11 @@ export const DataTable = <TData extends { id: string }, TValue>({
 }: DataTableProps<TData, TValue>) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const router = useRouter();
+    
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const table = useReactTable({
     data,
@@ -41,8 +49,11 @@ export const DataTable = <TData extends { id: string }, TValue>({
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onPaginationChange: setPagination,
+    getPaginationRowModel: getPaginationRowModel(),
     state: {
       sorting,
+      pagination,
     },
     defaultColumn: {
       size: 200, //starting column size
@@ -76,7 +87,7 @@ export const DataTable = <TData extends { id: string }, TValue>({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
+        <TableBody className='[&_tr:last-child]:border-0'>
           {isLoading ? (
             <tr>
               <td
@@ -115,6 +126,7 @@ export const DataTable = <TData extends { id: string }, TValue>({
           )}
         </TableBody>
       </Table>
+      <PaginationComp table={table} />
     </div>
   );
 };

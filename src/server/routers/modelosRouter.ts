@@ -1,4 +1,5 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
+import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
 export const modeloRouter = router({
@@ -110,10 +111,34 @@ export const modeloRouter = router({
         telefono: z.string().optional(),
         genero: z.string().optional(),
         edad: z.number().optional(),
-        etiquetas: z.array(z.string()).optional(),
+        etiquetas: z
+          .array(
+            z.object({
+              id: z.string().uuid(),
+              grupo: z.object({
+                id: z.string().uuid(),
+                esExclusivo: z.boolean(),
+              }),
+              nombre: z.string(),
+            })
+          )
+          .optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
+      input.etiquetas?.forEach((etiqueta) => {
+        if (etiqueta.grupo.esExclusivo) {
+          const exclusividad = input.etiquetas?.filter(
+            (e) => e.grupo.id === etiqueta.grupo.id && e.id !== etiqueta.id
+          );
+          if (exclusividad && exclusividad.length > 0) {
+            throw new TRPCError({
+              code: 'CONFLICT',
+              message: `Las etiquetas ${etiqueta.nombre} y ${exclusividad[0].nombre} son exclusivas del mismo grupo`,
+            });
+          }
+        }
+      });
       return await ctx.prisma.perfil.update({
         where: {
           id: input.id,
@@ -128,7 +153,7 @@ export const modeloRouter = router({
           etiquetas: {
             set: (input.etiquetas ?? []).map((etiqueta) => {
               return {
-                id: etiqueta,
+                id: etiqueta.id,
               };
             }),
           },
