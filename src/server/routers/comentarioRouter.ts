@@ -29,7 +29,6 @@ export const comentarioRouter = router({
     }),
 
   getByPerfilId: protectedProcedure
-
     .input(
       z.object({
         perfilId: z.string().uuid(),
@@ -49,6 +48,13 @@ export const comentarioRouter = router({
       const comentarios = await ctx.prisma.comentario.findMany({
         where: {
           perfilId: perfilId, // Filtramos por el perfilId obtenido del input
+        },
+        include: {
+          cuenta: {
+            select: {
+              nombreUsuario: true,
+            },
+          },
         },
       });
       return comentarios;
