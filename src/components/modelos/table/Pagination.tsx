@@ -1,62 +1,66 @@
-import { useSearchParams } from 'next/navigation';
-import { useRouter } from 'next/navigation';
 import { type Table } from '@tanstack/react-table';
+import { Button } from '@/components/ui/button';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from 'lucide-react';
 interface PaginationProps<TData> {
   table: Table<TData>;
 }
 
 const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
-  const searchParams = new URLSearchParams(useSearchParams());
-  const router = useRouter();
-
   return (
     <>
-      <div className='border-t border-black/30 bg-transparent px-5 py-3 text-black'>
+      <div className='border-t border-black/10 bg-transparent px-5 py-3 text-black'>
         <div className='flex items-center justify-between px-2'>
           <div
             id='buttons-pagination'
             className='flex items-center justify-center gap-x-2 px-2'
           >
-            <button
-              className='w-8 rounded-md border text-center'
+            <Button
+              className='w-8 rounded-md border p-0 text-center disabled:cursor-not-allowed'
               onClick={() => table.firstPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              {'<<'}
-            </button>
-            <button
-              className='w-8 rounded-md border text-center'
+              <ChevronsLeft className='w-6' />
+            </Button>
+            <Button
+              className='w-8 rounded-md border p-0 text-center disabled:cursor-not-allowed'
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              {'<'}
-            </button>
+              <ChevronLeft className='w-6' />
+            </Button>
             <span className='flex items-center gap-1'>
-              <div>Page</div>
+              <div>Página</div>
               <strong>
-                {table.getState().pagination.pageIndex + 1} of{' '}
+                {table.getState().pagination.pageIndex + 1} de{' '}
                 {table.getPageCount().toLocaleString()}
               </strong>
             </span>
-            <button
-              className='w-8 rounded-md border text-center'
+            <Button
+              className='w-8 rounded-md border px-0 text-center disabled:cursor-not-allowed'
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
-              {'>'}
-            </button>
-            <button
-              className='w-8 rounded-md border text-center'
+              <ChevronRight className='w-6' />
+            </Button>
+            <Button
+              className='w-8 rounded-md border px-0 text-center disabled:cursor-not-allowed'
               onClick={() => table.lastPage()}
               disabled={!table.getCanNextPage()}
             >
-              {'>>'}
-            </button>
+              <ChevronsRight className='w-6' />
+            </Button>
           </div>
           <span className='flex items-center gap-1'>
-            | Go to page:
+            Ir a la página:
             <input
               type='number'
+              min={1}
+              max={table.getPageCount()}
               defaultValue={table.getState().pagination.pageIndex + 1}
               onChange={(e) => {
                 const page = e.target.value ? Number(e.target.value) - 1 : 0;
@@ -74,7 +78,7 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
           >
             {[2, 5, 10, 15, 20].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
-                Show {pageSize}
+                Mostrar {pageSize}
               </option>
             ))}
           </select>
