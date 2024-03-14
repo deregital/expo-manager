@@ -56,6 +56,9 @@ export const comentarioRouter = router({
             },
           },
         },
+        orderBy: {
+          created_at: 'desc',
+        },
       });
       return comentarios;
     }),
