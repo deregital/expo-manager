@@ -24,11 +24,7 @@ const ModelosPage = () => {
         Gestor de Modelos
       </p>
       <FiltroTabla />
-      <DataTable
-        isLoading={isLoading}
-        columns={columns}
-        data={modelos?.modelos ?? []}
-      />
+      <DataTable isLoading={isLoading} columns={columns} data={modelos ?? []} />
     </div>
   );
 };
