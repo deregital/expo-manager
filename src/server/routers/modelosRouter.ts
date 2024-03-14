@@ -1,4 +1,5 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
+import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
 export const modeloRouter = router({
@@ -130,10 +131,11 @@ export const modeloRouter = router({
           const exclusividad = input.etiquetas?.filter(
             (e) => e.grupo.id === etiqueta.grupo.id && e.id !== etiqueta.id
           );
-          if (Number(exclusividad?.length) > 0) {
-            throw new Error(
-              `Las etiquetas ${etiqueta.nombre} y ${exclusividad![0].nombre} son exclusivas del mismo grupo`
-            );
+          if (exclusividad && exclusividad.length > 0) {
+            throw new TRPCError({
+              code: 'CONFLICT',
+              message: `Las etiquetas ${etiqueta.nombre} y ${exclusividad[0].nombre} son exclusivas del mismo grupo`,
+            });
           }
         }
       });
