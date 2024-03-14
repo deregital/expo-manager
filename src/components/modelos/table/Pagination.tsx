@@ -13,8 +13,8 @@ interface PaginationProps<TData> {
 const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
   return (
     <>
-      <div className='border-t border-black/10 bg-transparent px-5 py-3 text-black'>
-        <div className='flex items-center justify-between px-2'>
+      <div className='border-t border-black/10 bg-transparent px-3 py-3 text-black sm:px-6'>
+        <div className='flex items-center justify-between'>
           <div
             id='buttons-pagination'
             className='flex items-center justify-center gap-x-2 px-2'
@@ -34,7 +34,7 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
               <ChevronLeft className='w-6' />
             </Button>
             <span className='flex items-center gap-1'>
-              <div>Página</div>
+              <div className='hidden sm:block'>Página</div>
               <strong>
                 {table.getState().pagination.pageIndex + 1} de{' '}
                 {table.getPageCount().toLocaleString()}
@@ -55,7 +55,7 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
               <ChevronsRight className='w-6' />
             </Button>
           </div>
-          <span className='flex items-center gap-1'>
+          <span className='hidden items-center gap-1 lg:flex'>
             Ir a la página:
             <input
               type='number'
