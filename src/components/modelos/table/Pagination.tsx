@@ -35,7 +35,7 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
             </Button>
             <span className='flex items-center gap-1'>
               <div className='hidden sm:block'>Página</div>
-              <strong>
+              <strong className='text-sm sm:text-base'>
                 {table.getState().pagination.pageIndex + 1} de{' '}
                 {table.getPageCount().toLocaleString()}
               </strong>
@@ -74,10 +74,14 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
             onChange={(e) => {
               table.setPageSize(Number(e.target.value));
             }}
-            className='rounded border bg-white/90 p-1'
+            className='rounded border bg-white/90 p-1 text-sm sm:text-base'
           >
             {[2, 5, 10, 15, 20].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
+              <option
+                className='text-sm sm:text-base'
+                key={pageSize}
+                value={pageSize}
+              >
                 Mostrar {pageSize}
               </option>
             ))}
