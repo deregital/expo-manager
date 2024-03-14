@@ -29,7 +29,17 @@ export const modeloRouter = router({
           },
         },
         include: {
-          etiquetas: true,
+          etiquetas: {
+            include: {
+              grupo: {
+                select: {
+                  id: true,
+                  color: true,
+                  esExclusivo: true,
+                },
+              },
+            },
+          },
         },
       });
     }),
@@ -100,10 +110,33 @@ export const modeloRouter = router({
         telefono: z.string().optional(),
         genero: z.string().optional(),
         edad: z.number().optional(),
-        etiquetas: z.array(z.string()).optional(),
+        etiquetas: z
+          .array(
+            z.object({
+              id: z.string().uuid(),
+              grupo: z.object({
+                id: z.string().uuid(),
+                esExclusivo: z.boolean(),
+              }),
+              nombre: z.string(),
+            })
+          )
+          .optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
+      input.etiquetas?.forEach((etiqueta) => {
+        if (etiqueta.grupo.esExclusivo) {
+          const exclusividad = input.etiquetas?.filter(
+            (e) => e.grupo.id === etiqueta.grupo.id && e.id !== etiqueta.id
+          );
+          if (Number(exclusividad?.length) > 0) {
+            throw new Error(
+              `Las etiquetas ${etiqueta.nombre} y ${exclusividad![0].nombre} son exclusivas del mismo grupo`
+            );
+          }
+        }
+      });
       return await ctx.prisma.perfil.update({
         where: {
           id: input.id,
@@ -118,7 +151,7 @@ export const modeloRouter = router({
           etiquetas: {
             set: (input.etiquetas ?? []).map((etiqueta) => {
               return {
-                id: etiqueta,
+                id: etiqueta.id,
               };
             }),
           },
@@ -134,7 +167,7 @@ export const modeloRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
-      const modelos = await ctx.prisma.perfil.findMany({
+      return await ctx.prisma.perfil.findMany({
         where: {
           AND: [
             {
@@ -184,8 +217,5 @@ export const modeloRouter = router({
           },
         },
       });
-      return {
-        modelos,
-      };
     }),
 });
