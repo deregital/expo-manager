@@ -29,7 +29,14 @@ const ListaEtiquetas = ({ etiquetas, modeloId }: ListaEtiquetasProps) => {
         id: modeloId,
         etiquetas: etiquetas
           .filter((e) => e.id !== etiqueta.id)
-          .map((e) => e.id),
+          .map((e) => ({
+            id: e.id,
+            nombre: e.nombre,
+            grupo: {
+              id: e.grupo.id,
+              esExclusivo: e.grupo.esExclusivo,
+            },
+          })),
       })
       .then(() => toast.success(`Etiqueta ${etiqueta.nombre} eliminada`))
       .catch(() => {

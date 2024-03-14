@@ -112,7 +112,24 @@ const AddEtiquetaCombos = ({
     await addEtiqueta
       .mutateAsync({
         id: modeloId,
-        etiquetas: [...etiquetas.map((e) => e.id), etiquetaId],
+        etiquetas: [
+          ...etiquetas.map((e) => ({
+            id: e.id,
+            nombre: e.nombre,
+            grupo: {
+              id: e.grupo.id,
+              esExclusivo: e.grupo.esExclusivo,
+            },
+          })),
+          {
+            id: addedEtiqueta.id,
+            nombre: addedEtiqueta.nombre,
+            grupo: {
+              id: addedEtiqueta.grupo.id,
+              esExclusivo: addedEtiqueta.grupo.esExclusivo,
+            },
+          },
+        ],
       })
       .catch(() => {
         useModeloData.setState({
