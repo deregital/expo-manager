@@ -134,7 +134,7 @@ export const modeloRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
-      return await ctx.prisma.perfil.findMany({
+      const modelos = await ctx.prisma.perfil.findMany({
         where: {
           AND: [
             {
@@ -184,5 +184,8 @@ export const modeloRouter = router({
           },
         },
       });
+      return {
+        modelos,
+      };
     }),
 });
