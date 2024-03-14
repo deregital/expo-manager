@@ -13,8 +13,8 @@ interface PaginationProps<TData> {
 const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
   return (
     <>
-      <div className='border-t border-black/10 bg-transparent px-5 py-3 text-black'>
-        <div className='flex items-center justify-between px-2'>
+      <div className='border-t border-black/10 bg-transparent px-3 py-3 text-black sm:px-6'>
+        <div className='flex items-center justify-between'>
           <div
             id='buttons-pagination'
             className='flex items-center justify-center gap-x-2 px-2'
@@ -34,8 +34,8 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
               <ChevronLeft className='w-6' />
             </Button>
             <span className='flex items-center gap-1'>
-              <div>Página</div>
-              <strong>
+              <div className='hidden sm:block'>Página</div>
+              <strong className='text-sm sm:text-base'>
                 {table.getState().pagination.pageIndex + 1} de{' '}
                 {table.getPageCount().toLocaleString()}
               </strong>
@@ -55,7 +55,7 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
               <ChevronsRight className='w-6' />
             </Button>
           </div>
-          <span className='flex items-center gap-1'>
+          <span className='hidden items-center gap-1 lg:flex'>
             Ir a la página:
             <input
               type='number'
@@ -74,10 +74,14 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
             onChange={(e) => {
               table.setPageSize(Number(e.target.value));
             }}
-            className='rounded border bg-white/90 p-1'
+            className='rounded border bg-white/90 p-1 text-sm sm:text-base'
           >
             {[2, 5, 10, 15, 20].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
+              <option
+                className='text-sm sm:text-base'
+                key={pageSize}
+                value={pageSize}
+              >
                 Mostrar {pageSize}
               </option>
             ))}
