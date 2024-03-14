@@ -16,8 +16,6 @@ const ModelosPage = () => {
       nombre: searchParams.get('nombre') ?? undefined,
       etiquetaId: searchParams.get('etiqueta') ?? undefined,
       grupoId: searchParams.get('grupoId') ?? undefined,
-      // pagination: Number(searchParams.get('pagination') ?? 1),
-      // perpage: 2,
     };
   }
   return (
