@@ -3,6 +3,7 @@ import React from 'react';
 import Image from 'next/image';
 import ListaEtiquetas from '@/components/modelo/ListaEtiquetas';
 import { create } from 'zustand';
+import ComentariosSection from '@/components/modelo/ComentariosSection';
 
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
@@ -52,6 +53,11 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       </div>
       <div className='mt-4 flex flex-wrap gap-2 md:hidden'>
         <ListaEtiquetas modeloId={modelo.id} etiquetas={etiquetas} />
+      </div>
+
+      <div className='mt-10'>
+        <h2 className='text-xl font-bold md:text-2xl'>Comentarios</h2>
+        <ComentariosSection modeloId={modelo.id} />
       </div>
     </>
   );
