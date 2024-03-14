@@ -39,7 +39,9 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
         />
       </div>
       {isLoading || !modelo ? (
-        <div>Loading...</div>
+        <div className='w-full'>
+          <p className='text-center'>Cargando...</p>
+        </div>
       ) : (
         <ModeloPageContent modelo={modelo} />
       )}
