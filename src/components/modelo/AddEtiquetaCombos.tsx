@@ -161,10 +161,17 @@ const AddEtiquetaCombos = ({
         }
         value='nombre'
         onSelect={(value) => {
-          setGrupoYEtiquetas({
-            grupoId: value,
-            etiquetaId: etiquetaId,
-          });
+          if (value === grupoId) {
+            setGrupoYEtiquetas({
+              grupoId: '',
+              etiquetaId: etiquetaId,
+            });
+          } else {
+            setGrupoYEtiquetas({
+              grupoId: value,
+              etiquetaId: etiquetaId,
+            });
+          }
           setOpenGrupo(false);
         }}
         enabled={availableGruposData.map((grupo) => grupo.id)}
