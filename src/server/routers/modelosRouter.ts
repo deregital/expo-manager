@@ -152,13 +152,15 @@ export const modeloRouter = router({
           genero: input.genero,
           fotoUrl: input.fotoUrl,
           edad: input.edad,
-          etiquetas: {
-            set: (input.etiquetas ?? []).map((etiqueta) => {
-              return {
-                id: etiqueta.id,
-              };
-            }),
-          },
+          etiquetas: input.etiquetas
+            ? {
+                set: (input.etiquetas ?? []).map((etiqueta) => {
+                  return {
+                    id: etiqueta.id,
+                  };
+                }),
+              }
+            : undefined,
         },
       });
     }),
