@@ -109,6 +109,7 @@ export const modeloRouter = router({
         nombreCompleto: z.string().optional(),
         nombrePila: z.string().optional(),
         telefono: z.string().optional(),
+        fotoUrl: z.string().optional(),
         genero: z.string().optional(),
         edad: z.number().optional(),
         etiquetas: z
@@ -149,6 +150,7 @@ export const modeloRouter = router({
           nombrePila: input.nombrePila,
           telefono: input.telefono,
           genero: input.genero,
+          fotoUrl: input.fotoUrl,
           edad: input.edad,
           etiquetas: {
             set: (input.etiquetas ?? []).map((etiqueta) => {
