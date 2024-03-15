@@ -43,7 +43,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     await editModelo
       .mutateAsync({
         id: modelo.id,
-        fotoUrl: fotoUrl === null ? undefined : fotoUrl,
+        fotoUrl: undefined,
       })
       .then(() => toast.success('Foto eliminada con éxito'))
       .catch(() => toast.error('Error al eliminar la foto'));
@@ -90,8 +90,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
               accept='image/*'
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (!file) return;
-                setFotoUrl(URL.createObjectURL(file));
+                setFotoUrl(!file ? null : URL.createObjectURL(file));
               }}
             />
           </div>
