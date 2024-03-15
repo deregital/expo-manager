@@ -87,6 +87,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
             <input
               type='file'
               className='text-base'
+              accept='image/*'
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
@@ -106,7 +107,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
             </Button>
             <Button
               className='h-fit w-fit p-2 text-xs'
-              onClick={() => setFotoUrl(null)}
+              onClick={() => setFotoUrl(modelo.fotoUrl)}
             >
               Limpiar foto
             </Button>
