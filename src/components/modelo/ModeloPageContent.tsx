@@ -1,5 +1,5 @@
 import { RouterOutputs } from '@/server';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import ListaEtiquetas from '@/components/modelo/ListaEtiquetas';
 import { create } from 'zustand';
@@ -38,6 +38,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   }));
   const [fotoUrl, setFotoUrl] = useState(modelo?.fotoUrl);
   const editModelo = trpc.modelo.edit.useMutation();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleDelete() {
     await editModelo
@@ -88,9 +89,14 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
               type='file'
               className='text-base'
               accept='image/*'
+              ref={inputRef}
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 setFotoUrl(!file ? null : URL.createObjectURL(file));
+                console.log(file ? URL.createObjectURL(file) : undefined);
+                fetch(URL.createObjectURL(file!)).then(async (res) => {
+                  console.log(await res.json());
+                });
               }}
             />
           </div>
@@ -106,7 +112,10 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
             </Button>
             <Button
               className='h-fit w-fit p-2 text-xs'
-              onClick={() => setFotoUrl(modelo.fotoUrl)}
+              onClick={() => {
+                setFotoUrl(modelo.fotoUrl);
+                inputRef.current!.value = '';
+              }}
             >
               Limpiar foto
             </Button>
