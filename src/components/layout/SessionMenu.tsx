@@ -8,13 +8,13 @@ interface SessionMenuProps {}
 const SessionMenu = ({}: SessionMenuProps) => {
   const { data: session } = useSession();
 
-  if (!session) {
+  if (!session || !session.user) {
     return null;
   }
 
   return (
-    <div className="flex items-center gap-x-4">
-      {session?.user?.username}
+    <div className='flex items-center gap-x-4'>
+      {session.user.username} {session.user.esAdmin ? ' (administrador)' : ''}
       <Button
         onClick={() =>
           signOut({
