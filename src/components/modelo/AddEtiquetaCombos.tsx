@@ -54,23 +54,21 @@ const AddEtiquetaCombos = ({
     grupoId: '',
     etiquetaId: '',
   });
-
-  const addEtiqueta = trpc.modelo.edit.useMutation();
+  const [openGrupo, setOpenGrupo] = useState(false);
+  const [openEtiqueta, setOpenEtiqueta] = useState(false);
 
   const { etiquetas, modeloId } = useModeloData((state) => ({
     etiquetas: state.etiquetas,
     modeloId: state.id,
   }));
 
-  const [openGrupo, setOpenGrupo] = useState(false);
-  const [openEtiqueta, setOpenEtiqueta] = useState(false);
-
+  const addEtiqueta = trpc.modelo.edit.useMutation();
   const { data: gruposData } = trpc.grupoEtiqueta.getAll.useQuery();
-
   const { data: etiquetasData } =
     grupoId === ''
       ? trpc.etiqueta.getAll.useQuery()
       : trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoId);
+  const utils = trpc.useUtils();
 
   const currentGrupo = useMemo(() => {
     return gruposData?.find((grupo) => grupo.id === grupoId);
@@ -134,6 +132,8 @@ const AddEtiquetaCombos = ({
       })
       .then(() => {
         toast.success('Etiqueta agregada con éxito');
+        utils.modelo.getById.invalidate(modeloId);
+        utils.modelo.getByFiltro.invalidate();
       })
       .catch(() => {
         useModeloData.setState({

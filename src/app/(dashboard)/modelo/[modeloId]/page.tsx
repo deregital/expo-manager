@@ -16,13 +16,19 @@ interface ModeloPageProps {
 
 const ModeloPage = ({ params }: ModeloPageProps) => {
   const { data: modelo, isLoading: isLoadingModelo } =
-    trpc.modelo.getById.useQuery(params.modeloId);
-  const { data: comentarios, isLoading: isLoadingComentarios } =
-    trpc.comentario.getByPerfilId.useQuery({ perfilId: params.modeloId });
+    trpc.modelo.getById.useQuery(params.modeloId, {
+      refetchOnWindowFocus: false,
+    });
+  const {
+    data: comentarios,
+    isLoading: isLoadingComentarios,
+    isRefetching: isRefetchingComentarios,
+  } = trpc.comentario.getByPerfilId.useQuery({ perfilId: params.modeloId });
 
   const router = useRouter();
 
   useEffect(() => {
+    if (isRefetchingComentarios) return;
     if (isLoadingModelo || isLoadingComentarios) return;
 
     if (!modelo || !comentarios) return;
@@ -32,7 +38,13 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
       etiquetas: modelo.etiquetas,
       comentarios: comentarios,
     });
-  }, [modelo, isLoadingModelo, isLoadingComentarios, comentarios]);
+  }, [
+    modelo,
+    isLoadingModelo,
+    isLoadingComentarios,
+    comentarios,
+    isRefetchingComentarios,
+  ]);
 
   return (
     <div className='h-full px-4 pt-4'>

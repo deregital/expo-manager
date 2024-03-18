@@ -8,8 +8,11 @@ interface ModelosTableProps {}
 
 const ModelosTable = ({}: ModelosTableProps) => {
   const searchParams = new URLSearchParams(useSearchParams());
-  const { data: modelos, isLoading } =
-    trpc.modelo.getByFiltro.useQuery(getParams());
+  const {
+    data: modelos,
+    isLoading,
+    isRefetching,
+  } = trpc.modelo.getByFiltro.useQuery(getParams());
 
   function getParams() {
     return {
@@ -20,7 +23,11 @@ const ModelosTable = ({}: ModelosTableProps) => {
   }
 
   return (
-    <DataTable isLoading={isLoading} columns={columns} data={modelos ?? []} />
+    <DataTable
+      isLoading={isLoading && !isRefetching}
+      columns={columns}
+      data={modelos ?? []}
+    />
   );
 };
 
