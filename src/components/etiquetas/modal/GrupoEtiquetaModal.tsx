@@ -13,6 +13,7 @@ import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import EditFillIcon from '@/components/icons/EditFillIcon';
 import { EtiquetaGrupo } from '@prisma/client';
 import { toast } from 'sonner';
+import Loader from '@/components/ui/loader';
 
 interface GrupoEtiquetaModalProps {
   action: 'EDIT' | 'CREATE';
@@ -81,7 +82,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
             'Error al crear el grupo de etiquetas, asegúrese de poner un nombre y un color'
           );
         });
-    } else {
+    } else if (tipo === 'EDIT') {
       await editGrupoEtiqueta
         .mutateAsync({
           id: grupoId,
@@ -215,13 +216,31 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
           {createGrupoEtiqueta.isError || editGrupoEtiqueta.isError ? (
             <p className='text-sm font-semibold text-red-500'>
               {createGrupoEtiqueta.isError
-                ? 'Error al crear el grupo, asegúrese de poner un nombre un color'
+                ? createGrupoEtiqueta.error?.data?.zodError?.fieldErrors
+                    .nombre?.[0] ||
+                  createGrupoEtiqueta.error?.data?.zodError?.fieldErrors
+                    .color?.[0] ||
+                  'Error al crear el grupo, asegúrese de poner un nombre y un color'
                 : ''}
-              {editGrupoEtiqueta.isError ? 'Error al editar la etiqueta' : ''}
+              {editGrupoEtiqueta.isError
+                ? editGrupoEtiqueta.error?.data?.zodError?.fieldErrors
+                    .nombre?.[0] ||
+                  editGrupoEtiqueta.error?.data?.zodError?.fieldErrors
+                    .color?.[0] ||
+                  'Error al editar el grupo de etiquetas'
+                : ''}
             </p>
           ) : null}
-          <Button className='w-full max-w-32' onClick={handleSubmit}>
-            {modalData.tipo === 'CREATE' ? 'Crear' : 'Editar'}
+          <Button
+            className='w-full max-w-32'
+            onClick={handleSubmit}
+            disabled={
+              editGrupoEtiqueta.isLoading || createGrupoEtiqueta.isLoading
+            }
+          >
+            {((editGrupoEtiqueta.isLoading ||
+              createGrupoEtiqueta.isLoading) && <Loader />) ||
+              (modalData.tipo === 'CREATE' ? 'Crear' : 'Editar')}
           </Button>
         </DialogContent>
       </Dialog>

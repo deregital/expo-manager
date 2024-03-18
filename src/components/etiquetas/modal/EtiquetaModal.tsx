@@ -14,6 +14,7 @@ import {
 } from '@/components/etiquetas/modal/ModalTrigger';
 import EditFillIcon from '@/components/icons/EditFillIcon';
 import { toast } from 'sonner';
+import Loader from '@/components/ui/loader';
 
 interface EtiquetaModalProps {
   action: 'CREATE' | 'EDIT';
@@ -164,22 +165,38 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
                 }
               />
               {isLoading ? (
-                <p>Loading...</p>
+                <Loader />
               ) : (
                 <GrupoEtiquetaComboBox data={getGrupoEtiquetas ?? []} />
               )}
             </div>
           </div>
-          {/* {createEtiqueta.isError || editEtiqueta.isError ? (
+          {createEtiqueta.isError || editEtiqueta.isError ? (
             <p className='text-sm font-semibold text-red-500'>
               {createEtiqueta.isError
-                ? 'Error al crear la etiqueta, asegúrese de poner un nombre y seleccionar un grupo de etiquetas'
+                ? createEtiqueta.error?.data?.zodError?.fieldErrors
+                    .nombre?.[0] ||
+                  createEtiqueta.error?.data?.zodError?.fieldErrors
+                    .grupoId?.[0] ||
+                  'Error al crear la etiqueta, asegúrese de poner un nombre y asignarle un grupo'
                 : ''}
-              {editEtiqueta.isError ? 'Error al editar la etiqueta' : ''}
+              {editEtiqueta.isError
+                ? editEtiqueta.error?.data?.zodError?.fieldErrors.nombre?.[0] ||
+                  editEtiqueta.error?.data?.zodError?.fieldErrors
+                    .grupoId?.[0] ||
+                  'Error al editar la etiqueta'
+                : ''}
             </p>
-          ) : null} */}
-          <Button className='w-full max-w-32' onClick={sendEtiqueta}>
-            {modalData.tipo === 'CREATE' ? 'Crear' : 'Editar'}
+          ) : null}
+          <Button
+            className='w-full max-w-32'
+            onClick={sendEtiqueta}
+            disabled={editEtiqueta.isLoading || createEtiqueta.isLoading}
+          >
+            {((editEtiqueta.isLoading || createEtiqueta.isLoading) && (
+              <Loader />
+            )) ||
+              (modalData.tipo === 'CREATE' ? 'Crear' : 'Editar')}
           </Button>
         </DialogContent>
       </Dialog>

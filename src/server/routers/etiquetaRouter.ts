@@ -5,8 +5,12 @@ export const etiquetaRouter = router({
   create: publicProcedure
     .input(
       z.object({
-        nombre: z.string().min(1),
-        grupoId: z.string().uuid(),
+        nombre: z.string().min(1, {
+          message: 'El nombre debe tener al menos 1 caracter',
+        }),
+        grupoId: z.string().uuid({
+          message: 'Debes seleccionar un grupo de etiquetas',
+        }),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -34,8 +38,18 @@ export const etiquetaRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        nombre: z.string().min(1).optional(),
-        grupoId: z.string().uuid().optional(),
+        nombre: z
+          .string()
+          .min(1, {
+            message: 'El nombre debe tener al menos 1 caracter',
+          })
+          .optional(),
+        grupoId: z
+          .string()
+          .uuid({
+            message: 'Debes seleccionar un grupo de etiquetas',
+          })
+          .optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
