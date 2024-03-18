@@ -12,17 +12,18 @@ interface ModeloPageContentProps {
 type ModeloData = {
   id: string;
   etiquetas: NonNullable<RouterOutputs['modelo']['getById']>['etiquetas'];
+  comentarios: RouterOutputs['comentario']['getByPerfilId'] | undefined;
 };
 
 export const useModeloData = create<ModeloData>(() => ({
   id: '',
   etiquetas: [],
+  comentarios: undefined,
 }));
 
 const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const { etiquetas } = useModeloData((state) => ({
     etiquetas: state.etiquetas,
-    id: state.id,
   }));
 
   return (

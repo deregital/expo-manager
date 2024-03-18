@@ -1,3 +1,4 @@
+import { useModeloData } from '@/components/modelo/ModeloPageContent';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
@@ -10,9 +11,10 @@ interface ComentariosSectionProps {
 const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
   const createComentario = trpc.comentario.create.useMutation();
   const utils = trpc.useUtils();
-  const { data: comentarios } = trpc.comentario.getByPerfilId.useQuery({
-    perfilId: modeloId,
-  });
+
+  const { comentarios } = useModeloData((state) => ({
+    comentarios: state.comentarios,
+  }));
 
   async function handleAddComentario(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
