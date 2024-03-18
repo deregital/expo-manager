@@ -6,8 +6,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import { LockIcon, UnlockIcon } from 'lucide-react';
 import ColorPicker from '@/components/ui/ColorPicker';
-import { hsvaToHex } from '@uiw/color-convert';
-import { cn } from '@/lib/utils';
+import { cn, randomColor } from '@/lib/utils';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import EditFillIcon from '@/components/icons/EditFillIcon';
@@ -54,7 +53,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
       tipo: 'CREATE',
       nombre: '',
       grupoId: '',
-      color: `${hsvaToHex({ h: 0, s: 0, v: 68, a: 1 })}`,
+      color: randomColor(),
       esExclusivo: false,
     });
     createGrupoEtiqueta.reset();
@@ -105,7 +104,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
         tipo: 'CREATE',
         nombre: '',
         grupoId: '',
-        color: `${hsvaToHex({ h: 0, s: 0, v: 68, a: 1 })}`,
+        color: randomColor(),
         esExclusivo: false,
       });
     }
@@ -126,7 +125,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
                   tipo: 'CREATE',
                   nombre: '',
                   grupoId: '',
-                  color: `${hsvaToHex({ h: 0, s: 0, v: 68, a: 1 })}`,
+                  color: randomColor(),
                   esExclusivo: false,
                 });
               }}
