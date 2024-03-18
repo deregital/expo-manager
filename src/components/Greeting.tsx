@@ -3,11 +3,10 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
-import { signIn, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 import EtiquetaModal from './etiquetas/modal/EtiquetaModal';
 import GrupoEtiquetaModal from './etiquetas/modal/GrupoEtiquetaModal';
-
 
 const Greeting = () => {
   const session = useSession();
@@ -41,18 +40,6 @@ const Greeting = () => {
     });
   }
 
-  async function handleLogin(formData: FormData) {
-    const username = formData.get('username');
-    const password = formData.get('password');
-
-    await signIn('credentials', {
-      username,
-      password,
-      callbackUrl: '/',
-      redirect: false,
-    });
-  }
-
   // Función que maneja el envío de comentario
   async function handleSendComment() {
     await createComentario.mutateAsync({
@@ -68,7 +55,7 @@ const Greeting = () => {
   return (
     <>
       <div className='flex flex-col gap-4'>
-        {session.data ? (
+        {session.data && (
           <>
             <Input value={search} onChange={(e) => setSearch(e.target.value)} />
             <p>Welcome, {session.data.user?.username}</p>
@@ -89,24 +76,6 @@ const Greeting = () => {
             <Button onClick={handleSendComment}>Send Comment</Button>
             <pre>{JSON.stringify(etiquetas, null, 2)}</pre>
           </>
-        ) : (
-          <form action={handleLogin} className='flex flex-col gap-4'>
-            <Input
-              className='bg-white'
-              type='text'
-              name='username'
-              id='username'
-              placeholder='Nombre de Usuario'
-            />
-            <Input
-              className='bg-white'
-              type='text'
-              name='password'
-              id='password'
-              placeholder='Contraseña'
-            />
-            <Button type='submit'>Log In</Button>
-          </form>
         )}
       </div>
     </>
