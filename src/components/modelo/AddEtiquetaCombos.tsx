@@ -7,6 +7,7 @@ import { trpc } from '@/lib/trpc';
 import { getTextColorByBg } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import React, { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 function availableGrupos(
   etiquetas: NonNullable<RouterOutputs['modelo']['getById']>['etiquetas'],
@@ -131,11 +132,15 @@ const AddEtiquetaCombos = ({
           },
         ],
       })
+      .then(() => {
+        toast.success('Etiqueta agregada con éxito');
+      })
       .catch(() => {
         useModeloData.setState({
           etiquetas: etiquetas.filter((e) => e.id !== etiquetaId),
         });
         openAddEtiqueta();
+        toast.error('Error al agregar la etiqueta');
       });
   }
 
