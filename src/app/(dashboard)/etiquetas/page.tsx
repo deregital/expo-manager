@@ -7,10 +7,12 @@ import EtiquetasList from '@/components/etiquetas/list/EtiquetasList';
 import SearchInput from '@/components/ui/SearchInput';
 import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
 import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
+import Loader from '@/components/ui/loader';
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useDebounceValue('', 500);
-  const { data: grupos } = trpc.etiqueta.getByNombre.useQuery(search);
+  const { data: grupos, isLoading } =
+    trpc.etiqueta.getByNombre.useQuery(search);
 
   return (
     <>
@@ -18,7 +20,6 @@ const EtiquetasPage = () => {
         Gestor de Etiquetas
       </p>
       <div className='flex flex-col justify-between gap-4 px-3 md:flex-row md:px-5'>
-        {/* div para botones de crear e input */}
         <div className='flex flex-col gap-4 md:flex-row'>
           <GrupoEtiquetaModal action='CREATE' />
           <EtiquetaModal action='CREATE' />
@@ -29,7 +30,13 @@ const EtiquetasPage = () => {
         />
       </div>
       <div className='px-3 md:px-5'>
-        <EtiquetasList grupos={grupos ?? []} />
+        {isLoading ? (
+          <div className='mt-5 flex justify-center'>
+            <Loader />
+          </div>
+        ) : (
+          <EtiquetasList grupos={grupos ?? []} />
+        )}
       </div>
     </>
   );
