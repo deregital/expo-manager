@@ -7,7 +7,7 @@ const ConfiguracionPage = () => {
   const handleDownloadCSV = async () => {
     try {
      
-      const response = await fetch('/api/downloadModelos'); 
+      const response = await fetch('/api/exportModelos'); 
       const csvData = await response.text();
       const blob = new Blob([csvData], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);

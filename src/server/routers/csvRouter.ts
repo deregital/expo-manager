@@ -5,7 +5,8 @@ import * as fastCsv from 'fast-csv';
 
 const prisma = new PrismaClient();
 
-async function exportToCSV() {
+
+async function exportModelosToCSV() {
   try {
     const modelos = await prisma.perfil.findMany();
 
@@ -37,6 +38,20 @@ async function exportToCSV() {
   }
 }
 
+
+export const exportModelos = protectedProcedure.mutation(async ({ ctx }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "No tienes permisos para realizar esta acción",
+    });
+  }
+
+ 
+  return exportModelosToCSV();
+});
+
+
 export const csvRouter = router({
   downloadModelos: protectedProcedure.query(async ({ ctx }) => {
     if (!ctx.session?.user) {
@@ -47,9 +62,7 @@ export const csvRouter = router({
     }
 
    
-    return exportToCSV();
+    return exportModelos;
   }),
 });
-
-export { exportToCSV };
 
