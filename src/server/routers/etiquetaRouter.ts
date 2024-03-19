@@ -110,34 +110,43 @@ export const etiquetaRouter = router({
     .query(async ({ input, ctx }) => {
       const gruposMatch = await ctx.prisma.etiquetaGrupo.findMany({
         where: {
-          AND: {
-            OR: [
-              {
-                nombre: {
-                  contains: input,
-                  mode: 'insensitive',
-                },
+          OR: [
+            {
+              etiquetas: {
+                none: {},
               },
-              {
+            },
+            {
+              AND: {
+                OR: [
+                  {
+                    nombre: {
+                      contains: input,
+                      mode: 'insensitive',
+                    },
+                  },
+                  {
+                    etiquetas: {
+                      some: {
+                        AND: {
+                          nombre: {
+                            contains: input,
+                            mode: 'insensitive',
+                          },
+                          id: { in: ctx.etiquetasVisibles },
+                        },
+                      },
+                    },
+                  },
+                ],
                 etiquetas: {
                   some: {
-                    AND: {
-                      nombre: {
-                        contains: input,
-                        mode: 'insensitive',
-                      },
-                      id: { in: ctx.etiquetasVisibles },
-                    },
+                    id: { in: ctx.etiquetasVisibles },
                   },
                 },
               },
-            ],
-            etiquetas: {
-              some: {
-                id: { in: ctx.etiquetasVisibles },
-              },
             },
-          },
+          ],
         },
         select: {
           etiquetas: {
@@ -161,9 +170,14 @@ export const etiquetaRouter = router({
           nombre: true,
           id: true,
         },
-        orderBy: {
-          created_at: 'desc',
-        },
+        orderBy: [
+          {
+            etiquetas: {
+              _count: 'desc',
+            },
+          },
+          { created_at: 'desc' },
+        ],
       });
 
       return gruposMatch;
