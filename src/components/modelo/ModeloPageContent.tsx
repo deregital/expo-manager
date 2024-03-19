@@ -1,5 +1,5 @@
 import { RouterOutputs } from '@/server';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import ListaEtiquetas from '@/components/modelo/ListaEtiquetas';
 import { create } from 'zustand';
@@ -39,6 +39,11 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const [fotoUrl, setFotoUrl] = useState(modelo?.fotoUrl);
   const editModelo = trpc.modelo.edit.useMutation();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [video, setVideo] = useState<File | null>(null);
+
+  useEffect(() => {
+    console.log(fotoUrl);
+  }, [fotoUrl]);
 
   async function handleDelete() {
     await editModelo
@@ -48,16 +53,30 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       })
       .then(() => toast.success('Foto eliminada con éxito'))
       .catch(() => toast.error('Error al eliminar la foto'));
+    setFotoUrl(modelo.fotoUrl);
+    inputRef.current!.value = '';
   }
 
   async function handleUpload() {
-    await editModelo
-      .mutateAsync({
-        id: modelo.id,
-        fotoUrl: fotoUrl === null ? undefined : fotoUrl,
-      })
-      .then(() => toast.success('Foto actualizada'))
-      .catch(() => toast.error('Error al actualizar la foto'));
+    if (!video) {
+      toast.error('No se ha seleccionado una imágen');
+      return;
+    }
+    const form = new FormData();
+    form.append('imagen', video);
+    await fetch('/api/image', {
+      method: 'POST',
+      body: form,
+    }).then((res) => {
+      console.log(res);
+    });
+    // await editModelo
+    //   .mutateAsync({
+    //     id: modelo.id,
+    //     fotoUrl: fotoUrl === null ? undefined : fotoUrl,
+    //   })
+    //   .then(() => toast.success('Foto actualizada'))
+    //   .catch(() => toast.error('Error al actualizar la foto'));
   }
 
   return (
@@ -92,11 +111,8 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
               ref={inputRef}
               onChange={(e) => {
                 const file = e.target.files?.[0];
+                setVideo(file ? file : null);
                 setFotoUrl(!file ? null : URL.createObjectURL(file));
-                console.log(file ? URL.createObjectURL(file) : undefined);
-                fetch(URL.createObjectURL(file!)).then(async (res) => {
-                  console.log(await res.json());
-                });
               }}
             />
           </div>
