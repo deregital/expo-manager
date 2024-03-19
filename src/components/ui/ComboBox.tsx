@@ -65,7 +65,7 @@ const ComboBox = <
     : 'Etiqueta no encontrada.';
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover modal open={open} onOpenChange={setOpen}>
       <PopoverTrigger className='text-black' asChild>
         <Button
           variant='outline'
