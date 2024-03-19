@@ -1,6 +1,5 @@
 'use client';
-import { useDebounceValue } from 'usehooks-ts';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 
 import EtiquetasList from '@/components/etiquetas/list/EtiquetasList';
@@ -8,11 +7,26 @@ import SearchInput from '@/components/ui/SearchInput';
 import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
 import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
 import Loader from '@/components/ui/loader';
+import { normalize } from '@/lib/utils';
 
 const EtiquetasPage = () => {
-  const [search, setSearch] = useDebounceValue('', 500);
-  const { data: grupos, isLoading } =
-    trpc.etiqueta.getByNombre.useQuery(search);
+  const [search, setSearch] = useState('');
+  const { data: grupos, isLoading } = trpc.etiqueta.getByNombre.useQuery();
+
+  const gruposFiltrados = useMemo(() => {
+    if (search === '') return grupos;
+
+    return grupos?.filter((grupo) => {
+      return (
+        grupo.etiquetas.some((etiqueta) =>
+          normalize(etiqueta.nombre)
+            .toLowerCase()
+            .includes(search.toLowerCase())
+        ) ||
+        normalize(grupo.nombre).toLowerCase().includes(search.toLowerCase())
+      );
+    });
+  }, [grupos, search]);
 
   return (
     <>
@@ -35,7 +49,7 @@ const EtiquetasPage = () => {
             <Loader />
           </div>
         ) : (
-          <EtiquetasList grupos={grupos ?? []} />
+          <EtiquetasList grupos={gruposFiltrados ?? []} />
         )}
       </div>
     </>

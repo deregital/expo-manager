@@ -24,3 +24,7 @@ export function getTextColorByBg(bg: string) {
 export function randomColor() {
   return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
 }
+
+export function normalize(str: string) {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}

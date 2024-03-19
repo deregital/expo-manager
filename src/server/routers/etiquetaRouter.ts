@@ -110,6 +110,43 @@ export const etiquetaRouter = router({
     .query(async ({ input, ctx }) => {
       const gruposMatch = await ctx.prisma.etiquetaGrupo.findMany({
         where: {
+          //   OR: [
+          //     {
+          //       etiquetas: {
+          //         none: {},
+          //       },
+          //     },
+          //     {
+          //       AND: {
+          //         OR: [
+          //           {
+          //             nombre: {
+          //               contains: input,
+          //               mode: 'insensitive',
+          //             },
+          //           },
+          //           {
+          //             etiquetas: {
+          //               some: {
+          //                 AND: {
+          //                   nombre: {
+          //                     contains: input,
+          //                     mode: 'insensitive',
+          //                   },
+          //                   id: { in: ctx.etiquetasVisibles },
+          //                 },
+          //               },
+          //             },
+          //           },
+          //         ],
+          //         etiquetas: {
+          //           some: {
+          //             id: { in: ctx.etiquetasVisibles },
+          //           },
+          //         },
+          //       },
+          //     },
+          //   ],
           OR: [
             {
               etiquetas: {
@@ -117,32 +154,9 @@ export const etiquetaRouter = router({
               },
             },
             {
-              AND: {
-                OR: [
-                  {
-                    nombre: {
-                      contains: input,
-                      mode: 'insensitive',
-                    },
-                  },
-                  {
-                    etiquetas: {
-                      some: {
-                        AND: {
-                          nombre: {
-                            contains: input,
-                            mode: 'insensitive',
-                          },
-                          id: { in: ctx.etiquetasVisibles },
-                        },
-                      },
-                    },
-                  },
-                ],
-                etiquetas: {
-                  some: {
-                    id: { in: ctx.etiquetasVisibles },
-                  },
+              etiquetas: {
+                some: {
+                  id: { in: ctx.etiquetasVisibles },
                 },
               },
             },
@@ -180,6 +194,14 @@ export const etiquetaRouter = router({
         ],
       });
 
-      return gruposMatch;
+      if (input === '') {
+        return gruposMatch;
+      } else {
+        return gruposMatch.filter((grupo) => {
+          if (grupo.etiquetas.length > 0) {
+            return grupo;
+          }
+        });
+      }
     }),
 });
