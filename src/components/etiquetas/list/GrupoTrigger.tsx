@@ -1,5 +1,6 @@
 import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
 import { RouterOutputs } from '@/server';
+import { LockIcon, UnlockIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
 
@@ -32,6 +33,11 @@ const GrupoTrigger = ({ grupo }: GrupoTriggerProps) => {
         </span>
       </div>
       <div className='flex items-center gap-x-2'>
+        {grupo.esExclusivo ? (
+          <LockIcon className='h-5 w-5' />
+        ) : (
+          <UnlockIcon className='h-5 w-5' />
+        )}
         <div onClick={(e) => e.preventDefault()}>
           <GrupoEtiquetaModal action='EDIT' grupo={grupo} />
         </div>
