@@ -91,6 +91,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
         })
         .then(() => {
           setOpen(false);
+          utils.grupoEtiqueta.getAll.invalidate();
           toast.success('Grupo de etiquetas editado con éxito');
         })
         .catch(() => {

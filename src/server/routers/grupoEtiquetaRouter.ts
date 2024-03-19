@@ -32,6 +32,9 @@ export const grupoEtiquetaRouter = router({
       include: {
         etiquetas: true,
       },
+      orderBy: {
+        updated_at: 'desc',
+      },
     });
   }),
   getById: protectedProcedure
