@@ -49,12 +49,22 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findMany({
         where: {
-          etiquetas: {
-            some: {
-              id: { in: ctx.etiquetasVisibles },
-              nombre: { in: input },
+          AND: [
+            {
+              etiquetas: {
+                some: {
+                  id: { in: input },
+                },
+              },
             },
-          },
+            {
+              etiquetas: {
+                some: {
+                  id: { in: ctx.etiquetasVisibles },
+                },
+              },
+            },
+          ],
         },
         include: {
           etiquetas: true,

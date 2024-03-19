@@ -10,13 +10,16 @@ import { cn, randomColor } from '@/lib/utils';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import EditFillIcon from '@/components/icons/EditFillIcon';
-import { EtiquetaGrupo } from '@prisma/client';
 import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
+import { RouterOutputs } from '@/server';
 
 interface GrupoEtiquetaModalProps {
   action: 'EDIT' | 'CREATE';
-  grupo?: Omit<EtiquetaGrupo, 'created_at' | 'updated_at'>;
+  grupo?: Omit<
+    RouterOutputs['etiqueta']['getByNombre'][number],
+    'created_at' | 'updated_at'
+  >;
 }
 
 type GrupoEtiquetaModalData = {
@@ -37,9 +40,11 @@ export const useGrupoEtiquetaModalData = create<GrupoEtiquetaModalData>(() => ({
 
 const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
   const [open, setOpen] = useState(false);
+  const [quiereEliminar, setQuiereEliminar] = useState(false);
   const utils = trpc.useUtils();
   const createGrupoEtiqueta = trpc.grupoEtiqueta.create.useMutation();
   const editGrupoEtiqueta = trpc.grupoEtiqueta.edit.useMutation();
+  const deleteGrupoEtiqueta = trpc.grupoEtiqueta.delete.useMutation();
   const modalData = useGrupoEtiquetaModalData((state) => ({
     tipo: state.tipo,
     nombre: state.nombre,
@@ -47,6 +52,8 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
     color: state.color,
     esExclusivo: state.esExclusivo,
   }));
+
+  const puedeEliminar = grupo?._count.etiquetas === 0;
 
   async function handleCancel() {
     useGrupoEtiquetaModalData.setState({
@@ -111,6 +118,24 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
     }
 
     utils.etiqueta.getByNombre.invalidate();
+  }
+
+  async function handleDelete() {
+    if (quiereEliminar) {
+      await deleteGrupoEtiqueta
+        .mutateAsync(grupo?.id ?? '')
+        .then(() => {
+          setOpen(false);
+          utils.etiqueta.getByNombre.invalidate();
+          toast.success('Grupo de etiquetas eliminado con éxito');
+        })
+        .catch(() => {
+          setOpen(true);
+          toast.error('Error al eliminar el grupo de etiquetas');
+        });
+    } else {
+      setQuiereEliminar(true);
+    }
   }
 
   return (
@@ -231,17 +256,45 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
                 : ''}
             </p>
           ) : null}
-          <Button
-            className='w-full max-w-32'
-            onClick={handleSubmit}
-            disabled={
-              editGrupoEtiqueta.isLoading || createGrupoEtiqueta.isLoading
-            }
-          >
-            {((editGrupoEtiqueta.isLoading ||
-              createGrupoEtiqueta.isLoading) && <Loader />) ||
-              (modalData.tipo === 'CREATE' ? 'Crear' : 'Editar')}
-          </Button>
+          <div className='flex gap-x-4'>
+            <Button
+              className='w-full max-w-32'
+              onClick={handleSubmit}
+              disabled={
+                editGrupoEtiqueta.isLoading || createGrupoEtiqueta.isLoading
+              }
+            >
+              {((editGrupoEtiqueta.isLoading ||
+                createGrupoEtiqueta.isLoading) && <Loader />) ||
+                (modalData.tipo === 'CREATE' ? 'Crear' : 'Editar')}
+            </Button>
+            {modalData.tipo === 'EDIT' && (
+              <Button
+                variant='destructive'
+                className={cn({
+                  'bg-red-700 hover:bg-red-500': quiereEliminar,
+                })}
+                onClick={handleDelete}
+                disabled={!puedeEliminar}
+              >
+                {puedeEliminar
+                  ? quiereEliminar
+                    ? '¿Estás seguro?'
+                    : 'Eliminar'
+                  : 'No se puede eliminar'}
+              </Button>
+            )}
+            {quiereEliminar && (
+              <Button
+                variant='secondary'
+                onClick={() => {
+                  setQuiereEliminar(false);
+                }}
+              >
+                Cancelar
+              </Button>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </>

@@ -6,7 +6,6 @@ import GrupoEtiquetaComboBox from './GrupoEtiquetaComboBox';
 import { useState } from 'react';
 import { create } from 'zustand';
 import { Button } from '@/components/ui/button';
-import { Etiqueta } from '@prisma/client';
 import EtiquetaFillIcon from '@/components/icons/EtiquetaFillIcon';
 import {
   ModalTriggerCreate,
@@ -15,10 +14,15 @@ import {
 import EditFillIcon from '@/components/icons/EditFillIcon';
 import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
+import { cn } from '@/lib/utils';
+import { RouterOutputs } from '@/server';
 
 interface EtiquetaModalProps {
   action: 'CREATE' | 'EDIT';
-  etiqueta?: Omit<Etiqueta, 'created_at' | 'updated_at'>;
+  etiqueta?: Omit<
+    RouterOutputs['etiqueta']['getByNombre'][number]['etiquetas'][number],
+    'created_at' | 'updated_at'
+  >;
 }
 
 type ModalData = {
@@ -27,6 +31,7 @@ type ModalData = {
   nombre: string;
   etiquetaId: string;
 };
+
 export const useEtiquetaModalData = create<ModalData>(() => ({
   tipo: 'CREATE',
   grupoId: '',
@@ -37,14 +42,18 @@ export const useEtiquetaModalData = create<ModalData>(() => ({
 const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
   const { data: getGrupoEtiquetas, isLoading } =
     trpc.grupoEtiqueta.getAll.useQuery();
+
   const utils = trpc.useUtils();
   const modalData = useEtiquetaModalData((state) => ({
+    etiquetaId: state.etiquetaId,
     tipo: state.tipo,
     nombre: state.nombre,
   }));
   const [open, setOpen] = useState(false);
+  const [quiereEliminar, setQuiereEliminar] = useState(false);
   const createEtiqueta = trpc.etiqueta.create.useMutation();
   const editEtiqueta = trpc.etiqueta.edit.useMutation();
+  const deleteEtiqueta = trpc.etiqueta.delete.useMutation();
 
   async function sendEtiqueta() {
     if (modalData.tipo === 'CREATE') {
@@ -101,6 +110,34 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
     });
     createEtiqueta.reset();
     editEtiqueta.reset();
+  }
+
+  async function handleDelete() {
+    if (quiereEliminar) {
+      await deleteEtiqueta
+        .mutateAsync(modalData.etiquetaId)
+        .then(() => {
+          setOpen(!open);
+          toast.success('Etiqueta eliminada con éxito');
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error('Error al eliminar la etiqueta');
+        });
+
+      if (createEtiqueta.isSuccess || editEtiqueta.isSuccess) {
+        useEtiquetaModalData.setState({
+          tipo: 'CREATE',
+          grupoId: '',
+          nombre: '',
+          etiquetaId: '',
+        });
+      }
+
+      utils.etiqueta.getByNombre.invalidate();
+    } else {
+      setQuiereEliminar(true);
+    }
   }
 
   return (
@@ -188,16 +225,49 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
                 : ''}
             </p>
           ) : null}
-          <Button
-            className='w-full max-w-32'
-            onClick={sendEtiqueta}
-            disabled={editEtiqueta.isLoading || createEtiqueta.isLoading}
-          >
-            {((editEtiqueta.isLoading || createEtiqueta.isLoading) && (
-              <Loader />
-            )) ||
-              (modalData.tipo === 'CREATE' ? 'Crear' : 'Editar')}
-          </Button>
+          <div className='flex gap-x-4'>
+            <Button
+              className='w-full max-w-32'
+              onClick={sendEtiqueta}
+              disabled={editEtiqueta.isLoading || createEtiqueta.isLoading}
+            >
+              {((editEtiqueta.isLoading || createEtiqueta.isLoading) && (
+                <Loader />
+              )) ||
+                (modalData.tipo === 'CREATE' ? 'Crear' : 'Editar')}
+            </Button>
+            {modalData.tipo === 'EDIT' && (
+              <>
+                <Button
+                  variant='destructive'
+                  className={cn({
+                    'bg-red-700 hover:bg-red-500': quiereEliminar,
+                  })}
+                  onClick={handleDelete}
+                  disabled={
+                    etiqueta?._count.perfiles !== undefined &&
+                    etiqueta._count.perfiles > 0
+                  }
+                >
+                  {etiqueta?._count.perfiles === 0
+                    ? quiereEliminar
+                      ? '¿Estás seguro?'
+                      : 'Eliminar'
+                    : 'No se puede eliminar'}
+                </Button>
+                {quiereEliminar && (
+                  <Button
+                    variant='secondary'
+                    onClick={() => {
+                      setQuiereEliminar(false);
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </>
