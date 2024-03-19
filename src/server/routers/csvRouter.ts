@@ -53,7 +53,7 @@ export const exportModelos = protectedProcedure.mutation(async ({ ctx }) => {
 
 
 export const csvRouter = router({
-  downloadModelos: protectedProcedure.query(async ({ ctx }) => {
+  downloadModelos: protectedProcedure.mutation(async ({ ctx }) => {
     if (!ctx.session?.user) {
       throw new TRPCError({
         code: "UNAUTHORIZED",

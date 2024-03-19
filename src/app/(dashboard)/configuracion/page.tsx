@@ -1,25 +1,25 @@
 "use client"
+import { trpc } from '@/lib/trpc';
 import React from 'react';
 
 
 const ConfiguracionPage = () => {
-  // Función para manejar la descarga del archivo CSV
+  const exportModelos = trpc.csv.downloadModelos.useMutation();
+
   const handleDownloadCSV = async () => {
     try {
-     
-      const response = await fetch('/api/exportModelos'); 
-      const csvData = await response.text();
-      const blob = new Blob([csvData], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
+      const csvData = await exportModelos.mutateAsync(); 
 
-     
+      const blob = new Blob([csvData], { type: 'text/csv' });
+
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'modelos.csv');
       document.body.appendChild(link);
+
       link.click();
 
-      // Limpiar después de la descarga
       window.URL.revokeObjectURL(url);
       document.body.removeChild(link);
     } catch (error) {
