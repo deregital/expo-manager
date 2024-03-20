@@ -44,14 +44,16 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const utils = trpc.useUtils();
 
   async function handleDelete() {
-    await editModelo
-      .mutateAsync({
-        id: modelo.id,
-        fotoUrl: null,
-      })
-      .then(() => {
+    const form = new FormData();
+    form.append('id', modelo.id);
+    form.append('url', modelo.fotoUrl ?? '');
+    await fetch('/api/image', {
+      method: 'DELETE',
+      body: form,
+    })
+      .then((res) => {
         toast.success('Foto eliminada con éxito');
-        utils.modelo.getById.invalidate(modelo.id);
+        utils.modelo.getById.invalidate();
         setFotoUrl(null);
       })
       .catch(() => toast.error('Error al eliminar la foto'));
