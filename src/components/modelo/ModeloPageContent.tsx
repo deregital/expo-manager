@@ -1,5 +1,5 @@
 import { RouterOutputs } from '@/server';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import ListaEtiquetas from '@/components/modelo/ListaEtiquetas';
 import { create } from 'zustand';
@@ -40,20 +40,21 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const editModelo = trpc.modelo.edit.useMutation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [video, setVideo] = useState<File | null>(null);
-
-  useEffect(() => {
-    console.log(fotoUrl);
-  }, [fotoUrl]);
+  const [showButton, setShowButton] = useState(false);
+  const utils = trpc.useUtils();
 
   async function handleDelete() {
     await editModelo
       .mutateAsync({
         id: modelo.id,
-        fotoUrl: undefined,
+        fotoUrl: null,
       })
-      .then(() => toast.success('Foto eliminada con éxito'))
+      .then(() => {
+        toast.success('Foto eliminada con éxito');
+        utils.modelo.getById.invalidate(modelo.id);
+        setFotoUrl(null);
+      })
       .catch(() => toast.error('Error al eliminar la foto'));
-    setFotoUrl(modelo.fotoUrl);
     inputRef.current!.value = '';
   }
 
@@ -64,26 +65,29 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     }
     const form = new FormData();
     form.append('imagen', video);
+    form.append('id', modelo.id);
+    form.append('url', modelo.fotoUrl ?? '');
     await fetch('/api/image', {
       method: 'POST',
       body: form,
     }).then((res) => {
       console.log(res);
+      inputRef.current!.value = '';
+      toast.success('Foto actualizada con éxito');
+      setShowButton(false);
+      utils.modelo.getById.invalidate();
     });
-    // await editModelo
-    //   .mutateAsync({
-    //     id: modelo.id,
-    //     fotoUrl: fotoUrl === null ? undefined : fotoUrl,
-    //   })
-    //   .then(() => toast.success('Foto actualizada'))
-    //   .catch(() => toast.error('Error al actualizar la foto'));
   }
 
   return (
     <>
       <div className='mt-4 flex gap-x-4'>
         <Image
-          src={fotoUrl || '/img/profilePlaceholder.jpg'}
+          src={
+            (fotoUrl === modelo.fotoUrl && fotoUrl
+              ? `${fotoUrl}?test=${new Date().getTime()}`
+              : fotoUrl) || '/img/profilePlaceholder.jpg'
+          }
           width={150}
           height={150}
           alt={`${modelo?.nombreCompleto}`}
@@ -106,35 +110,42 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           <div className='hidden md:flex'>
             <input
               type='file'
+              name='imagen'
               className='text-base'
-              accept='image/*'
+              accept='image/jpeg,image/png,image/webp'
               ref={inputRef}
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 setVideo(file ? file : null);
                 setFotoUrl(!file ? null : URL.createObjectURL(file));
+                setShowButton(!!file);
               }}
             />
           </div>
           <div className='hidden gap-x-3 md:flex'>
-            <Button
-              className={`${fotoUrl && fotoUrl !== modelo.fotoUrl ? 'flex' : 'hidden'} h-fit w-fit p-2 text-xs`}
-              onClick={handleUpload}
-            >
-              Guardar
-            </Button>
+            {showButton && (
+              <Button
+                className={`h-fit w-fit p-2 text-xs`}
+                onClick={handleUpload}
+              >
+                Guardar
+              </Button>
+            )}
             <Button className='h-fit w-fit p-2 text-xs' onClick={handleDelete}>
               Eliminar foto
             </Button>
-            <Button
-              className='h-fit w-fit p-2 text-xs'
-              onClick={() => {
-                setFotoUrl(modelo.fotoUrl);
-                inputRef.current!.value = '';
-              }}
-            >
-              Limpiar foto
-            </Button>
+            {showButton && (
+              <Button
+                className='h-fit w-fit p-2 text-xs'
+                onClick={() => {
+                  setFotoUrl(modelo.fotoUrl);
+                  inputRef.current!.value = '';
+                  setShowButton(false);
+                }}
+              >
+                Limpiar foto
+              </Button>
+            )}
           </div>
         </div>
       </div>

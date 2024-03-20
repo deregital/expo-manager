@@ -109,7 +109,7 @@ export const modeloRouter = router({
         nombreCompleto: z.string().optional(),
         nombrePila: z.string().optional(),
         telefono: z.string().optional(),
-        fotoUrl: z.string().optional(),
+        fotoUrl: z.string().optional().nullable(),
         genero: z.string().optional(),
         edad: z.number().optional(),
         etiquetas: z
