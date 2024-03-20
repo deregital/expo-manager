@@ -113,3 +113,51 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
   return new NextResponse('Imágen subida con éxito', { status: 200 });
 }
+
+export async function DELETE(req: NextRequest, res: NextResponse) {
+  const form = await req.formData();
+  const currentFotoUrl = form.get('url') as string;
+  if (currentFotoUrl !== '') {
+    const options = {
+      hostname: process.env.HOSTNAME,
+      path: `/${process.env.STORAGE_ZONE_NAME}${new URL(currentFotoUrl).pathname}`,
+      method: 'DELETE',
+      headers: {
+        AccessKey: process.env.ACCESS_KEY2,
+      },
+    };
+    const reqCDN = https.request(options, (response) => {
+      let responseBody = '';
+      response.on('data', (chunk) => {
+        responseBody += chunk;
+      });
+      response.on('end', async () => {
+        if (response.statusCode !== 200 && response.statusCode !== 201) {
+          return new NextResponse('Error al eliminar el archivo', {
+            status: 500,
+          });
+        } else {
+          await prisma?.perfil
+            .update({
+              where: {
+                id: form.get('id') as string,
+              },
+              data: {
+                fotoUrl: null,
+              },
+            })
+            .then(() => {
+              return new NextResponse('Archivo eliminado con éxito', {
+                status: 200,
+              });
+            });
+        }
+      });
+    });
+    reqCDN.on('error', (error) => {
+      console.error('Error al eliminar el archivo:', error);
+      return new NextResponse('Error al eliminar el archivo', { status: 500 });
+    });
+    reqCDN.end();
+  }
+}
