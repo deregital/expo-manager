@@ -56,7 +56,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     reqCDN.end();
   }
   if (!filepath)
-    return new Response('No se subió ningún archivo', { status: 405 });
+    return new NextResponse('No se subió ningún archivo', { status: 400 });
   const fileBuffer = await filepath.arrayBuffer();
   const path = `/${process.env.STORAGE_ZONE_NAME}/${id}.${extensions[filepath.type as keyof typeof extensions]}`;
   const fotoUrl = `https://${process.env.CDN}/${id}.${extensions[filepath.type as keyof typeof extensions]}`;
@@ -77,8 +77,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     });
     response.on('end', async () => {
       if (response.statusCode !== 200 && response.statusCode !== 201) {
-        console.error('Error al subir el archivo:', responseBody);
-        return new Response('Error al subir el archivo', { status: 500 });
+        return new NextResponse('Error al subir el archivo', { status: 500 });
       }
       const options = {
         method: 'POST',
@@ -92,8 +91,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
         options
       );
       if (!resPurge.ok) {
-        console.error('Error al purgar el archivo:', resPurge.statusText);
-        return new Response('Error al purgar el archivo', { status: 500 });
+        return new NextResponse('Error al purgar el archivo', { status: 500 });
       }
       await prisma?.perfil.update({
         where: {
@@ -107,11 +105,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
   });
 
   reqCDN.on('error', (error) => {
-    console.error('Error al subir el archivo:', error);
-    return new Response('Error al subir el archivo', { status: 500 });
+    return new NextResponse('Error al subir el archivo', { status: 500 });
   });
 
   const stream = bufferToStream(Buffer.from(fileBuffer));
   stream.pipe(reqCDN);
-  return new Response('Imágen recibida', { status: 200 });
+
+  return new NextResponse('Imágen subida con éxito', { status: 200 });
 }
