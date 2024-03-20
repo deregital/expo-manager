@@ -1,16 +1,71 @@
 import * as https from 'https';
-import * as fs from 'fs';
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
+import { Duplex } from 'stream';
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
-  const filepath = req.body!.file.path;
-  const filename = `${req.body.file.originalname}`;
+export const config = {
+  api: {
+    bodyParser: false, // Deshabilitar bodyParser por defecto
+  },
+};
+
+function bufferToStream(myBuffer: Buffer) {
+  let tmp = new Duplex();
+  tmp.push(myBuffer);
+  tmp.push(null);
+  return tmp;
+}
+
+const extensions = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+};
+
+export async function POST(req: NextRequest, res: NextResponse) {
+  const form = await req.formData();
+  const filepath = form.get('imagen') as File;
+  const id = form.get('id') as string;
+  const currentFotoUrl = form.get('url') as string;
+  if (currentFotoUrl !== '') {
+    const options = {
+      hostname: process.env.HOSTNAME,
+      path: `/${process.env.STORAGE_ZONE_NAME}${new URL(currentFotoUrl).pathname}`,
+      method: 'DELETE',
+      headers: {
+        AccessKey: process.env.ACCESS_KEY2,
+      },
+    };
+    const reqCDN = https.request(options, (response) => {
+      let responseBody = '';
+      response.on('data', (chunk) => {
+        responseBody += chunk;
+      });
+      response.on('end', async () => {
+        if (response.statusCode !== 200 && response.statusCode !== 201) {
+          console.error('Error al eliminar el archivo:', responseBody);
+          return new Response('Error al eliminar el archivo', { status: 500 });
+        } else {
+          console.log('Archivo eliminado con éxito', responseBody);
+        }
+      });
+    });
+    reqCDN.on('error', (error) => {
+      console.error('Error al eliminar el archivo:', error);
+      return new Response('Error al eliminar el archivo', { status: 500 });
+    });
+    reqCDN.end();
+  }
+  if (!filepath)
+    return new Response('No se subió ningún archivo', { status: 405 });
+  const fileBuffer = await filepath.arrayBuffer();
+  const path = `/${process.env.STORAGE_ZONE_NAME}/${id}.${extensions[filepath.type as keyof typeof extensions]}`;
+  const fotoUrl = `https://${process.env.CDN}/${id}.${extensions[filepath.type as keyof typeof extensions]}`;
   const options = {
     hostname: process.env.HOSTNAME,
-    path: `/${process.env.STORAGE_ZONE_NAME}/${filename}`,
+    path: path,
     method: 'PUT',
     headers: {
-      AccessKey: process.env.ACCESS_KEY,
+      AccessKey: process.env.ACCESS_KEY2,
       'Content-Type': 'application/octet-stream',
     },
   };
@@ -20,81 +75,43 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
     response.on('data', (chunk) => {
       responseBody += chunk;
     });
-
-    response.on('end', () => {
-      fs.unlinkSync(filepath); // Eliminar el archivo temporal
-      res.json({ message: 'Archivo subido con éxito', filename: filename });
+    response.on('end', async () => {
+      if (response.statusCode !== 200 && response.statusCode !== 201) {
+        console.error('Error al subir el archivo:', responseBody);
+        return new Response('Error al subir el archivo', { status: 500 });
+      }
+      const options = {
+        method: 'POST',
+        headers: {
+          AccessKey: process.env.ACCESS_KEY!,
+        },
+      };
+      const resPurge = await fetch(
+        'https://api.bunny.net/purge?' +
+          new URLSearchParams({ url: fotoUrl, async: 'false' }),
+        options
+      );
+      if (!resPurge.ok) {
+        console.error('Error al purgar el archivo:', resPurge.statusText);
+        return new Response('Error al purgar el archivo', { status: 500 });
+      }
+      await prisma?.perfil.update({
+        where: {
+          id: id,
+        },
+        data: {
+          fotoUrl: fotoUrl,
+        },
+      });
     });
   });
 
   reqCDN.on('error', (error) => {
     console.error('Error al subir el archivo:', error);
-    res.status(500).json({ error: 'Error al subir el archivo' });
+    return new Response('Error al subir el archivo', { status: 500 });
   });
 
-  const stream = fs.createReadStream(filepath);
+  const stream = bufferToStream(Buffer.from(fileBuffer));
   stream.pipe(reqCDN);
   return new Response('Imágen recibida', { status: 200 });
 }
-
-// import { createRouter } from 'next-connect';
-// import multer from 'multer';
-// import https from 'https';
-// import fs from 'fs';
-// import { v4 as uuidv4 } from 'uuid';
-// import { NextApiRequest, NextApiResponse } from 'next';
-
-// const upload = multer({ dest: '/tmp' }); // Almacenar archivos temporalmente en /tmp
-
-// const apiRoute = createRouter();
-
-// Solo permitir POST requests
-// apiRoute.use(upload.single('imagen'));
-
-// apiRoute.post((req: NextApiRequest, res: NextApiResponse) => {
-//     if (!req.body.file) return res.status(400).send('No se subió ningún archivo.');
-//     const filename = `${uuidv4()}-${req.body.file.originalname}`;
-
-//     const filePath = req.body.file.path;
-//     const BUNNY_STORAGE_ZONE_NAME = 'expo-manager';
-//     const BUNNY_ACCESS_KEY = 'e6caddd5-3111-4df0-83b4758acf04-66b9-44b3';
-//     const BUNNY_HOSTNAME = 'br.storage.bunnycdn.com';
-
-//     const options = {
-//         hostname: BUNNY_HOSTNAME,
-//         path: `/${BUNNY_STORAGE_ZONE_NAME}/${filename}`,
-//         method: 'PUT',
-//         headers: {
-//             AccessKey: BUNNY_ACCESS_KEY,
-//             'Content-Type': 'application/octet-stream',
-//         },
-//     };
-
-//     const reqCDN = https.request(options, response => {
-//         let responseBody = '';
-//         response.on('data', chunk => {
-//             responseBody += chunk;
-//         });
-
-//         response.on('end', () => {
-//             fs.unlinkSync(filePath); // Eliminar el archivo temporal
-//             res.json({ message: 'Archivo subido con éxito', filename: filename });
-//         });
-//     });
-
-//     reqCDN.on('error', error => {
-//         console.error('Error al subir el archivo:', error);
-//         res.status(500).json({ error: 'Error al subir el archivo' });
-//     });
-
-//     const stream = fs.createReadStream(filePath);
-//     stream.pipe(reqCDN);
-// });
-
-// export const config = {
-//     api: {
-//         bodyParser: false, // Deshabilitar bodyParser por defecto
-//     },
-// };
-
-// export default apiRoute.handler();
