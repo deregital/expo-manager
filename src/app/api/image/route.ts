@@ -137,20 +137,22 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
             status: 500,
           });
         } else {
-          await prisma?.perfil
-            .update({
-              where: {
-                id: form.get('id') as string,
-              },
-              data: {
-                fotoUrl: null,
-              },
-            })
-            .then(() => {
-              return new NextResponse('Archivo eliminado con éxito', {
-                status: 200,
-              });
-            });
+          await prisma?.perfil.update({
+            where: {
+              id: form.get('id') as string,
+            },
+            data: {
+              fotoUrl: null,
+            },
+          });
+          // .then(() => {
+          //   return new NextResponse('Archivo eliminado con éxito', {
+          //     status: 200,
+          //   });
+          // });
+          return new NextResponse('Archivo eliminado con éxito', {
+            status: 200,
+          });
         }
       });
     });
@@ -160,4 +162,5 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
     });
     reqCDN.end();
   }
+  return new NextResponse('No se mandó ningún archivo', { status: 400 });
 }
