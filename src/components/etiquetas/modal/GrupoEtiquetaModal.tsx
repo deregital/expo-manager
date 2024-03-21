@@ -13,6 +13,7 @@ import EditFillIcon from '@/components/icons/EditFillIcon';
 import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
 import { RouterOutputs } from '@/server';
+import ModelosConflict from '@/components/etiquetas/modal/ModelosConflict';
 
 interface GrupoEtiquetaModalProps {
   action: 'EDIT' | 'CREATE';
@@ -41,10 +42,37 @@ export const useGrupoEtiquetaModalData = create<GrupoEtiquetaModalData>(() => ({
 const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
   const [open, setOpen] = useState(false);
   const [quiereEliminar, setQuiereEliminar] = useState(false);
+  const [conflict, setConflict] = useState<
+    RouterOutputs['modelo']['getByGrupoEtiqueta'] | undefined
+  >(undefined);
   const utils = trpc.useUtils();
   const createGrupoEtiqueta = trpc.grupoEtiqueta.create.useMutation();
   const editGrupoEtiqueta = trpc.grupoEtiqueta.edit.useMutation();
   const deleteGrupoEtiqueta = trpc.grupoEtiqueta.delete.useMutation();
+
+  const { data: modelosGrupo, isLoading: modelosGrupoLoading } =
+    trpc.modelo.getByGrupoEtiqueta.useQuery([grupo?.id ?? ''], {
+      //   refetchOnWindowFocus: false,
+      enabled: grupo?.id !== undefined,
+      onSuccess(data) {
+        if (conflict === undefined) return;
+        setConflict(
+          data
+            .filter(
+              (modelo) =>
+                modelo.etiquetas.filter(
+                  (etiqueta) => etiqueta.grupoId === grupo?.id
+                ).length > 1
+            )
+            .map((modelo) => ({
+              ...modelo,
+              etiquetas: modelo.etiquetas.filter(
+                (etiqueta) => etiqueta.grupoId === grupo?.id
+              ),
+            }))
+        );
+      },
+    });
   const modalData = useGrupoEtiquetaModalData((state) => ({
     tipo: state.tipo,
     nombre: state.nombre,
@@ -89,6 +117,35 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
           );
         });
     } else if (tipo === 'EDIT') {
+      if (esExclusivo === true && grupo?.esExclusivo === false) {
+        const conflict =
+          modelosGrupo &&
+          modelosGrupo
+            .filter(
+              (modelo) =>
+                modelo.etiquetas.filter(
+                  (etiqueta) => etiqueta.grupoId === grupoId
+                ).length > 1
+            )
+            .map((modelo) => ({
+              ...modelo,
+              etiquetas: modelo.etiquetas.filter(
+                (etiqueta) => etiqueta.grupoId === grupoId
+              ),
+            }));
+
+        if (conflict && conflict.length > 0) {
+          setOpen(true);
+          toast.error(
+            'No se puede cambiar a exclusivo si hay modelos que tienen más de una etiqueta de este grupo'
+          );
+          setConflict(conflict);
+          return;
+        }
+      }
+
+      setConflict(undefined);
+
       await editGrupoEtiqueta
         .mutateAsync({
           id: grupoId,
@@ -99,6 +156,9 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
         .then(() => {
           setOpen(false);
           utils.grupoEtiqueta.getAll.invalidate();
+          if (grupo) {
+            utils.modelo.getByGrupoEtiqueta.invalidate([grupo.id]);
+          }
           toast.success('Grupo de etiquetas editado con éxito');
         })
         .catch(() => {
@@ -165,6 +225,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
             <div
               onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 setOpen(true);
                 useGrupoEtiquetaModalData.setState({
                   tipo: 'EDIT',
@@ -186,9 +247,13 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
           )}
         </DialogTrigger>
         <DialogContent
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
           onCloseAutoFocus={(e) => {
             e.preventDefault();
             setOpen(false);
+            setConflict(undefined);
             handleCancel();
           }}
           className='flex w-full flex-col gap-y-3 rounded-md bg-slate-100 px-5 py-3 md:mx-auto md:max-w-2xl'
@@ -256,12 +321,18 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
                 : ''}
             </p>
           ) : null}
+
+          {<ModelosConflict modelos={conflict} />}
+
           <div className='flex gap-x-4'>
             <Button
               className='w-full max-w-32'
               onClick={handleSubmit}
               disabled={
-                editGrupoEtiqueta.isLoading || createGrupoEtiqueta.isLoading
+                editGrupoEtiqueta.isLoading ||
+                createGrupoEtiqueta.isLoading ||
+                modelosGrupoLoading ||
+                (conflict && conflict.length > 0)
               }
             >
               {((editGrupoEtiqueta.isLoading ||

@@ -80,7 +80,9 @@ export const modeloRouter = router({
             some: {
               id: { in: ctx.etiquetasVisibles },
               grupo: {
-                nombre: { in: input },
+                id: {
+                  in: input,
+                },
               },
             },
           },
