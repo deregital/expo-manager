@@ -15,6 +15,17 @@ interface EtiquetasListProps {
 }
 
 const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
+  if (grupos.length === 0) {
+    return (
+      <div className='flex h-96 flex-col items-center justify-center gap-y-2'>
+        <h3 className='text-xl text-slate-500'>No hay etiquetas</h3>
+        <p className='text-sm text-slate-400'>
+          Cambie el filtro o cree un item
+        </p>
+      </div>
+    );
+  }
+
   return (
     <Accordion type='multiple' className='pt-4'>
       {grupos.map((grupo) => (
