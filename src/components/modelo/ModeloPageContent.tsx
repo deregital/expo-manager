@@ -82,6 +82,8 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       console.log(res);
       toast.success('Foto actualizada con éxito');
       setEdit(false);
+      setVideo(null);
+      setFileName('');
       utils.modelo.getById.invalidate();
       inputRef.current!.value = '';
     });
@@ -161,6 +163,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
                 onClick={() => {
                   setFotoUrl(modelo.fotoUrl);
                   inputRef.current!.value = '';
+                  setFileName('');
                 }}
               >
                 Limpiar foto
@@ -176,6 +179,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
                 onClick={() => {
                   setFotoUrl(modelo.fotoUrl);
                   inputRef.current!.value = '';
+                  setFileName('');
                   setEdit(false);
                 }}
                 className='h-8 w-8 cursor-pointer'
