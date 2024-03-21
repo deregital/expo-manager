@@ -1,7 +1,19 @@
-import { useExpandEtiquetas } from '@/app/(dashboard)/etiquetas/page';
 import ContractIcon from '@/components/icons/ContractIcon';
 import ExpandIcon from '@/components/icons/ExpandIcon';
 import React from 'react';
+import { create } from 'zustand';
+
+export const useExpandEtiquetas = create<{
+  state: 'EXPAND' | 'CONTRACT' | 'NONE';
+  expand: () => void;
+  contract: () => void;
+  none: () => void;
+}>((set) => ({
+  state: 'NONE',
+  expand: () => set({ state: 'EXPAND' }),
+  contract: () => set({ state: 'CONTRACT' }),
+  none: () => set({ state: 'NONE' }),
+}));
 
 const ExpandContractEtiquetas = () => {
   const { state, contract, expand } = useExpandEtiquetas((s) => ({

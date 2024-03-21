@@ -1,4 +1,4 @@
-import { GrupoConMatch } from '@/app/(dashboard)/etiquetas/page';
+import { GrupoConMatch } from '@/components/etiquetas/list/EtiquetasList';
 import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
 import { cn } from '@/lib/utils';
 import { LockIcon, UnlockIcon } from 'lucide-react';

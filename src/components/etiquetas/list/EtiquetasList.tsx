@@ -1,8 +1,5 @@
-import {
-  GrupoConMatch,
-  useExpandEtiquetas,
-} from '@/app/(dashboard)/etiquetas/page';
 import EtiquetasContent from '@/components/etiquetas/list/EtiquetasContent';
+import { useExpandEtiquetas } from '@/components/etiquetas/list/ExpandContractEtiquetas';
 import GrupoTrigger from '@/components/etiquetas/list/GrupoTrigger';
 import {
   Accordion,
@@ -11,7 +8,18 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { getTextColorByBg } from '@/lib/utils';
+import { RouterOutputs } from '@/server';
 import React, { useEffect, useState } from 'react';
+
+export type GrupoConMatch = Omit<
+  RouterOutputs['etiqueta']['getByNombre'][number],
+  'etiquetas'
+> & {
+  match: boolean;
+  etiquetas: (RouterOutputs['etiqueta']['getByNombre'][number]['etiquetas'][number] & {
+    match: boolean;
+  })[];
+};
 
 interface EtiquetasListProps {
   grupos: GrupoConMatch[];

@@ -1,4 +1,4 @@
-import { GrupoConMatch } from '@/app/(dashboard)/etiquetas/page';
+import { GrupoConMatch } from '@/components/etiquetas/list/EtiquetasList';
 import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
 import ModeloIcon from '@/components/icons/ModeloIcon';
 import { cn } from '@/lib/utils';

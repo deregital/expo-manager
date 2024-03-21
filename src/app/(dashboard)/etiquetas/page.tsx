@@ -2,37 +2,18 @@
 import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 
-import EtiquetasList from '@/components/etiquetas/list/EtiquetasList';
+import EtiquetasList, {
+  GrupoConMatch,
+} from '@/components/etiquetas/list/EtiquetasList';
 import SearchInput from '@/components/ui/SearchInput';
 import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
 import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
 import Loader from '@/components/ui/loader';
 import { normalize } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
-import { create } from 'zustand';
-import ExpandContractEtiquetas from '@/components/etiquetas/list/ExpandContractEtiquetas';
-
-export type GrupoConMatch = Omit<
-  RouterOutputs['etiqueta']['getByNombre'][number],
-  'etiquetas'
-> & {
-  match: boolean;
-  etiquetas: (RouterOutputs['etiqueta']['getByNombre'][number]['etiquetas'][number] & {
-    match: boolean;
-  })[];
-};
-
-export const useExpandEtiquetas = create<{
-  state: 'EXPAND' | 'CONTRACT' | 'NONE';
-  expand: () => void;
-  contract: () => void;
-  none: () => void;
-}>((set) => ({
-  state: 'NONE',
-  expand: () => set({ state: 'EXPAND' }),
-  contract: () => set({ state: 'CONTRACT' }),
-  none: () => set({ state: 'NONE' }),
-}));
+import ExpandContractEtiquetas, {
+  useExpandEtiquetas,
+} from '@/components/etiquetas/list/ExpandContractEtiquetas';
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useState('');
