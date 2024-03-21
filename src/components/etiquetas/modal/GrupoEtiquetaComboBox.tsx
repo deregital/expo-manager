@@ -3,7 +3,6 @@ import { useMemo, useState } from 'react';
 import { useEtiquetaModalData } from './EtiquetaModal';
 import { RouterOutputs } from '@/server';
 import ComboBox from '@/components/ui/ComboBox';
-import { getTextColorByBg } from '@/lib/utils';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 
 const GrupoEtiquetaComboBox = ({
@@ -28,10 +27,6 @@ const GrupoEtiquetaComboBox = ({
       open={open}
       setOpen={setOpen}
       buttonClassName='flex w-full max-w-[200px] justify-between gap-x-2'
-      buttonStyle={{
-        backgroundColor: currentGrupo?.color,
-        color: getTextColorByBg(currentGrupo?.color ?? '#ffffff'),
-      }}
       triggerChildren={
         <>
           <span className='max-w-[calc(100%-30px)] truncate'>

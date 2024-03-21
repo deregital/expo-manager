@@ -4,7 +4,6 @@ import { useModeloData } from '@/components/modelo/ModeloPageContent';
 import ComboBox from '@/components/ui/ComboBox';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
-import { getTextColorByBg } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -151,10 +150,6 @@ const AddEtiquetaCombos = ({
         setOpen={setOpenGrupo}
         data={availableGruposData ?? []}
         id='id'
-        buttonStyle={{
-          backgroundColor: currentGrupo?.color,
-          color: getTextColorByBg(currentGrupo?.color ?? '#ffffff'),
-        }}
         wFullMobile
         triggerChildren={
           <>

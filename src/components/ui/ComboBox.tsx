@@ -76,7 +76,19 @@ const ComboBox = <
             wFullMobile && 'w-full md:w-[200px]',
             buttonClassName
           )}
-          style={buttonStyle}
+          style={
+            isGrupo
+              ? {
+                  backgroundColor: data.find((d) => d['id'] === selectedIf)
+                    ?.color as string,
+                  color: getTextColorByBg(
+                    (data.find((d) => d['id'] === selectedIf)
+                      ?.color as string) ?? '#ffffff'
+                  ),
+                  ...buttonStyle,
+                }
+              : buttonStyle
+          }
         >
           {triggerChildren}
         </Button>
