@@ -32,7 +32,7 @@ const FiltroTabla = () => {
       </div>
       <div className='relative w-full md:max-w-[300px]'>
         <SearchInput
-          placeholder='Buscar por nombre o id legible'
+          placeholder='Buscar por nombre o ID legible'
           onChange={setSearch}
         />
       </div>
