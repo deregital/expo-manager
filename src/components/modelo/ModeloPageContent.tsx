@@ -40,7 +40,8 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const editModelo = trpc.modelo.edit.useMutation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [video, setVideo] = useState<File | null>(null);
-  const [showButton, setShowButton] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
+  const [edit, setEdit] = useState(false);
   const utils = trpc.useUtils();
 
   async function handleDelete() {
@@ -76,7 +77,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       console.log(res);
       inputRef.current!.value = '';
       toast.success('Foto actualizada con éxito');
-      setShowButton(false);
+      setEdit(false);
       utils.modelo.getById.invalidate();
     });
   }
@@ -84,18 +85,30 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   return (
     <>
       <div className='mt-4 flex gap-x-4'>
-        <Image
-          src={
-            (fotoUrl === modelo.fotoUrl && fotoUrl
-              ? `${fotoUrl}?test=${new Date().getTime()}`
-              : fotoUrl) || '/img/profilePlaceholder.jpg'
-          }
-          width={150}
-          height={150}
-          alt={`${modelo?.nombreCompleto}`}
-          priority
-          className='aspect-square w-20 rounded-lg object-fill md:w-[150px]'
-        />
+        <div
+          onMouseOver={() => setCanEdit(true)}
+          onMouseOut={() => setCanEdit(false)}
+          onClick={() => setEdit(true)}
+          className='relative aspect-square w-28 rounded-lg hover:cursor-pointer hover:bg-black/60 hover:transition hover:duration-300 hover:ease-in-out md:w-[200px]'
+        >
+          <Image
+            src={
+              (fotoUrl === modelo.fotoUrl && fotoUrl
+                ? `${fotoUrl}?test=${new Date().getTime()}`
+                : fotoUrl) || '/img/profilePlaceholder.jpg'
+            }
+            width={150}
+            height={150}
+            alt={`${modelo?.nombreCompleto}`}
+            priority
+            className={`absolute left-0 top-0 h-full w-full rounded-lg object-fill`}
+          />
+          {canEdit && (
+            <p className='absolute top-[45%] w-full text-center text-lg font-bold text-white'>
+              EDITAR
+            </p>
+          )}
+        </div>
         <div className='flex w-full flex-col gap-y-4'>
           <div className='flex flex-col gap-4 md:flex-row md:items-end'>
             <h2 className='text-xl font-bold md:text-3xl'>
@@ -120,33 +133,40 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
                 const file = e.target.files?.[0];
                 setVideo(file ? file : null);
                 setFotoUrl(!file ? null : URL.createObjectURL(file));
-                setShowButton(!!file);
               }}
             />
           </div>
           <div className='hidden gap-x-3 md:flex'>
-            {showButton && (
-              <Button
-                className={`h-fit w-fit p-2 text-xs`}
-                onClick={handleUpload}
-              >
-                Guardar
-              </Button>
-            )}
-            <Button className='h-fit w-fit p-2 text-xs' onClick={handleDelete}>
-              Eliminar foto
-            </Button>
-            {showButton && (
-              <Button
-                className='h-fit w-fit p-2 text-xs'
-                onClick={() => {
-                  setFotoUrl(modelo.fotoUrl);
-                  inputRef.current!.value = '';
-                  setShowButton(false);
-                }}
-              >
-                Limpiar foto
-              </Button>
+            {edit && (
+              <>
+                <Button
+                  className={`h-fit w-fit p-2 text-xs`}
+                  onClick={handleUpload}
+                >
+                  Guardar
+                </Button>
+                <Button
+                  className='h-fit w-fit p-2 text-xs'
+                  onClick={handleDelete}
+                >
+                  Eliminar foto
+                </Button>
+                <Button
+                  className='h-fit w-fit p-2 text-xs'
+                  onClick={() => {
+                    setFotoUrl(modelo.fotoUrl);
+                    inputRef.current!.value = '';
+                  }}
+                >
+                  Limpiar foto
+                </Button>
+                <Button
+                  className='h-fit w-fit p-2 text-xs'
+                  onClick={() => setEdit(false)}
+                >
+                  Salir
+                </Button>
+              </>
             )}
           </div>
         </div>
