@@ -7,6 +7,9 @@ import ComentariosSection from '@/components/modelo/ComentariosSection';
 import { Button } from '../ui/button';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
+import CircleXIcon from '../icons/CircleX';
+import { Save, Trash2Icon } from 'lucide-react';
+import CirclePlus from '../icons/CirclePlus';
 
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
@@ -42,6 +45,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const [video, setVideo] = useState<File | null>(null);
   const [canEdit, setCanEdit] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [fileName, setFileName] = useState('');
   const utils = trpc.useUtils();
 
   async function handleDelete() {
@@ -58,6 +62,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
         setFotoUrl(null);
       })
       .catch(() => toast.error('Error al eliminar la foto'));
+    setEdit(false);
     inputRef.current!.value = '';
   }
 
@@ -75,10 +80,10 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       body: form,
     }).then((res) => {
       console.log(res);
-      inputRef.current!.value = '';
       toast.success('Foto actualizada con éxito');
       setEdit(false);
       utils.modelo.getById.invalidate();
+      inputRef.current!.value = '';
     });
   }
 
@@ -122,53 +127,61 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           <div className='hidden flex-wrap gap-2 md:flex'>
             <ListaEtiquetas modeloId={modelo.id} etiquetas={etiquetas} />
           </div>
-          <div className='hidden md:flex'>
-            <input
-              type='file'
-              name='imagen'
-              className='text-base'
-              accept='image/jpeg,image/png,image/webp'
-              ref={inputRef}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                setVideo(file ? file : null);
-                setFotoUrl(!file ? null : URL.createObjectURL(file));
-              }}
-            />
-          </div>
-          <div className='hidden gap-x-3 md:flex'>
-            {edit && (
-              <>
-                <Button
-                  className={`h-fit w-fit p-2 text-xs`}
-                  onClick={handleUpload}
-                >
-                  Guardar
-                </Button>
-                <Button
-                  className='h-fit w-fit p-2 text-xs'
-                  onClick={handleDelete}
-                >
-                  Eliminar foto
-                </Button>
-                <Button
-                  className='h-fit w-fit p-2 text-xs'
-                  onClick={() => {
-                    setFotoUrl(modelo.fotoUrl);
-                    inputRef.current!.value = '';
+          {edit && (
+            <div className='hidden items-center justify-start gap-x-3 md:flex'>
+              <label className='flex items-center justify-center rounded-full border-2 bg-black text-white hover:cursor-pointer'>
+                <CirclePlus className='h-8 w-8' />
+                <input
+                  type='file'
+                  name='imagen'
+                  className='hidden'
+                  accept='image/jpeg,image/png,image/webp'
+                  ref={inputRef}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    setFileName(file?.name ?? '');
+                    setVideo(file ? file : null);
+                    setFotoUrl(!file ? null : URL.createObjectURL(file));
                   }}
-                >
-                  Limpiar foto
-                </Button>
-                <Button
-                  className='h-fit w-fit p-2 text-xs'
-                  onClick={() => setEdit(false)}
-                >
-                  Salir
-                </Button>
-              </>
-            )}
-          </div>
+                />
+              </label>
+              <span>{fileName}</span>
+            </div>
+          )}
+          {edit && (
+            <div className='hidden items-center justify-start gap-x-3 md:flex'>
+              <Button
+                className={`h-fit w-fit p-2 text-xs`}
+                onClick={handleUpload}
+              >
+                Guardar <Save className='ml-1 h-5' />
+              </Button>
+              <Button
+                className='h-9 w-fit p-2 text-xs'
+                onClick={() => {
+                  setFotoUrl(modelo.fotoUrl);
+                  inputRef.current!.value = '';
+                }}
+              >
+                Limpiar foto
+              </Button>
+              <Button
+                className='h-fit w-fit bg-red-600 p-2 text-xs hover:bg-red-800'
+                onClick={handleDelete}
+              >
+                Eliminar
+                <Trash2Icon className='ml-1 h-5' />
+              </Button>
+              <CircleXIcon
+                onClick={() => {
+                  setFotoUrl(modelo.fotoUrl);
+                  inputRef.current!.value = '';
+                  setEdit(false);
+                }}
+                className='h-8 w-8 cursor-pointer'
+              />
+            </div>
+          )}
         </div>
       </div>
       <div className='mt-4 flex flex-wrap gap-2 md:hidden'>
