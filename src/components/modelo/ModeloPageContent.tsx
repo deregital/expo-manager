@@ -158,7 +158,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
               className={`h-fit w-fit p-2 text-xs`}
               onClick={handleUpload}
             >
-              Guardar <Save className='ml-1 h-5' />
+              <Save className='h-5' />
             </Button>
             <Button
               className='h-9 w-fit p-2 text-xs'
@@ -174,8 +174,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
               className='h-fit w-fit bg-red-600 p-2 text-xs hover:bg-red-800'
               onClick={handleDelete}
             >
-              Eliminar
-              <Trash2Icon className='ml-1 h-5' />
+              <Trash2Icon className='h-5' />
             </Button>
             <CircleXIcon
               onClick={() => {
