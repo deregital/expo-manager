@@ -130,65 +130,65 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           <div className='hidden flex-wrap gap-2 md:flex'>
             <ListaEtiquetas modeloId={modelo.id} etiquetas={etiquetas} />
           </div>
-          {edit && (
-            <div className='hidden items-center justify-start gap-x-3 md:flex'>
-              <label className='flex items-center justify-center rounded-full border-2 bg-black text-white hover:cursor-pointer'>
-                <CirclePlus className='h-8 w-8' />
-                <input
-                  type='file'
-                  name='imagen'
-                  className='hidden'
-                  accept='image/jpeg,image/png,image/webp'
-                  ref={inputRef}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    setFileName(file?.name ?? '');
-                    setVideo(file ? file : null);
-                    setFotoUrl(!file ? null : URL.createObjectURL(file));
-                  }}
-                />
-              </label>
-              <span>{fileName}</span>
-            </div>
-          )}
-          {edit && (
-            <div className='hidden items-center justify-start gap-x-3 md:flex'>
-              <Button
-                className={`h-fit w-fit p-2 text-xs`}
-                onClick={handleUpload}
-              >
-                Guardar <Save className='ml-1 h-5' />
-              </Button>
-              <Button
-                className='h-9 w-fit p-2 text-xs'
-                onClick={() => {
-                  setFotoUrl(modelo.fotoUrl);
-                  inputRef.current!.value = '';
-                  setFileName('');
-                }}
-              >
-                Limpiar foto
-              </Button>
-              <Button
-                className='h-fit w-fit bg-red-600 p-2 text-xs hover:bg-red-800'
-                onClick={handleDelete}
-              >
-                Eliminar
-                <Trash2Icon className='ml-1 h-5' />
-              </Button>
-              <CircleXIcon
-                onClick={() => {
-                  setFotoUrl(modelo.fotoUrl);
-                  inputRef.current!.value = '';
-                  setFileName('');
-                  setEdit(false);
-                }}
-                className='h-8 w-8 cursor-pointer'
-              />
-            </div>
-          )}
         </div>
       </div>
+      {edit && (
+        <>
+          <div className='mt-2 flex items-center justify-start'>
+            <label className='flex items-center justify-center rounded-full border-2 bg-black text-white hover:cursor-pointer'>
+              <CirclePlus className='h-8 w-8' />
+              <input
+                type='file'
+                name='imagen'
+                className='hidden'
+                accept='image/jpeg,image/png,image/webp'
+                ref={inputRef}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  setFileName(file?.name ?? '');
+                  setVideo(file ? file : null);
+                  setFotoUrl(!file ? null : URL.createObjectURL(file));
+                }}
+              />
+            </label>
+            <span className='ml-3'>{fileName}</span>
+          </div>
+          <div className='mt-2 flex items-center justify-start gap-x-3'>
+            <Button
+              className={`h-fit w-fit p-2 text-xs`}
+              onClick={handleUpload}
+            >
+              Guardar <Save className='ml-1 h-5' />
+            </Button>
+            <Button
+              className='h-9 w-fit p-2 text-xs'
+              onClick={() => {
+                setFotoUrl(modelo.fotoUrl);
+                inputRef.current!.value = '';
+                setFileName('');
+              }}
+            >
+              Limpiar foto
+            </Button>
+            <Button
+              className='h-fit w-fit bg-red-600 p-2 text-xs hover:bg-red-800'
+              onClick={handleDelete}
+            >
+              Eliminar
+              <Trash2Icon className='ml-1 h-5' />
+            </Button>
+            <CircleXIcon
+              onClick={() => {
+                setFotoUrl(modelo.fotoUrl);
+                inputRef.current!.value = '';
+                setFileName('');
+                setEdit(false);
+              }}
+              className='h-8 w-8 cursor-pointer'
+            />
+          </div>
+        </>
+      )}
       <div className='mt-4 flex flex-wrap gap-2 md:hidden'>
         <ListaEtiquetas modeloId={modelo.id} etiquetas={etiquetas} />
       </div>
