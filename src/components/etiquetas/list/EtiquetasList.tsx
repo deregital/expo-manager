@@ -1,3 +1,4 @@
+import { GrupoConMatch } from '@/app/(dashboard)/etiquetas/page';
 import EtiquetasContent from '@/components/etiquetas/list/EtiquetasContent';
 import GrupoTrigger from '@/components/etiquetas/list/GrupoTrigger';
 import {
@@ -7,14 +8,29 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { getTextColorByBg } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 interface EtiquetasListProps {
-  grupos: RouterOutputs['etiqueta']['getByNombre'];
+  grupos: GrupoConMatch[];
 }
 
 const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
+  const active = useMemo(() => {
+    const active = new Set<string>();
+    grupos.forEach((grupo) => {
+      grupo.etiquetas.forEach((etiqueta) => {
+        if (etiqueta.match) {
+          active.add(grupo.id);
+        }
+      });
+      if (grupo.match) {
+        active.add(grupo.id);
+      }
+    });
+
+    return active.size > 0 ? Array.from(active) : undefined;
+  }, [grupos]);
+
   if (grupos.length === 0) {
     return (
       <div className='flex h-96 flex-col items-center justify-center gap-y-2'>
@@ -27,9 +43,11 @@ const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
   }
 
   return (
-    <Accordion type='multiple' className='pt-4'>
+    <Accordion type='multiple' className='pt-4' defaultValue={active}>
       {grupos.map((grupo) => (
         <AccordionItem
+          id={grupo.id}
+          defaultValue={grupo.match ? grupo.id : undefined}
           value={grupo.id}
           key={grupo.id}
           title={grupo.nombre}

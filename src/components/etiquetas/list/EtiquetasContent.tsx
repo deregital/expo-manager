@@ -1,14 +1,12 @@
+import { GrupoConMatch } from '@/app/(dashboard)/etiquetas/page';
 import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
 import ModeloIcon from '@/components/icons/ModeloIcon';
-import { RouterOutputs } from '@/server';
+import { cn } from '@/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
 
 interface EtiquetasContentProps {
-  etiqueta: Omit<
-    RouterOutputs['etiqueta']['getByNombre'][number]['etiquetas'][number],
-    'created_at' | 'updated_at'
-  >;
+  etiqueta: GrupoConMatch['etiquetas'][number];
   background: string;
   grupoId: string;
 }
@@ -36,7 +34,9 @@ const EtiquetasContent = ({
         // color: getTextColorByBg(background),
       }}
     >
-      <p className='capitalize'>{etiqueta.nombre}</p>
+      <p className={cn('capitalize', etiqueta.match && 'underline')}>
+        {etiqueta.nombre}
+      </p>
       <div className='flex items-center gap-x-2'>
         <EtiquetaModal action='EDIT' etiqueta={etiqueta} />
         <p className='text-sm font-semibold'>{etiqueta._count.perfiles}</p>

@@ -8,23 +8,59 @@ import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal'
 import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
 import Loader from '@/components/ui/loader';
 import { normalize } from '@/lib/utils';
+import { RouterOutputs } from '@/server';
+
+export type GrupoConMatch = Omit<
+  RouterOutputs['etiqueta']['getByNombre'][number],
+  'etiquetas'
+> & {
+  match: boolean;
+  etiquetas: (RouterOutputs['etiqueta']['getByNombre'][number]['etiquetas'][number] & {
+    match: boolean;
+  })[];
+};
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useState('');
   const { data: grupos, isLoading } = trpc.etiqueta.getByNombre.useQuery();
 
   const gruposFiltrados = useMemo(() => {
-    if (search === '') return grupos;
+    if (!grupos) return [];
 
-    return grupos?.filter((grupo) => {
-      return (
-        grupo.etiquetas.some((etiqueta) =>
-          normalize(etiqueta.nombre)
-            .toLowerCase()
-            .includes(search.toLowerCase())
-        ) ||
-        normalize(grupo.nombre).toLowerCase().includes(search.toLowerCase())
-      );
+    let g: RouterOutputs['etiqueta']['getByNombre'];
+
+    if (search === '') {
+      g = grupos;
+    } else {
+      g = grupos?.filter((grupo) => {
+        return (
+          grupo.etiquetas.some((etiqueta) =>
+            normalize(etiqueta.nombre)
+              .toLowerCase()
+              .includes(search.toLowerCase())
+          ) ||
+          normalize(grupo.nombre).toLowerCase().includes(search.toLowerCase())
+        );
+      });
+
+      if (!g) return [];
+    }
+
+    return g.map((grupo) => {
+      return {
+        ...grupo,
+        match:
+          search.length > 0 &&
+          normalize(grupo.nombre).toLowerCase().includes(search.toLowerCase()),
+        etiquetas: grupo.etiquetas.map((etiqueta) => ({
+          ...etiqueta,
+          match:
+            search.length > 0 &&
+            normalize(etiqueta.nombre)
+              .toLowerCase()
+              .includes(search.toLowerCase()),
+        })),
+      };
     });
   }, [grupos, search]);
 
@@ -49,7 +85,7 @@ const EtiquetasPage = () => {
             <Loader />
           </div>
         ) : (
-          <EtiquetasList grupos={gruposFiltrados ?? []} />
+          <EtiquetasList grupos={gruposFiltrados ?? ([] as GrupoConMatch[])} />
         )}
       </div>
     </>

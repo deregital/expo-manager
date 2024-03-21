@@ -1,14 +1,12 @@
+import { GrupoConMatch } from '@/app/(dashboard)/etiquetas/page';
 import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
-import { RouterOutputs } from '@/server';
+import { cn } from '@/lib/utils';
 import { LockIcon, UnlockIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
 
 interface GrupoTriggerProps {
-  grupo: Omit<
-    RouterOutputs['etiqueta']['getByNombre'][number],
-    'created_at' | 'updated_at'
-  >;
+  grupo: GrupoConMatch;
 }
 
 const GrupoTrigger = ({ grupo }: GrupoTriggerProps) => {
@@ -22,7 +20,9 @@ const GrupoTrigger = ({ grupo }: GrupoTriggerProps) => {
   return (
     <div className='flex w-full justify-between hover:no-underline'>
       <div className='pl-3 text-start'>
-        <p className='font-bold leading-none'>{grupo.nombre}</p>
+        <p className={cn('font-bold leading-none', grupo.match && 'underline')}>
+          {grupo.nombre}
+        </p>
         <span
           className='text-[0.70rem] font-semibold leading-none opacity-70 hover:underline'
           onClick={(event) => redirectTable(event)}
