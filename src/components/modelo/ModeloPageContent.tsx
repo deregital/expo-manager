@@ -96,7 +96,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           onMouseOver={() => setCanEdit(true)}
           onMouseOut={() => setCanEdit(false)}
           onClick={() => setEdit(true)}
-          className='relative aspect-square w-28 rounded-lg hover:cursor-pointer hover:bg-black/60 hover:transition hover:duration-300 hover:ease-in-out md:w-[200px]'
+          className='relative aspect-square w-28 rounded-lg hover:cursor-pointer md:w-[200px]'
         >
           <Image
             src={
@@ -110,6 +110,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
             priority
             className={`absolute left-0 top-0 h-full w-full rounded-lg object-fill`}
           />
+          <div className='absolute left-0 top-0 h-full w-full rounded-lg hover:bg-black/60 hover:transition hover:duration-300 hover:ease-in-out'></div>
           {canEdit && (
             <p className='absolute top-[45%] w-full text-center text-lg font-bold text-white'>
               EDITAR
