@@ -8,29 +8,13 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { getTextColorByBg } from '@/lib/utils';
-import React, { useMemo } from 'react';
+import React from 'react';
 
 interface EtiquetasListProps {
   grupos: GrupoConMatch[];
 }
 
 const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
-  const active = useMemo(() => {
-    const active = new Set<string>();
-    grupos.forEach((grupo) => {
-      grupo.etiquetas.forEach((etiqueta) => {
-        if (etiqueta.match) {
-          active.add(grupo.id);
-        }
-      });
-      if (grupo.match) {
-        active.add(grupo.id);
-      }
-    });
-
-    return active.size > 0 ? Array.from(active) : undefined;
-  }, [grupos]);
-
   if (grupos.length === 0) {
     return (
       <div className='flex h-96 flex-col items-center justify-center gap-y-2'>
@@ -43,11 +27,9 @@ const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
   }
 
   return (
-    <Accordion type='multiple' className='pt-4' defaultValue={active}>
+    <Accordion type='multiple' className='pt-4'>
       {grupos.map((grupo) => (
         <AccordionItem
-          id={grupo.id}
-          defaultValue={grupo.match ? grupo.id : undefined}
           value={grupo.id}
           key={grupo.id}
           title={grupo.nombre}
