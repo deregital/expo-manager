@@ -9,6 +9,8 @@ import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
 import Loader from '@/components/ui/loader';
 import { normalize } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
+import { create } from 'zustand';
+import ExpandContractEtiquetas from '@/components/etiquetas/list/ExpandContractEtiquetas';
 
 export type GrupoConMatch = Omit<
   RouterOutputs['etiqueta']['getByNombre'][number],
@@ -20,9 +22,25 @@ export type GrupoConMatch = Omit<
   })[];
 };
 
+export const useExpandEtiquetas = create<{
+  state: 'EXPAND' | 'CONTRACT' | 'NONE';
+  expand: () => void;
+  contract: () => void;
+  none: () => void;
+}>((set) => ({
+  state: 'NONE',
+  expand: () => set({ state: 'EXPAND' }),
+  contract: () => set({ state: 'CONTRACT' }),
+  none: () => set({ state: 'NONE' }),
+}));
+
 const EtiquetasPage = () => {
   const [search, setSearch] = useState('');
   const { data: grupos, isLoading } = trpc.etiqueta.getByNombre.useQuery();
+  const { expandState, setNone } = useExpandEtiquetas((s) => ({
+    setNone: s.none,
+    expandState: s.state,
+  }));
 
   const gruposFiltrados = useMemo(() => {
     if (!grupos) return [];
@@ -74,10 +92,21 @@ const EtiquetasPage = () => {
           <GrupoEtiquetaModal action='CREATE' />
           <EtiquetaModal action='CREATE' />
         </div>
-        <SearchInput
-          onChange={setSearch}
-          placeholder='Buscar grupo o etiqueta'
-        />
+        <div className='flex items-center gap-x-2'>
+          <ExpandContractEtiquetas />
+          <SearchInput
+            onChange={(value) => {
+              setSearch(value);
+
+              if (value === '') {
+                setNone();
+              } else if (expandState === 'EXPAND') {
+                setNone();
+              }
+            }}
+            placeholder='Buscar grupo o etiqueta'
+          />
+        </div>
       </div>
       <div className='px-3 md:px-5'>
         {isLoading ? (
