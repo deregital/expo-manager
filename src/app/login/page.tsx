@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { signIn } from 'next-auth/react';
+import { redirect } from 'next/navigation';
 import { useState } from 'react';
 
 const LoginPage = () => {
@@ -16,8 +17,13 @@ const LoginPage = () => {
       username,
       password,
       callbackUrl: '/',
-      redirect: true,
+      redirect: false,
     });
+
+    if (res?.ok) {
+      setError(null);
+      redirect('/');
+    }
 
     if (res?.status === 401) {
       setError('Credenciales inválidas');
