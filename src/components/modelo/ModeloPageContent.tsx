@@ -110,7 +110,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
             priority
             className={`absolute left-0 top-0 h-full w-full rounded-lg object-fill`}
           />
-          <div className='absolute left-0 top-0 h-full w-full rounded-lg hover:bg-black/60 hover:transition hover:duration-300 hover:ease-in-out group-hover:bg-black/60'></div>
+          <div className='absolute left-0 top-0 h-full w-full rounded-lg hover:bg-black/60 hover:transition hover:duration-300 hover:ease-in-out group-hover:bg-black/60 group-hover:transition group-hover:duration-300 group-hover:ease-in-out'></div>
           {canEdit && (
             <p className='group absolute top-[45%] w-full text-center text-lg font-bold text-white'>
               EDITAR
