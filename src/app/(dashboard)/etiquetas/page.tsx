@@ -33,12 +33,17 @@ const EtiquetasPage = () => {
     } else {
       g = grupos?.filter((grupo) => {
         return (
-          grupo.etiquetas.some((etiqueta) =>
-            normalize(etiqueta.nombre)
-              .toLowerCase()
-              .includes(search.toLowerCase())
+          grupo.etiquetas.some(
+            (etiqueta) =>
+              normalize(etiqueta.nombre)
+                .toLowerCase()
+                .includes(search.toLowerCase()) ||
+              etiqueta.nombre.toLowerCase().includes(search.toLowerCase())
           ) ||
-          normalize(grupo.nombre).toLowerCase().includes(search.toLowerCase())
+          normalize(grupo.nombre)
+            .toLowerCase()
+            .includes(search.toLowerCase()) ||
+          grupo.nombre.toLowerCase().includes(search.toLowerCase())
         );
       });
 
@@ -50,14 +55,18 @@ const EtiquetasPage = () => {
         ...grupo,
         match:
           search.length > 0 &&
-          normalize(grupo.nombre).toLowerCase().includes(search.toLowerCase()),
+          (normalize(grupo.nombre)
+            .toLowerCase()
+            .includes(search.toLowerCase()) ||
+            grupo.nombre.toLowerCase().includes(search.toLowerCase())),
         etiquetas: grupo.etiquetas.map((etiqueta) => ({
           ...etiqueta,
           match:
             search.length > 0 &&
-            normalize(etiqueta.nombre)
+            (normalize(etiqueta.nombre)
               .toLowerCase()
-              .includes(search.toLowerCase()),
+              .includes(search.toLowerCase()) ||
+              etiqueta.nombre.toLowerCase().includes(search.toLowerCase())),
         })),
       };
     });
