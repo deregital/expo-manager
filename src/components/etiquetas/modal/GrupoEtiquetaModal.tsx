@@ -52,8 +52,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
 
   const { data: modelosGrupo, isLoading: modelosGrupoLoading } =
     trpc.modelo.getByGrupoEtiqueta.useQuery([grupo?.id ?? ''], {
-      //   refetchOnWindowFocus: false,
-      enabled: grupo?.id !== undefined,
+      enabled: action === 'EDIT' && grupo?.id !== undefined,
       onSuccess(data) {
         if (conflict === undefined) return;
         setConflict(
@@ -73,6 +72,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
         );
       },
     });
+
   const modalData = useGrupoEtiquetaModalData((state) => ({
     tipo: state.tipo,
     nombre: state.nombre,
@@ -322,7 +322,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
             </p>
           ) : null}
 
-          {<ModelosConflict modelos={conflict} />}
+          {conflict && <ModelosConflict modelos={conflict} />}
 
           <div className='flex gap-x-4'>
             <Button
@@ -332,7 +332,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
                 editGrupoEtiqueta.isLoading ||
                 createGrupoEtiqueta.isLoading ||
                 modelosGrupoLoading ||
-                (conflict && conflict.length > 0)
+                (conflict === undefined ? false : conflict.length > 0)
               }
             >
               {((editGrupoEtiqueta.isLoading ||
