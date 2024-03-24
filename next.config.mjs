@@ -1,4 +1,8 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+    images: {
+        remotePatterns: [{protocol: 'https', hostname:'expo-manager.b-cdn.net'}],
+    }
+};
 
 export default nextConfig;
