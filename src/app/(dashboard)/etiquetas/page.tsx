@@ -9,7 +9,7 @@ import SearchInput from '@/components/ui/SearchInput';
 import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
 import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
 import Loader from '@/components/ui/loader';
-import { normalize } from '@/lib/utils';
+import { normalize, searchNormalize } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import ExpandContractEtiquetas, {
   useExpandEtiquetas,
@@ -33,17 +33,9 @@ const EtiquetasPage = () => {
     } else {
       g = grupos?.filter((grupo) => {
         return (
-          grupo.etiquetas.some(
-            (etiqueta) =>
-              normalize(etiqueta.nombre)
-                .toLowerCase()
-                .includes(search.toLowerCase()) ||
-              etiqueta.nombre.toLowerCase().includes(search.toLowerCase())
-          ) ||
-          normalize(grupo.nombre)
-            .toLowerCase()
-            .includes(search.toLowerCase()) ||
-          grupo.nombre.toLowerCase().includes(search.toLowerCase())
+          grupo.etiquetas.some((etiqueta) =>
+            searchNormalize(etiqueta.nombre, search)
+          ) || searchNormalize(grupo.nombre, search)
         );
       });
 

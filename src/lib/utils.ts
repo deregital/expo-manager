@@ -59,3 +59,10 @@ function hueToRgb(p: number, q: number, t: number) {
   if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
   return p;
 }
+
+export function searchNormalize(str: string, search: string) {
+  return (
+    normalize(str).toLowerCase().includes(search.toLowerCase()) ||
+    str.toLowerCase().includes(search.toLowerCase())
+  );
+}
