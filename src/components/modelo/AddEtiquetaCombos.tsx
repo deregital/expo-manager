@@ -4,9 +4,9 @@ import { useModeloData } from '@/components/modelo/ModeloPageContent';
 import ComboBox from '@/components/ui/ComboBox';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
-import { getTextColorByBg } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import React, { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 function availableGrupos(
   etiquetas: NonNullable<RouterOutputs['modelo']['getById']>['etiquetas'],
@@ -53,23 +53,21 @@ const AddEtiquetaCombos = ({
     grupoId: '',
     etiquetaId: '',
   });
-
-  const addEtiqueta = trpc.modelo.edit.useMutation();
+  const [openGrupo, setOpenGrupo] = useState(false);
+  const [openEtiqueta, setOpenEtiqueta] = useState(false);
 
   const { etiquetas, modeloId } = useModeloData((state) => ({
     etiquetas: state.etiquetas,
     modeloId: state.id,
   }));
 
-  const [openGrupo, setOpenGrupo] = useState(false);
-  const [openEtiqueta, setOpenEtiqueta] = useState(false);
-
+  const addEtiqueta = trpc.modelo.edit.useMutation();
   const { data: gruposData } = trpc.grupoEtiqueta.getAll.useQuery();
-
   const { data: etiquetasData } =
     grupoId === ''
       ? trpc.etiqueta.getAll.useQuery()
       : trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoId);
+  const utils = trpc.useUtils();
 
   const currentGrupo = useMemo(() => {
     return gruposData?.find((grupo) => grupo.id === grupoId);
@@ -131,11 +129,17 @@ const AddEtiquetaCombos = ({
           },
         ],
       })
+      .then(() => {
+        toast.success('Etiqueta agregada con éxito');
+        utils.modelo.getById.invalidate(modeloId);
+        utils.modelo.getByFiltro.invalidate();
+      })
       .catch(() => {
         useModeloData.setState({
           etiquetas: etiquetas.filter((e) => e.id !== etiquetaId),
         });
         openAddEtiqueta();
+        toast.error('Error al agregar la etiqueta');
       });
   }
 
@@ -146,10 +150,6 @@ const AddEtiquetaCombos = ({
         setOpen={setOpenGrupo}
         data={availableGruposData ?? []}
         id='id'
-        buttonStyle={{
-          backgroundColor: currentGrupo?.color,
-          color: getTextColorByBg(currentGrupo?.color ?? '#ffffff'),
-        }}
         wFullMobile
         triggerChildren={
           <>

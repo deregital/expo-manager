@@ -4,7 +4,7 @@ import Colorful from '@uiw/react-color-colorful';
 import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
 import { useGrupoEtiquetaModalData } from '@/components/etiquetas/modal/GrupoEtiquetaModal';
 import { Button } from './button';
-import { getTextColorByBg } from '@/lib/utils';
+import { cn, getTextColorByBg, randomColor } from '@/lib/utils';
 
 const ColorPicker = () => {
   const modalData = useGrupoEtiquetaModalData((state) => ({
@@ -12,6 +12,7 @@ const ColorPicker = () => {
     color: state.color,
   }));
   const [open, setOpen] = useState(false);
+
   return (
     <>
       <Button
@@ -26,9 +27,9 @@ const ColorPicker = () => {
       <div className='absolute top-12 flex -translate-x-[29%] flex-col gap-y-2'>
         <Colorful
           color={
-            hexToHsva(modalData.color)
+            modalData.color.length > 0
               ? hexToHsva(modalData.color)
-              : { h: 0, s: 0, v: 68, a: 1 }
+              : randomColor()
           }
           disableAlpha={true}
           onChange={(color) => {
@@ -36,7 +37,7 @@ const ColorPicker = () => {
               color: hsvaToHex(color.hsva),
             });
           }}
-          className={`${open ? 'block' : 'hidden'}`}
+          className={cn(open ? 'block' : 'hidden')}
         />
       </div>
     </>

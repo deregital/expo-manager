@@ -1,20 +1,17 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { signOut, useSession } from 'next-auth/react';
+import { Session } from 'next-auth';
+import { signOut } from 'next-auth/react';
 import React from 'react';
 
-interface SessionMenuProps {}
+interface SessionMenuProps {
+  user: NonNullable<Session['user']>;
+}
 
-const SessionMenu = ({}: SessionMenuProps) => {
-  const { data: session } = useSession();
-
-  if (!session || !session.user) {
-    return null;
-  }
-
+const SessionMenu = ({ user }: SessionMenuProps) => {
   return (
     <div className='flex items-center gap-x-4'>
-      {session.user.username} {session.user.esAdmin ? ' (administrador)' : ''}
+      {user.username} {user.esAdmin ? ' (administrador)' : ''}
       <Button
         onClick={() =>
           signOut({

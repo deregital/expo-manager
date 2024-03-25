@@ -5,8 +5,16 @@ export const grupoEtiquetaRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        nombre: z.string().min(1),
-        color: z.string().length(7).startsWith('#').toLowerCase(),
+        nombre: z.string().min(1, {
+          message: 'El nombre debe tener al menos 1 caracter',
+        }),
+        color: z
+          .string()
+          .length(7)
+          .startsWith('#', {
+            message: 'El color debe tener el formato #ABCDEF',
+          })
+          .toLowerCase(),
         esExclusivo: z.boolean(),
       })
     )
@@ -23,6 +31,9 @@ export const grupoEtiquetaRouter = router({
     return await ctx.prisma.etiquetaGrupo.findMany({
       include: {
         etiquetas: true,
+      },
+      orderBy: {
+        updated_at: 'desc',
       },
     });
   }),
@@ -42,8 +53,19 @@ export const grupoEtiquetaRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        nombre: z.string().min(1).optional(),
-        color: z.string().length(7).startsWith('#').toLowerCase().optional(),
+        nombre: z
+          .string()
+          .min(1, {
+            message: 'El nombre debe tener al menos 1 caracter',
+          })
+          .optional(),
+        color: z
+          .string()
+          .length(7)
+          .startsWith('#', {
+            message: 'El color debe tener el formato #ABCDEF',
+          })
+          .toLowerCase(),
         esExclusivo: z.boolean().optional(),
       })
     )

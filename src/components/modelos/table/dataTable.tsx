@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import PaginationComp from './Pagination';
+import Loader from '@/components/ui/loader';
 
 interface DataTableProps<TData extends { id: string }, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -37,7 +38,7 @@ export const DataTable = <TData extends { id: string }, TValue>({
 }: DataTableProps<TData, TValue>) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const router = useRouter();
-    
+
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -90,11 +91,10 @@ export const DataTable = <TData extends { id: string }, TValue>({
         <TableBody className='[&_tr:last-child]:border-0'>
           {isLoading ? (
             <tr>
-              <td
-                colSpan={table.getHeaderGroups()[0].headers.length}
-                className='h-full w-full py-3 text-center'
-              >
-                Cargando...
+              <td colSpan={columns.length} className='py-3'>
+                <div className='mx-auto w-fit'>
+                  <Loader />
+                </div>
               </td>
             </tr>
           ) : table.getRowModel().rows?.length ? (
@@ -120,7 +120,7 @@ export const DataTable = <TData extends { id: string }, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className='h-24 text-center'>
-                No results.
+                No se encontraron resultados.
               </TableCell>
             </TableRow>
           )}

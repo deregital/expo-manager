@@ -13,7 +13,15 @@ export const modeloRouter = router({
         },
       },
       include: {
-        etiquetas: true,
+        etiquetas: {
+          include: {
+            grupo: {
+              select: {
+                color: true,
+              },
+            },
+          },
+        },
       },
     });
   }),
@@ -49,12 +57,22 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findMany({
         where: {
-          etiquetas: {
-            some: {
-              id: { in: ctx.etiquetasVisibles },
-              nombre: { in: input },
+          AND: [
+            {
+              etiquetas: {
+                some: {
+                  id: { in: input },
+                },
+              },
             },
-          },
+            {
+              etiquetas: {
+                some: {
+                  id: { in: ctx.etiquetasVisibles },
+                },
+              },
+            },
+          ],
         },
         include: {
           etiquetas: true,
@@ -70,7 +88,9 @@ export const modeloRouter = router({
             some: {
               id: { in: ctx.etiquetasVisibles },
               grupo: {
-                nombre: { in: input },
+                id: {
+                  in: input,
+                },
               },
             },
           },

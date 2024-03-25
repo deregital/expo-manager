@@ -2,9 +2,9 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { signIn, useSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import { redirect } from 'next/navigation';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const LoginPage = () => {
   const [error, setError] = useState<string | null>(null);
@@ -20,19 +20,18 @@ const LoginPage = () => {
       redirect: false,
     });
 
+    if (res?.ok) {
+      setError(null);
+      redirect('/');
+    }
+
     if (res?.status === 401) {
       setError('Credenciales inválidas');
     }
   }
 
-  const session = useSession();
-
-  if (session.status === 'authenticated') {
-    redirect('/');
-  }
-
   return (
-    <div className='flex min-h-screen flex-col items-center justify-center bg-white font-sans antialiased'>
+    <>
       <legend className='mb-4 text-center'>
         <h1 className='text-3xl font-bold text-slate-900'>Iniciar Sesión</h1>
       </legend>
@@ -58,7 +57,7 @@ const LoginPage = () => {
           <p className='mt-2 text-sm font-bold text-red-500'>{error}</p>
         )}
       </fieldset>
-    </div>
+    </>
   );
 };
 

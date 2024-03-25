@@ -5,8 +5,12 @@ export const etiquetaRouter = router({
   create: publicProcedure
     .input(
       z.object({
-        nombre: z.string().min(1),
-        grupoId: z.string().uuid(),
+        nombre: z.string().min(1, {
+          message: 'El nombre debe tener al menos 1 caracter',
+        }),
+        grupoId: z.string().uuid({
+          message: 'Debes seleccionar un grupo de etiquetas',
+        }),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -34,8 +38,18 @@ export const etiquetaRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        nombre: z.string().min(1).optional(),
-        grupoId: z.string().uuid().optional(),
+        nombre: z
+          .string()
+          .min(1, {
+            message: 'El nombre debe tener al menos 1 caracter',
+          })
+          .optional(),
+        grupoId: z
+          .string()
+          .uuid({
+            message: 'Debes seleccionar un grupo de etiquetas',
+          })
+          .optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -96,34 +110,57 @@ export const etiquetaRouter = router({
     .query(async ({ input, ctx }) => {
       const gruposMatch = await ctx.prisma.etiquetaGrupo.findMany({
         where: {
-          AND: {
-            OR: [
-              {
-                nombre: {
-                  contains: input,
-                  mode: 'insensitive',
-                },
-              },
-              {
-                etiquetas: {
-                  some: {
-                    AND: {
-                      nombre: {
-                        contains: input,
-                        mode: 'insensitive',
-                      },
-                      id: { in: ctx.etiquetasVisibles },
-                    },
-                  },
-                },
-              },
-            ],
-            etiquetas: {
-              some: {
-                id: { in: ctx.etiquetasVisibles },
+          //   OR: [
+          //     {
+          //       etiquetas: {
+          //         none: {},
+          //       },
+          //     },
+          //     {
+          //       AND: {
+          //         OR: [
+          //           {
+          //             nombre: {
+          //               contains: input,
+          //               mode: 'insensitive',
+          //             },
+          //           },
+          //           {
+          //             etiquetas: {
+          //               some: {
+          //                 AND: {
+          //                   nombre: {
+          //                     contains: input,
+          //                     mode: 'insensitive',
+          //                   },
+          //                   id: { in: ctx.etiquetasVisibles },
+          //                 },
+          //               },
+          //             },
+          //           },
+          //         ],
+          //         etiquetas: {
+          //           some: {
+          //             id: { in: ctx.etiquetasVisibles },
+          //           },
+          //         },
+          //       },
+          //     },
+          //   ],
+          OR: [
+            {
+              etiquetas: {
+                none: {},
               },
             },
-          },
+            {
+              etiquetas: {
+                some: {
+                  id: { in: ctx.etiquetasVisibles },
+                },
+              },
+            },
+          ],
         },
         select: {
           etiquetas: {
@@ -147,11 +184,24 @@ export const etiquetaRouter = router({
           nombre: true,
           id: true,
         },
-        orderBy: {
-          created_at: 'desc',
-        },
+        orderBy: [
+          {
+            etiquetas: {
+              _count: 'desc',
+            },
+          },
+          { created_at: 'desc' },
+        ],
       });
 
-      return gruposMatch;
+      if (input === '') {
+        return gruposMatch;
+      } else {
+        return gruposMatch.filter((grupo) => {
+          if (grupo.etiquetas.length > 0) {
+            return grupo;
+          }
+        });
+      }
     }),
 });

@@ -18,6 +18,7 @@ interface ModeloPageContentProps {
 type ModeloData = {
   id: string;
   etiquetas: NonNullable<RouterOutputs['modelo']['getById']>['etiquetas'];
+  comentarios: RouterOutputs['comentario']['getByPerfilId'] | undefined;
 };
 
 type ModeloFoto = {
@@ -28,6 +29,7 @@ type ModeloFoto = {
 export const useModeloData = create<ModeloData>(() => ({
   id: '',
   etiquetas: [],
+  comentarios: undefined,
 }));
 export const useModeloFoto = create<ModeloFoto>(() => ({
   id: '',
@@ -37,7 +39,6 @@ export const useModeloFoto = create<ModeloFoto>(() => ({
 const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const { etiquetas } = useModeloData((state) => ({
     etiquetas: state.etiquetas,
-    id: state.id,
   }));
   const [fotoUrl, setFotoUrl] = useState(modelo?.fotoUrl);
   const editModelo = trpc.modelo.edit.useMutation();

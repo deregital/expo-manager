@@ -3,13 +3,12 @@ import { trpc } from '@/lib/trpc';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ComboBoxModelos from './ComboBoxModelos';
 import EtiquetaComboBoxModelos from './EtiquetaComboBox';
-import { useDebounceValue } from 'usehooks-ts';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import SearchInput from '@/components/ui/SearchInput';
 
 const FiltroTabla = () => {
   const searchParams = new URLSearchParams(useSearchParams());
-  const [search, setSearch] = useDebounceValue('', 500);
+  const [search, setSearch] = useState('');
   const pathname = usePathname();
   const router = useRouter();
   const { data: grupos } = trpc.grupoEtiqueta.getAll.useQuery();
@@ -32,7 +31,7 @@ const FiltroTabla = () => {
       </div>
       <div className='relative w-full md:max-w-[300px]'>
         <SearchInput
-          placeholder='Buscar por nombre o id legible'
+          placeholder='Buscar por nombre o ID legible'
           onChange={setSearch}
         />
       </div>

@@ -1,16 +1,68 @@
 'use client';
-import { useDebounceValue } from 'usehooks-ts';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 
-import EtiquetasList from '@/components/etiquetas/list/EtiquetasList';
+import EtiquetasList, {
+  GrupoConMatch,
+} from '@/components/etiquetas/list/EtiquetasList';
 import SearchInput from '@/components/ui/SearchInput';
 import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
 import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
+import Loader from '@/components/ui/loader';
+import { normalize, searchNormalize } from '@/lib/utils';
+import { RouterOutputs } from '@/server';
+import ExpandContractEtiquetas, {
+  useExpandEtiquetas,
+} from '@/components/etiquetas/list/ExpandContractEtiquetas';
 
 const EtiquetasPage = () => {
-  const [search, setSearch] = useDebounceValue('', 500);
-  const { data: grupos } = trpc.etiqueta.getByNombre.useQuery(search);
+  const [search, setSearch] = useState('');
+  const { data: grupos, isLoading } = trpc.etiqueta.getByNombre.useQuery();
+  const { expandState, setNone } = useExpandEtiquetas((s) => ({
+    setNone: s.none,
+    expandState: s.state,
+  }));
+
+  const gruposFiltrados = useMemo(() => {
+    if (!grupos) return [];
+
+    let g: RouterOutputs['etiqueta']['getByNombre'];
+
+    if (search === '') {
+      g = grupos;
+    } else {
+      g = grupos?.filter((grupo) => {
+        return (
+          grupo.etiquetas.some((etiqueta) =>
+            searchNormalize(etiqueta.nombre, search)
+          ) || searchNormalize(grupo.nombre, search)
+        );
+      });
+
+      if (!g) return [];
+    }
+
+    return g.map((grupo) => {
+      return {
+        ...grupo,
+        match:
+          search.length > 0 &&
+          (normalize(grupo.nombre)
+            .toLowerCase()
+            .includes(search.toLowerCase()) ||
+            grupo.nombre.toLowerCase().includes(search.toLowerCase())),
+        etiquetas: grupo.etiquetas.map((etiqueta) => ({
+          ...etiqueta,
+          match:
+            search.length > 0 &&
+            (normalize(etiqueta.nombre)
+              .toLowerCase()
+              .includes(search.toLowerCase()) ||
+              etiqueta.nombre.toLowerCase().includes(search.toLowerCase())),
+        })),
+      };
+    });
+  }, [grupos, search]);
 
   return (
     <>
@@ -18,18 +70,34 @@ const EtiquetasPage = () => {
         Gestor de Etiquetas
       </p>
       <div className='flex flex-col justify-between gap-4 px-3 md:flex-row md:px-5'>
-        {/* div para botones de crear e input */}
         <div className='flex flex-col gap-4 md:flex-row'>
           <GrupoEtiquetaModal action='CREATE' />
           <EtiquetaModal action='CREATE' />
         </div>
-        <SearchInput
-          onChange={setSearch}
-          placeholder='Buscar grupo o etiqueta'
-        />
+        <div className='flex items-center gap-x-2'>
+          <ExpandContractEtiquetas />
+          <SearchInput
+            onChange={(value) => {
+              setSearch(value);
+
+              if (value === '') {
+                setNone();
+              } else if (expandState === 'EXPAND') {
+                setNone();
+              }
+            }}
+            placeholder='Buscar grupo o etiqueta'
+          />
+        </div>
       </div>
       <div className='px-3 md:px-5'>
-        <EtiquetasList grupos={grupos ?? []} />
+        {isLoading ? (
+          <div className='mt-5 flex justify-center'>
+            <Loader />
+          </div>
+        ) : (
+          <EtiquetasList grupos={gruposFiltrados ?? ([] as GrupoConMatch[])} />
+        )}
       </div>
     </>
   );

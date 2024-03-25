@@ -1,11 +1,9 @@
-'use client';
-import { useSession } from 'next-auth/react';
+import { getServerAuthSession } from '@/server/auth';
 import { redirect } from 'next/navigation';
 
-// VER SI HAY OTRA MANERA DE HACERLO
-const CheckIfUserIsAuthenticated = () => {
-  const session = useSession();
-  if (session.status === 'unauthenticated') {
+const CheckIfUserIsAuthenticated = async () => {
+  const session = await getServerAuthSession();
+  if (!session || !session.user) {
     return redirect('/login');
   }
   return null;
