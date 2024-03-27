@@ -49,8 +49,11 @@ const ConfiguracionPage = () => {
 
       window.URL.revokeObjectURL(url);
       document.body.removeChild(link);
+      toast.success('ZIP descargado correctamente');
+      toast.dismiss();
     } catch (error) {
       console.error('Error al descargar ZIP:', error);
+      toast.error('Error al descargar ZIP');
     }
   };
 
