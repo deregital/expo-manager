@@ -2,6 +2,7 @@ import { protectedProcedure, router } from '@/server/trpc';
 import { TRPCError } from '@trpc/server';
 import * as fastCsv from 'fast-csv';
 import JSZip from 'jszip';
+import ExcelJS from 'exceljs';
 
 export const csvRouter = router({
   downloadModelos: protectedProcedure.mutation(async ({ ctx }) => {
@@ -69,8 +70,10 @@ export const csvRouter = router({
         }
       } // Lista de todas tus tablas en la base de datos
       const zip = new JSZip();
+      const workbook = new ExcelJS.Workbook();
       for (let i = 0; i < dataTables.length; i+=2) {
         let csvData = '';
+        const worksheet = workbook.addWorksheet(dataTables[i + 1]);
 
         const csvStream = fastCsv.format({ headers: true });
 
@@ -82,6 +85,7 @@ export const csvRouter = router({
           row.etiquetas = row.etiquetas ? row.etiquetas.map((etiqueta: any) => etiqueta.id).join('+') : undefined;
           row.comentarios = row.comentarios ? row.comentarios.map((comentario: any) => comentario.id).join('+') : undefined;
           csvStream.write(row);
+          worksheet.addRow(Object.values(row));
         });
 
         csvStream.end();
@@ -92,9 +96,10 @@ export const csvRouter = router({
           });
         });
     
-        zip.file(`${dataTables[i + 1]}.csv`, csvData);
+        zip.file(`${dataTables[i + 1]}.csv`, csvData);        
       }
-  
+      const excelBuffer = await workbook.xlsx.writeBuffer();
+      zip.file('data.xlsx', excelBuffer);
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const zipData = await zipBlob.arrayBuffer();
   
