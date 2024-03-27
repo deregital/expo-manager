@@ -1,13 +1,14 @@
 "use client"
 import { trpc } from '@/lib/trpc';
 import React from 'react';
+import { toast } from 'sonner';
 
 
 const ConfiguracionPage = () => {
   const exportModelos = trpc.csv.downloadModelos.useMutation();
 
-  const { data } = trpc.csv.downloadDatabase.useQuery();
-  console.log(data);
+  const exportAllTables = trpc.csv.downloadAllTables.useMutation();
+
   const handleDownloadCSV = async () => {
     try {
       const csvData = await exportModelos.mutateAsync(); 
@@ -29,6 +30,30 @@ const ConfiguracionPage = () => {
     }
   };
 
+  const handleDownloadZIP = async () => {
+    try {
+      toast.loading('Descargando ZIP...');
+      const zipData = await exportAllTables.mutateAsync();
+      
+      const uint8Array = new Uint8Array(zipData.data);
+
+      const blob = new Blob([uint8Array], { type: 'application/zip' });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'todas_las_tablas.zip');
+      document.body.appendChild(link);
+
+      link.click();
+
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error al descargar ZIP:', error);
+    }
+  };
+
   return (
     <div>
       <p className='px-5'>ConfiguracionPage</p>
@@ -38,20 +63,14 @@ const ConfiguracionPage = () => {
         <button
           onClick={handleDownloadCSV}
           className='px-4 py-2 bg-blue-500 text-white rounded cursor-pointer text-lg font-bold shadow-md transition duration-300 hover:bg-blue-600'
-          // style={{
-          //   padding: '10px 20px',
-          //   backgroundColor: '#007bff',
-          //   color: '#fff',
-          //   border: 'none',
-          //   borderRadius: '5px',
-          //   cursor: 'pointer',
-          //   fontSize: '16px',
-          //   fontWeight: 'bold',
-          //   boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-          //   transition: 'background-color 0.3s',
-          // }}
         >
           Descargar Modelos
+        </button>
+        <button
+          onClick={handleDownloadZIP}
+          className='ml-3 px-4 py-2 bg-blue-500 text-white rounded cursor-pointer text-lg font-bold shadow-md transition duration-300 hover:bg-blue-600'
+        >
+          Descargar tabla
         </button>
       </div>
     </div>
