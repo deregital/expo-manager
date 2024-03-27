@@ -11,6 +11,7 @@ const ConfiguracionPage = () => {
 
   const handleDownloadCSV = async () => {
     try {
+      toast.loading('Descargando CSV de modelos...');
       const csvData = await exportModelos.mutateAsync(); 
 
       const blob = new Blob([csvData], { type: 'text/csv' });
@@ -25,6 +26,8 @@ const ConfiguracionPage = () => {
 
       window.URL.revokeObjectURL(url);
       document.body.removeChild(link);
+      toast.success('CSV descargado correctamente');
+      toast.dismiss();
     } catch (error) {
       console.error('Error al descargar CSV:', error);
     }
