@@ -25,6 +25,7 @@
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.0",
         "cmdk": "^0.2.1",
+        "exceljs": "^4.4.0",
         "fast-csv": "^5.0.1",
         "jszip": "^3.10.1",
         "lucide-react": "^0.322.0",
