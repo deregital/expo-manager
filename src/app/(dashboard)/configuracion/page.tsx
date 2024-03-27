@@ -34,10 +34,11 @@ const ConfiguracionPage = () => {
   };
 
   const handleDownloadZIP = async () => {
+    const today = new Date();
     try {
       toast.loading('Descargando ZIP...');
       const zipData = await exportAllTables.mutateAsync();
-      
+
       const uint8Array = new Uint8Array(zipData.data);
 
       const blob = new Blob([uint8Array], { type: 'application/zip' });
@@ -45,7 +46,7 @@ const ConfiguracionPage = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'todas_las_tablas.zip');
+      link.setAttribute('download', `${today.toISOString()}-todas_las_tablas.zip`);
       document.body.appendChild(link);
 
       link.click();
