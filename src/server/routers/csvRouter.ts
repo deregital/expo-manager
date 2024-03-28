@@ -49,7 +49,6 @@ export const csvRouter = router({
       });
     }
     const today = new Date().toISOString();
-    console.log(today);
     try {
       let dataTables = [];
       for (const table in ctx.prisma) {
