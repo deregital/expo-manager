@@ -80,10 +80,10 @@ export const csvRouter = router({
         csvStream.on('data', (chunk: any) => {
           csvData += chunk;
         });
-
+        worksheet.addRow(dataTables[i][0] ? Object.keys(dataTables[i][0]) : undefined);
         dataTables[i].forEach((row: any) => {
-          row.etiquetas = row.etiquetas ? row.etiquetas.map((etiqueta: any) => etiqueta.id).join('+') : undefined;
-          row.comentarios = row.comentarios ? row.comentarios.map((comentario: any) => comentario.id).join('+') : undefined;
+          row.etiquetas = row.etiquetas ? row.etiquetas.map((etiqueta: any) => etiqueta.id).join('+') : row = { ...row, etiquetas: null};
+          row.comentarios = row.comentarios ? row.comentarios.map((comentario: any) => comentario.id).join('+') : row = { ...row, comentarios: null};
           csvStream.write(row);
           worksheet.addRow(Object.values(row));
         });
