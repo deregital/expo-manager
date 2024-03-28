@@ -48,7 +48,7 @@ export const csvRouter = router({
         message: 'No tienes permisos para realizar esta acción',
       });
     }
-    const today = new Date().toISOString();
+    const today = new Date().toISOString().split('.')[0].replaceAll(':', '_')+"Z";
     try {
       let dataTables = [];
       for (const table in ctx.prisma) {
@@ -99,7 +99,7 @@ export const csvRouter = router({
         zip.file(`${today}-${dataTables[i + 1]}.csv`, csvData);        
       }
       const excelBuffer = await workbook.xlsx.writeBuffer();
-      zip.file(`${today}-Database.xlsx`, excelBuffer);
+      zip.file(`${today}_Database.xlsx`, excelBuffer);
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const zipData = await zipBlob.arrayBuffer();
   
