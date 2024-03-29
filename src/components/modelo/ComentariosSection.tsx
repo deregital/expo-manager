@@ -43,11 +43,14 @@ const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
     <section className='flex flex-col gap-y-4'>
       <form onSubmit={handleAddComentario} className='flex gap-x-4'>
         <Input
+          autoComplete='off'
           name='comentario'
           className=''
           placeholder='Añadir un comentario'
         />
-        <Button type='submit'>Enviar</Button>
+        <Button disabled={createComentario.isLoading} type='submit'>
+          Enviar
+        </Button>
       </form>
       {comentarios?.map((comentario) => (
         <div key={comentario.id} className='my-2 flex flex-col'>
