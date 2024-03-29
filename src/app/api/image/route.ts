@@ -2,12 +2,6 @@ import * as https from 'https';
 import { NextRequest, NextResponse } from 'next/server';
 import { Duplex } from 'stream';
 
-export const config = {
-  api: {
-    bodyParser: false, // Deshabilitar bodyParser por defecto
-  },
-};
-
 function bufferToStream(myBuffer: Buffer) {
   let tmp = new Duplex();
   tmp.push(myBuffer);
