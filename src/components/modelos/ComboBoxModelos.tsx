@@ -38,6 +38,7 @@ const ComboBoxModelos = ({
         setOpen(false);
         if (value === grupoId) {
           setGrupoId('');
+          searchParams.delete('etiqueta');
           searchParams.delete('grupoId');
         } else {
           setGrupoId(value);
