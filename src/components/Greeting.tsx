@@ -2,23 +2,20 @@
 
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
-import React, { useState } from 'react';
-
-const dateFormat = (date: Date) => {
-  return `${date.getFullYear()}-${date.getMonth() + 1 > 10 ? date.getMonth() + 1 : `0${date.getMonth() + 1}`}-${date.getDate()}`;
-};
+import { addDays, dateFormatYYYYMMDD } from '@/lib/utils';
+import { useState } from 'react';
 
 const Greeting = () => {
   const [dateRange, setDateRange] = useState<[string, string]>([
-    dateFormat(new Date()),
-    dateFormat(new Date()),
+    dateFormatYYYYMMDD(new Date()),
+    dateFormatYYYYMMDD(new Date()),
   ]);
 
   const [etiquetaId, setEtiquetaId] = useState<undefined | string>(undefined);
 
   const modelos = trpc.modelo.getByDateRange.useQuery({
     start: dateRange[0],
-    end: dateRange[1],
+    end: addDays(dateRange[1], 1).toISOString(),
     etiquetaId: etiquetaId,
   });
 
@@ -53,6 +50,10 @@ const Greeting = () => {
           }}
         />
 
+        <p>
+          start: {new Date(dateRange[0]).toISOString()}, end:{' '}
+          {addDays(dateRange[1], 1).toISOString()}
+        </p>
         <pre>{JSON.stringify(modelos.data, null, 2)}</pre>
       </div>
     </>
