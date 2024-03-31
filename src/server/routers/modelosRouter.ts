@@ -244,4 +244,58 @@ export const modeloRouter = router({
         },
       });
     }),
+  getByDateRange: protectedProcedure
+    .input(
+      z.object({
+        start: z.string().optional(),
+        end: z.string().optional(),
+        etiquetaId: z.string().optional(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const startDateTime = input.start ? new Date(input.start) : undefined;
+      const endDateTime = input.end ? new Date(input.end) : undefined;
+
+      const modelos = await ctx.prisma.perfil.findMany({
+        where: {
+          created_at: {
+            gte: startDateTime,
+            lte: endDateTime,
+          },
+          AND: [
+            {
+              etiquetas: {
+                some: {
+                  id: input.etiquetaId,
+                },
+              },
+            },
+            {
+              etiquetas: {
+                some: {
+                  id: { in: ctx.etiquetasVisibles },
+                },
+              },
+            },
+          ],
+        },
+        orderBy: {
+          created_at: 'asc',
+        },
+      });
+
+      const groupedModelos = modelos.reduce(
+        (acc, modelo) => {
+          const date = modelo.created_at.toISOString().split('T')[0];
+          if (!acc[date]) {
+            acc[date] = [];
+          }
+          acc[date].push(modelo);
+          return acc;
+        },
+        {} as Record<string, any[]>
+      );
+
+      return groupedModelos;
+    }),
 });
