@@ -1,4 +1,5 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
+import { Perfil } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
@@ -293,7 +294,7 @@ export const modeloRouter = router({
           acc[date].push(modelo);
           return acc;
         },
-        {} as Record<string, any[]>
+        {} as Record<string, Perfil[]>
       );
 
       return groupedModelos;
