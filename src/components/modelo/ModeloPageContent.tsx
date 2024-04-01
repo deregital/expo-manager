@@ -41,10 +41,8 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     etiquetas: state.etiquetas,
   }));
   const [fotoUrl, setFotoUrl] = useState(modelo?.fotoUrl);
-  const editModelo = trpc.modelo.edit.useMutation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [video, setVideo] = useState<File | null>(null);
-  const [canEdit, setCanEdit] = useState(false);
   const [edit, setEdit] = useState(false);
   const [fileName, setFileName] = useState('');
   const utils = trpc.useUtils();
@@ -57,7 +55,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       method: 'DELETE',
       body: form,
     })
-      .then((res) => {
+      .then(() => {
         toast.success('Foto eliminada con éxito');
         utils.modelo.getById.invalidate();
         setFotoUrl(null);
@@ -79,8 +77,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     await fetch('/api/image', {
       method: 'POST',
       body: form,
-    }).then((res) => {
-      console.log(res);
+    }).then(() => {
       toast.success('Foto actualizada con éxito');
       setEdit(false);
       setVideo(null);
@@ -94,8 +91,6 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     <>
       <div className='mt-4 flex gap-x-4'>
         <div
-          onMouseOver={() => setCanEdit(true)}
-          onMouseOut={() => setCanEdit(false)}
           onClick={() => setEdit(true)}
           className='group relative aspect-square w-28 rounded-lg hover:cursor-pointer md:w-[200px]'
         >
@@ -111,12 +106,9 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
             priority
             className={`absolute left-0 top-0 h-full w-full rounded-lg object-fill`}
           />
-          <div className='absolute left-0 top-0 h-full w-full rounded-lg hover:bg-black/60 hover:transition hover:duration-300 hover:ease-in-out group-hover:bg-black/60 group-hover:transition group-hover:duration-300 group-hover:ease-in-out'></div>
-          {canEdit && (
-            <p className='group absolute top-[45%] w-full text-center text-lg font-bold text-white'>
-              EDITAR
-            </p>
-          )}
+          <div className='absolute left-0 top-0 flex h-full w-full items-center justify-center rounded-lg bg-black/60 opacity-0 transition duration-300 ease-in-out group-hover:opacity-100'>
+            <p className='text-lg font-bold text-white'>EDITAR</p>
+          </div>
         </div>
         <div className='flex w-full flex-col gap-y-4'>
           <div className='flex flex-col gap-4 md:flex-row md:items-end'>
