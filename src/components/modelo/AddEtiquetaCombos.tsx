@@ -12,7 +12,6 @@ function availableGrupos(
   etiquetas: NonNullable<RouterOutputs['modelo']['getById']>['etiquetas'],
   gruposData: NonNullable<RouterOutputs['grupoEtiqueta']['getAll']>
 ) {
-  // return all grupos that have esExclusivo false and the ones that have esExclusivo true and not have etiquetas
   return gruposData.filter((grupo) => {
     if (grupo.etiquetas.length === 0) return false;
     if (grupo.esExclusivo) {
@@ -63,12 +62,11 @@ const AddEtiquetaCombos = ({
 
   const addEtiqueta = trpc.modelo.edit.useMutation();
   const { data: gruposData } = trpc.grupoEtiqueta.getAll.useQuery();
-  const { data: etiquetasData } =
+  const { data: etiquetasData, isLoading: isLoadingEtiquetas } =
     grupoId === ''
       ? trpc.etiqueta.getAll.useQuery()
       : trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoId);
   const utils = trpc.useUtils();
-
   const currentGrupo = useMemo(() => {
     return gruposData?.find((grupo) => grupo.id === grupoId);
   }, [grupoId, gruposData]);
@@ -191,6 +189,7 @@ const AddEtiquetaCombos = ({
           setOpenEtiqueta(false);
         }}
         wFullMobile
+        isLoading={isLoadingEtiquetas}
         selectedIf={etiquetaId}
         triggerChildren={
           <>
