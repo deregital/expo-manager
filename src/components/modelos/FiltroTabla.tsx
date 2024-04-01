@@ -5,6 +5,7 @@ import ComboBoxModelos from './ComboBoxModelos';
 import EtiquetaComboBoxModelos from './EtiquetaComboBox';
 import { useEffect, useState } from 'react';
 import SearchInput from '@/components/ui/SearchInput';
+import { useModelosTabla } from '@/components/modelos/table/ModelosTable';
 
 const FiltroTabla = () => {
   const searchParams = new URLSearchParams(useSearchParams());
@@ -12,6 +13,11 @@ const FiltroTabla = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { data: grupos } = trpc.grupoEtiqueta.getAll.useQuery();
+
+  const { cantidadDeModelos, isLoadingModelos } = useModelosTabla((s) => ({
+    isLoadingModelos: s.isLoading,
+    cantidadDeModelos: s.cantidad,
+  }));
 
   useEffect(() => {
     if (search === '') {
@@ -28,6 +34,15 @@ const FiltroTabla = () => {
       <div className='flex w-full flex-col items-center gap-4 md:flex-row'>
         <ComboBoxModelos data={grupos ?? []} />
         <EtiquetaComboBoxModelos />
+        {!isLoadingModelos && (
+          <p className='self-start text-sm text-black/80 md:self-end'>
+            {cantidadDeModelos === 0
+              ? 'No se encontraron modelos'
+              : cantidadDeModelos === 1
+                ? '1 modelo encontrada'
+                : `${cantidadDeModelos} modelos encontradas`}
+          </p>
+        )}
       </div>
       <div className='relative w-full md:max-w-[300px]'>
         <SearchInput
