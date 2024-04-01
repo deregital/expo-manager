@@ -1,6 +1,5 @@
 import { RouterOutputs } from '@/server';
 import React, { useRef, useState } from 'react';
-import Image from 'next/image';
 import ListaEtiquetas from '@/components/modelo/ListaEtiquetas';
 import { create } from 'zustand';
 import ComentariosSection from '@/components/modelo/ComentariosSection';
@@ -10,6 +9,7 @@ import { toast } from 'sonner';
 import CircleXIcon from '../icons/CircleX';
 import { Save, Trash2Icon } from 'lucide-react';
 import CirclePlus from '../icons/CirclePlus';
+import ModeloFoto from '@/components/modelo/ModeloFoto';
 
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
@@ -44,7 +44,6 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [video, setVideo] = useState<File | null>(null);
   const [edit, setEdit] = useState(false);
-  const [fileName, setFileName] = useState('');
   const utils = trpc.useUtils();
 
   async function handleDelete() {
@@ -67,48 +66,111 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
 
   async function handleUpload() {
     if (!video) {
-      toast.error('No se ha seleccionado una imágen');
+      toast.error('No se ha seleccionado una imagen');
       return;
     }
     const form = new FormData();
     form.append('imagen', video);
     form.append('id', modelo.id);
     form.append('url', modelo.fotoUrl ?? '');
+
+    toast.loading('Subiendo foto...');
+    setEdit(false);
+
     await fetch('/api/image', {
       method: 'POST',
       body: form,
-    }).then(() => {
-      toast.success('Foto actualizada con éxito');
-      setEdit(false);
-      setVideo(null);
-      setFileName('');
-      utils.modelo.getById.invalidate();
-      inputRef.current!.value = '';
-    });
+    })
+      .then(() => {
+        toast.dismiss();
+
+        if (inputRef.current) {
+          inputRef.current!.value = '';
+        }
+        setEdit(false);
+        setVideo(null);
+        utils.modelo.getById.invalidate();
+        toast.success('Foto actualizada con éxito');
+      })
+      .catch((e) => {
+        console.log(e);
+
+        toast.dismiss();
+        toast.error('Error al subir la foto');
+        setEdit(false);
+        setVideo(null);
+        setFotoUrl(modelo.fotoUrl);
+      });
+  }
+
+  function handleCancel() {
+    setFotoUrl(modelo.fotoUrl);
+    setVideo(null);
+    inputRef.current!.value = '';
+    setEdit(false);
   }
 
   return (
     <>
       <div className='mt-4 flex gap-x-4'>
-        <div
-          onClick={() => setEdit(true)}
-          className='group relative aspect-square w-28 rounded-lg hover:cursor-pointer md:w-[200px]'
-        >
-          <Image
+        <div className='relative w-28 md:w-[200px]'>
+          <ModeloFoto
+            onClick={() => {
+              setEdit(true);
+            }}
+            alt={`${modelo?.nombreCompleto}`}
             src={
               (fotoUrl === modelo.fotoUrl && fotoUrl
                 ? `${fotoUrl}?test=${new Date().getTime()}`
                 : fotoUrl) || '/img/profilePlaceholder.jpg'
             }
-            width={150}
-            height={150}
-            alt={`${modelo?.nombreCompleto}`}
-            priority
-            className={`absolute left-0 top-0 h-full w-full rounded-lg object-fill`}
           />
-          <div className='absolute left-0 top-0 flex h-full w-full items-center justify-center rounded-lg bg-black/60 opacity-0 transition duration-300 ease-in-out group-hover:opacity-100'>
-            <p className='text-lg font-bold text-white'>EDITAR</p>
-          </div>
+          {edit && (
+            <>
+              <div className='mt-2 flex items-center justify-between gap-x-3'>
+                <label className='flex aspect-square w-[calc(33%-4px)] items-center justify-center rounded-full border-2 bg-black text-white hover:cursor-pointer md:h-8 md:w-8'>
+                  <CirclePlus className='h-6 w-6 md:h-8 md:w-8' />
+                  <input
+                    type='file'
+                    name='imagen'
+                    className='hidden'
+                    accept='image/jpeg,image/png,image/webp'
+                    ref={inputRef}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      setVideo(file ?? null);
+                      setFotoUrl(!file ? null : URL.createObjectURL(file));
+                    }}
+                  />
+                </label>
+                {inputRef.current?.value && (
+                  <>
+                    <Button
+                      className={`aspect-square h-8 w-[calc(33%-4px)] p-1 text-xs md:w-8`}
+                      onClick={handleUpload}
+                    >
+                      <Save className='h-5 w-5' />
+                    </Button>
+                  </>
+                )}
+                {!inputRef.current?.value && (
+                  <Button
+                    className='aspect-square h-8 w-[calc(33%-4px)] bg-red-600 p-1 hover:bg-red-800 md:h-max md:w-8'
+                    onClick={handleDelete}
+                  >
+                    <Trash2Icon className='h-5 w-5' />
+                  </Button>
+                )}
+                <CircleXIcon
+                  onClick={handleCancel}
+                  className='aspect-square w-[calc(33%-4px)] cursor-pointer md:h-8 md:w-8'
+                />
+              </div>
+              {video && (
+                <span className='mt-1 max-w-full truncate'>{video.name}</span>
+              )}
+            </>
+          )}
         </div>
         <div className='flex w-full flex-col gap-y-4'>
           <div className='flex flex-col gap-4 md:flex-row md:items-end'>
@@ -125,67 +187,12 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           </div>
         </div>
       </div>
-      {edit && (
-        <>
-          <div className='mt-2 flex items-center justify-start'>
-            <label className='flex items-center justify-center rounded-full border-2 bg-black text-white hover:cursor-pointer'>
-              <CirclePlus className='h-8 w-8' />
-              <input
-                type='file'
-                name='imagen'
-                className='hidden'
-                accept='image/jpeg,image/png,image/webp'
-                ref={inputRef}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  setFileName(file?.name ?? '');
-                  setVideo(file ? file : null);
-                  setFotoUrl(!file ? null : URL.createObjectURL(file));
-                }}
-              />
-            </label>
-            <span className='ml-3'>{fileName}</span>
-          </div>
-          <div className='mt-2 flex items-center justify-start gap-x-3'>
-            <Button
-              className={`h-fit w-fit p-2 text-xs`}
-              onClick={handleUpload}
-            >
-              <Save className='h-5' />
-            </Button>
-            <Button
-              className='h-9 w-fit p-2 text-xs'
-              onClick={() => {
-                setFotoUrl(modelo.fotoUrl);
-                inputRef.current!.value = '';
-                setFileName('');
-              }}
-            >
-              Limpiar foto
-            </Button>
-            <Button
-              className='h-fit w-fit bg-red-600 p-2 text-xs hover:bg-red-800'
-              onClick={handleDelete}
-            >
-              <Trash2Icon className='h-5' />
-            </Button>
-            <CircleXIcon
-              onClick={() => {
-                setFotoUrl(modelo.fotoUrl);
-                inputRef.current!.value = '';
-                setFileName('');
-                setEdit(false);
-              }}
-              className='h-8 w-8 cursor-pointer'
-            />
-          </div>
-        </>
-      )}
+
       <div className='mt-4 flex flex-wrap gap-2 md:hidden'>
         <ListaEtiquetas modeloId={modelo.id} etiquetas={etiquetas} />
       </div>
 
-      <div className='mt-10'>
+      <div className='mt-5'>
         <h2 className='text-xl font-bold md:text-2xl'>Comentarios</h2>
         <ComentariosSection modeloId={modelo.id} />
       </div>
