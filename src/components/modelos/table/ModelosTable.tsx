@@ -71,19 +71,17 @@ const ModelosTable = () => {
     });
   }, [searchParams]);
 
+  const data = useMemo(() => {
+    const filtradas = filterModelos(modelos ?? [], search);
+    return filtradas;
+  }, [search, modelos]);
+
   useEffect(() => {
     useModelosTabla.setState({
       isLoading,
+      cantidad: data.length,
     });
-  }, [isLoading]);
-
-  const data = useMemo(() => {
-    const filtradas = filterModelos(modelos ?? [], search);
-    useModelosTabla.setState({
-      cantidad: filtradas.length,
-    });
-    return filtradas;
-  }, [search, modelos]);
+  }, [isLoading, data]);
 
   return (
     <DataTable
