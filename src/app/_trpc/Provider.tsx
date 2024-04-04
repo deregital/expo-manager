@@ -5,13 +5,13 @@ import React, { useState } from 'react';
 
 import { trpcClient as client } from './client';
 
-export default function Provider({ children }: { children: React.ReactNode }) {
+const Provider = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(() => new QueryClient({}));
   const [trpcClient] = useState(() =>
     client.createClient({
       links: [
         httpBatchLink({
-          url: `${process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:3000'}/api/trpc`,
+          url: `${process.env.VERCEL_URL ?? 'http://localhost:3000'}/api/trpc`,
         }),
       ],
     })
@@ -21,4 +21,6 @@ export default function Provider({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </client.Provider>
   );
-}
+};
+
+export default Provider;
