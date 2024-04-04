@@ -3,6 +3,8 @@ import { createTRPCNext } from '@trpc/next';
 import type { AppRouter } from '@/server';
 
 export function getBaseUrl() {
+  console.log(process.env.VERCEL_URL);
+
   if (typeof window !== 'undefined')
     // browser should use relative path
     return '';
@@ -33,7 +35,7 @@ export const trpc = createTRPCNext<AppRouter>({
            * If you want to use SSR, you need to use the server's full URL
            * @link https://trpc.io/docs/v11/ssr
            **/
-          url: `/api/trpc`,
+          url: `${getBaseUrl()}/api/trpc`,
           // You can pass any HTTP headers you wish here
           async headers() {
             return {
