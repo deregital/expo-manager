@@ -3,8 +3,6 @@ import { createTRPCNext } from '@trpc/next';
 import type { AppRouter } from '@/server';
 
 export function getBaseUrl() {
-  console.log(process.env.VERCEL_URL);
-
   if (typeof window !== 'undefined')
     // browser should use relative path
     return '';
