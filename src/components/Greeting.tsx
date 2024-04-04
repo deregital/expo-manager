@@ -6,7 +6,7 @@ import { addDays, dateFormatYYYYMMDD } from '@/lib/utils';
 import { useState } from 'react';
 
 interface Props {
-  process: string;
+  process: string | undefined;
 }
 
 const Greeting = ({ process }: Props) => {
