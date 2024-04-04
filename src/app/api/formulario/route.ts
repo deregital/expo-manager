@@ -20,6 +20,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
                 nombreCompleto: data.nombreCompleto,
                 nombrePila: nombrePila,
                 telefono: telefonoSinSeparaciones,
+                etiquetas: {
+                    connect: {id: process.env.MODELO_ETIQUETA_ID}
+                }
             }
         });
         return NextResponse.json(response, {status: 201});
