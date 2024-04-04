@@ -5,13 +5,7 @@ import { trpc } from '@/lib/trpc';
 import { addDays, dateFormatYYYYMMDD } from '@/lib/utils';
 import { useState } from 'react';
 
-interface Props {
-  process: string | undefined;
-}
-
-const Greeting = ({ process }: Props) => {
-  console.log(process);
-
+const Greeting = () => {
   const [dateRange, setDateRange] = useState<[string, string]>([
     dateFormatYYYYMMDD(new Date()),
     dateFormatYYYYMMDD(new Date()),
