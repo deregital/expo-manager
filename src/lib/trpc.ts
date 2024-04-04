@@ -33,7 +33,7 @@ export const trpc = createTRPCNext<AppRouter>({
            * If you want to use SSR, you need to use the server's full URL
            * @link https://trpc.io/docs/v11/ssr
            **/
-          url: `${getBaseUrl()}/api/trpc`,
+          url: `/api/trpc`,
           // You can pass any HTTP headers you wish here
           async headers() {
             return {
