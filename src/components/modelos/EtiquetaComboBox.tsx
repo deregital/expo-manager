@@ -14,7 +14,7 @@ const EtiquetaComboBoxModelos = () => {
   );
   const pathname = usePathname();
   const router = useRouter();
-  const { data } =
+  const { data, isLoading } =
     searchParams.get('grupoId') === null
       ? trpc.etiqueta.getAll.useQuery()
       : trpc.etiqueta.getByGrupoEtiqueta.useQuery(
@@ -29,6 +29,7 @@ const EtiquetaComboBoxModelos = () => {
   return (
     <ComboBox
       open={open}
+      isLoading={isLoading}
       setOpen={setOpen}
       triggerChildren={
         <>

@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.perfil.findMany({
+    const modelos = await ctx.prisma.perfil.findMany({
       where: {
         etiquetas: {
           some: {
@@ -25,6 +25,13 @@ export const modeloRouter = router({
         },
       },
     });
+
+    modelos.forEach((modelo) => {
+      if (Number.isInteger(modelo.idLegible)) {
+        modelo.idLegible = Number(modelo.idLegible).toString(36);
+      }
+    });
+    return modelos;
   }),
   getById: protectedProcedure
     .input(z.string().uuid())

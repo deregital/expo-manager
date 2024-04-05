@@ -5,8 +5,14 @@ import { searchNormalize } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
+import { create } from 'zustand';
 
-interface ModelosTableProps {}
+export const useModelosTabla = create<{ cantidad: number; isLoading: boolean }>(
+  () => ({
+    cantidad: 0,
+    isLoading: true,
+  })
+);
 
 function filterModelos(
   modelos: RouterOutputs['modelo']['getAll'],
@@ -38,7 +44,7 @@ function filterModelos(
   return mod;
 }
 
-const ModelosTable = ({}: ModelosTableProps) => {
+const ModelosTable = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const searchParams = useSearchParams();
   const [search, setSearch] = useState<{
@@ -66,8 +72,16 @@ const ModelosTable = ({}: ModelosTableProps) => {
   }, [searchParams]);
 
   const data = useMemo(() => {
-    return filterModelos(modelos ?? [], search);
+    const filtradas = filterModelos(modelos ?? [], search);
+    return filtradas;
   }, [search, modelos]);
+
+  useEffect(() => {
+    useModelosTabla.setState({
+      isLoading,
+      cantidad: data.length,
+    });
+  }, [isLoading, data]);
 
   return (
     <DataTable

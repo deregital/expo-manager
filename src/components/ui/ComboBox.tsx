@@ -7,6 +7,7 @@ import {
   CommandInput,
   CommandItem,
 } from '@/components/ui/command';
+import Loader from '@/components/ui/loader';
 import {
   Popover,
   PopoverContent,
@@ -38,6 +39,7 @@ type ComboBoxProps<
   buttonClassName?: string;
   wFullMobile?: boolean;
   enabled?: Array<TData[Id]>;
+  isLoading?: boolean;
 };
 const ComboBox = <
   TData extends Record<string, unknown>,
@@ -57,6 +59,7 @@ const ComboBox = <
   buttonClassName,
   wFullMobile,
   enabled,
+  isLoading,
 }: ComboBoxProps<TData, Id>) => {
   const isGrupo = 'color' in (data[0] ?? {});
   const placeholder = isGrupo ? 'Buscar grupo...' : 'Buscar etiqueta...';
@@ -103,6 +106,11 @@ const ComboBox = <
           <CommandInput placeholder={placeholder} className='h-9' />
           <CommandEmpty>{commandEmpty}</CommandEmpty>
           <CommandGroup className='max-h-40 overflow-y-auto p-0'>
+            {isLoading && (
+              <CommandItem className='flex items-center justify-center p-2'>
+                <Loader />
+              </CommandItem>
+            )}
             {data.map((item) => (
               <CommandItem
                 disabled={enabled && !enabled.includes(item[id])}
