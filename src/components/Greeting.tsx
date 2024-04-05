@@ -1,9 +1,14 @@
 'use client';
 
+import BarChart from '@/components/dashboard/BarChart';
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { addDays, dateFormatYYYYMMDD } from '@/lib/utils';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+
+function typedEntries<T extends Object>(obj: T) {
+  return Object.entries(obj) as [keyof T, T[keyof T]][];
+}
 
 const Greeting = () => {
   const [dateRange, setDateRange] = useState<[string, string]>([
@@ -18,6 +23,13 @@ const Greeting = () => {
     end: addDays(dateRange[1], 1).toISOString(),
     etiquetaId: etiquetaId,
   });
+
+  const dataModelos = useMemo(() => {
+    return typedEntries(modelos.data ?? {}).map(([fecha, modelos]) => ({
+      fecha,
+      modelos: modelos.length,
+    }));
+  }, [modelos.data]);
 
   return (
     <>
@@ -54,8 +66,9 @@ const Greeting = () => {
           start: {new Date(dateRange[0]).toISOString()}, end:{' '}
           {addDays(dateRange[1], 1).toISOString()}
         </p>
-        <pre>{JSON.stringify(modelos.data, null, 2)}</pre>
       </div>
+
+      <BarChart data={dataModelos} />
     </>
   );
 };
