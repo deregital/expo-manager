@@ -16,13 +16,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
         contrasena: data.password,
       },
     });
-    if (!usuario) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-    if(!usuario.esAdmin) {
+    if (!usuario || usuario.nombreUsuario !== "FORMULARIO") {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
