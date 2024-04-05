@@ -4,6 +4,30 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest, res: NextResponse) {
   try {
     const data = await req.json();
+    if (!data.username || !data.password) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    const usuario = await prisma.cuenta.findFirst({
+      where: {
+        nombreUsuario: data.username,
+        contrasena: data.password,
+      },
+    });
+    if (!usuario) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    if(!usuario.esAdmin) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
     const telefonoSinSeparaciones = data.telefono
       .replace(/\s+/g, '')
       .replace(/\+/g, '');
