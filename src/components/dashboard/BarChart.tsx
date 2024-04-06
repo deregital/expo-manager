@@ -7,6 +7,7 @@ import {
   XAxis,
   YAxis,
   BarChart as RechartChart,
+  ResponsiveContainer,
 } from 'recharts';
 import {
   NameType,
@@ -22,7 +23,7 @@ interface BarChartProps {
   }[];
 }
 
-export const modelosData = create<{
+export const modelosChartData = create<{
   data: { modelos: number; fecha: string }[];
 }>(() => ({
   data: [],
@@ -35,25 +36,27 @@ const BarChart = ({ data }: BarChartProps) => {
     error(...args);
   };
   return (
-    <RechartChart id='modelosChart' data={data} width={500} height={300}>
-      <XAxis dataKey='fecha' />
-      <YAxis />
-      <Tooltip
-        content={({ active, payload, label }) => (
-          <CustomTooltip
-            text={'Modelos creadas'}
-            active={active}
-            payload={payload}
-            label={label}
-          />
-        )}
-      />
-      <Bar
-        dataKey='modelos'
-        className='fill-slate-700'
-        activeBar={<Rectangle stroke='black' />}
-      />
-    </RechartChart>
+    <ResponsiveContainer width={'100%'} aspect={3}>
+      <RechartChart id='modelosChart' data={data}>
+        <XAxis dataKey='fecha' />
+        <YAxis />
+        <Tooltip
+          content={({ active, payload, label }) => (
+            <CustomTooltip
+              text={'Modelos creadas'}
+              active={active}
+              payload={payload}
+              label={label}
+            />
+          )}
+        />
+        <Bar
+          dataKey='modelos'
+          className='fill-slate-700'
+          activeBar={<Rectangle stroke='black' />}
+        />
+      </RechartChart>
+    </ResponsiveContainer>
   );
 };
 
