@@ -77,7 +77,7 @@ const CustomTooltip = ({
     active &&
     payload &&
     payload.length && (
-      <div className='rounded-md bg-white/90 p-2'>
+      <div className='rounded-md bg-white/90 p-2 shadow-sm drop-shadow-lg'>
         <p>{label}</p>
         <p>
           {text}: {payload[0].value}
