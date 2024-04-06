@@ -1,6 +1,7 @@
 'use client';
 
 import ModelosChart from '@/components/dashboard/ModelosChart';
+import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { addDays, dateFormatYYYYMMDD } from '@/lib/utils';
@@ -34,20 +35,20 @@ const Greeting = () => {
   return (
     <>
       <div className='flex flex-col gap-4'>
-        <Input
-          type='date'
-          value={dateRange[0]}
-          onChange={(e) => {
-            setDateRange([e.currentTarget.value, dateRange[1]]);
-          }}
-        />
-
-        <Input
-          type='date'
-          value={dateRange[1]}
-          onChange={(e) => {
-            setDateRange([dateRange[0], e.currentTarget.value]);
-          }}
+        <DateRangePicker
+          initialDateFrom={new Date()}
+          initialDateTo={addDays(dateFormatYYYYMMDD(new Date()), 1)}
+          locale='es-AR'
+          align='start'
+          showCompare={false}
+          onUpdate={({ range }) =>
+            setDateRange([
+              dateFormatYYYYMMDD(range.from),
+              range.to
+                ? dateFormatYYYYMMDD(range.to)
+                : dateFormatYYYYMMDD(new Date()),
+            ])
+          }
         />
 
         <Input

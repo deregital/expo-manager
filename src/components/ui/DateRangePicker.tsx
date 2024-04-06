@@ -20,6 +20,7 @@ import {
   CheckIcon,
 } from '@radix-ui/react-icons';
 import { cn } from '@/lib/utils';
+import { es, enUS } from 'date-fns/locale';
 
 export interface DateRangePickerProps {
   /** Click handler for applying the updates from DateRangePicker. */
@@ -60,15 +61,15 @@ interface Preset {
 
 // Define presets
 const PRESETS: Preset[] = [
-  { name: 'today', label: 'Today' },
-  { name: 'yesterday', label: 'Yesterday' },
-  { name: 'last7', label: 'Last 7 days' },
-  { name: 'last14', label: 'Last 14 days' },
-  { name: 'last30', label: 'Last 30 days' },
-  { name: 'thisWeek', label: 'This Week' },
-  { name: 'lastWeek', label: 'Last Week' },
-  { name: 'thisMonth', label: 'This Month' },
-  { name: 'lastMonth', label: 'Last Month' },
+  { name: 'today', label: 'Hoy' },
+  { name: 'yesterday', label: 'Ayer' },
+  { name: 'last7', label: 'Últimos 7 días' },
+  { name: 'last14', label: 'Últimos 14 días' },
+  { name: 'last30', label: 'Últimos 30 días' },
+  { name: 'thisWeek', label: 'Esta semana' },
+  { name: 'lastWeek', label: 'Semana pasada' },
+  { name: 'thisMonth', label: 'Este mes' },
+  { name: 'lastMonth', label: 'Mes pasado' },
 ];
 
 /** The DateRangePicker component allows a user to select a range of dates */
@@ -354,11 +355,14 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align={align} className='w-auto'>
+      <PopoverContent
+        align={align}
+        className='w-auto min-w-[--radix-popper-anchor-width]'
+      >
         <div className='flex py-2'>
-          <div className='flex'>
-            <div className='flex flex-col'>
-              <div className='flex flex-col items-center justify-end gap-2 px-3 pb-4 lg:flex-row lg:items-start lg:pb-0'>
+          <div className='flex w-full'>
+            <div className='flex w-full flex-col'>
+              <div className='flex w-full flex-col items-center justify-end gap-2 px-3 pb-4 lg:flex-row lg:items-start lg:pb-0'>
                 {showCompare && (
                   <div className='flex items-center space-x-2 py-1 pr-4'>
                     <Switch
@@ -477,7 +481,7 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
                   }}
                 >
                   <SelectTrigger className='mx-auto mb-2 w-[180px]'>
-                    <SelectValue placeholder='Select...' />
+                    <SelectValue placeholder='Elegí rango...' />
                   </SelectTrigger>
                   <SelectContent>
                     {PRESETS.map((preset) => (
@@ -488,14 +492,16 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
                   </SelectContent>
                 </Select>
               )}
-              <div>
+              <div className='w-full'>
                 <Calendar
+                  className='w-full'
                   mode='range'
                   onSelect={(value: { from?: Date; to?: Date } | undefined) => {
                     if (value?.from != null) {
                       setRange({ from: value.from, to: value?.to });
                     }
                   }}
+                  locale={locale === 'es-AR' ? es : enUS}
                   selected={range}
                   numberOfMonths={isSmallScreen ? 1 : 2}
                   defaultMonth={
@@ -510,7 +516,7 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
             </div>
           </div>
           {!isSmallScreen && (
-            <div className='flex flex-col items-end gap-1 pb-6 pl-6 pr-2'>
+            <div className='flex flex-col items-end gap-1 pl-6 pr-2'>
               <div className='flex w-full flex-col items-end gap-1 pb-6 pl-6 pr-2'>
                 {PRESETS.map((preset) => (
                   <PresetButton
@@ -532,7 +538,7 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
             }}
             variant='ghost'
           >
-            Cancel
+            Cancelar
           </Button>
           <Button
             onClick={() => {
@@ -545,7 +551,7 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
               }
             }}
           >
-            Update
+            Actualizar
           </Button>
         </div>
       </PopoverContent>
