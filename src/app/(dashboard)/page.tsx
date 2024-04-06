@@ -1,3 +1,4 @@
+'use client';
 import Greeting from '@/components/Greeting';
 
 const Home = () => {
