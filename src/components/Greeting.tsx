@@ -1,6 +1,6 @@
 'use client';
 
-import BarChart from '@/components/dashboard/BarChart';
+import ModelosChart from '@/components/dashboard/ModelosChart';
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { addDays, dateFormatYYYYMMDD } from '@/lib/utils';
@@ -68,7 +68,7 @@ const Greeting = () => {
         </p>
       </div>
 
-      <BarChart data={dataModelos} />
+      <ModelosChart data={dataModelos} />
     </>
   );
 };

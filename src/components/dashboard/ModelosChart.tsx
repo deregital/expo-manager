@@ -29,7 +29,7 @@ export const modelosChartData = create<{
   data: [],
 }));
 
-const BarChart = ({ data }: BarChartProps) => {
+const ModelosChart = ({ data }: BarChartProps) => {
   const error = console.error;
   console.error = (...args: any) => {
     if (/defaultProps/.test(args[0])) return;
@@ -60,7 +60,7 @@ const BarChart = ({ data }: BarChartProps) => {
   );
 };
 
-export default BarChart;
+export default ModelosChart;
 
 const CustomTooltip = ({
   active,
