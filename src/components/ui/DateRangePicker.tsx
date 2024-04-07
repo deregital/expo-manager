@@ -41,12 +41,20 @@ export interface DateRangePickerProps {
   showCompare?: boolean;
 }
 
-const formatDate = (date: Date, locale: string = 'en-us'): string => {
-  return date.toLocaleDateString(locale, {
+const formatDate = (
+  date: Date,
+  locale: string = 'es-AR',
+  opts: {
+    month?: 'short' | 'long';
+    day?: 'numeric' | '2-digit';
+    year?: 'numeric' | '2-digit';
+  } = {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-  });
+  }
+): string => {
+  return date.toLocaleDateString(locale, opts);
 };
 
 interface DateRange {
@@ -80,7 +88,7 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
   initialCompareTo,
   onUpdate,
   align = 'end',
-  locale = 'en-US',
+  locale = 'es-AR',
   showCompare = true,
 }): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
@@ -113,6 +121,12 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
   const [isSmallScreen, setIsSmallScreen] = useState(
     typeof window !== 'undefined' ? window.innerWidth < 960 : false
   );
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleResize = (): void => {
@@ -316,6 +330,8 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
+  if (!isMounted) return <></>;
+
   return (
     <Popover
       modal={true}
@@ -328,12 +344,25 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
       }}
     >
       <PopoverTrigger asChild>
-        <Button size={'lg'} variant='outline'>
+        <Button size={'lg'} className='w-full' variant='outline'>
           <div className='text-right'>
             <div className='py-1'>
-              <div>{`${formatDate(range.from, locale)}${
-                range.to != null ? ' - ' + formatDate(range.to, locale) : ''
-              }`}</div>
+              {isSmallScreen
+                ? `${formatDate(range.from, locale, {
+                    month: 'short',
+                    day: '2-digit',
+                  })}${
+                    range.to != null
+                      ? ' - ' +
+                        formatDate(range.to, locale, {
+                          month: 'short',
+                          day: '2-digit',
+                        })
+                      : ''
+                  }`
+                : `${formatDate(range.from, locale)}${
+                    range.to != null ? ' - ' + formatDate(range.to, locale) : ''
+                  }`}
             </div>
             {rangeCompare != null && (
               <div className='-mt-1 text-xs opacity-60'>
