@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button';
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -107,8 +106,8 @@ const ComboBox = <
       >
         <Command>
           <CommandInput placeholder={placeholder} className='h-9' />
-          <CommandEmpty>{commandEmpty}</CommandEmpty>
           <CommandGroup className='max-h-40 overflow-y-auto p-0'>
+            {data.length === 0 && <CommandItem>{commandEmpty}</CommandItem>}
             {isLoading && (
               <CommandItem className='flex items-center justify-center p-2'>
                 <Loader />

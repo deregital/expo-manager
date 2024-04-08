@@ -64,7 +64,12 @@ const PageClient = ({}: PageClientProps) => {
           open={grupoOpen}
           setOpen={setGrupoOpen}
           onSelect={(value) => {
-            useDashboardData.setState({ grupoEtiquetaId: value });
+            if (value === grupoEtiquetaId) {
+              useDashboardData.setState({ grupoEtiquetaId: '' });
+            } else {
+              useDashboardData.setState({ grupoEtiquetaId: value });
+              useDashboardData.setState({ etiquetaId: '' });
+            }
             setGrupoOpen(false);
           }}
           selectedIf={grupoEtiquetaId}
