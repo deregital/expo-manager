@@ -21,6 +21,7 @@ import {
 } from '@radix-ui/react-icons';
 import { cn } from '@/lib/utils';
 import { es, enUS } from 'date-fns/locale';
+import Loader from '@/components/ui/loader';
 
 export interface DateRangePickerProps {
   /** Click handler for applying the updates from DateRangePicker. */
@@ -41,12 +42,20 @@ export interface DateRangePickerProps {
   showCompare?: boolean;
 }
 
-const formatDate = (date: Date, locale: string = 'en-us'): string => {
-  return date.toLocaleDateString(locale, {
+const formatDate = (
+  date: Date,
+  locale: string = 'es-AR',
+  opts: {
+    month?: 'short' | 'long';
+    day?: 'numeric' | '2-digit';
+    year?: 'numeric' | '2-digit';
+  } = {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-  });
+  }
+): string => {
+  return date.toLocaleDateString(locale, opts);
 };
 
 interface DateRange {
@@ -80,7 +89,7 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
   initialCompareTo,
   onUpdate,
   align = 'end',
-  locale = 'en-US',
+  locale = 'es-AR',
   showCompare = true,
 }): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
@@ -113,6 +122,12 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
   const [isSmallScreen, setIsSmallScreen] = useState(
     typeof window !== 'undefined' ? window.innerWidth < 960 : false
   );
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleResize = (): void => {
@@ -328,31 +343,52 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
       }}
     >
       <PopoverTrigger asChild>
-        <Button size={'lg'} variant='outline'>
-          <div className='text-right'>
-            <div className='py-1'>
-              <div>{`${formatDate(range.from, locale)}${
-                range.to != null ? ' - ' + formatDate(range.to, locale) : ''
-              }`}</div>
-            </div>
-            {rangeCompare != null && (
-              <div className='-mt-1 text-xs opacity-60'>
-                <>
-                  vs. {formatDate(rangeCompare.from, locale)}
-                  {rangeCompare.to != null
-                    ? ` - ${formatDate(rangeCompare.to, locale)}`
-                    : ''}
-                </>
+        <Button size={'lg'} className='w-full' variant='outline'>
+          {isMounted ? (
+            <>
+              <div className='text-right'>
+                <div className='py-1'>
+                  {isSmallScreen
+                    ? `${formatDate(range.from, locale, {
+                        month: 'short',
+                        day: '2-digit',
+                      })}${
+                        range.to != null
+                          ? ' - ' +
+                            formatDate(range.to, locale, {
+                              month: 'short',
+                              day: '2-digit',
+                            })
+                          : ''
+                      }`
+                    : `${formatDate(range.from, locale)}${
+                        range.to != null
+                          ? ' - ' + formatDate(range.to, locale)
+                          : ''
+                      }`}
+                </div>
+                {rangeCompare != null && (
+                  <div className='-mt-1 text-xs opacity-60'>
+                    <>
+                      vs. {formatDate(rangeCompare.from, locale)}
+                      {rangeCompare.to != null
+                        ? ` - ${formatDate(rangeCompare.to, locale)}`
+                        : ''}
+                    </>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <div className='-mr-2 scale-125 pl-1 opacity-60'>
-            {isOpen ? (
-              <ChevronUpIcon width={24} />
-            ) : (
-              <ChevronDownIcon width={24} />
-            )}
-          </div>
+              <div className='-mr-2 scale-125 pl-1 opacity-60'>
+                {isOpen ? (
+                  <ChevronUpIcon width={24} />
+                ) : (
+                  <ChevronDownIcon width={24} />
+                )}
+              </div>
+            </>
+          ) : (
+            <Loader />
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent

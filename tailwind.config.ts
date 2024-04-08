@@ -20,6 +20,23 @@ const config = {
       },
     },
     extend: {
+      gridTemplateAreas: {
+        dashboardLarge: [
+          'calendar grupo etiqueta',
+          'grafico grafico listaModelos',
+          'cardModelos cardRetencion cardMensajes',
+        ],
+        dashboardSmall: [
+          'calendar',
+          'grupo',
+          'etiqueta',
+          'grafico',
+          'listaModelos',
+          'cardModelos',
+          'cardRetencion',
+          'cardMensajes',
+        ],
+      },
       fontFamily: {
         sans: ['var(--font-sans)', ...defaulTheme.fontFamily.sans],
       },
@@ -84,7 +101,10 @@ const config = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+    require('tailwindcss-animate'),
+    require('@savvywombat/tailwindcss-grid-areas'),
+  ],
 } satisfies Config;
 
 export default config;

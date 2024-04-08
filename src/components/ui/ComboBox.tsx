@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button';
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -40,6 +39,7 @@ type ComboBoxProps<
   wFullMobile?: boolean;
   enabled?: Array<TData[Id]>;
   isLoading?: boolean;
+  contentClassName?: string;
 };
 const ComboBox = <
   TData extends Record<string, unknown>,
@@ -60,6 +60,7 @@ const ComboBox = <
   wFullMobile,
   enabled,
   isLoading,
+  contentClassName,
 }: ComboBoxProps<TData, Id>) => {
   const isGrupo = 'color' in (data[0] ?? {});
   const placeholder = isGrupo ? 'Buscar grupo...' : 'Buscar etiqueta...';
@@ -98,14 +99,15 @@ const ComboBox = <
       </PopoverTrigger>
       <PopoverContent
         className={cn(
-          'w-full max-w-[200px] p-0 md:max-w-[200px]',
-          wFullMobile && 'w-[--radix-popper-anchor-width] max-w-full'
+          'w-full max-w-[200px] p-0 sm:max-w-[200px]',
+          wFullMobile && 'w-[--radix-popper-anchor-width] max-w-full',
+          contentClassName
         )}
       >
         <Command>
           <CommandInput placeholder={placeholder} className='h-9' />
-          <CommandEmpty>{commandEmpty}</CommandEmpty>
           <CommandGroup className='max-h-40 overflow-y-auto p-0'>
+            {data.length === 0 && <CommandItem>{commandEmpty}</CommandItem>}
             {isLoading && (
               <CommandItem className='flex items-center justify-center p-2'>
                 <Loader />
