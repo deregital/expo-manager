@@ -40,6 +40,7 @@ type ComboBoxProps<
   wFullMobile?: boolean;
   enabled?: Array<TData[Id]>;
   isLoading?: boolean;
+  contentClassName?: string;
 };
 const ComboBox = <
   TData extends Record<string, unknown>,
@@ -60,6 +61,7 @@ const ComboBox = <
   wFullMobile,
   enabled,
   isLoading,
+  contentClassName,
 }: ComboBoxProps<TData, Id>) => {
   const isGrupo = 'color' in (data[0] ?? {});
   const placeholder = isGrupo ? 'Buscar grupo...' : 'Buscar etiqueta...';
@@ -98,8 +100,9 @@ const ComboBox = <
       </PopoverTrigger>
       <PopoverContent
         className={cn(
-          'w-full max-w-[200px] p-0 md:max-w-[200px]',
-          wFullMobile && 'w-[--radix-popper-anchor-width] max-w-full'
+          'w-full max-w-[200px] p-0 sm:max-w-[200px]',
+          wFullMobile && 'w-[--radix-popper-anchor-width] max-w-full',
+          contentClassName
         )}
       >
         <Command>
