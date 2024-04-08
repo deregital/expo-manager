@@ -21,6 +21,7 @@ import {
 } from '@radix-ui/react-icons';
 import { cn } from '@/lib/utils';
 import { es, enUS } from 'date-fns/locale';
+import Loader from '@/components/ui/loader';
 
 export interface DateRangePickerProps {
   /** Click handler for applying the updates from DateRangePicker. */
@@ -330,8 +331,6 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  if (!isMounted) return <></>;
-
   return (
     <Popover
       modal={true}
@@ -345,43 +344,51 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
     >
       <PopoverTrigger asChild>
         <Button size={'lg'} className='w-full' variant='outline'>
-          <div className='text-right'>
-            <div className='py-1'>
-              {isSmallScreen
-                ? `${formatDate(range.from, locale, {
-                    month: 'short',
-                    day: '2-digit',
-                  })}${
-                    range.to != null
-                      ? ' - ' +
-                        formatDate(range.to, locale, {
-                          month: 'short',
-                          day: '2-digit',
-                        })
-                      : ''
-                  }`
-                : `${formatDate(range.from, locale)}${
-                    range.to != null ? ' - ' + formatDate(range.to, locale) : ''
-                  }`}
-            </div>
-            {rangeCompare != null && (
-              <div className='-mt-1 text-xs opacity-60'>
-                <>
-                  vs. {formatDate(rangeCompare.from, locale)}
-                  {rangeCompare.to != null
-                    ? ` - ${formatDate(rangeCompare.to, locale)}`
-                    : ''}
-                </>
+          {isMounted ? (
+            <>
+              <div className='text-right'>
+                <div className='py-1'>
+                  {isSmallScreen
+                    ? `${formatDate(range.from, locale, {
+                        month: 'short',
+                        day: '2-digit',
+                      })}${
+                        range.to != null
+                          ? ' - ' +
+                            formatDate(range.to, locale, {
+                              month: 'short',
+                              day: '2-digit',
+                            })
+                          : ''
+                      }`
+                    : `${formatDate(range.from, locale)}${
+                        range.to != null
+                          ? ' - ' + formatDate(range.to, locale)
+                          : ''
+                      }`}
+                </div>
+                {rangeCompare != null && (
+                  <div className='-mt-1 text-xs opacity-60'>
+                    <>
+                      vs. {formatDate(rangeCompare.from, locale)}
+                      {rangeCompare.to != null
+                        ? ` - ${formatDate(rangeCompare.to, locale)}`
+                        : ''}
+                    </>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <div className='-mr-2 scale-125 pl-1 opacity-60'>
-            {isOpen ? (
-              <ChevronUpIcon width={24} />
-            ) : (
-              <ChevronDownIcon width={24} />
-            )}
-          </div>
+              <div className='-mr-2 scale-125 pl-1 opacity-60'>
+                {isOpen ? (
+                  <ChevronUpIcon width={24} />
+                ) : (
+                  <ChevronDownIcon width={24} />
+                )}
+              </div>
+            </>
+          ) : (
+            <Loader />
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent
