@@ -1,9 +1,10 @@
+import CrearTemplate from '@/components/mensajes/CrearTemplate';
 import React from 'react';
 
 const MensajesPage = () => {
   return (
     <div>
-      <p>MensajesPage</p>
+      <CrearTemplate />
     </div>
   );
 };

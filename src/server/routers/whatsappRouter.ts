@@ -7,17 +7,30 @@ import {
   TemplateEdit,
   TemplateEditResponse,
 } from '@/server/types/whatsapp';
+import { TRPCError } from '@trpc/server';
 
 export const whatsappRouter = router({
   createTemplate: protectedProcedure
     .input(
       z.object({
-        name: z.string().min(1).max(512).toLowerCase().trim(),
-        content: z.string().max(768).min(1),
-        buttons: z.array(z.string().max(25)).max(10),
+        name: z.string().min(1).max(512).toLowerCase().trim().optional(),
+        content: z.string().max(768).min(1).optional(),
+        buttons: z.array(z.string().max(25).optional()).max(10),
       })
     )
     .mutation(async ({ input, ctx }) => {
+      if (input.content === undefined) {
+        throw new TRPCError({ 
+          code: "BAD_REQUEST",
+          message: "Por favor ingrese cuerpo del mensaje"
+        })
+      }
+      if (input.name === undefined) {
+        throw new TRPCError({ 
+          code: "BAD_REQUEST",
+          message: "Por favor ingrese el nombre de la plantilla"
+        })
+      }
       const contenido: Template = {
         name: `${input.name}`,
         category: 'UTILITY',
@@ -38,17 +51,19 @@ export const whatsappRouter = router({
 
       if (input.buttons.length > 0) {
         input.buttons.forEach((button) => {
+          if (button !== undefined) {
           const each_button = {
             text: `${button}`,
             type: 'QUICK_REPLY',
           } satisfies Buttons['buttons'][number];
           buttons_json.buttons.push(each_button);
+        }
         });
         contenido.components.push(buttons_json);
       }
 
       const res: TemplateResponse = await fetch(
-        `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates`,
+        `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates`,
         {
           method: 'POST',
           headers: {
@@ -58,6 +73,7 @@ export const whatsappRouter = router({
           body: JSON.stringify(contenido),
         }
       ).then((res) => res.json());
+      console.log(res)
       return await ctx.prisma.plantilla.create({
         data: {
           titulo: input.name,
