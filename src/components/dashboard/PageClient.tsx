@@ -1,5 +1,6 @@
 import GraficoCard from '@/components/dashboard/GraficoCard';
 import MensajesCard from '@/components/dashboard/MensajesCard';
+import ModelosList from '@/components/dashboard/ModelosList';
 import SharedCard from '@/components/dashboard/SharedCard';
 import ComboBox from '@/components/ui/ComboBox';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
@@ -189,8 +190,8 @@ const PageClient = ({}: PageClientProps) => {
       <section className='rounded-md grid-in-grafico sm:h-full'>
         <GraficoCard isLoading={modelosLoading} modelos={modelosParaGrafico} />
       </section>
-      <section className='rounded-md bg-green-500 shadow-md grid-in-listaModelos'>
-        Lista de modelos
+      <section className='rounded-md grid-in-listaModelos sm:h-full sm:max-h-full'>
+        <ModelosList modelos={modelosQueCuentan.slice(0, 20)} />
       </section>
       <section className='rounded-md grid-in-cardModelos sm:self-end'>
         <SharedCard
