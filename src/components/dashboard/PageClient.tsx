@@ -1,3 +1,4 @@
+import GraficoCard from '@/components/dashboard/GraficoCard';
 import MensajesCard from '@/components/dashboard/MensajesCard';
 import SharedCard from '@/components/dashboard/SharedCard';
 import ComboBox from '@/components/ui/ComboBox';
@@ -22,6 +23,26 @@ export const useDashboardData = create<{
   grupoEtiquetaId: '',
   etiquetaId: '',
 }));
+
+function filterModelos(
+  modelos: RouterOutputs['modelo']['getByDateRange'][string],
+  search: { etiquetaId?: string; grupoId?: string }
+) {
+  if (search.etiquetaId === '' && search.grupoId === '') return modelos;
+  const mod = modelos.filter((modelo) => {
+    return (
+      (search.etiquetaId === '' ||
+        modelo.etiquetas.some(
+          (etiqueta) => etiqueta.id === search.etiquetaId
+        )) &&
+      (search.grupoId === '' ||
+        modelo.etiquetas.some(
+          (etiqueta) => etiqueta.grupoId === search.grupoId
+        ))
+    );
+  });
+  return mod;
+}
 
 const PageClient = ({}: PageClientProps) => {
   const { from, to, etiquetaId, grupoEtiquetaId } = useDashboardData((s) => ({
@@ -62,22 +83,27 @@ const PageClient = ({}: PageClientProps) => {
       : [];
   }, [currentGrupo, etiquetasData, grupoEtiquetaId]);
 
+  const modelosParaGrafico = useMemo(() => {
+    const modReturn: { fecha: string; modelos: number }[] = [];
+    if (!modelosData) return [];
+
+    for (const [day, modelos] of Object.entries(modelosData)) {
+      const modelosFiltradas = filterModelos(modelos, {
+        etiquetaId,
+        grupoId: grupoEtiquetaId,
+      });
+
+      modReturn.push({ modelos: modelosFiltradas.length, fecha: day });
+    }
+    return modReturn;
+  }, [etiquetaId, grupoEtiquetaId, modelosData]);
+
   const modelosQueCuentan = useMemo(() => {
     if (!modelosData) return [];
     if (!etiquetaId && !grupoEtiquetaId)
       return Object.values(modelosData ?? {}).flatMap((m) => m);
-    const mod: Omit<
-      RouterOutputs['modelo']['getByDateRange'][string][number],
-      'created_at' | 'updated_at' | 'aceptoFecha'
-    >[] = Object.values(modelosData ?? {}).flatMap((m) => m);
-    return mod.filter((m) => {
-      return (
-        (etiquetaId === '' ||
-          m.etiquetas.some((etiqueta) => etiqueta.id === etiquetaId)) &&
-        (grupoEtiquetaId === '' ||
-          m.etiquetas.some((etiqueta) => etiqueta.grupoId === grupoEtiquetaId))
-      );
-    });
+    const mod = Object.values(modelosData ?? {}).flatMap((m) => m);
+    return filterModelos(mod, { etiquetaId, grupoId: grupoEtiquetaId });
   }, [etiquetaId, grupoEtiquetaId, modelosData]);
 
   const retencion = useMemo(() => {
@@ -160,8 +186,8 @@ const PageClient = ({}: PageClientProps) => {
           contentClassName='sm:max-w-[--radix-popper-anchor-width]'
         />
       </section>
-      <section className='rounded-md bg-red-500 shadow-md grid-in-grafico'>
-        Grafico
+      <section className='rounded-md grid-in-grafico sm:h-full'>
+        <GraficoCard isLoading={modelosLoading} modelos={modelosParaGrafico} />
       </section>
       <section className='rounded-md bg-green-500 shadow-md grid-in-listaModelos'>
         Lista de modelos
