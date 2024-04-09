@@ -169,7 +169,11 @@ const PageClient = ({}: PageClientProps) => {
           open={etiquetaOpen}
           setOpen={setEtiquetaOpen}
           onSelect={(value) => {
-            useDashboardData.setState({ etiquetaId: value });
+            if (value === etiquetaId) {
+              useDashboardData.setState({ etiquetaId: '' });
+            } else {
+              useDashboardData.setState({ etiquetaId: value });
+            }
             setEtiquetaOpen(false);
           }}
           selectedIf={etiquetaId ?? ''}
@@ -193,14 +197,14 @@ const PageClient = ({}: PageClientProps) => {
       <section className='rounded-md grid-in-listaModelos sm:h-full sm:max-h-full'>
         <ModelosList modelos={modelosQueCuentan.slice(0, 20)} />
       </section>
-      <section className='rounded-md grid-in-cardModelos sm:self-end'>
+      <section className='rounded-md grid-in-cardModelos sm:self-end sm:pb-2'>
         <SharedCard
           title='Modelos'
           content={modelosQueCuentan.length.toString()}
           isLoading={modelosLoading}
         />
       </section>
-      <section className='rounded-md grid-in-cardRetencion sm:self-end'>
+      <section className='rounded-md grid-in-cardRetencion sm:self-end sm:pb-2'>
         <SharedCard
           title='Retención de modelos'
           content={
@@ -213,7 +217,7 @@ const PageClient = ({}: PageClientProps) => {
           isLoading={modelosLoading}
         />
       </section>
-      <section className='rounded-md grid-in-cardMensajes sm:self-end'>
+      <section className='rounded-md pb-2 grid-in-cardMensajes sm:self-end'>
         <MensajesCard isLoading={modelosLoading} cantMensajes={0} />
       </section>
     </>
