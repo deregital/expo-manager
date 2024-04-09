@@ -1,5 +1,4 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
-import { Perfil } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
@@ -290,6 +289,17 @@ export const modeloRouter = router({
         orderBy: {
           created_at: 'asc',
         },
+        include: {
+          etiquetas: {
+            include: {
+              grupo: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       const groupedModelos = modelos.reduce(
@@ -301,7 +311,7 @@ export const modeloRouter = router({
           acc[date].push(modelo);
           return acc;
         },
-        {} as Record<string, Perfil[]>
+        {} as Record<string, typeof modelos>
       );
 
       return groupedModelos;

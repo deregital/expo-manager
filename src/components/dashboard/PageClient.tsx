@@ -1,10 +1,10 @@
 import MensajesCard from '@/components/dashboard/MensajesCard';
-import ModelosCard from '@/components/dashboard/ModelosCard';
-import RetencionCard from '@/components/dashboard/RetencionCard';
+import SharedCard from '@/components/dashboard/SharedCard';
 import ComboBox from '@/components/ui/ComboBox';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { trpc } from '@/lib/trpc';
 import { dateFormatYYYYMMDD } from '@/lib/utils';
+import { RouterOutputs } from '@/server';
 import { addDays } from 'date-fns';
 import React, { useMemo, useState } from 'react';
 import { create } from 'zustand';
@@ -15,12 +15,12 @@ export const useDashboardData = create<{
   from: Date;
   to: Date;
   grupoEtiquetaId: string;
-  etiquetaId: string | undefined;
+  etiquetaId: string;
 }>(() => ({
   from: new Date(),
   to: addDays(new Date().toISOString(), 1),
   grupoEtiquetaId: '',
-  etiquetaId: undefined,
+  etiquetaId: '',
 }));
 
 const PageClient = ({}: PageClientProps) => {
@@ -42,7 +42,7 @@ const PageClient = ({}: PageClientProps) => {
     trpc.modelo.getByDateRange.useQuery({
       start: dateFormatYYYYMMDD(from),
       end: dateFormatYYYYMMDD(to),
-      etiquetaId: etiquetaId,
+      //   etiquetaId: etiquetaId,
     });
 
   const currentGrupo = useMemo(() => {
@@ -61,6 +61,33 @@ const PageClient = ({}: PageClientProps) => {
       ? etiquetasData.filter((etiqueta) => etiqueta.grupoId === grupoEtiquetaId)
       : [];
   }, [currentGrupo, etiquetasData, grupoEtiquetaId]);
+
+  const modelosQueCuentan = useMemo(() => {
+    if (!modelosData) return [];
+    if (!etiquetaId && !grupoEtiquetaId)
+      return Object.values(modelosData ?? {}).flatMap((m) => m);
+    const mod: Omit<
+      RouterOutputs['modelo']['getByDateRange'][string][number],
+      'created_at' | 'updated_at' | 'aceptoFecha'
+    >[] = Object.values(modelosData ?? {}).flatMap((m) => m);
+    return mod.filter((m) => {
+      return (
+        (etiquetaId === '' ||
+          m.etiquetas.some((etiqueta) => etiqueta.id === etiquetaId)) &&
+        (grupoEtiquetaId === '' ||
+          m.etiquetas.some((etiqueta) => etiqueta.grupoId === grupoEtiquetaId))
+      );
+    });
+  }, [etiquetaId, grupoEtiquetaId, modelosData]);
+
+  const retencion = useMemo(() => {
+    return (
+      (modelosQueCuentan.filter((modelo) => modelo.aceptoContacto).length /
+        modelosQueCuentan.length) *
+      100
+    );
+  }, [modelosQueCuentan]);
+
   return (
     <>
       <section className='grid-in-calendar'>
@@ -140,10 +167,24 @@ const PageClient = ({}: PageClientProps) => {
         Lista de modelos
       </section>
       <section className='rounded-md grid-in-cardModelos sm:self-end'>
-        <ModelosCard isLoading={modelosLoading} modelos={modelosData} />
+        <SharedCard
+          title='Modelos'
+          content={modelosQueCuentan.length.toString()}
+          isLoading={modelosLoading}
+        />
       </section>
       <section className='rounded-md grid-in-cardRetencion sm:self-end'>
-        <RetencionCard isLoading={modelosLoading} modelos={modelosData} />
+        <SharedCard
+          title='Retención de modelos'
+          content={
+            isNaN(retencion)
+              ? '0%'
+              : retencion % 1 === 0
+                ? `${retencion}%`
+                : `${retencion.toFixed(2)}%`
+          }
+          isLoading={modelosLoading}
+        />
       </section>
       <section className='rounded-md grid-in-cardMensajes sm:self-end'>
         <MensajesCard isLoading={modelosLoading} cantMensajes={0} />

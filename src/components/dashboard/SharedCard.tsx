@@ -13,7 +13,7 @@ const SharedCard = ({ content, isLoading, title }: SharedCardProps) => {
     <Card>
       <CardHeader>
         <CardTitle className={cn(isLoading && 'animate-pulse')}>
-          Modelos participando
+          {title}
         </CardTitle>
       </CardHeader>
 
