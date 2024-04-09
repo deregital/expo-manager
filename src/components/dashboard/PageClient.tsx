@@ -145,7 +145,7 @@ const PageClient = ({}: PageClientProps) => {
       <section className='rounded-md grid-in-cardRetencion sm:self-end'>
         <RetencionCard isLoading={modelosLoading} modelos={modelosData} />
       </section>
-      <section className='rounded-md bg-cyan-500 shadow-md grid-in-cardMensajes'>
+      <section className='rounded-md grid-in-cardMensajes sm:self-end'>
         <MensajesCard isLoading={modelosLoading} cantMensajes={0} />
       </section>
     </>
