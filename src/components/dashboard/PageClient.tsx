@@ -1,3 +1,6 @@
+import MensajesCard from '@/components/dashboard/MensajesCard';
+import ModelosCard from '@/components/dashboard/ModelosCard';
+import RetencionCard from '@/components/dashboard/RetencionCard';
 import ComboBox from '@/components/ui/ComboBox';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { trpc } from '@/lib/trpc';
@@ -9,26 +12,38 @@ import { create } from 'zustand';
 interface PageClientProps {}
 
 export const useDashboardData = create<{
-  from: string;
-  to: string;
+  from: Date;
+  to: Date;
   grupoEtiquetaId: string;
-  etiquetaId: string;
+  etiquetaId: string | undefined;
 }>(() => ({
-  from: dateFormatYYYYMMDD(new Date()),
-  to: dateFormatYYYYMMDD(addDays(new Date().toISOString(), 1)),
+  from: new Date(),
+  to: addDays(new Date().toISOString(), 1),
   grupoEtiquetaId: '',
-  etiquetaId: '',
+  etiquetaId: undefined,
 }));
 
 const PageClient = ({}: PageClientProps) => {
-  const { from, to, etiquetaId, grupoEtiquetaId } = useDashboardData((s) => s);
+  const { from, to, etiquetaId, grupoEtiquetaId } = useDashboardData((s) => ({
+    from: s.from,
+    to: s.to,
+    etiquetaId: s.etiquetaId,
+    grupoEtiquetaId: s.grupoEtiquetaId,
+  }));
+
   const [grupoOpen, setGrupoOpen] = useState(false);
   const [etiquetaOpen, setEtiquetaOpen] = useState(false);
+
   const { data: grupoEtiquetasData, isLoading: grupoEtiquetasLoading } =
     trpc.grupoEtiqueta.getAll.useQuery();
-
   const { data: etiquetasData, isLoading: etiquetasLoading } =
     trpc.etiqueta.getAll.useQuery();
+  const { data: modelosData, isLoading: modelosLoading } =
+    trpc.modelo.getByDateRange.useQuery({
+      start: dateFormatYYYYMMDD(from),
+      end: dateFormatYYYYMMDD(to),
+      etiquetaId: etiquetaId,
+    });
 
   const currentGrupo = useMemo(() => {
     if (!grupoEtiquetasData) return;
@@ -55,6 +70,12 @@ const PageClient = ({}: PageClientProps) => {
           initialDateFrom={from}
           initialDateTo={to}
           locale='es-AR'
+          onUpdate={({ range }) => {
+            useDashboardData.setState({ from: range.from });
+            useDashboardData.setState({
+              to: range.to ? range.to : addDays(new Date(), 1),
+            });
+          }}
         />
       </section>
       <section className='w-full grid-in-grupo'>
@@ -97,7 +118,7 @@ const PageClient = ({}: PageClientProps) => {
             useDashboardData.setState({ etiquetaId: value });
             setEtiquetaOpen(false);
           }}
-          selectedIf={etiquetaId}
+          selectedIf={etiquetaId ?? ''}
           value='nombre'
           triggerChildren={
             <>
@@ -118,14 +139,14 @@ const PageClient = ({}: PageClientProps) => {
       <section className='rounded-md bg-green-500 shadow-md grid-in-listaModelos'>
         Lista de modelos
       </section>
-      <section className='rounded-md bg-yellow-500 shadow-md grid-in-cardModelos'>
-        Card Modelos participando
+      <section className='rounded-md grid-in-cardModelos sm:self-end'>
+        <ModelosCard isLoading={modelosLoading} modelos={modelosData} />
       </section>
-      <section className='rounded-md bg-blue-500 shadow-md grid-in-cardRetencion'>
-        Card Retención de modelos
+      <section className='rounded-md grid-in-cardRetencion sm:self-end'>
+        <RetencionCard isLoading={modelosLoading} modelos={modelosData} />
       </section>
       <section className='rounded-md bg-cyan-500 shadow-md grid-in-cardMensajes'>
-        Card Mensajes
+        <MensajesCard isLoading={modelosLoading} cantMensajes={0} />
       </section>
     </>
   );
