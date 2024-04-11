@@ -204,4 +204,29 @@ export const etiquetaRouter = router({
         });
       }
     }),
+  setMasivo: protectedProcedure
+    .input(
+      z.object({
+        etiquetaIds: z.array(z.string().uuid()),
+        modeloIds: z.array(z.string().uuid()),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await Promise.all(
+        input.modeloIds.map(async (modeloId) => {
+          await ctx.prisma.perfil.update({
+            where: {
+              id: modeloId,
+            },
+            data: {
+              etiquetas: {
+                connect: input.etiquetaIds.map((etiquetaId) => ({
+                  id: etiquetaId,
+                })),
+              },
+            },
+          });
+        })
+      );
+    }),
 });
