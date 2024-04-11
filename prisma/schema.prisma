@@ -127,14 +127,16 @@ model Plantilla {
 }
 
 model Evento {
-    id          String   @id @default(uuid())
-    EventoPadre String?   
-    temporada   String
-    fecha       DateTime
-    subEvento   String[]   
+    id     String   @id @default(uuid())
+    nombre String
+    fecha  DateTime
 
-    created_at  DateTime @default(now())
-    updated_at  DateTime @updatedAt
+    eventoPadreId String?  @map("evento_padre")
+    evento        Evento?  @relation("SubEventos", fields: [eventoPadreId], references: [id])
+    subEventos    Evento[] @relation("SubEventos")
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
 
     @@map("EVENTO")
 }
