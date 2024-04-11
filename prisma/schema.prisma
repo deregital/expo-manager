@@ -126,6 +126,19 @@ model Plantilla {
     @@map("PLANTILLA")
 }
 
+model Evento {
+    id          String   @id @default(uuid())
+    EventoPadre String?   
+    temporada   String
+    fecha       DateTime
+    subEvento   String[]   
+
+    created_at  DateTime @default(now())
+    updated_at  DateTime @updatedAt
+
+    @@map("EVENTO")
+}
+
 enum EstadoPlantilla {
     APRROVED
     PENDING
