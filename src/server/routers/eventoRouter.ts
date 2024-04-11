@@ -8,6 +8,7 @@ export const eventoRouter = router({
         z.object({
           nombre: z.string().min(1),
           fecha: z.string().transform((val) => new Date(val)), 
+          ubicacion: z.string(), 
           eventoPadreId: z.string().optional(), 
         })
       )
@@ -16,6 +17,7 @@ export const eventoRouter = router({
           data: {
             nombre: input.nombre,
             fecha: input.fecha,
+            ubicacion: input.ubicacion, 
             eventoPadre: input.eventoPadreId ? { connect: { id: input.eventoPadreId } } : undefined,
           },
         });
@@ -54,6 +56,7 @@ export const eventoRouter = router({
           id: z.string().uuid(),
           nombre: z.string().min(1),
           fecha: z.string().transform((val) => new Date(val)), 
+          ubicacion: z.string(), 
           eventoPadreId: z.string().optional(), 
         })
       )
@@ -65,6 +68,7 @@ export const eventoRouter = router({
           data: {
             nombre: input.nombre,
             fecha: input.fecha,
+            ubicacion: input.ubicacion, 
             eventoPadre: input.eventoPadreId ? { connect: { id: input.eventoPadreId } } : undefined,
           },
         });
@@ -114,39 +118,40 @@ export const eventoRouter = router({
       .input(
         z.object({
           eventoId: z.string().uuid(),
-          subeventoId: z.string().uuid(),
+          subeventos: z.array(
+            z.object({
+              subeventoId: z.string().uuid(),
+            })
+          ),
         })
       )
       .mutation(async ({ input, ctx }) => {
-        return await ctx.prisma.evento.update({
+        const evento = await ctx.prisma.evento.findUnique({
           where: {
             id: input.eventoId,
           },
-          data: {
-            subEventos: {
-              connect: { id: input.subeventoId },
-            },
-          },
         });
-      }),
   
-    removeSubevento: protectedProcedure
-      .input(
-        z.object({
-          eventoId: z.string().uuid(),
-          subeventoId: z.string().uuid(),
-        })
-      )
-      .mutation(async ({ input, ctx }) => {
+        if (!evento) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Evento no encontrado',
+          });
+        }
+  
+        const subEventos = input.subeventos.map(({ subeventoId }) => ({
+          id: subeventoId,
+        }));
+  
         return await ctx.prisma.evento.update({
           where: {
             id: input.eventoId,
           },
           data: {
             subEventos: {
-              disconnect: { id: input.subeventoId },
+              connect: subEventos,
             },
           },
         });
       }),
-  });
+});
