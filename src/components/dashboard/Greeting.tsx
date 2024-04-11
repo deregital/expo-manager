@@ -46,7 +46,7 @@ const Greeting = () => {
         ubicacion: ubicacionEvento,
         eventoPadreId: eventoPadreId,
       });
-      // Limpiar los campos después de crear el evento
+      
       setNombreEvento('');
       setFechaEvento('');
       setUbicacionEvento('');
@@ -59,39 +59,39 @@ const Greeting = () => {
   return (
     <>
       <div className='flex flex-col gap-4'>
-        {/* Input para el nombre del evento */}
+        {}
         <Input
           type='text'
           value={nombreEvento}
           onChange={(e) => setNombreEvento(e.target.value)}
           placeholder='Nombre del evento'
         />
-        {/* Input para la fecha del evento */}
+        {}
         <Input
           type='date'
           value={fechaEvento}
           onChange={(e) => setFechaEvento(e.target.value)}
           placeholder='Fecha del evento'
         />
-        {/* Input para la ubicación del evento */}
+        {}
         <Input
           type='text'
           value={ubicacionEvento}
           onChange={(e) => setUbicacionEvento(e.target.value)}
           placeholder='Ubicación del evento'
         />
-        {/* Input para el ID del evento padre */}
+        {}
         <Input
           type='text'
           value={eventoPadreId}
           onChange={(e) => setEventoPadreId(e.target.value)}
           placeholder='ID del evento padre (opcional)'
         />
-        {/* Botón para crear el evento */}
+        {}
         <button onClick={handleCrearEvento}>Crear Evento</button>
       </div>
 
-      {/* Resto del componente ... */}
+      {}
     </>
   );
 };
