@@ -6,7 +6,7 @@ import { grupoEtiquetaRouter } from '@/server/routers/grupoEtiquetaRouter';
 import {comentarioRouter} from '@/server/routers/comentarioRouter';
 import { inferRouterOutputs } from '@trpc/server';
 import { csvRouter } from '@/server/routers/csvRouter';
-
+import { eventoRouter } from '@/server/routers/eventoRouter';
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const appRouter = router({
@@ -16,6 +16,7 @@ export const appRouter = router({
   grupoEtiqueta: grupoEtiquetaRouter,
   comentario: comentarioRouter,
   csv: csvRouter,
+  evento: eventoRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;
