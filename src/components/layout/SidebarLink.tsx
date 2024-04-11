@@ -30,7 +30,7 @@ const SidebarLink = ({
           }
         )}
       >
-        {pathname === to ? iconActive : icon}
+        <span className='w-6'>{pathname === to ? iconActive : icon}</span>
         <span className={cn('ml-2 text-xl', textClassName)}>{children}</span>
       </p>
     </Link>
