@@ -67,7 +67,8 @@ model Etiqueta {
     id String @id @default(uuid())
 
     nombre  String
-    grupoId String @map("grupo_id")
+    grupoId String        @map("grupo_id")
+    tipo    TipoCategoria @default(value: PERSONAL)
 
     grupo      EtiquetaGrupo       @relation(fields: [grupoId], references: [id], onDelete: Cascade)
     perfiles   Perfil[]            @relation("PERFIL_X_ETIQUETA")
@@ -132,14 +133,13 @@ model Evento {
     fecha  DateTime
 
     eventoPadreId String?  @map("evento_padre")
-    evento        Evento?  @relation("SubEventos", fields: [eventoPadreId], references: [id])
+    eventoPadre   Evento?  @relation("SubEventos", fields: [eventoPadreId], references: [id])
     subEventos    Evento[] @relation("SubEventos")
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 
     @@map("EVENTO")
-    
 }
 
 enum EstadoPlantilla {
@@ -152,4 +152,9 @@ enum CategoriaPlantilla {
     MARKETING
     UTILITY
     AUTHENTICATION
+}
+
+enum TipoCategoria {
+    PERSONAL
+    EVENTO
 }
