@@ -1,7 +1,5 @@
 'use client';
 
-import ModelosChart from '@/components/dashboard/ModelosChart';
-import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { addDays, dateFormatYYYYMMDD } from '@/lib/utils';
@@ -37,7 +35,6 @@ const Greeting = () => {
 
   const { mutate: crearEvento } = trpc.evento.create.useMutation();
 
-
   const handleCrearEvento = async () => {
     try {
       await crearEvento({
@@ -46,7 +43,7 @@ const Greeting = () => {
         ubicacion: ubicacionEvento,
         eventoPadreId: eventoPadreId,
       });
-      
+
       setNombreEvento('');
       setFechaEvento('');
       setUbicacionEvento('');
