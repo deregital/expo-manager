@@ -67,8 +67,8 @@ model Etiqueta {
     id String @id @default(uuid())
 
     nombre  String
-    grupoId String        @map("grupo_id")
-    tipo    TipoCategoria @default(value: PERSONAL)
+    grupoId String       @map("grupo_id")
+    tipo    TipoEtiqueta @default(value: PERSONAL)
 
     grupo      EtiquetaGrupo       @relation(fields: [grupoId], references: [id], onDelete: Cascade)
     perfiles   Perfil[]            @relation("PERFIL_X_ETIQUETA")
@@ -154,7 +154,7 @@ enum CategoriaPlantilla {
     AUTHENTICATION
 }
 
-enum TipoCategoria {
+enum TipoEtiqueta {
     PERSONAL
     EVENTO
 }
