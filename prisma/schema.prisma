@@ -139,6 +139,7 @@ model Evento {
     updated_at DateTime @updatedAt
 
     @@map("EVENTO")
+    
 }
 
 enum EstadoPlantilla {
