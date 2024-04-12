@@ -15,17 +15,17 @@ export const whatsappRouter = router({
       z.object({
         name: z.string().min(1).max(512).toLowerCase().trim().optional(),
         content: z.string().max(768).min(1).optional(),
-        buttons: z.array(z.string().max(25).optional()).max(10),
+        buttons: z.array(z.string().max(25)).max(10),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      if (input.content === undefined) {
+      if (input.content === undefined || input.content === '') {
         throw new TRPCError({ 
           code: "BAD_REQUEST",
           message: "Por favor ingrese cuerpo del mensaje"
         })
       }
-      if (input.name === undefined) {
+      if (input.name === undefined || input.name === '') {
         throw new TRPCError({ 
           code: "BAD_REQUEST",
           message: "Por favor ingrese el nombre de la plantilla"
@@ -51,7 +51,7 @@ export const whatsappRouter = router({
 
       if (input.buttons.length > 0) {
         input.buttons.forEach((button) => {
-          if (button !== undefined) {
+          if (button !== '') {
           const each_button = {
             text: `${button}`,
             type: 'QUICK_REPLY',
@@ -59,7 +59,9 @@ export const whatsappRouter = router({
           buttons_json.buttons.push(each_button);
         }
         });
-        contenido.components.push(buttons_json);
+      }
+      if (buttons_json.buttons.length > 0) {
+      contenido.components.push(buttons_json);
       }
 
       const res: TemplateResponse = await fetch(
@@ -216,5 +218,53 @@ export const whatsappRouter = router({
         );
       });
       return 'Mensajes enviados';
+    }),
+    sendMessageUniquePhone: protectedProcedure
+    .input(
+      z.object({
+        telefono: z.string(),
+        plantillaName: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+        // await fetch(
+        //   `https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER}/messages`,
+        //   {
+        //     method: 'POST',
+        //     headers: {
+        //       'Content-Type': 'application/json',
+        //       Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+        //     },
+        //     body: JSON.stringify({
+        //       messaging_product: 'whatsapp',
+        //       to: `${input.telefono}`,
+        //       type: 'template',
+        //       template: {
+        //         name: `${input.plantillaName}`,
+        //         language: {
+        //           code: 'es_AR',
+        //         },
+        //       },
+        //     }),
+        //   }
+        // );
+        await fetch(`https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER}/messages`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+          },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            recipient_type: "individual",
+            to: input.telefono,
+            type: "text",
+            text: { // the text object
+              preview_url: false,
+              body: "MESSAGE_CONTENT"
+              }
+          }),
+        })
+      return 'Mensaje enviado';
     }),
 });
