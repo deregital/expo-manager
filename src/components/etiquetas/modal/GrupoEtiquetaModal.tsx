@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { create } from 'zustand';
 import { Input } from '@/components/ui/input';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -54,7 +54,9 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
     trpc.modelo.getByGrupoEtiqueta.useQuery([grupo?.id ?? ''], {
       enabled: action === 'EDIT' && grupo?.id !== undefined,
       onSuccess(data) {
+        if (action === 'CREATE') return;
         if (conflict === undefined) return;
+
         setConflict(
           data
             .filter(
@@ -198,6 +200,24 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
     }
   }
 
+  const submitDisabled = useMemo(() => {
+    if (modalData.tipo === 'CREATE') {
+      return createGrupoEtiqueta.isLoading || conflict !== undefined;
+    } else {
+      return (
+        editGrupoEtiqueta.isLoading ||
+        conflict !== undefined ||
+        modelosGrupoLoading
+      );
+    }
+  }, [
+    conflict,
+    createGrupoEtiqueta.isLoading,
+    editGrupoEtiqueta.isLoading,
+    modalData.tipo,
+    modelosGrupoLoading,
+  ]);
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -329,10 +349,11 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
               className='w-full max-w-32'
               onClick={handleSubmit}
               disabled={
-                editGrupoEtiqueta.isLoading ||
-                createGrupoEtiqueta.isLoading ||
-                modelosGrupoLoading ||
-                (conflict === undefined ? false : conflict.length > 0)
+                // editGrupoEtiqueta.isLoading ||
+                // createGrupoEtiqueta.isLoading ||
+                // modelosGrupoLoading ||
+                // (conflict === undefined ? false : conflict.length > 0)
+                submitDisabled
               }
             >
               {((editGrupoEtiqueta.isLoading ||
