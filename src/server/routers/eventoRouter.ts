@@ -133,13 +133,6 @@ export const eventoRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const evento = await ctx.prisma.evento.findUnique({
-        where: {
-          id: input.eventoId,
-        },
-      });
-  
-  
       return await ctx.prisma.evento.update({
         where: {
           id: input.eventoId,
