@@ -118,13 +118,16 @@ export const eventoRouter = router({
       return evento.subEventos;
     }),
 
-  addSubevento: protectedProcedure
+    addSubevento: protectedProcedure
     .input(
       z.object({
         eventoId: z.string().uuid(),
         subeventos: z.array(
           z.object({
             subeventoId: z.string().uuid(),
+            fecha: z.string(), 
+            ubicacion: z.string(), 
+            nombre: z.string(), 
           })
         ),
       })
@@ -135,27 +138,26 @@ export const eventoRouter = router({
           id: input.eventoId,
         },
       });
-
-      if (!evento) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Evento no encontrado',
-        });
-      }
-
-      const subEventos = input.subeventos.map(({ subeventoId }) => ({
+  
+      const subEventosData = input.subeventos.map(({ subeventoId, fecha, ubicacion, nombre }) => ({
         id: subeventoId,
+        fecha,
+        ubicacion,
+        nombre,
       }));
-
+  
       return await ctx.prisma.evento.update({
         where: {
           id: input.eventoId,
         },
         data: {
           subEventos: {
-            connect: subEventos,
+            createMany: { data: subEventosData }, 
           },
         },
       });
     }),
-});
+  });
+
+
+
