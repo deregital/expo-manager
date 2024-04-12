@@ -139,12 +139,6 @@ export const eventoRouter = router({
         },
       });
   
-      const subEventosData = input.subeventos.map(({ subeventoId, fecha, ubicacion, nombre }) => ({
-        id: subeventoId,
-        fecha,
-        ubicacion,
-        nombre,
-      }));
   
       return await ctx.prisma.evento.update({
         where: {
@@ -152,7 +146,7 @@ export const eventoRouter = router({
         },
         data: {
           subEventos: {
-            createMany: { data: subEventosData }, 
+            createMany: { data: input.subeventos }, 
           },
         },
       });
