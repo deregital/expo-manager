@@ -2,10 +2,13 @@
 
 import ComboBox from '@/components/ui/ComboBox';
 import { Button } from '@/components/ui/button';
+import Loader from '@/components/ui/loader';
 import { trpc } from '@/lib/trpc';
+import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { Trash } from 'lucide-react';
 import React, { useMemo } from 'react';
+import { toast } from 'sonner';
 import { create } from 'zustand';
 
 interface AsignacionPageProps {}
@@ -35,6 +38,9 @@ const selectedData = create<{
     etiquetas: RouterOutputs['etiqueta']['getAll'][number]
   ) => void;
   setGrupo: (grupo: RouterOutputs['grupoEtiqueta']['getAll'][number]) => void;
+  clearModelos: () => void;
+  clearEtiquetas: () => void;
+  clearGrupo: () => void;
 }>((set, get) => ({
   modelos: [],
   etiquetas: [],
@@ -75,6 +81,9 @@ const selectedData = create<{
       });
     }
   },
+  clearModelos: () => set({ modelos: [] }),
+  clearEtiquetas: () => set({ etiquetas: [] }),
+  clearGrupo: () => set({ grupo: undefined }),
 }));
 
 const AsignacionPage = ({}: AsignacionPageProps) => {
@@ -94,6 +103,9 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
     setModelos,
     grupo: currentGrupo,
     setGrupo: setCurrentGrupo,
+    clearEtiquetas,
+    clearModelos,
+    clearGrupo,
   } = selectedData();
 
   const {
@@ -108,10 +120,17 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
   async function asignarEtiquetas() {
     const etiquetaIds = etiquetasList.map((e) => e.id);
     const modeloIds = modelosList.map((m) => m.id);
-    await asignar.mutateAsync({
-      etiquetaIds,
-      modeloIds,
-    });
+    await asignar
+      .mutateAsync({
+        etiquetaIds,
+        modeloIds,
+      })
+      .then(() => {
+        toast.success('Etiquetas asignadas correctamente');
+        clearModelos();
+        clearEtiquetas();
+        clearGrupo();
+      });
   }
 
   const modelosParaElegir = useMemo(() => {
@@ -121,7 +140,10 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
   }, [modelos, modelosList]);
 
   const etiquetasParaElegir = useMemo(() => {
-    if (!currentGrupo) return etiquetasData;
+    if (!currentGrupo)
+      return etiquetasData?.filter(
+        (et) => !etiquetasList.find((e) => e.id === et.id)
+      );
     return etiquetasData?.filter(
       (etiqueta) =>
         etiqueta.grupoId === currentGrupo.id &&
@@ -130,8 +152,11 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
   }, [currentGrupo, etiquetasData, etiquetasList]);
 
   return (
-    <>
-      <div className='flex h-full p-2'>
+    <div className='p-3 md:p-5'>
+      <h1 className='pb-3 text-xl font-bold md:text-3xl'>
+        Asignación masiva de etiquetas
+      </h1>
+      <div className='flex h-auto gap-x-2'>
         <div className='flex-1'>
           <ComboBox
             open={modelosOpen}
@@ -153,19 +178,24 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
             }}
             selectedIf={''}
           />
-
-          {modelosList.map((modelo) => (
-            <div className='flex w-3/4 justify-between p-1' key={modelo.id}>
-              <p>{modelo.nombreCompleto}</p>
-              <Trash
-                className='cursor-pointer text-red-500'
-                onClick={() => setModelos(modelo)}
-              />
-            </div>
-          ))}
+          <div
+            className={cn(
+              modelosList.length > 0 && 'mt-2 rounded-md border border-gray-500'
+            )}
+          >
+            {modelosList.map((modelo) => (
+              <div className='flex w-full justify-between p-1' key={modelo.id}>
+                <p>{modelo.nombreCompleto}</p>
+                <Trash
+                  className='cursor-pointer fill-red-500 text-red-900'
+                  onClick={() => setModelos(modelo)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
         <div className='flex-1'>
-          <div className='flex gap-x-4'>
+          <div className='flex flex-col gap-4 sm:flex-row'>
             <ComboBox
               open={gruposOpen}
               setOpen={setGruposOpen}
@@ -176,6 +206,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
               data={grupoEtiquetasData ?? []}
               id='id'
               value='nombre'
+              wFullMobile
               onSelect={(value) => {
                 setCurrentGrupo(
                   grupoEtiquetasData!.find(
@@ -200,6 +231,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
                 setEtiquetasOpen(false);
               }}
               selectedIf=''
+              wFullMobile
               value='nombre'
               triggerChildren={<p>Etiquetas</p>}
               isLoading={etiquetasLoading}
@@ -207,20 +239,40 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
               placeholder='Buscar etiquetas...'
             />
           </div>
-
-          {etiquetasList.map((etiqueta) => (
-            <div className='flex w-3/4 justify-between p-1' key={etiqueta.id}>
-              <p>{etiqueta.nombre}</p>
-              <Trash
-                className='cursor-pointer text-red-500'
-                onClick={() => setEtiquetas(etiqueta)}
-              />
-            </div>
-          ))}
+          <div
+            className={cn(
+              etiquetasList.length > 0 &&
+                'mt-2 rounded-md border border-gray-500'
+            )}
+          >
+            {etiquetasList.map((etiqueta) => (
+              <div
+                className='flex w-full justify-between p-1'
+                style={{ backgroundColor: `${etiqueta.grupo.color}80` }}
+                key={etiqueta.id}
+              >
+                <p>{etiqueta.nombre}</p>
+                <Trash
+                  className='cursor-pointer fill-red-500 text-red-900'
+                  onClick={() => setEtiquetas(etiqueta)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      <Button onClick={asignarEtiquetas}>Asignar</Button>
-    </>
+      <Button
+        className='mt-4'
+        onClick={asignarEtiquetas}
+        disabled={
+          etiquetasList.length === 0 ||
+          modelosList.length === 0 ||
+          asignar.isLoading
+        }
+      >
+        {asignar.isLoading ? <Loader /> : 'Asignar'}
+      </Button>
+    </div>
   );
 };
 
