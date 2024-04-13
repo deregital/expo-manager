@@ -14,6 +14,9 @@ import { RouterOutputs } from '@/server';
 import ExpandContractEtiquetas, {
   useExpandEtiquetas,
 } from '@/components/etiquetas/list/ExpandContractEtiquetas';
+import { ModalTriggerCreate } from '@/components/etiquetas/modal/ModalTrigger';
+import Link from 'next/link';
+import StampIcon from '@/components/icons/StampIcon';
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useState('');
@@ -73,6 +76,12 @@ const EtiquetasPage = () => {
         <div className='flex flex-col gap-4 md:flex-row'>
           <GrupoEtiquetaModal action='CREATE' />
           <EtiquetaModal action='CREATE' />
+          <Link href='/asignacion'>
+            <ModalTriggerCreate className='w-full md:w-fit' onClick={() => {}}>
+              <StampIcon className='mr-3 h-6 w-6' />
+              Asignación masiva
+            </ModalTriggerCreate>
+          </Link>
         </div>
         <div className='flex items-center gap-x-2'>
           <ExpandContractEtiquetas />
