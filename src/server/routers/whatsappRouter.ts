@@ -87,7 +87,11 @@ export const whatsappRouter = router({
       });
     }),
   getTemplates: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.plantilla.findMany();
+    return await ctx.prisma.plantilla.findMany({
+      where: {
+        estado: 'PENDING'
+      }
+    });
   }),
   getTemplateById: protectedProcedure
     .input(z.string().uuid())
@@ -159,6 +163,12 @@ export const whatsappRouter = router({
   deleteTemplate: protectedProcedure
     .input(z.string())
     .mutation(async ({ input, ctx }) => {
+      if (input === '') {
+        throw new TRPCError({ 
+          code: "BAD_REQUEST",
+          message: "No se encontró la plantilla a eliminar"
+        })
+      }
       await fetch(
         `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?name=${input}`,
         {
