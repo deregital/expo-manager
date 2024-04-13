@@ -3,12 +3,21 @@ import { RouterOutputs } from "@/server";
 import { AlertDialog, AlertDialogContent, AlertDialogTrigger } from "../ui/alert-dialog"
 import { trpc } from "@/lib/trpc";
 import { useTemplateDelete } from "@/app/(dashboard)/mensajes/page";
+import { toast } from "sonner";
 
 
 const DeleteTemplateModal = ({ open, plantilla } : {open: boolean, plantilla: RouterOutputs['whatsapp']['getTemplateById'] | null}) => {
     const deleteTemplate = trpc.whatsapp.deleteTemplate.useMutation();
     async function handleDelete() {
-        await deleteTemplate.mutateAsync(plantilla ? plantilla.titulo : '');
+        await deleteTemplate.mutateAsync({
+            id: plantilla ? plantilla.id : '',
+            titulo: plantilla ? plantilla.titulo : '',
+        }).then(() => {
+            useTemplateDelete.setState({open: false, plantilla: null})
+            toast.success('Plantilla eliminada')
+        }).catch((error) => {
+            toast.error(error.message)
+        })
     }
     function close() {
         // useTemplateDelete.setState({open: false, plantilla: null})

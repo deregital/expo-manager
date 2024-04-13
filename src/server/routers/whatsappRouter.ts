@@ -8,6 +8,7 @@ import {
   TemplateEditResponse,
 } from '@/server/types/whatsapp';
 import { TRPCError } from '@trpc/server';
+import { id } from 'date-fns/locale';
 
 export const whatsappRouter = router({
   createTemplate: protectedProcedure
@@ -161,9 +162,12 @@ export const whatsappRouter = router({
       return res.success;
     }),
   deleteTemplate: protectedProcedure
-    .input(z.string())
+    .input(z.object({
+      id: z.string().uuid(),
+      titulo: z.string()
+    }))
     .mutation(async ({ input, ctx }) => {
-      if (input === '') {
+      if (input.titulo === '' || input.id === '') {
         throw new TRPCError({ 
           code: "BAD_REQUEST",
           message: "No se encontró la plantilla a eliminar"
@@ -180,7 +184,8 @@ export const whatsappRouter = router({
       );
       return await ctx.prisma.plantilla.delete({
         where: {
-          titulo: input,
+          id: input.id,
+          titulo: input.titulo,
         },
       });
     }),
