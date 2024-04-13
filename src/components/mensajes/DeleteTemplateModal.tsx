@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 const DeleteTemplateModal = ({ open, plantilla } : {open: boolean, plantilla: RouterOutputs['whatsapp']['getTemplateById'] | null}) => {
     const deleteTemplate = trpc.whatsapp.deleteTemplate.useMutation();
+    const utils = trpc.useUtils();
     async function handleDelete() {
         await deleteTemplate.mutateAsync({
             id: plantilla ? plantilla.id : '',
@@ -15,6 +16,7 @@ const DeleteTemplateModal = ({ open, plantilla } : {open: boolean, plantilla: Ro
         }).then(() => {
             useTemplateDelete.setState({open: false, plantilla: null})
             toast.success('Plantilla eliminada')
+            utils.whatsapp.getTemplates.invalidate()
         }).catch((error) => {
             toast.error(error.message)
         })

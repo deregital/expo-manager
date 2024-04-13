@@ -174,7 +174,7 @@ export const whatsappRouter = router({
         })
       }
       await fetch(
-        `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?name=${input}`,
+        `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?name=${input.titulo}`,
         {
           method: 'DELETE',
           headers: {
