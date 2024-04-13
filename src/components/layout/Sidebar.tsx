@@ -11,8 +11,6 @@ import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
 import ChatFillIcon from '@/components/icons/ChatFillIcon';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import ConfigFillIcon from '@/components/icons/ConfigFillIcon';
-import StampIcon from '@/components/icons/StampIcon';
-import StampIconFill from '@/components/icons/StampIconFill';
 
 const Sidebar = () => {
   return (
@@ -53,13 +51,6 @@ const Sidebar = () => {
             iconActive={<EtiquetasFillIcon height={24} width={24} />}
           >
             Etiquetas
-          </SidebarLink>
-          <SidebarLink
-            to='/asignacion'
-            icon={<StampIcon height={24} width={24} />}
-            iconActive={<StampIconFill height={24} width={24} />}
-          >
-            Asignación de etiquetas
           </SidebarLink>
         </ul>
       </div>
