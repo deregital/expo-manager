@@ -2,9 +2,13 @@
 import { RouterOutputs } from "@/server";
 import { AlertDialog, AlertDialogContent, AlertDialogTrigger } from "../ui/alert-dialog"
 import { trpc } from "@/lib/trpc";
-import { useTemplateDelete } from "@/app/(dashboard)/mensajes/page";
 import { toast } from "sonner";
+import { create } from "zustand";
 
+export const useTemplateDelete = create<{open: boolean; plantilla: RouterOutputs['whatsapp']['getTemplateById']}>((set) => ({
+    open: false,
+    plantilla: null,
+  }));
 
 const DeleteTemplateModal = ({ open, plantilla } : {open: boolean, plantilla: RouterOutputs['whatsapp']['getTemplateById'] | null}) => {
     const deleteTemplate = trpc.whatsapp.deleteTemplate.useMutation();
