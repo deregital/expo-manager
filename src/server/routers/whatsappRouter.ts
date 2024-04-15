@@ -8,7 +8,6 @@ import {
   TemplateEditResponse,
 } from '@/server/types/whatsapp';
 import { TRPCError } from '@trpc/server';
-import { id } from 'date-fns/locale';
 
 export const whatsappRouter = router({
   createTemplate: protectedProcedure
@@ -21,16 +20,16 @@ export const whatsappRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       if (input.content === undefined || input.content === '') {
-        throw new TRPCError({ 
-          code: "BAD_REQUEST",
-          message: "Por favor ingrese cuerpo del mensaje"
-        })
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Por favor ingrese cuerpo del mensaje',
+        });
       }
       if (input.name === undefined || input.name === '') {
-        throw new TRPCError({ 
-          code: "BAD_REQUEST",
-          message: "Por favor ingrese el nombre de la plantilla"
-        })
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Por favor ingrese el nombre de la plantilla',
+        });
       }
       const contenido: Template = {
         name: `${input.name}`,
@@ -53,16 +52,16 @@ export const whatsappRouter = router({
       if (input.buttons.length > 0) {
         input.buttons.forEach((button) => {
           if (button !== '') {
-          const each_button = {
-            text: `${button}`,
-            type: 'QUICK_REPLY',
-          } satisfies Buttons['buttons'][number];
-          buttons_json.buttons.push(each_button);
-        }
+            const each_button = {
+              text: `${button}`,
+              type: 'QUICK_REPLY',
+            } satisfies Buttons['buttons'][number];
+            buttons_json.buttons.push(each_button);
+          }
         });
       }
       if (buttons_json.buttons.length > 0) {
-      contenido.components.push(buttons_json);
+        contenido.components.push(buttons_json);
       }
 
       const res: TemplateResponse = await fetch(
@@ -76,7 +75,7 @@ export const whatsappRouter = router({
           body: JSON.stringify(contenido),
         }
       ).then((res) => res.json());
-      console.log(res)
+      console.log(res);
       return await ctx.prisma.plantilla.create({
         data: {
           titulo: input.name,
@@ -90,8 +89,8 @@ export const whatsappRouter = router({
   getTemplates: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.prisma.plantilla.findMany({
       where: {
-        estado: 'PENDING'
-      }
+        estado: 'PENDING',
+      },
     });
   }),
   getTemplateById: protectedProcedure
@@ -162,16 +161,18 @@ export const whatsappRouter = router({
       return res.success;
     }),
   deleteTemplate: protectedProcedure
-    .input(z.object({
-      id: z.string().uuid(),
-      titulo: z.string()
-    }))
+    .input(
+      z.object({
+        id: z.string().uuid(),
+        titulo: z.string(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       if (input.titulo === '' || input.id === '') {
-        throw new TRPCError({ 
-          code: "BAD_REQUEST",
-          message: "No se encontró la plantilla a eliminar"
-        })
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'No se encontró la plantilla a eliminar',
+        });
       }
       await fetch(
         `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?name=${input.titulo}`,
@@ -234,7 +235,7 @@ export const whatsappRouter = router({
       });
       return 'Mensajes enviados';
     }),
-    sendMessageUniquePhone: protectedProcedure
+  sendMessageUniquePhone: protectedProcedure
     .input(
       z.object({
         telefono: z.string(),
@@ -242,44 +243,48 @@ export const whatsappRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-        // await fetch(
-        //   `https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER}/messages`,
-        //   {
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //       Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
-        //     },
-        //     body: JSON.stringify({
-        //       messaging_product: 'whatsapp',
-        //       to: `${input.telefono}`,
-        //       type: 'template',
-        //       template: {
-        //         name: `${input.plantillaName}`,
-        //         language: {
-        //           code: 'es_AR',
-        //         },
-        //       },
-        //     }),
-        //   }
-        // );
-        await fetch(`https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER}/messages`, {
+      // await fetch(
+      //   `https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER}/messages`,
+      //   {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //       Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+      //     },
+      //     body: JSON.stringify({
+      //       messaging_product: 'whatsapp',
+      //       to: `${input.telefono}`,
+      //       type: 'template',
+      //       template: {
+      //         name: `${input.plantillaName}`,
+      //         language: {
+      //           code: 'es_AR',
+      //         },
+      //       },
+      //     }),
+      //   }
+      // );
+      await fetch(
+        `https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER}/messages`,
+        {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
           },
           body: JSON.stringify({
-            messaging_product: "whatsapp",
-            recipient_type: "individual",
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
             to: input.telefono,
-            type: "text",
-            text: { // the text object
+            type: 'text',
+            text: {
+              // the text object
               preview_url: false,
-              body: "MESSAGE_CONTENT"
-              }
+              body: 'MESSAGE_CONTENT',
+            },
           }),
-        })
+        }
+      );
       return 'Mensaje enviado';
     }),
 });
