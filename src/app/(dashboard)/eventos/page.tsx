@@ -1,6 +1,7 @@
 'use client';
 import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
+import { Button } from '@/components/ui/button';
 
 const EventPage = () => {
     const handleCreateEvent = () => {
@@ -9,7 +10,7 @@ const EventPage = () => {
   
     return (
       <div style={{ marginTop: '20px', paddingLeft: '20px' }}>
-        <button
+        <Button
           className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 rounded-md bg-gray-400 px-5 py-0.5 text-gray-950 hover:bg-gray-300"
           type="button"
           aria-haspopup="dialog"
@@ -24,7 +25,7 @@ const EventPage = () => {
             </svg>
           </span>
           Crear nuevo evento
-        </button>
+        </Button>
       </div>
     );
   };
