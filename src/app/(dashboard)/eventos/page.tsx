@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import EventoModal from '@/components/eventos/eventomodal';
 
 const EventPage = () => {
   const handleCreateEvent = () => {
@@ -9,7 +9,8 @@ const EventPage = () => {
 
   return (
     <div className='p-3'>
-      <Button
+      <EventoModal action='CREATE' />
+      {/* <Button
         className='bg-gray-400 text-gray-950  transition-colors hover:bg-gray-300'
         onClick={handleCreateEvent}
       >
@@ -24,7 +25,7 @@ const EventPage = () => {
           </svg>
         </span>
         Crear nuevo evento
-      </Button>
+      </Button> */}
     </div>
   );
 };
