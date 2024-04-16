@@ -1,6 +1,7 @@
 import * as https from 'https';
 import { NextRequest, NextResponse } from 'next/server';
 import { Duplex } from 'stream';
+import { prisma } from '@/server/db';
 
 function bufferToStream(myBuffer: Buffer) {
   let tmp = new Duplex();
