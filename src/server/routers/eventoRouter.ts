@@ -24,7 +24,14 @@ export const eventoRouter = router({
         },
       });
     }),
-
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.evento.findMany({
+      include: {
+        subEventos: true,
+        eventoPadre: true,
+      },
+    });
+  }),
   getById: protectedProcedure
     .input(
       z.object({
@@ -56,9 +63,12 @@ export const eventoRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        nombre: z.string().min(1),
-        fecha: z.string().transform((val) => new Date(val)),
-        ubicacion: z.string(),
+        nombre: z.string().min(1).optional(),
+        fecha: z
+          .string()
+          .transform((val) => new Date(val))
+          .optional(),
+        ubicacion: z.string().optional(),
         eventoPadreId: z.string().optional(),
       })
     )
@@ -118,16 +128,16 @@ export const eventoRouter = router({
       return evento.subEventos;
     }),
 
-    addSubevento: protectedProcedure
+  addSubevento: protectedProcedure
     .input(
       z.object({
         eventoId: z.string().uuid(),
         subeventos: z.array(
           z.object({
             subeventoId: z.string().uuid(),
-            fecha: z.string(), 
-            ubicacion: z.string(), 
-            nombre: z.string(), 
+            fecha: z.string(),
+            ubicacion: z.string(),
+            nombre: z.string(),
           })
         ),
       })
@@ -139,12 +149,9 @@ export const eventoRouter = router({
         },
         data: {
           subEventos: {
-            createMany: { data: input.subeventos }, 
+            createMany: { data: input.subeventos },
           },
         },
       });
     }),
-  });
-
-
-
+});
