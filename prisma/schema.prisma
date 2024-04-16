@@ -41,6 +41,7 @@ model Perfil {
 
     comentarios Comentario[]
     etiquetas   Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
+    Mensajes    Mensaje[]    @relation("PERFIL_X_MENSAJE")
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -70,11 +71,10 @@ model Etiqueta {
     grupoId String       @map("grupo_id")
     tipo    TipoEtiqueta @default(value: PERSONAL)
 
-    grupo      EtiquetaGrupo       @relation(fields: [grupoId], references: [id], onDelete: Cascade)
-    perfiles   Perfil[]            @relation("PERFIL_X_ETIQUETA")
-    mensajes   HistorialMensajes[] @relation("MENSAJE_X_ETIQUETA")
-    plantillas Plantilla[]         @relation("PLANTILLA_X_ETIQUETA")
-    cuentas    Cuenta[]            @relation("CUENTA_X_ETIQUETA")
+    grupo      EtiquetaGrupo @relation(fields: [grupoId], references: [id], onDelete: Cascade)
+    perfiles   Perfil[]      @relation("PERFIL_X_ETIQUETA")
+    plantillas Plantilla[]   @relation("PLANTILLA_X_ETIQUETA")
+    cuentas    Cuenta[]      @relation("CUENTA_X_ETIQUETA")
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -95,19 +95,6 @@ model EtiquetaGrupo {
     updated_at DateTime @updatedAt
 
     @@map("GRUPO_ETIQUETA")
-}
-
-model HistorialMensajes {
-    id String @id @default(uuid())
-
-    contenido String
-
-    etiquetas Etiqueta[] @relation("MENSAJE_X_ETIQUETA")
-
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    @@map("HISTORIAL_MENSAJES")
 }
 
 model Plantilla {
@@ -143,6 +130,22 @@ model Evento {
     @@map("EVENTO")
 }
 
+model Mensaje {
+    id          String        @id @default(uuid())
+    wamId       String        @map("wam_id")
+    message     Json
+    deliveredAt DateTime?     @map("delivered_at")
+    readAt      DateTime?     @map("read_at")
+    sentAt      DateTime?     @map("sent_at")
+    status      MensajeStatus @default(value: ENVIADO)
+
+    perfil   Perfil @relation("PERFIL_X_MENSAJE", fields: [perfilId], references: [id])
+    perfilId String @map("perfil_id")
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
 enum EstadoPlantilla {
     APRROVED
     PENDING
@@ -158,4 +161,11 @@ enum CategoriaPlantilla {
 enum TipoEtiqueta {
     PERSONAL
     EVENTO
+    MODELO
+}
+
+enum MensajeStatus {
+    ENVIADO
+    RECIBIDO
+    LEIDO
 }
