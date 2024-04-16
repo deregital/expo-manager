@@ -15,132 +15,132 @@ import Loader from '@/components/ui/loader';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import EventFillIcon from '../icons/EventFillIcon';
+import ComboBox from '@/components/ui/ComboBox';
 
 interface EventoModalProps {
-    action: 'CREATE' | 'EDIT';
-    evento?: Omit<
-      RouterOutputs['evento']['getById'][number]['eventos'][number],
-      'created_at' | 'updated_at'
-    >;
+  action: 'CREATE' | 'EDIT';
+  evento?: Omit<
+    RouterOutputs['evento']['getAll'][number],
+    'created_at' | 'updated_at'
+  >;
+}
+
+type ModalData = {
+  tipo: 'CREATE' | 'EDIT';
+  eventoPadreId: string;
+  nombre: string;
+  eventoPadre: string;
+};
+
+export const useEventoModalData = create<ModalData>(() => ({
+  tipo: 'CREATE',
+  eventoPadre: '',
+  nombre: '',
+  eventoPadreId: '',
+}));
+
+const EventoModal = ({ action, evento }: EventoModalProps) => {
+  const { data: eventos, isLoading: eventosLoading } =
+    trpc.evento.getAll.useQuery();
+
+  const utils = trpc.useUtils();
+  const modalData = useEventoModalData((state) => ({
+    eventoPadreId: state.eventoPadreId,
+    tipo: state.tipo,
+    nombre: state.nombre,
+  }));
+  const [open, setOpen] = useState(false);
+  const [openCombo, setOpenCombo] = useState(false);
+  const [quiereEliminar, setQuiereEliminar] = useState(false);
+  const createEvento = trpc.evento.create.useMutation();
+  const deleteEvento = trpc.evento.delete.useMutation();
+  const editEvento = trpc.evento.update.useMutation();
+
+  async function sendEvento() {
+    if (modalData.tipo === 'CREATE') {
+      await createEvento
+        .mutateAsync({
+          nombre: modalData.nombre,
+          eventoPadreId: useEventoModalData.getState().eventoPadreId,
+          fecha: '',
+          ubicacion: '',
+        })
+        .then(() => {
+          setOpen(!open);
+          toast.success('Evento creada con éxito');
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error('Error al crear el evento, asegúrese de poner un nombre');
+        });
+    } else if (modalData.tipo === 'EDIT') {
+      if (!evento) return;
+      await editEvento
+        .mutateAsync({
+          id: evento.id,
+          eventoPadreId: useEventoModalData.getState().eventoPadreId,
+          nombre: modalData.nombre,
+        })
+        .then(() => {
+          setOpen(!open);
+          toast.success('Evento editado con éxito');
+        })
+        .catch((error: any) => {
+          console.log(error);
+          toast.error('Error al editar el evento');
+        });
+    }
+
+    if (createEvento.isSuccess || editEvento.isSuccess) {
+      useEventoModalData.setState({
+        tipo: 'CREATE',
+        eventoPadre: '',
+        nombre: '',
+        eventoPadreId: '',
+      });
+    }
+
+    utils.evento.getById.invalidate();
   }
 
-  type ModalData = {
-    tipo: 'CREATE' | 'EDIT';
-    eventoPadreId: string;
-    nombre: string;
-    eventoPadre: string;
-  };
-  
-  export const useEventoModalData = create<ModalData>(() => ({
-    tipo: 'CREATE',
-    eventoPadre: '',
-    nombre: '',
-    eventoPadreId: '',
-  }));
+  async function handleCancel() {
+    useEventoModalData.setState({
+      tipo: 'CREATE',
+      eventoPadre: '',
+      nombre: '',
+      eventoPadreId: '',
+    });
+    createEvento.reset();
+    editEvento.reset();
+  }
 
-  const EventoModal = ({ action, evento }: EventoModalProps) => {
-    const { data: getevento, isLoading } =
-      trpc.evento.();
-  
-    const utils = trpc.useUtils();
-    const modalData = useEventoModalData((state) => ({
-     eventoPadreId: state.eventoPadreId,
-      tipo: state.tipo,
-      nombre: state.nombre,
-    }));
-    const [open, setOpen] = useState(false);
-    const [quiereEliminar, setQuiereEliminar] = useState(false);
-    const createEvento = trpc.evento.create.useMutation();
-    const deleteEvento = trpc.evento.delete.useMutation();
-    const editEvento = trpc.evento.update.useMutation();
+  async function handleDelete() {
+    if (!evento) return;
+    if (quiereEliminar) {
+      await deleteEvento
+        .mutateAsync({ id: evento.id })
+        .then(() => {
+          setOpen(!open);
+          toast.success('Evento eliminado con éxito');
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error('Error al eliminar el evento');
+        });
 
-    async function sendEvento() {
-        if (modalData.tipo === 'CREATE') {
-          await createEvento
-            .mutateAsync({
-                nombre: modalData.nombre,
-                eventoPadreId: useEventoModalData.getState().eventoPadreId,
-                fecha: '',
-                ubicacion: ''
-            })
-            .then(() => {
-              setOpen(!open);
-              toast.success('Evento creada con éxito');
-            })
-            .catch((error) => {
-              console.log(error);
-              toast.error(
-                'Error al crear el evento, asegúrese de poner un nombre'
-              );
-            });
-        } else if (modalData.tipo === 'EDIT') {
-          await editEvento
-            .mutateAsync({
-                eventoPadreId: useEventoModalData.getState().eventoPadreId,
-              nombre: modalData.nombre,
-              eventoPadre: useEventoModalData.getState().eventoPadre,
-            })
-            .then(() => {
-              setOpen(!open);
-              toast.success('Evento editado con éxito');
-            })
-            .catch((error: any) => {
-              console.log(error);
-              toast.error('Error al editar el evento');
-            });
-        }
-
-        if (createEvento.isSuccess || editEvento.isSuccess) {
-            useEventoModalData.setState({
-              tipo: 'CREATE',
-              eventoPadre: '',
-              nombre: '',
-              eventoPadreId: '',
-            });
-          }
-      
-          utils.evento.getById.invalidate();
-        }
-      
-        async function handleCancel() {
-          useEventoModalData.setState({
-            tipo: 'CREATE',
-            eventoPadre: '',
-            nombre: '',
-            eventoPadreId: '',
-          });
-          createEvento.reset();
-          editEvento.reset();
-        }
-
-        async function handleDelete() {
-            if (quiereEliminar) {
-              await deleteEvento
-                .mutateAsync(modalData.eventoPadre)
-                .then(() => {
-                  setOpen(!open);
-                  toast.success('Evento eliminado con éxito');
-                })
-                .catch((error) => {
-                  console.log(error);
-                  toast.error('Error al eliminar el evento');
-                });
-        
-              if (createEvento.isSuccess || editEvento.isSuccess) {
-                useEventoModalData.setState({
-                  tipo: 'CREATE',
-                  eventoPadreId: '',
-                  nombre: '',
-                  eventoPadre: '',
-                });
-              }
-              utils.evento.getById.invalidate();
+      if (createEvento.isSuccess || editEvento.isSuccess) {
+        useEventoModalData.setState({
+          tipo: 'CREATE',
+          eventoPadreId: '',
+          nombre: '',
+          eventoPadre: '',
+        });
+      }
+      utils.evento.getById.invalidate();
     } else {
       setQuiereEliminar(true);
     }
   }
-  
- 
 
   return (
     <>
@@ -173,7 +173,7 @@ interface EventoModalProps {
                     tipo: 'EDIT',
                     eventoPadre: evento?.id ?? '',
                     nombre: evento?.nombre ?? '',
-                    eventoPadreId: evento?.grupoId ?? '',
+                    eventoPadreId: evento?.eventoPadreId ?? '',
                   });
                 }}
               >
@@ -203,26 +203,37 @@ interface EventoModalProps {
                   useEventoModalData.setState({ nombre: e.target.value })
                 }
               />
-              {isLoading ? (
+              {eventosLoading ? (
                 <Loader />
               ) : (
-                <EventoComboBox data={getevento ?? []} /> 
+                <ComboBox
+                  id='id'
+                  onSelect={(value) => {
+                    useEventoModalData.setState({
+                      eventoPadreId: value,
+                    });
+                  }}
+                  open={openCombo}
+                  setOpen={setOpenCombo}
+                  selectedIf={modalData.eventoPadreId}
+                  triggerChildren={<span>Evento padre</span>}
+                  value='nombre'
+                  data={eventos ?? []}
+                />
               )}
             </div>
           </div>
           {createEvento.isError || createEvento.isError ? (
             <p className='text-sm font-semibold text-red-500'>
               {createEvento.isError
-                ? createEvento.error?.data?.zodError?.fieldErrors
-                    .nombre?.[0] ||
-                    createEvento.error?.data?.zodError?.fieldErrors
+                ? createEvento.error?.data?.zodError?.fieldErrors.nombre?.[0] ||
+                  createEvento.error?.data?.zodError?.fieldErrors
                     .grupoId?.[0] ||
                   'Error al crear el evento, asegúrese de poner un nombre'
                 : ''}
               {editEvento.isError
                 ? editEvento.error?.data?.zodError?.fieldErrors.nombre?.[0] ||
-                  editEvento.error?.data?.zodError?.fieldErrors
-                    .grupoId?.[0] ||
+                  editEvento.error?.data?.zodError?.fieldErrors.grupoId?.[0] ||
                   'Error al editar el evento'
                 : ''}
             </p>
@@ -247,11 +258,11 @@ interface EventoModalProps {
                   })}
                   onClick={handleDelete}
                   disabled={
-                    evento?._count.getevento !== undefined &&
-                    evento._count.getevento > 0
+                    evento?.subEventos !== undefined &&
+                    evento.subEventos.length > 0
                   }
                 >
-                  {evento?._count.perfiles === 0
+                  {evento?.subEventos.length === 0
                     ? quiereEliminar
                       ? '¿Estás seguro?'
                       : 'Eliminar'
@@ -277,4 +288,3 @@ interface EventoModalProps {
 };
 
 export default EventoModal;
-
