@@ -29,14 +29,20 @@ type ModalData = {
   tipo: 'CREATE' | 'EDIT';
   eventoPadreId: string;
   nombre: string;
+  fecha: string;
+  ubicacion: string;
   eventoPadre: string;
+  subeventos: { nombre: string; fecha: string; ubicacion: string }[];
 };
 
 export const useEventoModalData = create<ModalData>(() => ({
   tipo: 'CREATE',
   eventoPadre: '',
   nombre: '',
+  fecha: '',
+  ubicacion: '',
   eventoPadreId: '',
+  subeventos: [],
 }));
 
 const EventoModal = ({ action, evento }: EventoModalProps) => {
@@ -48,6 +54,9 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
     eventoPadreId: state.eventoPadreId,
     tipo: state.tipo,
     nombre: state.nombre,
+    fecha: state.fecha,
+    ubicacion: state.ubicacion,
+    subeventos: state.subeventos,
   }));
   const [open, setOpen] = useState(false);
   const [openCombo, setOpenCombo] = useState(false);
@@ -62,12 +71,12 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
         .mutateAsync({
           nombre: modalData.nombre,
           eventoPadreId: useEventoModalData.getState().eventoPadreId,
-          fecha: '',
-          ubicacion: '',
+          fecha: modalData.fecha,
+          ubicacion: modalData.ubicacion,
         })
         .then(() => {
           setOpen(!open);
-          toast.success('Evento creada con éxito');
+          toast.success('Evento creado con éxito');
         })
         .catch((error) => {
           console.log(error);
@@ -96,7 +105,10 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
         tipo: 'CREATE',
         eventoPadre: '',
         nombre: '',
+        fecha: '',
+        ubicacion: '',
         eventoPadreId: '',
+        subeventos: [],
       });
     }
 
@@ -108,7 +120,10 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
       tipo: 'CREATE',
       eventoPadre: '',
       nombre: '',
+      fecha: '',
+      ubicacion: '',
       eventoPadreId: '',
+      subeventos: [],
     });
     createEvento.reset();
     editEvento.reset();
@@ -134,6 +149,9 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           eventoPadreId: '',
           nombre: '',
           eventoPadre: '',
+          fecha: '',
+          ubicacion: '',
+          subeventos: [],
         });
       }
       utils.evento.getById.invalidate();
@@ -156,6 +174,9 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     nombre: '',
                     eventoPadre: '',
                     eventoPadreId: '',
+                    fecha: '',
+                    ubicacion: '',
+                    subeventos: [],
                   });
                 }}
               >
@@ -174,6 +195,9 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     eventoPadre: evento?.id ?? '',
                     nombre: evento?.nombre ?? '',
                     eventoPadreId: evento?.eventoPadreId ?? '',
+                    fecha: evento?.fecha ?? '',
+                    ubicacion: evento?.ubicacion ?? '',
+                    subeventos: [],
                   });
                 }}
               >
@@ -201,6 +225,26 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                 value={modalData.nombre}
                 onChange={(e) =>
                   useEventoModalData.setState({ nombre: e.target.value })
+                }
+              />
+              <Input
+                type='date'
+                name='fecha'
+                id='fecha'
+                placeholder='Fecha del evento'
+                value={modalData.fecha}
+                onChange={(e) =>
+                  useEventoModalData.setState({ fecha: e.target.value })
+                }
+              />
+              <Input
+                type='text'
+                name='ubicacion'
+                id='ubicacion'
+                placeholder='Ubicación del evento'
+                value={modalData.ubicacion}
+                onChange={(e) =>
+                  useEventoModalData.setState({ ubicacion: e.target.value })
                 }
               />
               {eventosLoading ? (
@@ -238,6 +282,56 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                 : ''}
             </p>
           ) : null}
+          {}
+          {modalData.subeventos.map((subevento, index) => (
+            <div key={index}>
+              <Input
+                type='text'
+                placeholder='Nombre del subevento'
+                value={subevento.nombre}
+                onChange={(e) => {
+                  const updatedSubeventos = [...modalData.subeventos];
+                  updatedSubeventos[index].nombre = e.target.value;
+                  useEventoModalData.setState({
+                    subeventos: updatedSubeventos,
+                  });
+                }}
+              />
+              <Input
+                type='date'
+                placeholder='Fecha del subevento'
+                value={subevento.fecha}
+                onChange={(e) => {
+                  const updatedSubeventos = [...modalData.subeventos];
+                  updatedSubeventos[index].fecha = e.target.value;
+                  useEventoModalData.setState({
+                    subeventos: updatedSubeventos,
+                  });
+                }}
+              />
+              <Input
+                type='text'
+                placeholder='Ubicación del subevento'
+                value={subevento.ubicacion}
+                onChange={(e) => {
+                  const updatedSubeventos = [...modalData.subeventos];
+                  updatedSubeventos[index].ubicacion = e.target.value;
+                  useEventoModalData.setState({
+                    subeventos: updatedSubeventos,
+                  });
+                }}
+              />
+            </div>
+          ))}
+          <Button
+            onClick={() => {
+              const updatedSubeventos = [...modalData.subeventos];
+              updatedSubeventos.push({ nombre: '', fecha: '', ubicacion: '' });
+              useEventoModalData.setState({ subeventos: updatedSubeventos });
+            }}
+          >
+            Agregar subevento
+          </Button>
           <div className='flex gap-x-4'>
             <Button
               className='w-full max-w-32'
