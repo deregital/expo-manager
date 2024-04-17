@@ -183,7 +183,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                 <span>
                   <EventFillIcon className='mr-3 h-6 w-6' />
                 </span>
-                Crear etiqueta
+                Crear evento
               </ModalTriggerCreate>
             ) : (
               <ModalTriggerEdit
@@ -228,7 +228,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                 }
               />
               <Input
-                type='date'
+                type='datetime-local'
                 name='fecha'
                 id='fecha'
                 placeholder='Fecha del evento'
@@ -298,7 +298,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                 }}
               />
               <Input
-                type='date'
+                type='datetime-local'
                 placeholder='Fecha del subevento'
                 value={subevento.fecha}
                 onChange={(e) => {
@@ -321,6 +321,17 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   });
                 }}
               />
+              <Button
+                onClick={() => {
+                  const updatedSubeventos = [...modalData.subeventos];
+                  updatedSubeventos.splice(index, 1); // Eliminar el subevento en el índice
+                  useEventoModalData.setState({
+                    subeventos: updatedSubeventos,
+                  });
+                }}
+              >
+                Eliminar subevento
+              </Button>
             </div>
           ))}
           <Button
@@ -382,3 +393,4 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
 };
 
 export default EventoModal;
+
