@@ -54,6 +54,7 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
           key={evento.id}
           title={evento.nombre}
           className='my-2 border-0'
+          style={{ backgroundColor: '#ffcccc' }} // Color de fondo para eventos
         >
           <AccordionTrigger
             className='rounded-xl px-2 py-1.5'
@@ -75,7 +76,10 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
             <p>Fecha: {evento.fecha}</p>
             <p>Ubicación: {evento.ubicacion}</p>
             {evento.subEventos.map((subevento) => (
-              <div key={subevento.nombre}>
+              <div
+                key={subevento.nombre}
+                className='subevento-container' // Clase para aplicar estilo a los subeventos
+              >
                 <p>Nombre del subevento: {subevento.nombre}</p>
                 <p>Fecha del subevento: {subevento.fecha}</p>
                 <p>Ubicación del subevento: {subevento.ubicacion}</p>
@@ -84,6 +88,14 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
           </AccordionContent>
         </AccordionItem>
       ))}
+      <style jsx>{`
+        .subevento-container {
+          background-color: #ccffcc; /* Color de fondo para subeventos */
+          padding: 10px;
+          margin-bottom: 5px;
+          margin-left: 20px;
+        }
+      `}</style>
     </Accordion>
   );
 };

@@ -229,6 +229,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   onChange={(e) =>
                     useEventoModalData.setState({ nombre: e.target.value })
                   }
+                  required // Atributo required agregado aquí
                 />
                 <Input
                   type='datetime-local'
@@ -239,6 +240,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   onChange={(e) =>
                     useEventoModalData.setState({ fecha: e.target.value })
                   }
+                  required // Atributo required agregado aquí
                 />
               </div>
               <div className='flex gap-3'>
@@ -251,6 +253,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   onChange={(e) =>
                     useEventoModalData.setState({ ubicacion: e.target.value })
                   }
+                  required // Atributo required agregado aquí
                 />
                 {eventosLoading ? (
                   <Loader />
@@ -302,6 +305,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                       subeventos: updatedSubeventos,
                     });
                   }}
+                  required // Atributo required agregado aquí
                 />
                 <Input
                   type='datetime-local'
@@ -314,6 +318,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                       subeventos: updatedSubeventos,
                     });
                   }}
+                  required // Atributo required agregado aquí
                 />
                 <Input
                   type='text'
@@ -326,6 +331,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                       subeventos: updatedSubeventos,
                     });
                   }}
+                  required // Atributo required agregado aquí
                 />
                 <Button
                   onClick={() => {

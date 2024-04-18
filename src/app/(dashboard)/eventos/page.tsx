@@ -18,24 +18,28 @@ const EventosPage = () => {
 
   const eventosFiltrados = useMemo(() => {
     if (!eventos) return [];
-
+  
     let filteredEventos = eventos;
-
+  
     if (search !== '') {
       filteredEventos = eventos.filter((evento) => {
-        return (
-          evento.nombre.toLowerCase().includes(search.toLowerCase()) ||
-          evento.ubicacion.toLowerCase().includes(search.toLowerCase()) ||
-          evento.subEventos.some((subevento) =>
-            subevento.nombre.toLowerCase().includes(search.toLowerCase())
-          ) ||
-          evento.subEventos.some((subevento) =>
-            subevento.ubicacion.toLowerCase().includes(search.toLowerCase())
-          )
-        );
+        // Filtrar por los eventos que no tienen un evento padre ID
+        if (!evento.eventoPadreId) {
+          return (
+            evento.nombre.toLowerCase().includes(search.toLowerCase()) ||
+            evento.ubicacion.toLowerCase().includes(search.toLowerCase()) ||
+            evento.subEventos.some((subevento) =>
+              subevento.nombre.toLowerCase().includes(search.toLowerCase())
+            ) ||
+            evento.subEventos.some((subevento) =>
+              subevento.ubicacion.toLowerCase().includes(search.toLowerCase())
+            )
+          );
+        }
+        return false; // No incluir eventos con evento padre ID
       });
     }
-
+  
     return filteredEventos;
   }, [eventos, search]);
 
