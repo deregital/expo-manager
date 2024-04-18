@@ -10,6 +10,13 @@ export const eventoRouter = router({
         fecha: z.string().transform((val) => new Date(val)),
         ubicacion: z.string(),
         eventoPadreId: z.string().optional(),
+        subeventos: z.array(
+          z.object({
+            fecha: z.string().transform((val) => new Date(val)),
+            ubicacion: z.string(),
+            nombre: z.string(),
+          })
+        ),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -21,6 +28,9 @@ export const eventoRouter = router({
           eventoPadre: input.eventoPadreId
             ? { connect: { id: input.eventoPadreId } }
             : undefined,
+          subEventos: {
+            createMany: { data: input.subeventos },
+          },
         },
       });
     }),

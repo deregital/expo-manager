@@ -73,10 +73,12 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           eventoPadreId: useEventoModalData.getState().eventoPadreId,
           fecha: modalData.fecha,
           ubicacion: modalData.ubicacion,
+          subeventos: modalData.subeventos,
         })
         .then(() => {
           setOpen(!open);
           toast.success('Evento creado con éxito');
+          utils.evento.getAll.invalidate();
         })
         .catch((error) => {
           console.log(error);
@@ -286,58 +288,60 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                 : ''}
             </p>
           ) : null}
-          {}
-          {modalData.subeventos.map((subevento, index) => (
-            <div key={index}>
-              <Input
-                type='text'
-                placeholder='Nombre del subevento'
-                value={subevento.nombre}
-                onChange={(e) => {
-                  const updatedSubeventos = [...modalData.subeventos];
-                  updatedSubeventos[index].nombre = e.target.value;
-                  useEventoModalData.setState({
-                    subeventos: updatedSubeventos,
-                  });
-                }}
-              />
-              <Input
-                type='datetime-local'
-                placeholder='Fecha del subevento'
-                value={subevento.fecha}
-                onChange={(e) => {
-                  const updatedSubeventos = [...modalData.subeventos];
-                  updatedSubeventos[index].fecha = e.target.value;
-                  useEventoModalData.setState({
-                    subeventos: updatedSubeventos,
-                  });
-                }}
-              />
-              <Input
-                type='text'
-                placeholder='Ubicación del subevento'
-                value={subevento.ubicacion}
-                onChange={(e) => {
-                  const updatedSubeventos = [...modalData.subeventos];
-                  updatedSubeventos[index].ubicacion = e.target.value;
-                  useEventoModalData.setState({
-                    subeventos: updatedSubeventos,
-                  });
-                }}
-              />
-              <Button
-                onClick={() => {
-                  const updatedSubeventos = [...modalData.subeventos];
-                  updatedSubeventos.splice(index, 1); // Eliminar el subevento en el índice
-                  useEventoModalData.setState({
-                    subeventos: updatedSubeventos,
-                  });
-                }}
-              >
-                Eliminar subevento
-              </Button>
-            </div>
-          ))}
+          <div className='h-full max-h-56 overflow-y-auto'>
+            {modalData.subeventos.map((subevento, index) => (
+              <div key={index}>
+                <Input
+                  type='text'
+                  placeholder='Nombre del subevento'
+                  value={subevento.nombre}
+                  onChange={(e) => {
+                    const updatedSubeventos = [...modalData.subeventos];
+                    updatedSubeventos[index].nombre = e.target.value;
+                    useEventoModalData.setState({
+                      subeventos: updatedSubeventos,
+                    });
+                  }}
+                />
+                <Input
+                  type='datetime-local'
+                  placeholder='Fecha del subevento'
+                  value={subevento.fecha}
+                  onChange={(e) => {
+                    const updatedSubeventos = [...modalData.subeventos];
+                    updatedSubeventos[index].fecha = e.target.value;
+                    useEventoModalData.setState({
+                      subeventos: updatedSubeventos,
+                    });
+                  }}
+                />
+                <Input
+                  type='text'
+                  placeholder='Ubicación del subevento'
+                  value={subevento.ubicacion}
+                  onChange={(e) => {
+                    const updatedSubeventos = [...modalData.subeventos];
+                    updatedSubeventos[index].ubicacion = e.target.value;
+                    useEventoModalData.setState({
+                      subeventos: updatedSubeventos,
+                    });
+                  }}
+                />
+                <Button
+                  onClick={() => {
+                    const updatedSubeventos = [...modalData.subeventos];
+                    updatedSubeventos.splice(index, 1); // Eliminar el subevento en el índice
+                    useEventoModalData.setState({
+                      subeventos: updatedSubeventos,
+                    });
+                  }}
+                >
+                  Eliminar subevento
+                </Button>
+              </div>
+            ))}
+          </div>
+
           <Button
             onClick={() => {
               const updatedSubeventos = [...modalData.subeventos];
