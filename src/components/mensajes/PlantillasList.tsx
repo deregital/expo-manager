@@ -3,10 +3,10 @@ import { trpc } from '@/lib/trpc';
 import { Edit2Icon, Trash2Icon } from 'lucide-react';
 import Loader from '../ui/loader';
 import { useTemplateDelete } from './DeleteTemplateModal';
-import { RouterOutputs } from '@/server';
 import { useRouter } from 'next/navigation';
 import { useTemplate } from './CrearTemplate';
-import { GetTemplatesData, GetTemplatesResponse } from '@/server/types/whatsapp';
+import { GetTemplatesData } from '@/server/types/whatsapp';
+import IconClockRotateLeft from '../icons/IconClockRotateLeft';
 
 const PlantillasList = () => {
   const { data, isLoading } = trpc.whatsapp.getTemplates.useQuery();
@@ -65,6 +65,18 @@ const PlantillasList = () => {
                   />
                 </div>
               );
+            } else if (plantilla.status === 'PENDING') {
+              return (
+                <div
+                  key={plantilla.id}
+                  className='flex items-center justify-center gap-x-2 bg-gray-400 pr-2'
+                >
+                  <button onClick={() => goToCreateTemplate(plantilla, 'VIEW')} className='w-full p-2 text-white hover:bg-gray-700 hover:transition hover:ease-in-out'>
+                    {plantilla.name}
+                  </button>
+                  <IconClockRotateLeft className='h-5 w-5' />
+                </div>
+              )
             }
           })
         ) : (

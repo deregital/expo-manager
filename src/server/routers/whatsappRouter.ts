@@ -77,7 +77,6 @@ export const whatsappRouter = router({
           body: JSON.stringify(contenido),
         }
       ).then((res) => res.json());
-      console.log(res);
       if (res.id) {
         return 'Plantilla creada correctamente';
       } else {
@@ -95,21 +94,10 @@ export const whatsappRouter = router({
       },
     }).then((res) => res.json());
     return res
-    // console.log(res.data[0]);
-    // return await ctx.prisma.plantilla.findMany({
-    //   where: {
-    //     estado: 'PENDING',
-    //   },
-    // });
   }),
   getTemplateById: protectedProcedure
     .input(z.string().optional())
-    .query(async ({ input, ctx }) => {
-      // return await ctx.prisma.plantilla.findUnique({
-      //   where: {
-      //     id: input,
-      //   },
-      // });
+    .query(async ({ input }) => {
       if (input === undefined) {
         return undefined;
       }
@@ -119,8 +107,6 @@ export const whatsappRouter = router({
           Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
         },
       }).then((res) => res.json());
-      // console.log(res.data[0].components);
-      // console.log(res)
       return res;
     }),
   editTemplate: protectedProcedure
@@ -172,7 +158,6 @@ export const whatsappRouter = router({
           body: JSON.stringify(contenido),
         }
       ).then((res) => res.json());
-      console.log(res);
       if (res.success === true) {
         return res.success;
       } else {
