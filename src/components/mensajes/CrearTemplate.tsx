@@ -26,7 +26,7 @@ const CrearTemplate = () => {
     useTemplate.getState().plantilla?.name
   );
   const router = useRouter();
-  const { data } = trpc.whatsapp.getTemplateById.useQuery(useTemplate.getState().plantilla ? useTemplate.getState().plantilla!.name : undefined);
+  const { data, isLoading } = trpc.whatsapp.getTemplateById.useQuery(useTemplate.getState().plantilla ? useTemplate.getState().plantilla!.name : undefined);
     useEffect(() => {
         if (data?.data[0].components) {
           data.data[0].components.map((component) => {
@@ -45,7 +45,7 @@ const CrearTemplate = () => {
             }
           });
         }
-    }, []);
+    }, [data]);
 
   const crearTemplate = trpc.whatsapp.createTemplate.useMutation();
   const editTemplate = trpc.whatsapp.editTemplate.useMutation();

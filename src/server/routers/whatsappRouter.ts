@@ -86,15 +86,6 @@ export const whatsappRouter = router({
           message: 'No se pudo crear la plantilla',
         });
       }
-      // return await ctx.prisma.plantilla.create({
-      //   data: {
-      //     titulo: input.name,
-      //     contenido: JSON.stringify(contenido),
-      //     metaId: res.id,
-      //     estado: res.status,
-      //     categoria: res.category,
-      //   },
-      // });
     }),
   getTemplates: protectedProcedure.query(async ({ ctx }) => {
     const res: GetTemplatesResponse = await fetch(`https://graph.facebook.com/v19.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?fields=name,status`, {
