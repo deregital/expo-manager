@@ -34,4 +34,25 @@ export type TemplateResponse = {
   category: CategoriaPlantilla;
 };
 
+export type GetTemplatesResponse = {
+  data: GetTemplatesData[];
+}
+
+export type GetTemplatesData = {
+  name: string;
+  id: string;
+  status: string
+}
+
+export type GetTemplateResponse = {
+  data: {
+    name: string;
+    components: Components[];
+    language: string;
+    status: string;
+    category: string;
+    id: string;
+  }[]
+}
+
 export type Components = Body | Buttons;
