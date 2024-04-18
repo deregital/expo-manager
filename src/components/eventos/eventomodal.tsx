@@ -215,56 +215,60 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
               {(modalData.tipo === 'CREATE' && 'Crear evento') ||
                 (modalData.tipo === 'EDIT' && 'Editar evento')}
             </p>
-            <div className='flex gap-x-3'>
-              <Input
-                className='bg-white text-black'
-                type='text'
-                name='evento'
-                id='evento'
-                placeholder='Nombre del evento'
-                value={modalData.nombre}
-                onChange={(e) =>
-                  useEventoModalData.setState({ nombre: e.target.value })
-                }
-              />
-              <Input
-                type='datetime-local'
-                name='fecha'
-                id='fecha'
-                placeholder='Fecha del evento'
-                value={modalData.fecha}
-                onChange={(e) =>
-                  useEventoModalData.setState({ fecha: e.target.value })
-                }
-              />
-              <Input
-                type='text'
-                name='ubicacion'
-                id='ubicacion'
-                placeholder='Ubicación del evento'
-                value={modalData.ubicacion}
-                onChange={(e) =>
-                  useEventoModalData.setState({ ubicacion: e.target.value })
-                }
-              />
-              {eventosLoading ? (
-                <Loader />
-              ) : (
-                <ComboBox
-                  id='id'
-                  onSelect={(value) => {
-                    useEventoModalData.setState({
-                      eventoPadreId: value,
-                    });
-                  }}
-                  open={openCombo}
-                  setOpen={setOpenCombo}
-                  selectedIf={modalData.eventoPadreId}
-                  triggerChildren={<span>Evento padre</span>}
-                  value='nombre'
-                  data={eventos ?? []}
+            <div className='flex flex-col gap-3'>
+              <div className='flex gap-3'>
+                <Input
+                  className='bg-white text-black'
+                  type='text'
+                  name='evento'
+                  id='evento'
+                  placeholder='Nombre del evento'
+                  value={modalData.nombre}
+                  onChange={(e) =>
+                    useEventoModalData.setState({ nombre: e.target.value })
+                  }
                 />
-              )}
+                <Input
+                  type='datetime-local'
+                  name='fecha'
+                  id='fecha'
+                  placeholder='Fecha del evento'
+                  value={modalData.fecha}
+                  onChange={(e) =>
+                    useEventoModalData.setState({ fecha: e.target.value })
+                  }
+                />
+              </div>
+              <div className='flex gap-3'>
+                <Input
+                  type='text'
+                  name='ubicacion'
+                  id='ubicacion'
+                  placeholder='Ubicación del evento'
+                  value={modalData.ubicacion}
+                  onChange={(e) =>
+                    useEventoModalData.setState({ ubicacion: e.target.value })
+                  }
+                />
+                {eventosLoading ? (
+                  <Loader />
+                ) : (
+                  <ComboBox
+                    id='id'
+                    onSelect={(value) => {
+                      useEventoModalData.setState({
+                        eventoPadreId: value,
+                      });
+                    }}
+                    open={openCombo}
+                    setOpen={setOpenCombo}
+                    selectedIf={modalData.eventoPadreId}
+                    triggerChildren={<span>Evento padre</span>}
+                    value='nombre'
+                    data={eventos ?? []}
+                  />
+                )}
+              </div>
             </div>
           </div>
           {createEvento.isError || createEvento.isError ? (
@@ -393,4 +397,3 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
 };
 
 export default EventoModal;
-
