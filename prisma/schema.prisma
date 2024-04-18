@@ -29,10 +29,10 @@ model Cuenta {
 model Perfil {
     id        String  @id @default(uuid())
     idLegible String? @unique @map("id_legible")
+    telefono  String  @unique
 
     nombreCompleto String    @map("nombre_completo")
     nombrePila     String?   @map("nombre_pila")
-    telefono       String
     genero         String?
     edad           Int?
     fotoUrl        String?   @map("foto_url")
@@ -139,8 +139,8 @@ model Mensaje {
     sentAt      DateTime?     @map("sent_at")
     status      MensajeStatus @default(value: ENVIADO)
 
-    perfil   Perfil @relation("PERFIL_X_MENSAJE", fields: [perfilId], references: [id])
-    perfilId String @map("perfil_id")
+    perfil         Perfil @relation("PERFIL_X_MENSAJE", fields: [perfilTelefono], references: [telefono])
+    perfilTelefono String @map("perfil_telefono")
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
