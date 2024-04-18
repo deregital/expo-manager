@@ -1,33 +1,80 @@
 'use client';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import { trpc } from '@/lib/trpc';
+import EventosList from '@/components/eventos/eventoslist';
+import SearchInput from '@/components/ui/SearchInput';
 import EventoModal from '@/components/eventos/eventomodal';
+import Loader from '@/components/ui/loader';
+import ExpandContractEventos, { useExpandEventos } from '@/components/eventos/expandcontracteventos';
 
-const EventPage = () => {
-  const handleCreateEvent = () => {
-    console.log('Crear nuevo evento');
-  };
+
+const EventosPage = () => {
+  const [search, setSearch] = useState('');
+  const { data: eventos, isLoading } = trpc.evento.getAll.useQuery();
+  const { expandState, setNone } = useExpandEventos((s) => ({
+    setNone: s.none,
+    expandState: s.state,
+  }));
+
+  const eventosFiltrados = useMemo(() => {
+    if (!eventos) return [];
+
+    let filteredEventos = eventos;
+
+    if (search !== '') {
+      filteredEventos = eventos.filter((evento) => {
+        return (
+          evento.nombre.toLowerCase().includes(search.toLowerCase()) ||
+          evento.ubicacion.toLowerCase().includes(search.toLowerCase()) ||
+          evento.subEventos.some((subevento) =>
+            subevento.nombre.toLowerCase().includes(search.toLowerCase())
+          ) ||
+          evento.subEventos.some((subevento) =>
+            subevento.ubicacion.toLowerCase().includes(search.toLowerCase())
+          )
+        );
+      });
+    }
+
+    return filteredEventos;
+  }, [eventos, search]);
 
   return (
-    <div className='p-3'>
-      <EventoModal action='CREATE' />
-      {/* <Button
-        className='bg-gray-400 text-gray-950  transition-colors hover:bg-gray-300'
-        onClick={handleCreateEvent}
-      >
-        <span className='mr-3 h-5 w-5'>
-          <svg
-            fill='currentColor'
-            viewBox='0 0 24 24'
-            height='1.5em'
-            width='1.5em'
-          >
-            <path d='M10 13H4a1 1 0 00-1 1v6a1 1 0 001 1h6a1 1 0 001-1v-6a1 1 0 00-1-1zm-1 6H5v-4h4zM20 3h-6a1 1 0 00-1 1v6a1 1 0 001 1h6a1 1 0 001-1V4a1 1 0 00-1-1zm-1 6h-4V5h4zm1 7h-2v-2a1 1 0 00-2 0v2h-2a1 1 0 000 2h2v2a1 1 0 002 0v-2h2a1 1 0 000-2zM10 3H4a1 1 0 00-1 1v6a1 1 0 001 1h6a1 1 0 001-1V4a1 1 0 00-1-1zM9 9H5V5h4z' />
-          </svg>
-        </span>
-        Crear nuevo evento
-      </Button> */}
-    </div>
+    <>
+      <p className='p-3 text-xl font-bold md:p-5 md:text-3xl'>
+        Gestor de Eventos
+      </p>
+      <div className='flex flex-col justify-between gap-4 px-3 md:flex-row md:px-5'>
+        <div className='flex flex-col gap-4 md:flex-row'>
+          <EventoModal action='CREATE' />
+        </div>
+        <div className='flex items-center gap-x-2'>
+          <ExpandContractEventos />
+          <SearchInput
+            onChange={(value) => {
+              setSearch(value);
+
+              if (value === '') {
+                setNone();
+              } else if (expandState === 'EXPAND') {
+                setNone();
+              }
+            }}
+            placeholder='Buscar evento o subevento'
+          />
+        </div>
+      </div>
+      <div className='px-3 md:px-5'>
+        {isLoading ? (
+          <div className='mt-5 flex justify-center'>
+            <Loader />
+          </div>
+        ) : (
+          <EventosList eventos={eventosFiltrados} />
+        )}
+      </div>
+    </>
   );
 };
 
-export default EventPage;
+export default EventosPage;
