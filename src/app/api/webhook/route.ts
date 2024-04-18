@@ -1,6 +1,7 @@
 import { verifyWebhook } from '@/lib/verify';
 import { WebHookRequest } from '@/server/types/webhooks';
 import { headers } from 'next/headers';
+import { prisma } from '@/server/db';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const revalidate = 0;
@@ -33,35 +34,36 @@ export async function POST(request: NextRequest) {
   }
   const webhookBody = JSON.parse(rawRequestBody) as WebHookRequest;
 
-  if (webhookBody.entry.length > 0) {
-    const changes = webhookBody.entry[0].changes;
-    if (changes.length > 0) {
-      if (changes[0].field === 'messages') {
-        const changeValue = changes[0].value;
-        const contacts = changeValue.contacts;
-        const messages = changeValue.messages;
-        console.log(JSON.stringify(changeValue, null, 2));
-        // if (messages) {
-        //   await prisma.mensaje.createMany({
-        //     data: messages.map((msg) => {
-        //         return {
-        //             wamId: msg.id,
-        //             from: msg.from,
-        //             timestamp: new Date(Number.parseInt(msg.timestamp) * 1000),
-        //             tipo: msg.type,
-        //             perfilId: contacts[0].wa_id,
-        //             imagen: msg.image ? {
-        //                 create: {
-        //                     id: msg.image.id,
-        //                     sha256: msg.image.sha256,
-        //                     mime_type: msg.image.mime_type,
-        //                 }
-        //             } : undefined
-        //         }
-        //     })
-        // });
-        // }
+  try {
+    if (webhookBody.entry.length > 0) {
+      const changes = webhookBody.entry[0].changes;
+      if (changes.length > 0) {
+        if (changes[0].field === 'messages') {
+          const changeValue = changes[0].value;
+          const message = changeValue.messages[0];
+
+          if (message && message.type === 'text') {
+            await prisma.mensaje.create({
+              data: {
+                wamId: message.id,
+                deliveredAt: new Date(
+                  Number.parseInt(message.timestamp) * 1000
+                ),
+                message: message,
+                perfil: {
+                  connect: {
+                    telefono: message.from,
+                  },
+                },
+              },
+            });
+          }
+        }
       }
     }
+    return new NextResponse(null, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return new NextResponse(null, { status: 500 });
   }
 }

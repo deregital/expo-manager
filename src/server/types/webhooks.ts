@@ -17,9 +17,18 @@ export type WebhookMessage = {
   from: string;
   id: string;
   timestamp: string;
-  image?: WebhookImage;
-  type: 'text' | 'reaction' | 'image';
-};
+} & (
+  | {
+      type: 'text';
+      text: {
+        body: string;
+      };
+    }
+  | {
+      type: 'image';
+      image: WebhookImage;
+    }
+);
 
 export type WebHookRequest = {
   object: 'whatsapp_business_account';
