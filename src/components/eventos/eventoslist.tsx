@@ -82,11 +82,11 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
             {evento.subEventos.map((subevento) => (
               <div
                 key={subevento.nombre}
-                className='mb-1.5 ml-5 bg-[#ccffcc] p-2.5' // Clase para aplicar estilo a los subeventos
+                className='mb-1.5 ml-5 bg-[#ccffcc] p-2.5 rounded-md' // Reducir tamaño de la caja de fondo
               >
-                <p>Nombre del subevento: {subevento.nombre}</p>
-                <p>Fecha del subevento: {subevento.fecha}</p>
-                <p>Ubicación del subevento: {subevento.ubicacion}</p>
+                <p className="font-semibold">Nombre del subevento: <span className="font-normal">{subevento.nombre}</span></p>
+                <p className="font-semibold">Fecha del subevento: <span className="font-normal">{subevento.fecha}</span></p>
+                <p className="font-semibold">Ubicación del subevento: <span className="font-normal">{subevento.ubicacion}</span></p>
               </div>
             ))}
           </AccordionContent>
