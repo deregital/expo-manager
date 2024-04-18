@@ -4,19 +4,19 @@ import { AlertDialog, AlertDialogContent, AlertDialogTrigger } from "../ui/alert
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { create } from "zustand";
+import { GetTemplatesData } from "@/server/types/whatsapp";
 
-export const useTemplateDelete = create<{open: boolean; plantilla: RouterOutputs['whatsapp']['getTemplateById']}>((set) => ({
+export const useTemplateDelete = create<{open: boolean; plantilla: GetTemplatesData | null}>((set) => ({
     open: false,
     plantilla: null,
   }));
 
-const DeleteTemplateModal = ({ open, plantilla } : {open: boolean, plantilla: RouterOutputs['whatsapp']['getTemplateById'] | null}) => {
+const DeleteTemplateModal = ({ open, plantilla } : {open: boolean, plantilla: GetTemplatesData | null}) => {
     const deleteTemplate = trpc.whatsapp.deleteTemplate.useMutation();
     const utils = trpc.useUtils();
     async function handleDelete() {
         await deleteTemplate.mutateAsync({
-            id: plantilla ? plantilla.id : '',
-            titulo: plantilla ? plantilla.titulo : '',
+            titulo: plantilla ? plantilla.name : '',
         }).then(() => {
             useTemplateDelete.setState({open: false, plantilla: null})
             toast.success('Plantilla eliminada')
@@ -33,11 +33,11 @@ const DeleteTemplateModal = ({ open, plantilla } : {open: boolean, plantilla: Ro
         <AlertDialog open={open}>
             <AlertDialogTrigger></AlertDialogTrigger>
             <AlertDialogContent>
-                <h1>Eliminar plantilla</h1>
-                <p>¿Estás seguro de que deseas eliminar la plantilla {plantilla ? plantilla.titulo : '-'}?</p>
-                <div className="flex justify-center items-center gap-x-2">
-                    <button onClick={close}>Cancelar</button>
-                    <button onClick={handleDelete}>Eliminar</button>
+                <h1 className="font-bold">Eliminar plantilla</h1>
+                <p>¿Estás seguro de que deseas eliminar la plantilla {plantilla ? plantilla.name : '-'}?</p>
+                <div className="flex justify-end items-center gap-x-2">
+                    <button className="bg-black text-white rounded-md p-2 text-sm" onClick={close}>Cancelar</button>
+                    <button className="bg-red-600 text-white rounded-md p-2 text-sm" onClick={handleDelete}>Eliminar</button>
                 </div>
             </AlertDialogContent>
         </AlertDialog>

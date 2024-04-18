@@ -6,17 +6,18 @@ import { useTemplateDelete } from './DeleteTemplateModal';
 import { RouterOutputs } from '@/server';
 import { useRouter } from 'next/navigation';
 import { useTemplate } from './CrearTemplate';
+import { GetTemplatesData, GetTemplatesResponse } from '@/server/types/whatsapp';
 
 const PlantillasList = () => {
   const { data, isLoading } = trpc.whatsapp.getTemplates.useQuery();
   const router = useRouter();
 
-  function openModal(plantilla: RouterOutputs['whatsapp']['getTemplateById']) {
+  function openModal(plantilla: GetTemplatesData) {
     useTemplateDelete.setState({ open: true, plantilla: plantilla });
   }
 
   function goToCreateTemplate(
-    plantilla: RouterOutputs['whatsapp']['getTemplateById'],
+    plantilla: GetTemplatesData | null,
     type: string
   ) {
     useTemplate.setState({ type: type, plantilla: plantilla });
@@ -43,27 +44,28 @@ const PlantillasList = () => {
             <Loader />
           </div>
         ) : data ? (
-          (data as Array<any>).map((p) => {
-            const plantilla: RouterOutputs['whatsapp']['getTemplates'][number] =
-              p;
-            return (
-              <div
-                key={plantilla.id}
-                className='flex items-center justify-center gap-x-2 bg-gray-400 pr-2'
-              >
-                <button className='w-full p-2 text-white hover:bg-gray-700 hover:transition hover:ease-in-out'>
-                  {plantilla.titulo}
-                </button>
-                <Edit2Icon
-                  onClick={() => goToCreateTemplate(plantilla, 'EDIT')}
-                  className='hover:cursor-pointer hover:text-white'
-                />
-                <Trash2Icon
-                  onClick={() => openModal(plantilla)}
-                  className='hover:cursor-pointer hover:text-white'
-                />
-              </div>
-            );
+          data.data.map((p) => {
+            const plantilla = p;
+            if (plantilla.status === 'APPROVED') {
+              return (
+                <div
+                  key={plantilla.id}
+                  className='flex items-center justify-center gap-x-2 bg-gray-400 pr-2'
+                >
+                  <button onClick={() => goToCreateTemplate(plantilla, 'VIEW')} className='w-full p-2 text-white hover:bg-gray-700 hover:transition hover:ease-in-out'>
+                    {plantilla.name}
+                  </button>
+                  <Edit2Icon
+                    onClick={() => goToCreateTemplate(plantilla, 'EDIT')}
+                    className='hover:cursor-pointer hover:text-white'
+                  />
+                  <Trash2Icon
+                    onClick={() => openModal(plantilla)}
+                    className='hover:cursor-pointer hover:text-white'
+                  />
+                </div>
+              );
+            }
           })
         ) : (
           'No hay plantillas'

@@ -16,7 +16,7 @@ const EnviarTemplate = () => {
   return (
     <div>
       <h1>Enviar Template</h1>
-      <ComboBoxPlantillas data={data as Array<any>} />
+      {/* <ComboBoxPlantillas data={data as Array<any>} /> */}
     </div>
   );
 };

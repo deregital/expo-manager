@@ -1,16 +1,16 @@
 'use client';
-import { use, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Input } from '../ui/input';
 import { trpc } from '@/lib/trpc';
 import { Button } from '../ui/button';
 import { toast } from 'sonner';
 import { create } from 'zustand';
-import { RouterOutputs } from '@/server';
 import { useRouter } from 'next/navigation';
+import { GetTemplatesData } from '@/server/types/whatsapp';
 
 export const useTemplate = create<{
   type: string;
-  plantilla: RouterOutputs['whatsapp']['getTemplateById'];
+  plantilla: GetTemplatesData | null;
 }>((set) => ({
   type: '',
   plantilla: null,
@@ -21,29 +21,34 @@ const CrearTemplate = () => {
   const [button1, setButton1] = useState<string>('');
   const [button2, setButton2] = useState<string>('');
   const [button3, setButton3] = useState<string>('');
-  const [content, setContent] = useState<string | undefined>(
-    useTemplate.getState().plantilla?.contenido?.['components']
-  );
+  const [content, setContent] = useState<string | undefined>();
   const [name, setName] = useState<string | undefined>(
-    useTemplate.getState().plantilla?.titulo
+    useTemplate.getState().plantilla?.name
   );
   const router = useRouter();
-  console.log(useTemplate.getState().plantilla?.contenido);
-  useTemplate.subscribe(({ type, plantilla }) => {
-    setType(type);
-    if (plantilla) {
-      // setButton1(plantilla.buttons[0])
-      // setButton2(plantilla.buttons[1])
-      // setButton3(plantilla.buttons[2])
-      // setContent(plantilla.content)
-      setName(plantilla.titulo);
-      console.log(name);
-    }
-  });
+  const { data } = trpc.whatsapp.getTemplateById.useQuery(useTemplate.getState().plantilla ? useTemplate.getState().plantilla!.name : undefined);
+    useEffect(() => {
+        if (data?.data[0].components) {
+          data.data[0].components.map((component) => {
+            if (component.type === 'BODY') {
+              setContent(component.text);
+            } else if (component.type === 'BUTTONS') {
+              component.buttons.forEach((button, index) => {
+                if (index === 0) {
+                  setButton1(button.text);
+                } else if (index === 1) {
+                  setButton2(button.text);
+                } else if (index === 2) {
+                  setButton3(button.text);
+                }
+              });
+            }
+          });
+        }
+    }, []);
+
   const crearTemplate = trpc.whatsapp.createTemplate.useMutation();
   const editTemplate = trpc.whatsapp.editTemplate.useMutation();
-  const sendMessageUniquePhone =
-    trpc.whatsapp.sendMessageUniquePhone.useMutation();
   async function handleCreateTemplate() {
     if (type === 'CREATE') {
       await crearTemplate
@@ -64,11 +69,10 @@ const CrearTemplate = () => {
         .catch((error) => {
           toast.error(error.message);
         });
-    } else {
+    } else if (type === 'EDIT') {
       await editTemplate
         .mutateAsync({
-          id: useTemplate.getState().plantilla!.id,
-          metaId: useTemplate.getState().plantilla!.metaId,
+          metaId: useTemplate.getState().plantilla!.id,
           content: content ? content : '',
           buttons: [button1, button2, button3],
         })
@@ -93,46 +97,52 @@ const CrearTemplate = () => {
           <h1 className='pb-3 font-bold'>
             {type === 'EDIT'
               ? `Edición de la plantilla: ${name}`
-              : 'Creación de plantilla'}
+               : type === 'CREATE' ? 'Creación de plantilla' : `Vista de la plantilla - ${name}`}
           </h1>
         </div>
         <h3 className='pb-1 font-semibold'>Nombre de la plantilla:</h3>
         <Input
-          className='mb-3'
+          disabled={type === 'VIEW' || type === 'EDIT'}
+          className='mb-3 disabled:opacity-100'
           placeholder='Nombre de la plantilla'
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
         <h3 className='pb-1 font-semibold'>Contenido del mensaje:</h3>
         <textarea
+          disabled={type === 'VIEW'}
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className='min-h-40 w-full'
+          className='min-h-40 w-full disabled:opacity-100'
           placeholder='Cuerpo del mensaje'
         ></textarea>
         <h3 className='pb-1 font-semibold'>Botones del mensaje: (opcional)</h3>
         <div className='flex items-center justify-between pb-3'>
           <Input
+            disabled={type === 'VIEW'}
             placeholder='Botón 1'
-            className='w-[150px]'
+            className='w-[150px] disabled:opacity-100'
             value={button1}
             onChange={(e) => setButton1(e.target.value)}
           />
           <Input
+            disabled={type === 'VIEW'}
             placeholder='Botón 2'
-            className='w-[150px]'
+            className='w-[150px] disabled:opacity-100'
             value={button2}
             onChange={(e) => setButton2(e.target.value)}
           />
           <Input
+            disabled={type === 'VIEW'}
             placeholder='Botón 3'
-            className='w-[150px]'
+            className='w-[150px] disabled:opacity-100'
             value={button3}
             onChange={(e) => setButton3(e.target.value)}
           />
         </div>
         <div className='flex items-center justify-end gap-x-3 pb-3'>
           <Button
+            disabled={crearTemplate.isLoading || editTemplate.isLoading || type === 'VIEW'}
             className='flex items-center justify-center gap-x-2'
             onClick={handleCreateTemplate}
           >
@@ -206,5 +216,6 @@ const CrearTemplate = () => {
     </>
   );
 };
+
 
 export default CrearTemplate;

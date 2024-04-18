@@ -5,12 +5,13 @@ import DeleteTemplateModal, {
 import EnviarTemplate from '@/components/mensajes/EnviarTemplate';
 import PlantillasList from '@/components/mensajes/PlantillasList';
 import { RouterOutputs } from '@/server';
+import { GetTemplatesData } from '@/server/types/whatsapp';
 import React, { useState } from 'react';
 
 const MensajesPage = () => {
   const [open, setOpen] = useState(false);
   const [plantilla, setPlantilla] = useState<
-    RouterOutputs['whatsapp']['getTemplateById'] | null
+    GetTemplatesData | null
   >(null);
   useTemplateDelete.subscribe(({ open, plantilla }) => {
     setOpen(open);
