@@ -1,3 +1,4 @@
+import EventoListTrigger from '@/components/eventos/EventoListTrigger';
 import { useExpandEventos } from '@/components/eventos/expandcontracteventos';
 import {
   Accordion,
@@ -5,6 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import React, { useEffect, useState } from 'react';
 
@@ -54,12 +56,16 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
           key={evento.id}
           title={evento.nombre}
           className='my-2 border-0'
-          style={{ backgroundColor: '#ffcccc' }} // Color de fondo para eventos
         >
           <AccordionTrigger
-            className='rounded-xl px-2 py-1.5'
+            className={cn(
+              'flex max-w-full justify-between gap-x-2 rounded-xl px-2 py-1.5',
+              evento.subEventos.length > 0 ? 'cursor-pointer' : 'cursor-default'
+            )}
+            showArrow={evento.subEventos.length > 0}
             style={{ backgroundColor: '#4B5563', color: '#FFFFFF' }}
             onClick={() => {
+              if (evento.subEventos.length === 0) return; // No se expanden eventos sin subeventos
               if (active.includes(evento.id)) {
                 setActive(active.filter((id) => id !== evento.id));
                 if (active.length === 1) {
@@ -70,15 +76,13 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
               }
             }}
           >
-            {evento.nombre}
+            <EventoListTrigger evento={evento} />
           </AccordionTrigger>
           <AccordionContent className='pb-0 pl-2'>
-            <p>Fecha: {evento.fecha}</p>
-            <p>Ubicación: {evento.ubicacion}</p>
             {evento.subEventos.map((subevento) => (
               <div
                 key={subevento.nombre}
-                className='subevento-container' // Clase para aplicar estilo a los subeventos
+                className='mb-1.5 ml-5 bg-[#ccffcc] p-2.5' // Clase para aplicar estilo a los subeventos
               >
                 <p>Nombre del subevento: {subevento.nombre}</p>
                 <p>Fecha del subevento: {subevento.fecha}</p>
@@ -88,14 +92,6 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
           </AccordionContent>
         </AccordionItem>
       ))}
-      <style jsx>{`
-        .subevento-container {
-          background-color: #ccffcc; /* Color de fondo para subeventos */
-          padding: 10px;
-          margin-bottom: 5px;
-          margin-left: 20px;
-        }
-      `}</style>
     </Accordion>
   );
 };
