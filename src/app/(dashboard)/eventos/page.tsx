@@ -5,8 +5,9 @@ import EventosList from '@/components/eventos/eventoslist';
 import SearchInput from '@/components/ui/SearchInput';
 import EventoModal from '@/components/eventos/eventomodal';
 import Loader from '@/components/ui/loader';
-import ExpandContractEventos, { useExpandEventos } from '@/components/eventos/expandcontracteventos';
-
+import ExpandContractEventos, {
+  useExpandEventos,
+} from '@/components/eventos/expandcontracteventos';
 
 const EventosPage = () => {
   const [search, setSearch] = useState('');
@@ -18,28 +19,24 @@ const EventosPage = () => {
 
   const eventosFiltrados = useMemo(() => {
     if (!eventos) return [];
-  
-    let filteredEventos = eventos;
-  
+
+    let filteredEventos = eventos.filter((evento) => !evento.eventoPadreId);
+
     if (search !== '') {
-      filteredEventos = eventos.filter((evento) => {
-        // Filtrar por los eventos que no tienen un evento padre ID
-        if (!evento.eventoPadreId) {
-          return (
-            evento.nombre.toLowerCase().includes(search.toLowerCase()) ||
-            evento.ubicacion.toLowerCase().includes(search.toLowerCase()) ||
-            evento.subEventos.some((subevento) =>
-              subevento.nombre.toLowerCase().includes(search.toLowerCase())
-            ) ||
-            evento.subEventos.some((subevento) =>
-              subevento.ubicacion.toLowerCase().includes(search.toLowerCase())
-            )
-          );
-        }
-        return false; // No incluir eventos con evento padre ID
+      filteredEventos = filteredEventos.filter((evento) => {
+        return (
+          evento.nombre.toLowerCase().includes(search.toLowerCase()) ||
+          evento.ubicacion.toLowerCase().includes(search.toLowerCase()) ||
+          evento.subEventos.some((subevento) =>
+            subevento.nombre.toLowerCase().includes(search.toLowerCase())
+          ) ||
+          evento.subEventos.some((subevento) =>
+            subevento.ubicacion.toLowerCase().includes(search.toLowerCase())
+          )
+        );
       });
     }
-  
+
     return filteredEventos;
   }, [eventos, search]);
 
