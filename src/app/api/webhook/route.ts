@@ -1,5 +1,5 @@
 import { verifyWebhook } from '@/lib/verify';
-import { WebHookRequest } from '@/server/types/webhooks';
+import { WebHookRequest, WebhookMessage } from '@/server/types/webhooks';
 import { headers } from 'next/headers';
 import { prisma } from '@/server/db';
 import { NextRequest, NextResponse } from 'next/server';
@@ -37,26 +37,14 @@ export async function POST(request: NextRequest) {
   try {
     if (webhookBody.entry.length > 0) {
       const changes = webhookBody.entry[0].changes;
+
       if (changes.length > 0) {
         if (changes[0].field === 'messages') {
-          const changeValue = changes[0].value;
-          const message = changeValue.messages[0];
-
-          if (message && message.type === 'text') {
-            await prisma.mensaje.create({
-              data: {
-                wamId: message.id,
-                deliveredAt: new Date(
-                  Number.parseInt(message.timestamp) * 1000
-                ),
-                message: message,
-                perfil: {
-                  connect: {
-                    telefono: message.from,
-                  },
-                },
-              },
-            });
+          const value = changes[0].value;
+          if ('messages' in value) {
+            const mensajeCreado = await crearMensaje(value.messages[0]);
+          } else if ('statuses' in value) {
+            // Manejar status después de haber creado el mensaje en la base
           }
         }
       }
@@ -65,5 +53,22 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error(error);
     return new NextResponse(null, { status: 500 });
+  }
+}
+
+async function crearMensaje(message: WebhookMessage) {
+  if (message && message.type === 'text') {
+    return await prisma.mensaje.create({
+      data: {
+        wamId: message.id,
+        deliveredAt: new Date(Number.parseInt(message.timestamp) * 1000),
+        message: message,
+        perfil: {
+          connect: {
+            telefono: message.from,
+          },
+        },
+      },
+    });
   }
 }
