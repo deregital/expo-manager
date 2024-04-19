@@ -6,7 +6,6 @@ import { Button } from '../ui/button';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { useRouter } from 'next/navigation';
-import { GetTemplatesData } from '@/server/types/whatsapp';
 import Loader from '../ui/loader';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -40,19 +39,29 @@ export const useTemplate = create<{
   },
 }));
 
-const CrearTemplate = ({plantillaName, typeTemplate}:{plantillaName?: string; typeTemplate: string}) => {
+const CrearTemplate = ({
+  plantillaName,
+  typeTemplate,
+}: {
+  plantillaName?: string;
+  typeTemplate: string;
+}) => {
   const { type, name, id, button1, button2, button3, content, clearTemplate } =
     useTemplate();
   const router = useRouter();
   const { data } = trpc.whatsapp.getTemplateById.useQuery(plantillaName, {
     enabled: type === 'VIEW' || type === 'EDIT',
   });
+
   useEffect(() => {
     useTemplate.setState({ type: typeTemplate });
-    if (type === '' || typeTemplate === '' && plantillaName !== undefined) useTemplate.setState({ type: 'VIEW' });
+    if (type === '' || (typeTemplate === '' && plantillaName !== undefined))
+      useTemplate.setState({ type: 'VIEW' });
     if (typeTemplate === 'CREATE') useTemplate.setState({ type: 'CREATE' });
-    if (type === 'VIEW' || type === 'EDIT') useTemplate.setState({ name: plantillaName });
-  }, [typeTemplate]);
+    if (type === 'VIEW' || type === 'EDIT')
+      useTemplate.setState({ name: plantillaName });
+  }, [plantillaName, type, typeTemplate]);
+
   useEffect(() => {
     useTemplate.setState({ id: data?.data[0].id });
     if (data?.data[0].components) {
@@ -62,13 +71,10 @@ const CrearTemplate = ({plantillaName, typeTemplate}:{plantillaName?: string; ty
         } else if (component.type === 'BUTTONS') {
           component.buttons.forEach((button, index) => {
             if (index === 0) {
-              // setButton1(button.text);
               useTemplate.setState({ button1: button.text });
             } else if (index === 1) {
-              // setButton2(button.text);
               useTemplate.setState({ button2: button.text });
             } else if (index === 2) {
-              // setButton3(button.text);
               useTemplate.setState({ button3: button.text });
             }
           });
@@ -79,22 +85,19 @@ const CrearTemplate = ({plantillaName, typeTemplate}:{plantillaName?: string; ty
 
   const crearTemplate = trpc.whatsapp.createTemplate.useMutation();
   const editTemplate = trpc.whatsapp.editTemplate.useMutation();
+
   async function handleCreateTemplate() {
     if (type === 'CREATE') {
       await crearTemplate
         .mutateAsync({
           name: name ? name : undefined,
           content: content ? content : '',
-          buttons: [
-            button1 ? button1 : '',
-            button2 ? button2 : '',
-            button3 ? button3 : '',
-          ],
+          buttons: [button1 ?? '', button2 ?? '', button3 ?? ''],
         })
         .then(() => {
           toast.success('Plantilla creada correctamente');
           clearTemplate();
-          router.push('/mensajes');
+          router.push('/plantilla');
         })
         .catch((error) => {
           toast.error(error.message);
@@ -102,24 +105,21 @@ const CrearTemplate = ({plantillaName, typeTemplate}:{plantillaName?: string; ty
     } else if (type === 'EDIT') {
       await editTemplate
         .mutateAsync({
-          metaId: id ? id : '',
-          content: content ? content : '',
-          buttons: [
-            button1 ? button1 : '',
-            button2 ? button2 : '',
-            button3 ? button3 : '',
-          ],
+          metaId: id ?? '',
+          content: content ?? '',
+          buttons: [button1 ?? '', button2 ?? '', button3 ?? ''],
         })
         .then(() => {
           toast.success('Plantilla editada correctamente');
           clearTemplate();
-          router.push('/mensajes');
+          router.push('/plantilla');
         })
         .catch((error) => {
           toast.error(error.message);
         });
     }
   }
+
   return (
     <>
       <div className='mx-auto max-w-[550px] px-3 py-5'>
@@ -138,9 +138,7 @@ const CrearTemplate = ({plantillaName, typeTemplate}:{plantillaName?: string; ty
           className='mb-3 disabled:opacity-100'
           placeholder='Nombre de la plantilla'
           value={name}
-          onChange={(e) =>
-            useTemplate.setState({ name: e.target.value })
-          }
+          onChange={(e) => useTemplate.setState({ name: e.target.value })}
         />
         <h3 className='pb-1 font-semibold'>Contenido del mensaje:</h3>
         <Textarea
