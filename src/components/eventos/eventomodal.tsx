@@ -226,7 +226,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
             <div className='flex flex-col gap-3'>
               <div className='flex gap-3'>
                 <Input
-                  className='bg-white text-black'
+                  className='text-black'
                   type='text'
                   name='evento'
                   id='evento'
@@ -288,60 +288,67 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
               {editEvento.isError ? 'Error al editar el evento' : ''}
             </p>
           ) : null}
-          <div className='h-full max-h-56 overflow-y-auto'>
+          <div className='flex h-full max-h-56 flex-col gap-y-3 overflow-y-auto overflow-x-scroll'>
             {modalData.subeventos.map((subevento, index) => (
-              <div key={index}>
-                <Input
-                  type='text'
-                  placeholder='Nombre del subevento'
-                  value={subevento.nombre}
-                  onChange={(e) => {
-                    const updatedSubeventos = [...modalData.subeventos];
-                    updatedSubeventos[index].nombre = e.target.value;
-                    useEventoModalData.setState({
-                      subeventos: updatedSubeventos,
-                    });
-                  }}
-                  required // Atributo required agregado aquí
-                />
-                <Input
-                  type='datetime-local'
-                  placeholder='Fecha del subevento'
-                  value={subevento.fecha}
-                  onChange={(e) => {
-                    const updatedSubeventos = [...modalData.subeventos];
-                    updatedSubeventos[index].fecha = e.target.value;
-                    useEventoModalData.setState({
-                      subeventos: updatedSubeventos,
-                    });
-                  }}
-                  required // Atributo required agregado aquí
-                />
-                <Input
-                  type='text'
-                  placeholder='Ubicación del subevento'
-                  value={subevento.ubicacion}
-                  onChange={(e) => {
-                    const updatedSubeventos = [...modalData.subeventos];
-                    updatedSubeventos[index].ubicacion = e.target.value;
-                    useEventoModalData.setState({
-                      subeventos: updatedSubeventos,
-                    });
-                  }}
-                  required // Atributo required agregado aquí
-                />
-                <Button
-                  onClick={() => {
-                    const updatedSubeventos = [...modalData.subeventos];
-                    updatedSubeventos.splice(index, 1); // Eliminar el subevento en el índice
-                    useEventoModalData.setState({
-                      subeventos: updatedSubeventos,
-                    });
-                  }}
-                >
-                  Eliminar subevento
-                </Button>
-              </div>
+              <>
+                <hr className='bg-slate-400' />
+                <div key={index} className='flex flex-col gap-y-1.5'>
+                  <div className='flex gap-3'>
+                    <Input
+                      type='text'
+                      placeholder='Nombre del subevento'
+                      value={subevento.nombre}
+                      onChange={(e) => {
+                        const updatedSubeventos = [...modalData.subeventos];
+                        updatedSubeventos[index].nombre = e.target.value;
+                        useEventoModalData.setState({
+                          subeventos: updatedSubeventos,
+                        });
+                      }}
+                      required // Atributo required agregado aquí
+                    />
+                    <Input
+                      type='datetime-local'
+                      placeholder='Fecha del subevento'
+                      value={subevento.fecha}
+                      onChange={(e) => {
+                        const updatedSubeventos = [...modalData.subeventos];
+                        updatedSubeventos[index].fecha = e.target.value;
+                        useEventoModalData.setState({
+                          subeventos: updatedSubeventos,
+                        });
+                      }}
+                      required // Atributo required agregado aquí
+                    />
+                  </div>
+                  <div className='flex gap-3'>
+                    <Input
+                      type='text'
+                      placeholder='Ubicación del subevento'
+                      value={subevento.ubicacion}
+                      onChange={(e) => {
+                        const updatedSubeventos = [...modalData.subeventos];
+                        updatedSubeventos[index].ubicacion = e.target.value;
+                        useEventoModalData.setState({
+                          subeventos: updatedSubeventos,
+                        });
+                      }}
+                      required // Atributo required agregado aquí
+                    />
+                    <Button
+                      onClick={() => {
+                        const updatedSubeventos = [...modalData.subeventos];
+                        updatedSubeventos.splice(index, 1); // Eliminar el subevento en el índice
+                        useEventoModalData.setState({
+                          subeventos: updatedSubeventos,
+                        });
+                      }}
+                    >
+                      Eliminar subevento
+                    </Button>
+                  </div>
+                </div>
+              </>
             ))}
           </div>
 
