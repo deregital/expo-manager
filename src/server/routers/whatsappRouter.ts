@@ -7,6 +7,7 @@ import {
   TemplateEdit,
   TemplateEditResponse,
 } from '@/server/types/whatsapp';
+import { TRPCError } from '@trpc/server';
 
 export const whatsappRouter = router({
   createTemplate: protectedProcedure
@@ -156,7 +157,42 @@ export const whatsappRouter = router({
         },
       });
     }),
-  sendMessage: protectedProcedure
+  sendMessageToTelefono: protectedProcedure
+    .input(
+      z.object({
+        telefono: z.string(),
+        text: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const res = await fetch(
+        `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_API_PHONE_NUMBER_ID}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+          },
+          body: JSON.stringify({
+            messaging_product: 'whatsapp',
+            to: `${input.telefono}`,
+            type: 'text',
+            text: {
+              body: `${input.text}`,
+            },
+          }),
+        }
+      );
+      if (!res.ok) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to send message',
+        });
+      }
+
+      return 'Message sent';
+    }),
+  sendMessageToEtiqueta: protectedProcedure
     .input(
       z.object({
         etiquetas: z.string().array(),
@@ -178,7 +214,7 @@ export const whatsappRouter = router({
       });
       telefonos.forEach(async (telefono) => {
         await fetch(
-          `https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER}/messages`,
+          `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER}/messages`,
           {
             method: 'POST',
             headers: {
