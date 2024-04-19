@@ -1,5 +1,7 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
+import { Mensaje, Perfil } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
+import { addDays } from 'date-fns';
 import { z } from 'zod';
 
 export const modeloRouter = router({
@@ -30,6 +32,38 @@ export const modeloRouter = router({
         modelo.idLegible = Number(modelo.idLegible).toString(36);
       }
     });
+    return modelos;
+  }),
+  getAllWithInChat: protectedProcedure.query(async ({ ctx }) => {
+    const modelos = await ctx.prisma
+      .$extends({
+        result: {
+          perfil: {
+            inChat: {
+              compute(data: Perfil & { Mensajes: Mensaje[] }) {
+                return (
+                  data.Mensajes.length > 0 &&
+                  data.Mensajes.some(
+                    (m) => m.created_at < addDays(new Date(), -1)
+                  )
+                );
+              },
+            },
+          },
+        },
+      })
+      .perfil.findMany({
+        where: {
+          etiquetas: {
+            some: {
+              id: { in: ctx.etiquetasVisibles },
+            },
+          },
+        },
+        include: {
+          Mensajes: true,
+        },
+      });
     return modelos;
   }),
   getById: protectedProcedure
