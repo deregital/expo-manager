@@ -1,9 +1,6 @@
 'use client';
 import { useState } from 'react';
-import ComboBox from '../ui/ComboBox';
 import { RouterOutputs } from '@/server';
-import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
-import { useEnviarTemplate } from './EnviarTemplate';
 
 const ComboBoxPlantillas = ({
   data,
@@ -13,8 +10,7 @@ const ComboBoxPlantillas = ({
   const [open, setOpen] = useState(false);
   const [titulo, setTitulo] = useState('');
   return (
-    <>
-    </>
+    <></>
     // <ComboBox
     //   open={open}
     //   setOpen={setOpen}

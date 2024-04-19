@@ -24,15 +24,15 @@ const PlantillasList = () => {
     clearTemplate();
     useTemplate.setState({ type: type });
     if (type === 'VIEW' || type === 'EDIT') {
-    router.push(`/plantilla/${plantilla?.name}`);
+      router.push(`/plantilla/${plantilla?.name}`);
     } else {
       router.push(`/plantilla/crearplantilla`);
     }
   }
 
   return (
-    <div className='mx-auto mt-5 max-w-[560px] border border-black bg-gray-300 m-2'>
-      <div className='relative flex items-center justify-start sm:justify-center border-b border-black bg-gray-500 p-2 text-white'>
+    <div className='m-2 mx-auto mt-5 max-w-[560px] border border-black bg-gray-300'>
+      <div className='relative flex items-center justify-start border-b border-black bg-gray-500 p-2 text-white sm:justify-center'>
         <h1 className='text-sm sm:text-base'>Lista de plantillas</h1>
         <div className='absolute right-2 flex items-center justify-center gap-x-2'>
           <p className='text-sm sm:text-base'>Crear plantilla</p>
@@ -56,7 +56,7 @@ const PlantillasList = () => {
               return (
                 <div
                   key={plantilla.id}
-                  className='flex items-center justify-start sm:justify-center gap-x-2 bg-gray-400 pr-2 hover:bg-gray-700 hover:transition hover:ease-in-out'
+                  className='flex items-center justify-start gap-x-2 bg-gray-400 pr-2 hover:bg-gray-700 hover:transition hover:ease-in-out sm:justify-center'
                   onClick={() => goToCreateTemplate(plantilla, 'VIEW')}
                 >
                   <button className='w-full p-2 text-white hover:cursor-default'>
@@ -64,15 +64,15 @@ const PlantillasList = () => {
                   </button>
                   <Edit2Icon
                     onClick={(e) => {
-                      e.stopPropagation()
-                      goToCreateTemplate(plantilla, 'EDIT')
+                      e.stopPropagation();
+                      goToCreateTemplate(plantilla, 'EDIT');
                     }}
                     className='hover:cursor-pointer hover:text-white'
                   />
                   <Trash2Icon
                     onClick={(e) => {
-                      e.stopPropagation()
-                      openModal(plantilla)
+                      e.stopPropagation();
+                      openModal(plantilla);
                     }}
                     className='hover:cursor-pointer hover:text-white'
                   />
@@ -84,12 +84,15 @@ const PlantillasList = () => {
                   key={plantilla.id}
                   className='flex items-center justify-center gap-x-2 bg-gray-400 pr-2'
                 >
-                  <button onClick={() => goToCreateTemplate(plantilla, 'VIEW')} className='w-full p-2 text-white hover:bg-gray-700 hover:transition hover:ease-in-out'>
+                  <button
+                    onClick={() => goToCreateTemplate(plantilla, 'VIEW')}
+                    className='w-full p-2 text-white hover:bg-gray-700 hover:transition hover:ease-in-out'
+                  >
                     {plantilla.name}
                   </button>
                   <IconClockRotateLeft className='h-5 w-5' />
                 </div>
-              )
+              );
             }
           })
         ) : (

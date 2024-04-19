@@ -2,7 +2,7 @@ import React from 'react';
 
 const Loader = (props: React.SVGProps<SVGSVGElement>) => {
   return (
-      <>
+    <>
       <svg
         aria-hidden='true'
         className='h-8 w-8 animate-spin fill-primary text-gray-200 dark:text-gray-600'
@@ -21,7 +21,7 @@ const Loader = (props: React.SVGProps<SVGSVGElement>) => {
         />
       </svg>
       <span className='sr-only'>Cargando...</span>
-      </>
+    </>
   );
 };
 

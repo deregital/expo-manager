@@ -36,13 +36,13 @@ export type TemplateResponse = {
 
 export type GetTemplatesResponse = {
   data: GetTemplatesData[];
-}
+};
 
 export type GetTemplatesData = {
   name: string;
   id: string;
-  status: string
-}
+  status: string;
+};
 
 export type GetTemplateResponse = {
   data: {
@@ -52,7 +52,7 @@ export type GetTemplateResponse = {
     status: string;
     category: string;
     id: string;
-  }[]
-}
+  }[];
+};
 
 export type Components = Body | Buttons;
