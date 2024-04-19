@@ -6,10 +6,23 @@ export const eventoRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        nombre: z.string().min(1),
-        fecha: z.string().transform((val) => new Date(val)),
-        ubicacion: z.string(),
+        nombre: z.string().min(1, 'El nombre es requerido'),
+        fecha: z
+          .string()
+          .min(1, 'La fecha es requerida')
+          .transform((val) => new Date(val)),
+        ubicacion: z.string().min(1, 'La ubicación es requerida'),
         eventoPadreId: z.string().optional(),
+        subeventos: z.array(
+          z.object({
+            fecha: z
+              .string()
+              .min(1, 'La fecha es requerida')
+              .transform((val) => new Date(val)),
+            ubicacion: z.string().min(1, 'La ubicación es requerida'),
+            nombre: z.string().min(1, 'El nombre es requerido'),
+          })
+        ),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -21,10 +34,20 @@ export const eventoRouter = router({
           eventoPadre: input.eventoPadreId
             ? { connect: { id: input.eventoPadreId } }
             : undefined,
+          subEventos: {
+            createMany: { data: input.subeventos },
+          },
         },
       });
     }),
-
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.evento.findMany({
+      include: {
+        subEventos: true,
+        eventoPadre: true,
+      },
+    });
+  }),
   getById: protectedProcedure
     .input(
       z.object({
@@ -56,9 +79,12 @@ export const eventoRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        nombre: z.string().min(1),
-        fecha: z.string().transform((val) => new Date(val)),
-        ubicacion: z.string(),
+        nombre: z.string().min(1).optional(),
+        fecha: z
+          .string()
+          .transform((val) => new Date(val))
+          .optional(),
+        ubicacion: z.string().optional(),
         eventoPadreId: z.string().optional(),
       })
     )
@@ -118,16 +144,16 @@ export const eventoRouter = router({
       return evento.subEventos;
     }),
 
-    addSubevento: protectedProcedure
+  addSubevento: protectedProcedure
     .input(
       z.object({
         eventoId: z.string().uuid(),
         subeventos: z.array(
           z.object({
             subeventoId: z.string().uuid(),
-            fecha: z.string(), 
-            ubicacion: z.string(), 
-            nombre: z.string(), 
+            fecha: z.string(),
+            ubicacion: z.string(),
+            nombre: z.string(),
           })
         ),
       })
@@ -139,12 +165,9 @@ export const eventoRouter = router({
         },
         data: {
           subEventos: {
-            createMany: { data: input.subeventos }, 
+            createMany: { data: input.subeventos },
           },
         },
       });
     }),
-  });
-
-
-
+});

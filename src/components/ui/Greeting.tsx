@@ -42,6 +42,7 @@ const Greeting = () => {
         fecha: fechaEvento,
         ubicacion: ubicacionEvento,
         eventoPadreId: eventoPadreId,
+        subeventos: [],
       });
 
       setNombreEvento('');
