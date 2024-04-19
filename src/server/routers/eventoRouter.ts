@@ -75,7 +75,7 @@ export const eventoRouter = router({
       return evento;
     }),
 
-  update: protectedProcedure
+    update: protectedProcedure
     .input(
       z.object({
         id: z.string().uuid(),
@@ -86,23 +86,57 @@ export const eventoRouter = router({
           .optional(),
         ubicacion: z.string().optional(),
         eventoPadreId: z.string().optional(),
+        subeventos: z.array(
+          z.object({
+            id: z.string().uuid(), // Agrega el ID del subevento
+            fecha: z
+              .string()
+              .min(1, 'La fecha es requerida')
+              .transform((val) => new Date(val)),
+            ubicacion: z.string().min(1, 'La ubicación es requerida'),
+            nombre: z.string().min(1, 'El nombre es requerido'),
+          })
+        ),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      return await ctx.prisma.evento.update({
+      const { subeventos, ...rest } = input;
+      
+      
+      await ctx.prisma.evento.update({
         where: {
           id: input.id,
         },
         data: {
-          nombre: input.nombre,
-          fecha: input.fecha,
-          ubicacion: input.ubicacion,
-          eventoPadre: input.eventoPadreId
-            ? { connect: { id: input.eventoPadreId } }
+          nombre: rest.nombre,
+          fecha: rest.fecha,
+          ubicacion: rest.ubicacion,
+          eventoPadre: rest.eventoPadreId
+            ? { connect: { id: rest.eventoPadreId } }
             : undefined,
         },
       });
+
+      
+      await Promise.all(input.subeventos.map(async (subevento) => {
+        await ctx.prisma.evento.updateMany({
+          where: {
+            id: subevento.id,
+          },
+          data: {
+            fecha: subevento.fecha,
+            ubicacion: subevento.ubicacion,
+            nombre: subevento.nombre,
+          },
+        });
+      }));
+
+      return 'OK'; 
     }),
+
+
+
+    
 
   delete: protectedProcedure
     .input(
