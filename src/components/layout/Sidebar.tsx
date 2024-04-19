@@ -39,11 +39,11 @@ const Sidebar = () => {
             Modelos
           </SidebarLink>
           <SidebarLink
-            to='/mensajes'
+            to='/plantilla'
             icon={<ChatIcon height={24} width={24} />}
             iconActive={<ChatFillIcon height={24} width={24} />}
           >
-            Mensajes
+            Plantillas
           </SidebarLink>
           <SidebarLink
             to='/etiquetas'

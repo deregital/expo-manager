@@ -23,7 +23,11 @@ const PlantillasList = () => {
   ) {
     clearTemplate();
     useTemplate.setState({ type: type });
-    router.push(`/mensajes/plantilla/${plantilla ? plantilla?.name : '0'}/${plantilla ? plantilla?.id : '0'}`);
+    if (type === 'VIEW' || type === 'EDIT') {
+    router.push(`/plantilla/${plantilla?.name}`);
+    } else {
+      router.push(`/plantilla/crearplantilla`);
+    }
   }
 
   return (

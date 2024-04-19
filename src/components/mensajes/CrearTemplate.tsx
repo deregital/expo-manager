@@ -40,16 +40,22 @@ export const useTemplate = create<{
   },
 }));
 
-const CrearTemplate = ({plantillaName, plantillaId}:{plantillaName: string; plantillaId: string}) => {
+const CrearTemplate = ({plantillaName, typeTemplate}:{plantillaName?: string; typeTemplate: string}) => {
   const { type, name, id, button1, button2, button3, content, clearTemplate } =
     useTemplate();
-  useTemplate.setState({ name: plantillaName });
-  useTemplate.setState({ id: plantillaId });
   const router = useRouter();
   const { data } = trpc.whatsapp.getTemplateById.useQuery(plantillaName, {
     enabled: type === 'VIEW' || type === 'EDIT',
   });
   useEffect(() => {
+    useTemplate.setState({ type: typeTemplate });
+    console.log('typeTemplate', typeTemplate);
+    if (type === '' || typeTemplate === '' && plantillaName !== undefined) useTemplate.setState({ type: 'VIEW' });
+    if (typeTemplate === 'CREATE') useTemplate.setState({ type: 'CREATE' });
+    if (type === 'VIEW' || type === 'EDIT') useTemplate.setState({ name: plantillaName });
+  }, [typeTemplate]);
+  useEffect(() => {
+    useTemplate.setState({ id: data?.data[0].id });
     if (data?.data[0].components) {
       data.data[0].components.map((component) => {
         if (component.type === 'BODY') {
