@@ -1,3 +1,4 @@
+import EventoModal from '@/components/eventos/eventomodal';
 import EventoListTrigger from '@/components/eventos/EventoListTrigger';
 import { useExpandEventos } from '@/components/eventos/expandcontracteventos';
 import {
@@ -7,9 +8,9 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import React, { useEffect, useState } from 'react';
+import { RouterOutputs } from '@/server';
 
 interface EventosListProps {
   eventos: RouterOutputs['evento']['getAll'];
@@ -66,7 +67,7 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
             showArrow={evento.subEventos.length > 0}
             style={{ backgroundColor: '#4B5563', color: '#FFFFFF' }}
             onClick={() => {
-              if (evento.subEventos.length === 0) return; // No se expanden eventos sin subeventos
+              if (evento.subEventos.length === 0) return; 
               if (active.includes(evento.id)) {
                 setActive(active.filter((id) => id !== evento.id));
                 if (active.length === 1) {
@@ -79,11 +80,13 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
           >
             <EventoListTrigger evento={evento} />
           </AccordionTrigger>
+          {}
+          <EventoModal action='EDIT' evento={evento} />
           <AccordionContent className='pb-0 pl-2'>
             {evento.subEventos.map((subevento) => (
               <div
                 key={subevento.nombre}
-                className='mb-1.5 ml-5 rounded-md bg-[#ccffcc] p-2.5' // Reducir tamaño de la caja de fondo
+                className='mb-1.5 ml-5 rounded-md bg-[#ccffcc] p-2.5' 
               >
                 <p className='font-semibold'>
                   Nombre del subevento:{' '}
