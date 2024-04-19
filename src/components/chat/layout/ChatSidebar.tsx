@@ -4,6 +4,7 @@ import ContactoCard from '@/components/chat/layout/ContactoCard';
 import Loader from '@/components/ui/loader';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import React from 'react';
 
 interface ChatSidebarProps {}
@@ -11,6 +12,9 @@ interface ChatSidebarProps {}
 const ChatSidebar = ({}: ChatSidebarProps) => {
   const { data: contactos, isLoading: contactosLoading } =
     trpc.modelo.getAllWithInChat.useQuery();
+
+  const params = useParams();
+  const telefonoSelected = params.telefono as string;
 
   if (contactosLoading) {
     return (
@@ -35,7 +39,11 @@ const ChatSidebar = ({}: ChatSidebarProps) => {
                 useChatSidebar.setState({ isOpen: false });
               }}
             >
-              <ContactoCard key={contacto.id} contacto={contacto} />
+              <ContactoCard
+                inPage={telefonoSelected === contacto.telefono}
+                key={contacto.id}
+                contacto={contacto}
+              />
             </Link>
           ))}
       </>
