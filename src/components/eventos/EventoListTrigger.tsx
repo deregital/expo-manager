@@ -13,7 +13,7 @@ const EventoListTrigger = ({ evento }: EventoListTriggerProps) => {
 
       <div className='flex w-full items-center gap-x-1'>
         <p className='text-xs text-white/70'>
-          {format(evento.fecha, 'dd/MM/yyyy : HH:mm')}
+          {format(evento.fecha, 'dd/MM/yyyy HH:mm')}
           {' - '}
           {evento.ubicacion}
         </p>

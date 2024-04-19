@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
+import { format } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 
 interface EventosListProps {
@@ -82,11 +83,22 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
             {evento.subEventos.map((subevento) => (
               <div
                 key={subevento.nombre}
-                className='mb-1.5 ml-5 bg-[#ccffcc] p-2.5 rounded-md' // Reducir tamaño de la caja de fondo
+                className='mb-1.5 ml-5 rounded-md bg-[#ccffcc] p-2.5' // Reducir tamaño de la caja de fondo
               >
-                <p className="font-semibold">Nombre del subevento: <span className="font-normal">{subevento.nombre}</span></p>
-                <p className="font-semibold">Fecha del subevento: <span className="font-normal">{subevento.fecha}</span></p>
-                <p className="font-semibold">Ubicación del subevento: <span className="font-normal">{subevento.ubicacion}</span></p>
+                <p className='font-semibold'>
+                  Nombre del subevento:{' '}
+                  <span className='font-normal'>{subevento.nombre}</span>
+                </p>
+                <p className='font-semibold'>
+                  Fecha del subevento:{' '}
+                  <span className='font-normal'>
+                    {format(subevento.fecha, 'dd/MM/yyyy hh:mm')}
+                  </span>
+                </p>
+                <p className='font-semibold'>
+                  Ubicación del subevento:{' '}
+                  <span className='font-normal'>{subevento.ubicacion}</span>
+                </p>
               </div>
             ))}
           </AccordionContent>
