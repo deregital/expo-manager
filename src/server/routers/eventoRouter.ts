@@ -6,15 +6,21 @@ export const eventoRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        nombre: z.string().min(1),
-        fecha: z.string().transform((val) => new Date(val)),
-        ubicacion: z.string(),
+        nombre: z.string().min(1, 'El nombre es requerido'),
+        fecha: z
+          .string()
+          .min(1, 'La fecha es requerida')
+          .transform((val) => new Date(val)),
+        ubicacion: z.string().min(1, 'La ubicación es requerida'),
         eventoPadreId: z.string().optional(),
         subeventos: z.array(
           z.object({
-            fecha: z.string().transform((val) => new Date(val)),
-            ubicacion: z.string(),
-            nombre: z.string(),
+            fecha: z
+              .string()
+              .min(1, 'La fecha es requerida')
+              .transform((val) => new Date(val)),
+            ubicacion: z.string().min(1, 'La ubicación es requerida'),
+            nombre: z.string().min(1, 'El nombre es requerido'),
           })
         ),
       })

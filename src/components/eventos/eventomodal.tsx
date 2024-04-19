@@ -81,8 +81,14 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           utils.evento.getAll.invalidate();
         })
         .catch((error) => {
-          console.log(error);
-          toast.error('Error al crear el evento, asegúrese de poner un nombre');
+          try {
+            const errorString = JSON.parse(error.shape.message)[0].message;
+            if (errorString) {
+              toast.error(`Error al crear el evento, ${errorString}`);
+            }
+          } catch (e) {
+            toast.error('Error al crear el evento');
+          }
         });
     } else if (modalData.tipo === 'EDIT') {
       if (!evento) return;
@@ -278,17 +284,8 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           </div>
           {createEvento.isError || createEvento.isError ? (
             <p className='text-sm font-semibold text-red-500'>
-              {createEvento.isError
-                ? createEvento.error?.data?.zodError?.fieldErrors.nombre?.[0] ||
-                  createEvento.error?.data?.zodError?.fieldErrors
-                    .grupoId?.[0] ||
-                  'Error al crear el evento, asegúrese de poner un nombre'
-                : ''}
-              {editEvento.isError
-                ? editEvento.error?.data?.zodError?.fieldErrors.nombre?.[0] ||
-                  editEvento.error?.data?.zodError?.fieldErrors.grupoId?.[0] ||
-                  'Error al editar el evento'
-                : ''}
+              {createEvento.isError ? 'Error al crear el evento' : ''}
+              {editEvento.isError ? 'Error al editar el evento' : ''}
             </p>
           ) : null}
           <div className='h-full max-h-56 overflow-y-auto'>
