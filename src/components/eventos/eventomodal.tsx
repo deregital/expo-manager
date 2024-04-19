@@ -97,6 +97,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           id: evento.id,
           eventoPadreId: useEventoModalData.getState().eventoPadreId,
           nombre: modalData.nombre,
+          subeventos: []
         })
         .then(() => {
           setOpen(!open);
