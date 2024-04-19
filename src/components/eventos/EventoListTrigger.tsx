@@ -1,6 +1,7 @@
 import { RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import React from 'react';
+import EventoModal from './eventomodal';
 
 interface EventoListTriggerProps {
   evento: RouterOutputs['evento']['getAll'][number];
@@ -9,6 +10,7 @@ interface EventoListTriggerProps {
 const EventoListTrigger = ({ evento }: EventoListTriggerProps) => {
   return (
     <div className='block w-full justify-between gap-0.5 hover:no-underline sm:flex sm:gap-x-2'>
+      <EventoModal action='EDIT' evento={evento} />
       <p className='whitespace-nowrap text-start'>{evento.nombre}</p>
 
       <div className='flex w-full items-center gap-x-1'>
