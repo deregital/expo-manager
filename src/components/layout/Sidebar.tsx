@@ -2,15 +2,15 @@ import SidebarLink from '@/components/layout/SidebarLink';
 import Image from 'next/image';
 import React from 'react';
 import ModeloIcon from '@/components/icons/ModeloIcon';
-import ChatIcon from '@/components/icons/ChatIcon';
 import EtiquetaIcon from '@/components/icons/EtiquetasIcon';
 import ConfigIcon from '@/components/icons/ConfigIcon';
 import HomeIcon from '@/components/icons/HomeIcon';
 import HomeFillIcon from '@/components/icons/HomeFillIcon';
 import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
-import ChatFillIcon from '@/components/icons/ChatFillIcon';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import ConfigFillIcon from '@/components/icons/ConfigFillIcon';
+import TemplateIcon from '@/components/icons/TemplateIcon';
+import TemplateFillIcon from '@/components/icons/TemplateFillIcon';
 import EventIcon from '@/components/icons/EventIcon';
 import EventFillIcon from '@/components/icons/EventFillIcon';
 
@@ -41,11 +41,11 @@ const Sidebar = () => {
             Modelos
           </SidebarLink>
           <SidebarLink
-            to='/mensajes'
-            icon={<ChatIcon height={24} width={24} />}
-            iconActive={<ChatFillIcon height={24} width={24} />}
+            to='/plantilla'
+            icon={<TemplateIcon height={24} width={24} />}
+            iconActive={<TemplateFillIcon height={24} width={24} />}
           >
-            Mensajes
+            Plantillas
           </SidebarLink>
           <SidebarLink
             to='/etiquetas'
