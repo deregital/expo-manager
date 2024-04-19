@@ -8,6 +8,7 @@ import Loader from '@/components/ui/loader';
 import ExpandContractEventos, {
   useExpandEventos,
 } from '@/components/eventos/expandcontracteventos';
+import { searchNormalize } from '@/lib/utils';
 
 const EventosPage = () => {
   const [search, setSearch] = useState('');
@@ -25,13 +26,13 @@ const EventosPage = () => {
     if (search !== '') {
       filteredEventos = filteredEventos.filter((evento) => {
         return (
-          evento.nombre.toLowerCase().includes(search.toLowerCase()) ||
-          evento.ubicacion.toLowerCase().includes(search.toLowerCase()) ||
+          searchNormalize(evento.nombre, search) ||
+          searchNormalize(evento.ubicacion, search) ||
           evento.subEventos.some((subevento) =>
-            subevento.nombre.toLowerCase().includes(search.toLowerCase())
+            searchNormalize(subevento.nombre, search)
           ) ||
           evento.subEventos.some((subevento) =>
-            subevento.ubicacion.toLowerCase().includes(search.toLowerCase())
+            searchNormalize(subevento.ubicacion, search)
           )
         );
       });
