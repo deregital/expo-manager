@@ -40,6 +40,8 @@ type ComboBoxProps<
   enabled?: Array<TData[Id]>;
   isLoading?: boolean;
   contentClassName?: string;
+  placeholder?: string;
+  notFoundText?: string;
 };
 const ComboBox = <
   TData extends Record<string, unknown>,
@@ -61,9 +63,11 @@ const ComboBox = <
   enabled,
   isLoading,
   contentClassName,
+  placeholder,
+  notFoundText,
 }: ComboBoxProps<TData, Id>) => {
   const isGrupo = 'color' in (data[0] ?? {});
-  const placeholder = isGrupo ? 'Buscar grupo...' : 'Buscar etiqueta...';
+  const placeholderInput = isGrupo ? 'Buscar grupo...' : 'Buscar etiqueta...';
   const commandEmpty = isGrupo
     ? 'Grupo no encontrado.'
     : 'Etiqueta no encontrada.';
@@ -105,13 +109,18 @@ const ComboBox = <
         )}
       >
         <Command>
-          <CommandInput placeholder={placeholder} className='h-9' />
+          <CommandInput
+            placeholder={placeholder ?? placeholderInput}
+            className='h-9'
+          />
           <CommandGroup className='max-h-40 overflow-y-auto p-0'>
-            {data.length === 0 && <CommandItem>{commandEmpty}</CommandItem>}
             {isLoading && (
               <CommandItem className='flex items-center justify-center p-2'>
                 <Loader />
               </CommandItem>
+            )}
+            {data.length === 0 && !isLoading && (
+              <CommandItem>{notFoundText ?? commandEmpty}</CommandItem>
             )}
             {data.map((item) => (
               <CommandItem

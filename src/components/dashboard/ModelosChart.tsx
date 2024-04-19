@@ -1,5 +1,6 @@
 'use client';
-import React from 'react';
+import { cn } from '@/lib/utils';
+import React, { useMemo } from 'react';
 import {
   Bar,
   Rectangle,
@@ -21,6 +22,7 @@ interface BarChartProps {
     fecha: string;
     modelos: number;
   }[];
+  className?: string;
 }
 
 export const modelosChartData = create<{
@@ -29,15 +31,30 @@ export const modelosChartData = create<{
   data: [],
 }));
 
-const ModelosChart = ({ data }: BarChartProps) => {
+const ModelosChart = ({ data, className }: BarChartProps) => {
   const error = console.error;
   console.error = (...args: any) => {
     if (/defaultProps/.test(args[0])) return;
     error(...args);
   };
+
+  const dataMostrar = useMemo(() => {
+    return data.map((d) => {
+      const [anio, mes, dia] = d.fecha.split('-');
+      return {
+        ...d,
+        fecha: `${dia}/${mes}/${anio}`,
+      };
+    });
+  }, [data]);
+
   return (
-    <ResponsiveContainer width={'100%'} aspect={3}>
-      <RechartChart id='modelosChart' data={data}>
+    <ResponsiveContainer
+      height={'100%'}
+      width={'100%'}
+      className={cn(className)}
+    >
+      <RechartChart id='modelosChart' data={dataMostrar} className='h-full'>
         <XAxis dataKey='fecha' />
         <YAxis />
         <Tooltip

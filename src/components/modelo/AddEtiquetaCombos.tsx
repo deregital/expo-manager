@@ -5,6 +5,7 @@ import ComboBox from '@/components/ui/ComboBox';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
+import { TipoEtiqueta } from '@prisma/client';
 import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -97,6 +98,7 @@ const AddEtiquetaCombos = ({
           nombre: addedEtiqueta.nombre,
           grupo: addedEtiqueta.grupo,
           grupoId: addedEtiqueta.grupo.id,
+          tipo: TipoEtiqueta.PERSONAL,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },

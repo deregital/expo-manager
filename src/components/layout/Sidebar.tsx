@@ -11,6 +11,8 @@ import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import ConfigFillIcon from '@/components/icons/ConfigFillIcon';
 import TemplateIcon from '@/components/icons/TemplateIcon';
 import TemplateFillIcon from '@/components/icons/TemplateFillIcon';
+import EventIcon from '@/components/icons/EventIcon';
+import EventFillIcon from '@/components/icons/EventFillIcon';
 
 const Sidebar = () => {
   return (
@@ -51,6 +53,13 @@ const Sidebar = () => {
             iconActive={<EtiquetasFillIcon height={24} width={24} />}
           >
             Etiquetas
+          </SidebarLink>
+          <SidebarLink
+            to='/eventos'
+            icon={<EventIcon height={24} width={24} />}
+            iconActive={<EventFillIcon height={24} width={24} />}
+          >
+            Eventos
           </SidebarLink>
         </ul>
       </div>

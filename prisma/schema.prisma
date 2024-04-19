@@ -29,10 +29,10 @@ model Cuenta {
 model Perfil {
     id        String  @id @default(uuid())
     idLegible String? @unique @map("id_legible")
+    telefono  String  @unique
 
     nombreCompleto String    @map("nombre_completo")
     nombrePila     String?   @map("nombre_pila")
-    telefono       String
     genero         String?
     edad           Int?
     fotoUrl        String?   @map("foto_url")
@@ -41,6 +41,7 @@ model Perfil {
 
     comentarios Comentario[]
     etiquetas   Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
+    Mensajes    Mensaje[]    @relation("PERFIL_X_MENSAJE")
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -67,13 +68,13 @@ model Etiqueta {
     id String @id @default(uuid())
 
     nombre  String
-    grupoId String @map("grupo_id")
+    grupoId String       @map("grupo_id")
+    tipo    TipoEtiqueta @default(value: PERSONAL)
 
-    grupo      EtiquetaGrupo       @relation(fields: [grupoId], references: [id], onDelete: Cascade)
-    perfiles   Perfil[]            @relation("PERFIL_X_ETIQUETA")
-    mensajes   HistorialMensajes[] @relation("MENSAJE_X_ETIQUETA")
-    plantillas Plantilla[]         @relation("PLANTILLA_X_ETIQUETA")
-    cuentas    Cuenta[]            @relation("CUENTA_X_ETIQUETA")
+    grupo      EtiquetaGrupo @relation(fields: [grupoId], references: [id], onDelete: Cascade)
+    perfiles   Perfil[]      @relation("PERFIL_X_ETIQUETA")
+    plantillas Plantilla[]   @relation("PLANTILLA_X_ETIQUETA")
+    cuentas    Cuenta[]      @relation("CUENTA_X_ETIQUETA")
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -96,19 +97,6 @@ model EtiquetaGrupo {
     @@map("GRUPO_ETIQUETA")
 }
 
-model HistorialMensajes {
-    id String @id @default(uuid())
-
-    contenido String
-
-    etiquetas Etiqueta[] @relation("MENSAJE_X_ETIQUETA")
-
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    @@map("HISTORIAL_MENSAJES")
-}
-
 model Plantilla {
     id String @id @default(uuid())
 
@@ -126,6 +114,38 @@ model Plantilla {
     @@map("PLANTILLA")
 }
 
+model Evento {
+    id        String   @id @default(uuid())
+    nombre    String
+    fecha     DateTime
+    ubicacion String
+
+    eventoPadreId String?  @map("evento_padre")
+    eventoPadre   Evento?  @relation("SubEventos", fields: [eventoPadreId], references: [id])
+    subEventos    Evento[] @relation("SubEventos")
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@map("EVENTO")
+}
+
+model Mensaje {
+    id          String        @id @default(uuid())
+    wamId       String        @map("wam_id")
+    message     Json
+    deliveredAt DateTime?     @map("delivered_at")
+    readAt      DateTime?     @map("read_at")
+    sentAt      DateTime?     @map("sent_at")
+    status      MensajeStatus @default(value: ENVIADO)
+
+    perfil         Perfil @relation("PERFIL_X_MENSAJE", fields: [perfilTelefono], references: [telefono])
+    perfilTelefono String @map("perfil_telefono")
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
 enum EstadoPlantilla {
     APRROVED
     PENDING
@@ -136,4 +156,16 @@ enum CategoriaPlantilla {
     MARKETING
     UTILITY
     AUTHENTICATION
+}
+
+enum TipoEtiqueta {
+    PERSONAL
+    EVENTO
+    MODELO
+}
+
+enum MensajeStatus {
+    ENVIADO
+    RECIBIDO
+    LEIDO
 }
