@@ -13,6 +13,8 @@ import TemplateIcon from '@/components/icons/TemplateIcon';
 import TemplateFillIcon from '@/components/icons/TemplateFillIcon';
 import EventIcon from '@/components/icons/EventIcon';
 import EventFillIcon from '@/components/icons/EventFillIcon';
+import ChatFillIcon from '@/components/icons/ChatFillIcon';
+import ChatIcon from '@/components/icons/ChatIcon';
 
 const Sidebar = () => {
   return (
@@ -34,18 +36,18 @@ const Sidebar = () => {
             Dashboard
           </SidebarLink>
           <SidebarLink
+            to='/mensajes'
+            icon={<ChatIcon height={24} width={24} />}
+            iconActive={<ChatFillIcon height={24} width={24} />}
+          >
+            Mensajes
+          </SidebarLink>
+          <SidebarLink
             to='/modelos'
             icon={<ModeloIcon height={24} width={24} />}
             iconActive={<ModeloFillIcon height={24} width={24} />}
           >
             Modelos
-          </SidebarLink>
-          <SidebarLink
-            to='/plantilla'
-            icon={<TemplateIcon height={24} width={24} />}
-            iconActive={<TemplateFillIcon height={24} width={24} />}
-          >
-            Plantillas
           </SidebarLink>
           <SidebarLink
             to='/etiquetas'
@@ -60,6 +62,13 @@ const Sidebar = () => {
             iconActive={<EventFillIcon height={24} width={24} />}
           >
             Eventos
+          </SidebarLink>
+          <SidebarLink
+            to='/plantilla'
+            icon={<TemplateIcon height={24} width={24} />}
+            iconActive={<TemplateFillIcon height={24} width={24} />}
+          >
+            Plantillas
           </SidebarLink>
         </ul>
       </div>
