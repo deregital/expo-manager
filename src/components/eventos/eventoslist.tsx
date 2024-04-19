@@ -81,7 +81,6 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
             <EventoListTrigger evento={evento} />
           </AccordionTrigger>
           {}
-          <EventoModal action='EDIT' evento={evento} />
           <AccordionContent className='pb-0 pl-2'>
             {evento.subEventos.map((subevento) => (
               <div
