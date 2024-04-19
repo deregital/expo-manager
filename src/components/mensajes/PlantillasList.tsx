@@ -22,8 +22,8 @@ const PlantillasList = () => {
     type: string
   ) {
     clearTemplate();
-    useTemplate.setState({ type: type, plantilla: plantilla });
-    router.push('/mensajes/plantilla');
+    useTemplate.setState({ type: type });
+    router.push(`/mensajes/plantilla/${plantilla ? plantilla?.name : '0'}/${plantilla ? plantilla?.id : '0'}`);
   }
 
   return (

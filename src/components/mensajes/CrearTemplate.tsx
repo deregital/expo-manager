@@ -12,36 +12,41 @@ import { Textarea } from '@/components/ui/textarea';
 
 export const useTemplate = create<{
   type: string;
-  plantilla: GetTemplatesData | null;
-  button1: string | undefined;
-  button2: string | undefined;
-  button3: string | undefined;
-  content: string | undefined;
+  name: string;
+  id: string;
+  button1: string;
+  button2: string;
+  button3: string;
+  content: string;
   clearTemplate: () => void;
 }>((set) => ({
   type: '',
-  plantilla: null,
-  button1: undefined,
-  button2: undefined,
-  button3: undefined,
-  content: undefined,
+  name: '',
+  id: '',
+  button1: '',
+  button2: '',
+  button3: '',
+  content: '',
   clearTemplate: () => {
     set({
       type: '',
-      plantilla: null,
-      button1: undefined,
-      button2: undefined,
-      button3: undefined,
-      content: undefined,
+      name: '',
+      id: '',
+      button1: '',
+      button2: '',
+      button3: '',
+      content: '',
     });
   },
 }));
 
-const CrearTemplate = () => {
-  const { type, plantilla, button1, button2, button3, content, clearTemplate } =
+const CrearTemplate = ({plantillaName, plantillaId}:{plantillaName: string; plantillaId: string}) => {
+  const { type, name, id, button1, button2, button3, content, clearTemplate } =
     useTemplate();
+  useTemplate.setState({ name: plantillaName });
+  useTemplate.setState({ id: plantillaId });
   const router = useRouter();
-  const { data } = trpc.whatsapp.getTemplateById.useQuery(plantilla?.name, {
+  const { data } = trpc.whatsapp.getTemplateById.useQuery(plantillaName, {
     enabled: type === 'VIEW' || type === 'EDIT',
   });
   useEffect(() => {
@@ -73,7 +78,7 @@ const CrearTemplate = () => {
     if (type === 'CREATE') {
       await crearTemplate
         .mutateAsync({
-          name: plantilla?.name ? plantilla?.name : undefined,
+          name: name ? name : undefined,
           content: content ? content : '',
           buttons: [
             button1 ? button1 : '',
@@ -92,7 +97,7 @@ const CrearTemplate = () => {
     } else if (type === 'EDIT') {
       await editTemplate
         .mutateAsync({
-          metaId: plantilla?.id ? plantilla?.id : '',
+          metaId: id ? id : '',
           content: content ? content : '',
           buttons: [
             button1 ? button1 : '',
@@ -116,10 +121,10 @@ const CrearTemplate = () => {
         <div className='flex items-center justify-center'>
           <h1 className='pb-3 font-bold'>
             {type === 'EDIT'
-              ? `Edición de la plantilla: ${plantilla?.name}`
+              ? `Edición de la plantilla: ${name}`
               : type === 'CREATE'
                 ? 'Creación de plantilla'
-                : `Vista de la plantilla - ${plantilla?.name}`}
+                : `Vista de la plantilla - ${name}`}
           </h1>
         </div>
         <h3 className='pb-1 font-semibold'>Nombre de la plantilla:</h3>
@@ -127,15 +132,9 @@ const CrearTemplate = () => {
           disabled={type === 'VIEW' || type === 'EDIT'}
           className='mb-3 disabled:opacity-100'
           placeholder='Nombre de la plantilla'
-          value={plantilla?.name}
+          value={name}
           onChange={(e) =>
-            useTemplate.setState({
-              plantilla: {
-                name: e.target.value,
-                id: plantilla?.id ?? '',
-                status: plantilla?.status ?? '',
-              },
-            })
+            useTemplate.setState({ name: e.target.value })
           }
         />
         <h3 className='pb-1 font-semibold'>Contenido del mensaje:</h3>
