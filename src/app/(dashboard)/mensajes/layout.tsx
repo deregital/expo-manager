@@ -17,7 +17,7 @@ const ChatLayout = ({ children }: ChatLayoutProps) => {
       <div className='hidden h-full w-80 border-r-[3px] border-black/20 bg-sidebar-background sm:block'>
         <ChatSidebar />
       </div>
-      <div className='flex flex-grow bg-red-500'>{children}</div>
+      <div className='flex flex-grow'>{children}</div>
     </div>
   );
 };

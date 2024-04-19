@@ -33,7 +33,7 @@ const ChatSidebar = ({}: ChatSidebarProps) => {
           )
           .map((contacto) => (
             <Link
-              href={`/mensajes/chat/${contacto.telefono}`}
+              href={`/mensajes/${contacto.telefono}`}
               key={contacto.id}
               onClick={() => {
                 useChatSidebar.setState({ isOpen: false });
