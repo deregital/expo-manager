@@ -1,4 +1,5 @@
 'use client';
+import { useChatSidebar } from '@/components/chat/layout/ChatSidebarMobile';
 import ContactoCard from '@/components/chat/layout/ContactoCard';
 import Loader from '@/components/ui/loader';
 import { trpc } from '@/lib/trpc';
@@ -30,6 +31,9 @@ const ChatSidebar = ({}: ChatSidebarProps) => {
             <Link
               href={`/mensajes/chat/${contacto.telefono}`}
               key={contacto.id}
+              onClick={() => {
+                useChatSidebar.setState({ isOpen: false });
+              }}
             >
               <ContactoCard key={contacto.id} contacto={contacto} />
             </Link>
