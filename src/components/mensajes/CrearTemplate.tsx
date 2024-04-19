@@ -49,7 +49,6 @@ const CrearTemplate = ({plantillaName, typeTemplate}:{plantillaName?: string; ty
   });
   useEffect(() => {
     useTemplate.setState({ type: typeTemplate });
-    console.log('typeTemplate', typeTemplate);
     if (type === '' || typeTemplate === '' && plantillaName !== undefined) useTemplate.setState({ type: 'VIEW' });
     if (typeTemplate === 'CREATE') useTemplate.setState({ type: 'CREATE' });
     if (type === 'VIEW' || type === 'EDIT') useTemplate.setState({ name: plantillaName });
