@@ -8,8 +8,11 @@ import {
   TemplateEditResponse,
   GetTemplatesResponse,
   GetTemplateResponse,
+  MessageJson,
 } from '@/server/types/whatsapp';
 import { TRPCError } from '@trpc/server';
+import { addDays } from 'date-fns';
+import { Mensaje } from '@prisma/client';
 
 export const whatsappRouter = router({
   createTemplate: protectedProcedure
@@ -230,12 +233,41 @@ export const whatsappRouter = router({
           }),
         }
       );
+
       if (!res.ok) {
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to send message',
         });
       }
+
+      const resJson = await res.json();
+
+      const messageId = (
+        resJson as {
+          messages: { id: string }[];
+        }
+      ).messages[0].id;
+
+      await ctx.prisma.mensaje.create({
+        data: {
+          message: {
+            id: messageId,
+            text: {
+              body: input.text,
+            },
+            type: 'text',
+            to: input.telefono,
+            timestamp: new Date().getTime(),
+          },
+          wamId: messageId,
+          perfil: {
+            connect: {
+              telefono: input.telefono,
+            },
+          },
+        },
+      });
 
       return 'Message sent';
     }),
@@ -284,56 +316,25 @@ export const whatsappRouter = router({
       });
       return 'Mensajes enviados';
     }),
-  sendMessageUniquePhone: protectedProcedure
-    .input(
-      z.object({
-        telefono: z.string(),
-        plantillaName: z.string(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      // await fetch(
-      //   `https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER}/messages`,
-      //   {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //       Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
-      //     },
-      //     body: JSON.stringify({
-      //       messaging_product: 'whatsapp',
-      //       to: `${input.telefono}`,
-      //       type: 'template',
-      //       template: {
-      //         name: `${input.plantillaName}`,
-      //         language: {
-      //           code: 'es_AR',
-      //         },
-      //       },
-      //     }),
-      //   }
-      // );
-      await fetch(
-        `https://graph.facebook.com/v18.0/${process.env.PHONE_NUMBER}/messages`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
-          },
-          body: JSON.stringify({
-            messaging_product: 'whatsapp',
-            recipient_type: 'individual',
-            to: input.telefono,
-            type: 'text',
-            text: {
-              // the text object
-              preview_url: false,
-              body: 'MESSAGE_CONTENT',
-            },
-          }),
-        }
-      );
-      return 'Mensaje enviado';
+  getMessagesByTelefono: protectedProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const mensajes = await ctx.prisma.mensaje.findMany({
+        where: {
+          perfilTelefono: input,
+        },
+      });
+
+      return {
+        inChat:
+          mensajes.length > 0 &&
+          mensajes.some((m) => m.created_at < addDays(new Date(), -1)),
+        mensajes,
+      } as {
+        inChat: boolean;
+        mensajes: (Omit<Mensaje, 'message'> & {
+          message: MessageJson;
+        })[];
+      };
     }),
 });
