@@ -1,5 +1,8 @@
 import MensajeRecibido from '@/components/chat/privateChat/MensajeRecibido';
 import TailWrapper from '@/components/chat/privateChat/TailWrapper';
+import CheckIcon from '@/components/icons/CheckIcon';
+import DoubleCheckIcon from '@/components/icons/DoubleCheckIcon';
+import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { MessageJson, TextMessage } from '@/server/types/whatsapp';
 import React, { useEffect, useMemo, useRef } from 'react';
@@ -92,8 +95,21 @@ const MensajesList = ({ mensajes }: MensajesListProps) => {
                     })()}
                     <span className='invisible'>ww:ww wm</span>
                   </div>
-                  <span className='absolute bottom-0 end-0 pb-2 pe-2 text-xs text-[#667781]'>
+                  <span className='absolute bottom-0 end-0 pb-2 pe-2 text-[0.66rem] leading-[0.75rem] text-[#667781]'>
                     {messageDateTime.toLocaleTimeString().toLowerCase()}
+                    {messageBody.to &&
+                      (message.status === 'ENVIADO' ? (
+                        <CheckIcon className='inline-block h-3 w-3' />
+                      ) : (
+                        <DoubleCheckIcon
+                          className={cn(
+                            'inline-block h-3 w-3',
+                            message.status === 'RECIBIDO'
+                              ? 'text-[#667781]'
+                              : 'text-[#1e90ff]'
+                          )}
+                        />
+                      ))}
                   </span>
                 </div>
               </TailWrapper>
