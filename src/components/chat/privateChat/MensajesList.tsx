@@ -45,7 +45,7 @@ const MensajesList = ({ mensajes }: MensajesListProps) => {
 
   return (
     <div
-      className='h-full w-full overflow-y-auto px-16 py-2'
+      className='h-full w-full overflow-y-auto px-3 py-2 sm:px-16'
       ref={messagesEndRef}
     >
       {stateMessages.map((message, index) => {
