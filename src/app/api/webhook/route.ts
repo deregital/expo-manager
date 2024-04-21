@@ -1,8 +1,13 @@
 import { verifyWebhook } from '@/lib/verify';
-import { ReceivedMessage, WebHookRequest } from '@/server/types/webhooks';
+import {
+  ReceivedMessage,
+  StatusChange,
+  WebHookRequest,
+} from '@/server/types/webhooks';
 import { headers } from 'next/headers';
 import { prisma } from '@/server/db';
 import { NextRequest, NextResponse } from 'next/server';
+import { MensajeStatus } from '@prisma/client';
 
 export const revalidate = 0;
 
@@ -44,7 +49,8 @@ export async function POST(request: NextRequest) {
           if ('messages' in value) {
             await crearMensaje(value);
           } else if ('statuses' in value) {
-            // Manejar status después de haber creado el mensaje en la base
+            const res = await actualizarStatus(value);
+            console.log('Statuses', value, res);
           }
         }
       }
@@ -77,7 +83,7 @@ async function crearMensaje(value: ReceivedMessage) {
     return await prisma.mensaje.create({
       data: {
         wamId: message.id,
-        deliveredAt: new Date(Number.parseInt(message.timestamp) * 1000),
+        statusAt: new Date(Number.parseInt(message.timestamp) * 1000),
         message: message,
         perfil: {
           connectOrCreate: {
@@ -98,4 +104,22 @@ async function crearMensaje(value: ReceivedMessage) {
       },
     });
   }
+}
+
+async function actualizarStatus(value: StatusChange) {
+  const status = value.statuses[0];
+  return await prisma.mensaje.update({
+    where: {
+      wamId: status.id,
+    },
+    data: {
+      statusAt: new Date(Number.parseInt(status.timestamp) * 1000),
+      status:
+        status.status === 'delivered'
+          ? MensajeStatus.RECIBIDO
+          : status.status === 'read'
+            ? MensajeStatus.LEIDO
+            : MensajeStatus.ENVIADO,
+    },
+  });
 }

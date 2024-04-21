@@ -131,13 +131,11 @@ model Evento {
 }
 
 model Mensaje {
-    id          String        @id @default(uuid())
-    wamId       String        @map("wam_id")
-    message     Json
-    deliveredAt DateTime?     @map("delivered_at")
-    readAt      DateTime?     @map("read_at")
-    sentAt      DateTime?     @map("sent_at")
-    status      MensajeStatus @default(value: ENVIADO)
+    id       String        @id @default(uuid())
+    wamId    String        @unique @map("wam_id")
+    message  Json
+    status   MensajeStatus @default(value: ENVIADO)
+    statusAt DateTime?     @map("status_at")
 
     perfil         Perfil @relation("PERFIL_X_MENSAJE", fields: [perfilTelefono], references: [telefono])
     perfilTelefono String @map("perfil_telefono")
