@@ -41,11 +41,10 @@ export const modeloRouter = router({
           perfil: {
             inChat: {
               compute(data: Perfil & { Mensajes: Mensaje[] }) {
-                // TODO: no está funcionando
                 return (
                   data.Mensajes.length > 0 &&
                   data.Mensajes.some(
-                    (m) => m.created_at < subDays(new Date(), 1)
+                    (m) => m.created_at > subDays(new Date(), 1)
                   )
                 );
               },

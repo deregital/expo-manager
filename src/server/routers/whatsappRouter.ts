@@ -11,7 +11,7 @@ import {
   MessageJson,
 } from '@/server/types/whatsapp';
 import { TRPCError } from '@trpc/server';
-import { addDays } from 'date-fns';
+import { subDays } from 'date-fns';
 import { Mensaje } from '@prisma/client';
 
 export const whatsappRouter = router({
@@ -328,7 +328,7 @@ export const whatsappRouter = router({
       return {
         inChat:
           mensajes.length > 0 &&
-          mensajes.some((m) => m.created_at < addDays(new Date(), -1)),
+          mensajes.some((m) => m.created_at > subDays(new Date(), 1)),
         mensajes,
       } as {
         inChat: boolean;
