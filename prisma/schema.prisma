@@ -162,6 +162,7 @@ enum TipoEtiqueta {
     PERSONAL
     EVENTO
     MODELO
+    TENTATIVA
 }
 
 enum MensajeStatus {

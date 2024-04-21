@@ -1,5 +1,5 @@
 import { verifyWebhook } from '@/lib/verify';
-import { WebHookRequest, WebhookMessage } from '@/server/types/webhooks';
+import { ReceivedMessage, WebHookRequest } from '@/server/types/webhooks';
 import { headers } from 'next/headers';
 import { prisma } from '@/server/db';
 import { NextRequest, NextResponse } from 'next/server';
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
         if (changes[0].field === 'messages') {
           const value = changes[0].value;
           if ('messages' in value) {
-            const mensajeCreado = await crearMensaje(value.messages[0]);
+            await crearMensaje(value);
           } else if ('statuses' in value) {
             // Manejar status después de haber creado el mensaje en la base
           }
@@ -56,7 +56,23 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function crearMensaje(message: WebhookMessage) {
+async function crearMensaje(value: ReceivedMessage) {
+  const message = value.messages[0];
+  const contact = value.contacts[0];
+
+  const etiquetaTentativaId = await prisma.etiqueta.findFirst({
+    where: {
+      tipo: 'TENTATIVA',
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!etiquetaTentativaId) {
+    throw new Error('No se encontró la etiqueta TENTATIVA');
+  }
+
   if (message && message.type === 'text') {
     return await prisma.mensaje.create({
       data: {
@@ -64,8 +80,19 @@ async function crearMensaje(message: WebhookMessage) {
         deliveredAt: new Date(Number.parseInt(message.timestamp) * 1000),
         message: message,
         perfil: {
-          connect: {
-            telefono: message.from,
+          connectOrCreate: {
+            where: {
+              telefono: message.from,
+            },
+            create: {
+              nombreCompleto: contact.profile.name,
+              telefono: contact.wa_id,
+              etiquetas: {
+                connect: {
+                  id: etiquetaTentativaId.id,
+                },
+              },
+            },
           },
         },
       },

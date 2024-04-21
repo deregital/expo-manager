@@ -42,15 +42,37 @@ export async function POST(req: NextRequest, res: NextResponse) {
       },
     });
 
-    if (!modeloEtiquetaId) {
+    const etiquetaTentativaId = await prisma?.etiqueta.findFirst({
+      where: {
+        tipo: TipoEtiqueta.TENTATIVA,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!modeloEtiquetaId || !etiquetaTentativaId) {
       return NextResponse.json(
-        { error: 'No se encontró la etiqueta de modelo' },
+        { error: 'No se encontró la etiqueta de modelo o de tentativa' },
         { status: 500 }
       );
     }
 
-    const response = await prisma?.perfil.create({
-      data: {
+    const response = await prisma?.perfil.upsert({
+      where: {
+        telefono: telefonoSinSeparaciones,
+      },
+      update: {
+        etiquetas: {
+          disconnect: {
+            id: etiquetaTentativaId.id,
+          },
+          connect: {
+            id: modeloEtiquetaId.id,
+          },
+        },
+      },
+      create: {
         nombreCompleto: data.nombreCompleto,
         nombrePila: nombrePila,
         telefono: telefonoSinSeparaciones,
