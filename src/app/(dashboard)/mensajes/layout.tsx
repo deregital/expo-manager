@@ -10,7 +10,7 @@ interface ChatLayoutProps {
 const ChatLayout = ({ children }: ChatLayoutProps) => {
   return (
     <div className='relative flex h-full'>
-      <div className='absolute left-5 top-5 sm:hidden'>
+      <div className='absolute left-5 top-5 z-20 sm:hidden'>
         <ChatSidebarMobile />
       </div>
 
