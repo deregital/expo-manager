@@ -13,16 +13,15 @@ const ChatPage = ({}: ChatPageProps) => {
   const { data } = trpc.whatsapp.getMessagesByTelefono.useQuery(telefono);
 
   return (
-    <div className='relative flex w-full flex-col bg-[#EFEBE2]'>
-      <div className='absolute inset-0 bg-[url(/img/whatsapp_background.png)] opacity-40'></div>
-      <div className='flex flex-grow'>
-        {(() => {
-          if (data?.mensajes != null) {
-            return <MensajesList from={telefono} mensajes={data?.mensajes} />;
-          }
-        })()}
+    <div className='relative w-full bg-[url(/img/whatsapp_background.png)]'>
+      <div className='flex h-full flex-col'>
+        <div className='h-full overflow-y-auto'>
+          {data?.mensajes != null && (
+            <MensajesList mensajes={data?.mensajes ?? []} />
+          )}
+        </div>
+        <EnviarMensajeUI telefono={telefono} inChat={data?.inChat ?? false} />
       </div>
-      <EnviarMensajeUI telefono={telefono} inChat={data?.inChat ?? false} />
     </div>
   );
 };

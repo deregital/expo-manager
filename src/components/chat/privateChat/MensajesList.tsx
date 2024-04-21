@@ -2,7 +2,7 @@ import MensajeRecibido from '@/components/chat/privateChat/MensajeRecibido';
 import TailWrapper from '@/components/chat/privateChat/TailWrapper';
 import { RouterOutputs } from '@/server';
 import { MessageJson, TextMessage } from '@/server/types/whatsapp';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 
 type UIMessageModel = MensajesListProps['mensajes'][number] & {
   msgDate: string;
@@ -21,14 +21,14 @@ function addDateToMessages(
 }
 
 interface MensajesListProps {
-  from: string;
   mensajes: RouterOutputs['whatsapp']['getMessagesByTelefono']['mensajes'];
 }
 
-const MensajesList = ({ from, mensajes }: MensajesListProps) => {
-  const [stateMessages] = useState<UIMessageModel[]>(
-    addDateToMessages(mensajes)
-  );
+const MensajesList = ({ mensajes }: MensajesListProps) => {
+  const stateMessages = useMemo(() => {
+    return addDateToMessages(mensajes);
+  }, [mensajes]);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
