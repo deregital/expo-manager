@@ -63,6 +63,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
         telefono: telefonoSinSeparaciones,
       },
       update: {
+        nombreCompleto: data.nombreCompleto,
+        nombrePila: nombrePila,
         etiquetas: {
           disconnect: {
             id: etiquetaTentativaId.id,

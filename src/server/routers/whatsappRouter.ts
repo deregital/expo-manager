@@ -328,7 +328,11 @@ export const whatsappRouter = router({
       return {
         inChat:
           mensajes.length > 0 &&
-          mensajes.some((m) => m.created_at > subDays(new Date(), 1)),
+          mensajes.some(
+            (m) =>
+              m.created_at > subDays(new Date(), 1) &&
+              (m.message as MessageJson).from === input
+          ),
         mensajes,
       } as {
         inChat: boolean;
