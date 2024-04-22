@@ -56,3 +56,20 @@ export type GetTemplateResponse = {
 };
 
 export type Components = Body | Buttons;
+
+export type MessageJson = {
+  id: string;
+  text: {
+    body: string;
+  };
+  timestamp: string;
+  to?: string;
+  from?: string;
+  type: string;
+};
+
+export type TextMessage = MessageJson & {
+  text: {
+    body: string;
+  };
+};

@@ -1,7 +1,8 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
+import { MessageJson } from '@/server/types/whatsapp';
 import { Mensaje, Perfil } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
-import { addDays } from 'date-fns';
+import { subDays } from 'date-fns';
 import { z } from 'zod';
 
 export const modeloRouter = router({
@@ -44,7 +45,9 @@ export const modeloRouter = router({
                 return (
                   data.Mensajes.length > 0 &&
                   data.Mensajes.some(
-                    (m) => m.created_at < addDays(new Date(), -1)
+                    (m) =>
+                      m.created_at > subDays(new Date(), 1) &&
+                      (m.message as MessageJson).from === data.telefono
                   )
                 );
               },

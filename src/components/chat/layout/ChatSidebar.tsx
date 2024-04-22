@@ -1,6 +1,7 @@
 'use client';
 import { useChatSidebar } from '@/components/chat/layout/ChatSidebarMobile';
 import ContactoCard from '@/components/chat/layout/ContactoCard';
+import ContactosNoChat from '@/components/chat/layout/ContactosNoChat';
 import Loader from '@/components/ui/loader';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
@@ -26,27 +27,34 @@ const ChatSidebar = ({}: ChatSidebarProps) => {
 
   return (
     contactos && (
-      <>
-        {contactos
-          .sort((a, b) =>
-            a.inChat && !b.inChat ? -1 : !a.inChat && b.inChat ? 1 : 0
-          )
-          .map((contacto) => (
-            <Link
-              href={`/mensajes/${contacto.telefono}`}
-              key={contacto.id}
-              onClick={() => {
-                useChatSidebar.setState({ isOpen: false });
-              }}
-            >
-              <ContactoCard
-                inPage={telefonoSelected === contacto.telefono}
+      <aside className='grid h-full grid-cols-1 grid-rows-[auto,1fr]'>
+        <div>
+          {contactos
+            .filter((contacto) => contacto.inChat)
+            .map((contacto) => (
+              <Link
+                href={`/mensajes/${contacto.telefono}`}
                 key={contacto.id}
-                contacto={contacto}
-              />
-            </Link>
-          ))}
-      </>
+                onClick={() => {
+                  useChatSidebar.setState({ isOpen: false });
+                }}
+              >
+                <ContactoCard
+                  inPage={telefonoSelected === contacto.telefono}
+                  key={contacto.id}
+                  contacto={contacto}
+                />
+              </Link>
+            ))}
+        </div>
+        <div className='max-h-full overflow-y-auto'>
+          <ContactosNoChat
+            contactos={contactos
+              .filter((contacto) => !contacto.inChat)
+              .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto))}
+          />
+        </div>
+      </aside>
     )
   );
 };

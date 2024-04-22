@@ -20,6 +20,9 @@ const config = {
       },
     },
     extend: {
+      boxShadow: {
+        message: '0 1px .5px rgba(#0b141a,.13)',
+      },
       gridTemplateAreas: {
         dashboardLarge: [
           'calendar grupo etiqueta',
