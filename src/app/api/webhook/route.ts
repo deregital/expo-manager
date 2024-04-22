@@ -49,8 +49,7 @@ export async function POST(request: NextRequest) {
           if ('messages' in value) {
             await crearMensaje(value);
           } else if ('statuses' in value) {
-            const res = await actualizarStatus(value);
-            console.log('Statuses', value, res);
+            await actualizarStatus(value);
           }
         }
       }
