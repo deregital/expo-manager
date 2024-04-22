@@ -9,6 +9,7 @@ interface MensajesCardProps {
 const MensajesCard = ({ cantMensajes, isLoading }: MensajesCardProps) => {
   return (
     <SharedCard
+      popoverText='Cantidad de mensajes enviados'
       title='Mensajes enviados'
       content={cantMensajes.toString()}
       isLoading={isLoading}
