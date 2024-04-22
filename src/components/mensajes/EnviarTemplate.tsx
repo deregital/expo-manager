@@ -27,6 +27,7 @@ const EnviarTemplate = () => {
   }));
   const { data } = trpc.whatsapp.getTemplates.useQuery();
   const { data: etiquetas } = trpc.etiqueta.getAll.useQuery();
+  const {data: modelos } = trpc.modelo.getByEtiqueta.useQuery(templateData.etiquetas.map((et) => et.id))
   const [openPlantilla, setOpenPlantilla] = useState(false);
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
 
@@ -110,6 +111,7 @@ const EnviarTemplate = () => {
           selectedIf={''}
           wFullMobile
         />
+        <span>{modelos?.length} modelos encontradas</span>
     </div>
   );
 };
