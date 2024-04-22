@@ -1,3 +1,4 @@
+import FotoModelo from '@/components/ui/FotoModelo';
 import { Card, CardTitle } from '@/components/ui/card';
 import { RouterOutputs } from '@/server';
 import { format } from 'date-fns';
@@ -19,7 +20,7 @@ const ModelosList = ({ modelos }: ModelosListProps) => {
       <CardTitle className='pb-2 text-2xl font-extrabold sm:text-3xl'>
         Lista de modelos
       </CardTitle>
-      <div className='flex flex-1 flex-col overflow-y-auto'>
+      <div className='flex flex-1 flex-col gap-y-2 overflow-y-auto'>
         {data.length === 0 && (
           <div className='flex h-full w-full items-center justify-center'>
             <p className='text-gray-500'>No hay modelos</p>
@@ -30,7 +31,10 @@ const ModelosList = ({ modelos }: ModelosListProps) => {
             key={modelo.id}
             className='flex items-center justify-between gap-x-4'
           >
-            <p className='truncate py-1'>{modelo.nombreCompleto}</p>
+            <div className='flex items-center gap-x-1'>
+              <FotoModelo url={modelo.fotoUrl} />
+              <p className='truncate py-1'>{modelo.nombreCompleto}</p>
+            </div>
             <span>{format(modelo.created_at, 'dd/MM/yyyy')}</span>
           </div>
         ))}

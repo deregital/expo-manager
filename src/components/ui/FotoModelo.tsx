@@ -1,18 +1,20 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import React from 'react';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
-interface FotoModeloProps {
+interface FotoModeloProps extends React.ComponentPropsWithoutRef<'img'> {
   url: string | null;
 }
 
-const FotoModelo = ({ url }: FotoModeloProps) => {
+const FotoModelo = ({ url, className, ...props }: FotoModeloProps) => {
   return (
-    <Avatar>
+    <Avatar className={cn(className)}>
       <AvatarImage
         width={50}
         height={50}
         src={url ?? '/img/profilePlaceholder.jpg'}
+        {...props}
       />
       <AvatarFallback>
         <Image

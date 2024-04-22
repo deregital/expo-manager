@@ -7,9 +7,9 @@ import {
 import { RouterOutputs } from '@/server';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useChatSidebar } from '@/components/chat/layout/ChatSidebarMobile';
+import FotoModelo from '@/components/ui/FotoModelo';
 
 interface ContactosNoChatProps {
   contactos: RouterOutputs['modelo']['getAllWithInChat'];
@@ -51,13 +51,7 @@ const ContactosNoChat = ({ contactos }: ContactosNoChatProps) => {
                 key={contacto.id}
                 className='flex items-center gap-x-2 p-2 hover:bg-gray-200'
               >
-                <Image
-                  width={50}
-                  height={50}
-                  src={contacto.fotoUrl ?? '/img/profilePlaceholder.jpg'}
-                  alt={contacto.nombreCompleto}
-                  className='h-8 w-8 rounded-full'
-                />
+                <FotoModelo url={contacto.fotoUrl} className='h-8 w-8' />
                 <div>
                   <p className='text-sm font-semibold'>
                     {contacto.nombreCompleto}
