@@ -15,7 +15,7 @@ const MensajesPage = () => {
     setPlantilla(plantilla);
   });
   return (
-    <div>
+    <div className='px-2'>
       <PlantillasList />
       <EnviarTemplate />
       <DeleteTemplateModal open={open} plantilla={plantilla} />
