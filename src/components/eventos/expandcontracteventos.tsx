@@ -9,7 +9,7 @@ export const useExpandEventos = create<{
   contract: () => void;
   none: () => void;
 }>((set) => ({
-  state: 'NONE',
+  state: 'CONTRACT',
   expand: () => set({ state: 'EXPAND' }),
   contract: () => set({ state: 'CONTRACT' }),
   none: () => set({ state: 'NONE' }),

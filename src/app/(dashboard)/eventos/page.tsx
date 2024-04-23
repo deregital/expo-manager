@@ -18,14 +18,8 @@ const EventosPage = () => {
     expandState: s.state,
   }));
 
-  const utils = trpc.useUtils();
-
   const eventosFiltrados = useMemo(() => {
     if (!eventos) return [];
-
-    const invalidateEventoQuery = () => {
-      utils.evento.getAll.invalidate();
-    };
 
     let filteredEventos = eventos.filter((evento) => !evento.eventoPadreId);
 
@@ -43,13 +37,9 @@ const EventosPage = () => {
         );
       });
     }
-    invalidateEventoQuery();
-
 
     return filteredEventos;
   }, [eventos, search]);
-
-  
 
   return (
     <>
@@ -82,7 +72,13 @@ const EventosPage = () => {
             <Loader />
           </div>
         ) : (
-          <EventosList eventos={eventosFiltrados} />
+          <EventosList
+            eventos={eventosFiltrados.sort((a, b) => {
+              if (a.fecha < b.fecha) return -1;
+              if (a.fecha > b.fecha) return 1;
+              return 0;
+            })}
+          />
         )}
       </div>
     </>
