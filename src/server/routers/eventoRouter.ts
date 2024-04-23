@@ -12,7 +12,6 @@ export const eventoRouter = router({
           .min(1, 'La fecha es requerida')
           .transform((val) => new Date(val)),
         ubicacion: z.string().min(1, 'La ubicación es requerida'),
-        eventoPadreId: z.string().optional(),
         subeventos: z.array(
           z.object({
             fecha: z
@@ -31,9 +30,6 @@ export const eventoRouter = router({
           nombre: input.nombre,
           fecha: input.fecha,
           ubicacion: input.ubicacion,
-          eventoPadre: input.eventoPadreId
-            ? { connect: { id: input.eventoPadreId } }
-            : undefined,
           subEventos: {
             createMany: { data: input.subeventos },
           },
@@ -85,7 +81,6 @@ export const eventoRouter = router({
           .transform((val) => new Date(val))
           .optional(),
         ubicacion: z.string().optional(),
-        eventoPadreId: z.string().optional(),
         subeventos: z.array(
           z.object({
             id: z.string(), // Agrega el ID del subevento
@@ -108,14 +103,25 @@ export const eventoRouter = router({
           nombre: input.nombre,
           fecha: input.fecha,
           ubicacion: input.ubicacion,
-          eventoPadre: input.eventoPadreId
-            ? { connect: { id: input.eventoPadreId } }
-            : undefined,
         },
       });
 
+      const subeventos = await ctx.prisma.evento.findMany({
+        where: {
+          eventoPadreId: input.id,
+        },
+      });
+
+      const subEventosEliminados = subeventos.filter(
+        (subevento) => !input.subeventos.some((sub) => sub.id === subevento.id)
+      );
+
+      const subEventosActualizadosOAgregados = input.subeventos.filter(
+        (subevento) => !subeventos.some((sub) => sub.id === subevento.id)
+      );
+
       await Promise.all(
-        input.subeventos.map(async (subevento) => {
+        subEventosActualizadosOAgregados.map(async (subevento) => {
           await ctx.prisma.evento.upsert({
             where: {
               id: subevento.id,
@@ -134,6 +140,17 @@ export const eventoRouter = router({
                   id: input.id,
                 },
               },
+            },
+          });
+        })
+      );
+
+      // Eliminar los subeventos que no se encuentren en la lista de subeventos
+      await Promise.all(
+        subEventosEliminados.map(async (subevento) => {
+          await ctx.prisma.evento.delete({
+            where: {
+              id: subevento.id,
             },
           });
         })

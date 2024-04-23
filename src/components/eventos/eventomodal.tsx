@@ -15,7 +15,6 @@ import Loader from '@/components/ui/loader';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import EventFillIcon from '../icons/EventFillIcon';
-import ComboBox from '@/components/ui/ComboBox';
 
 interface EventoModalProps {
   action: 'CREATE' | 'EDIT';
@@ -27,11 +26,9 @@ interface EventoModalProps {
 
 type ModalData = {
   tipo: 'CREATE' | 'EDIT';
-  eventoPadreId: string;
   nombre: string;
   fecha: string;
   ubicacion: string;
-  eventoPadre: string;
   subeventos: {
     id: string;
     nombre: string;
@@ -46,17 +43,12 @@ export const useEventoModalData = create<ModalData>(() => ({
   nombre: '',
   fecha: '',
   ubicacion: '',
-  eventoPadreId: '',
   subeventos: [],
 }));
 
 const EventoModal = ({ action, evento }: EventoModalProps) => {
-  const { data: eventos, isLoading: eventosLoading } =
-    trpc.evento.getAll.useQuery();
-
   const utils = trpc.useUtils();
   const modalData = useEventoModalData((state) => ({
-    eventoPadreId: state.eventoPadreId,
     tipo: state.tipo,
     nombre: state.nombre,
     fecha: state.fecha,
@@ -65,7 +57,6 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
   }));
 
   const [open, setOpen] = useState(false);
-  const [openCombo, setOpenCombo] = useState(false);
   const [quiereEliminar, setQuiereEliminar] = useState(false);
   const createEvento = trpc.evento.create.useMutation();
   const deleteEvento = trpc.evento.delete.useMutation();
@@ -76,7 +67,6 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
       await createEvento
         .mutateAsync({
           nombre: modalData.nombre,
-          eventoPadreId: useEventoModalData.getState().eventoPadreId,
           fecha: modalData.fecha,
           ubicacion: modalData.ubicacion,
           subeventos: modalData.subeventos,
@@ -101,7 +91,8 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
       await editEvento
         .mutateAsync({
           id: evento.id,
-          eventoPadreId: useEventoModalData.getState().eventoPadreId,
+          fecha: modalData.fecha,
+          ubicacion: modalData.ubicacion,
           nombre: modalData.nombre,
           subeventos: modalData.subeventos.map((subevento) => ({
             id: subevento.id,
@@ -124,11 +115,9 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
     if (createEvento.isSuccess || editEvento.isSuccess) {
       useEventoModalData.setState({
         tipo: 'CREATE',
-        eventoPadre: '',
         nombre: '',
         fecha: '',
         ubicacion: '',
-        eventoPadreId: '',
         subeventos: [],
       });
     }
@@ -139,11 +128,9 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
   async function handleCancel() {
     useEventoModalData.setState({
       tipo: 'CREATE',
-      eventoPadre: '',
       nombre: '',
       fecha: '',
       ubicacion: '',
-      eventoPadreId: '',
       subeventos: [],
     });
     createEvento.reset();
@@ -167,9 +154,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
       if (createEvento.isSuccess || editEvento.isSuccess) {
         useEventoModalData.setState({
           tipo: 'CREATE',
-          eventoPadreId: '',
           nombre: '',
-          eventoPadre: '',
           fecha: '',
           ubicacion: '',
           subeventos: [],
@@ -193,8 +178,6 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   useEventoModalData.setState({
                     tipo: 'CREATE',
                     nombre: '',
-                    eventoPadre: '',
-                    eventoPadreId: '',
                     fecha: '',
                     ubicacion: '',
                     subeventos: [],
@@ -279,24 +262,6 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   }
                   required // Atributo required agregado aquí
                 />
-                {eventosLoading ? (
-                  <Loader />
-                ) : (
-                  <ComboBox
-                    id='id'
-                    onSelect={(value) => {
-                      useEventoModalData.setState({
-                        eventoPadreId: value,
-                      });
-                    }}
-                    open={openCombo}
-                    setOpen={setOpenCombo}
-                    selectedIf={modalData.eventoPadreId}
-                    triggerChildren={<span>Evento padre</span>}
-                    value='nombre'
-                    data={eventos ?? []}
-                  />
-                )}
               </div>
             </div>
           </div>
