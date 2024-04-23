@@ -20,7 +20,7 @@ const precioTemplate = {
   'MARKETING': 0.0618,
   'UTILITY': 0.0408,
   'AUTHENTICATION': 0.0367,
-}
+} as const;
 
 export const useEnviarTemplate = create<{
   plantilla: string;
@@ -38,7 +38,7 @@ const EnviarTemplate = () => {
   const { data } = trpc.whatsapp.getTemplates.useQuery();
   const { data: etiquetas } = trpc.etiqueta.getAll.useQuery();
   const {data: modelos } = trpc.modelo.getByEtiqueta.useQuery(templateData.etiquetas.map((et) => et.id))
-  const { data: Template } = trpc.whatsapp.getTemplateById.useQuery(templateData.plantilla, {
+  const { data: template } = trpc.whatsapp.getTemplateById.useQuery(templateData.plantilla, {
     enabled: templateData.plantilla !== '',
   });
   const sendMessage = trpc.whatsapp.sendMessageToEtiqueta.useMutation();
@@ -48,10 +48,15 @@ const EnviarTemplate = () => {
 
   const currentPrecio = useMemo(() => {
     if (templateData.plantilla === '') return 0;
-    // console.log(Template?.data[0].category ? Template?.data[0].category : 'MARKETING')
-    // console.log(Template?.data[0].category as keyof typeof precioTemplate)
-    return (precioTemplate[Template?.data[0].category as keyof typeof precioTemplate])*(modelos ? modelos.length : 0);
-  }, [modelos, templateData.plantilla]);
+    let categoria: keyof typeof precioTemplate = template?.data[0]
+      .category as keyof typeof precioTemplate;
+
+    if (!categoria) {
+      categoria = 'MARKETING';
+    }
+
+    return precioTemplate[categoria] * (modelos ? modelos.length : 0);
+  }, [modelos, template?.data, templateData.plantilla]);
 
   const currentEtiquetas = useMemo(() => {
     return etiquetas?.filter((et) => !templateData.etiquetas.find((etiqueta) => etiqueta.id === et.id));
@@ -181,7 +186,7 @@ const EnviarTemplate = () => {
             <span>{modelos?.length} modelos encontradas</span>
           </div>
           <div>
-            <span>${currentPrecio} precio estimado</span>
+            <span>USD${currentPrecio} precio estimado</span>
           </div>
           <Button onClick={handleSubmit} className='bg-black/70 text-white px-3 py-1.5 rounded-md'>Enviar</Button>
     </div>
