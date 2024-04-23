@@ -7,7 +7,6 @@ import TemplateIcon from '../icons/TemplateIcon';
 import EtiquetaFillIcon from '../icons/EtiquetaFillIcon';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
-import { Circle } from 'lucide-react';
 import CircleXIcon from '../icons/CircleX';
 import { getTextColorByBg } from '@/lib/utils';
 
@@ -47,16 +46,11 @@ const EnviarTemplate = () => {
   const [openPlantilla, setOpenPlantilla] = useState(false);
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
 
-  const currentPlantilla = useMemo(() => {
-    return data?.data.find((plantilla) => plantilla.id === templateData.plantilla)?.name;
-  }, [data, templateData.plantilla]);
-
   const currentPrecio = useMemo(() => {
     if (templateData.plantilla === '') return 0;
     // console.log(Template?.data[0].category ? Template?.data[0].category : 'MARKETING')
     // console.log(Template?.data[0].category as keyof typeof precioTemplate)
-    // return (precioTemplate[Template?.data[0].category as keyof typeof precioTemplate])*(modelos ? modelos.length : 0);
-    return (0.0618)*(modelos ? modelos.length : 0)
+    return (precioTemplate[Template?.data[0].category as keyof typeof precioTemplate])*(modelos ? modelos.length : 0);
   }, [modelos, templateData.plantilla]);
 
   const currentEtiquetas = useMemo(() => {
@@ -103,14 +97,14 @@ const EnviarTemplate = () => {
       <div>
       <ComboBox 
         data={data?.data ? data.data : []}
-        id={'id'}
+        id={'name'}
         value={'name'}
         open={openPlantilla}
         setOpen={setOpenPlantilla}
         triggerChildren={
           <>
             <span className='max-w-[calc(100%-30px)] truncate'>
-              {templateData.plantilla !== '' ? currentPlantilla : 'Buscar plantilla...'}
+              {templateData.plantilla !== '' ? templateData.plantilla : 'Buscar plantilla...'}
             </span>
             <TemplateIcon className='h-5 w-5' />
           </>
