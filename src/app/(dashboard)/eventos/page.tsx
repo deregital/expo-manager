@@ -23,6 +23,10 @@ const EventosPage = () => {
   const eventosFiltrados = useMemo(() => {
     if (!eventos) return [];
 
+    const invalidateEventoQuery = () => {
+      utils.evento.getAll.invalidate();
+    };
+
     let filteredEventos = eventos.filter((evento) => !evento.eventoPadreId);
 
     if (search !== '') {
@@ -45,9 +49,7 @@ const EventosPage = () => {
     return filteredEventos;
   }, [eventos, search]);
 
-  const invalidateEventoQuery = () => {
-    utils.evento.getAll.invalidate();
-  };
+  
 
   return (
     <>
