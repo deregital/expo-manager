@@ -75,7 +75,7 @@ export const eventoRouter = router({
       return evento;
     }),
 
-    update: protectedProcedure
+  update: protectedProcedure
     .input(
       z.object({
         id: z.string().uuid(),
@@ -88,7 +88,7 @@ export const eventoRouter = router({
         eventoPadreId: z.string().optional(),
         subeventos: z.array(
           z.object({
-            id: z.string().uuid(), // Agrega el ID del subevento
+            id: z.string(), // Agrega el ID del subevento
             fecha: z
               .string()
               .min(1, 'La fecha es requerida')
@@ -100,43 +100,47 @@ export const eventoRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const { subeventos, ...rest } = input;
-      
-      
       await ctx.prisma.evento.update({
         where: {
           id: input.id,
         },
         data: {
-          nombre: rest.nombre,
-          fecha: rest.fecha,
-          ubicacion: rest.ubicacion,
-          eventoPadre: rest.eventoPadreId
-            ? { connect: { id: rest.eventoPadreId } }
+          nombre: input.nombre,
+          fecha: input.fecha,
+          ubicacion: input.ubicacion,
+          eventoPadre: input.eventoPadreId
+            ? { connect: { id: input.eventoPadreId } }
             : undefined,
         },
       });
 
-      
-      await Promise.all(input.subeventos.map(async (subevento) => {
-        await ctx.prisma.evento.updateMany({
-          where: {
-            id: subevento.id,
-          },
-          data: {
-            fecha: subevento.fecha,
-            ubicacion: subevento.ubicacion,
-            nombre: subevento.nombre,
-          },
-        });
-      }));
+      await Promise.all(
+        input.subeventos.map(async (subevento) => {
+          await ctx.prisma.evento.upsert({
+            where: {
+              id: subevento.id,
+            },
+            update: {
+              fecha: subevento.fecha,
+              ubicacion: subevento.ubicacion,
+              nombre: subevento.nombre,
+            },
+            create: {
+              fecha: subevento.fecha,
+              ubicacion: subevento.ubicacion,
+              nombre: subevento.nombre,
+              eventoPadre: {
+                connect: {
+                  id: input.id,
+                },
+              },
+            },
+          });
+        })
+      );
 
-      return 'OK'; 
+      return 'OK';
     }),
-
-
-
-    
 
   delete: protectedProcedure
     .input(
