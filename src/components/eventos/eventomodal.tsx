@@ -32,7 +32,12 @@ type ModalData = {
   fecha: string;
   ubicacion: string;
   eventoPadre: string;
-  subeventos: { nombre: string; fecha: string; ubicacion: string }[];
+  subeventos: {
+    id: string;
+    nombre: string;
+    fecha: string;
+    ubicacion: string;
+  }[];
 };
 
 export const useEventoModalData = create<ModalData>(() => ({
@@ -58,6 +63,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
     ubicacion: state.ubicacion,
     subeventos: state.subeventos,
   }));
+
   const [open, setOpen] = useState(false);
   const [openCombo, setOpenCombo] = useState(false);
   const [quiereEliminar, setQuiereEliminar] = useState(false);
@@ -97,11 +103,17 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           id: evento.id,
           eventoPadreId: useEventoModalData.getState().eventoPadreId,
           nombre: modalData.nombre,
-          subeventos: []
+          subeventos: modalData.subeventos.map((subevento) => ({
+            id: subevento.id,
+            nombre: subevento.nombre,
+            fecha: subevento.fecha,
+            ubicacion: subevento.ubicacion,
+          })),
         })
         .then(() => {
           setOpen(!open);
           toast.success('Evento editado con éxito');
+          utils.evento.getAll.invalidate();
         })
         .catch((error: any) => {
           console.log(error);
@@ -197,16 +209,21 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
             ) : (
               <ModalTriggerEdit
                 onClick={(e) => {
+                  if (!evento) return;
                   e.preventDefault();
+                  e.stopPropagation();
                   setOpen(true);
                   useEventoModalData.setState({
                     tipo: 'EDIT',
-                    eventoPadre: evento?.id ?? '',
-                    nombre: evento?.nombre ?? '',
-                    eventoPadreId: evento?.eventoPadreId ?? '',
-                    fecha: evento?.fecha ?? '',
-                    ubicacion: evento?.ubicacion ?? '',
-                    subeventos: [],
+                    nombre: evento.nombre,
+                    fecha: evento.fecha,
+                    ubicacion: evento.ubicacion,
+                    subeventos: evento.subEventos.map((subevento) => ({
+                      id: subevento.id,
+                      nombre: subevento.nombre,
+                      fecha: subevento.fecha,
+                      ubicacion: subevento.ubicacion,
+                    })),
                   });
                 }}
               >
@@ -243,7 +260,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   name='fecha'
                   id='fecha'
                   placeholder='Fecha del evento'
-                  value={modalData.fecha}
+                  value={modalData.fecha.replace('Z', '')}
                   onChange={(e) =>
                     useEventoModalData.setState({ fecha: e.target.value })
                   }
@@ -289,9 +306,9 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
               {editEvento.isError ? 'Error al editar el evento' : ''}
             </p>
           ) : null}
-          <div className='flex h-full max-h-56 flex-col gap-y-3 overflow-y-auto overflow-x-scroll'>
+          <div className='flex h-full max-h-56 flex-col gap-y-3 overflow-y-auto'>
             {modalData.subeventos.map((subevento, index) => (
-              <>
+              <div key={index}>
                 <hr className='bg-slate-400' />
                 <div key={index} className='flex flex-col gap-y-1.5'>
                   <div className='flex gap-3'>
@@ -311,7 +328,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     <Input
                       type='datetime-local'
                       placeholder='Fecha del subevento'
-                      value={subevento.fecha}
+                      value={subevento.fecha.replace('Z', '')}
                       onChange={(e) => {
                         const updatedSubeventos = [...modalData.subeventos];
                         updatedSubeventos[index].fecha = e.target.value;
@@ -349,14 +366,19 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     </Button>
                   </div>
                 </div>
-              </>
+              </div>
             ))}
           </div>
 
           <Button
             onClick={() => {
               const updatedSubeventos = [...modalData.subeventos];
-              updatedSubeventos.push({ nombre: '', fecha: '', ubicacion: '' });
+              updatedSubeventos.push({
+                id: '',
+                nombre: '',
+                fecha: '',
+                ubicacion: '',
+              });
               useEventoModalData.setState({ subeventos: updatedSubeventos });
             }}
           >
