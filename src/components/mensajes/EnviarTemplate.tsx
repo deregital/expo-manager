@@ -92,6 +92,9 @@ const EnviarTemplate = () => {
 
   return (
     <>
+    <div className='flex justify-center items-center pt-3 font-bold'>
+      <h1>Envío de plantillas</h1>
+    </div>
     <div className='p-5 flex justify-around items-start'>
       <div>
       <ComboBox 
