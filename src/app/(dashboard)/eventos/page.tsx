@@ -9,7 +9,6 @@ import ExpandContractEventos, {
   useExpandEventos,
 } from '@/components/eventos/expandcontracteventos';
 import { searchNormalize } from '@/lib/utils';
-import { useQueryClient } from 'react-query';
 
 const EventosPage = () => {
   const [search, setSearch] = useState('');
@@ -19,7 +18,7 @@ const EventosPage = () => {
     expandState: s.state,
   }));
 
-  const queryClient = useQueryClient(); 
+  const utils = trpc.useUtils();
 
   const eventosFiltrados = useMemo(() => {
     if (!eventos) return [];
@@ -40,12 +39,15 @@ const EventosPage = () => {
         );
       });
     }
+    invalidateEventoQuery();
 
-    
-    queryClient.invalidateQueries('utils.evento.getAll');
 
     return filteredEventos;
-  }, [eventos, search, queryClient]);
+  }, [eventos, search]);
+
+  const invalidateEventoQuery = () => {
+    utils.evento.getAll.invalidate();
+  };
 
   return (
     <>
