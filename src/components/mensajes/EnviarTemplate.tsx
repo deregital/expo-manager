@@ -9,10 +9,12 @@ import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Circle } from 'lucide-react';
 import CircleXIcon from '../icons/CircleX';
+import { getTextColorByBg } from '@/lib/utils';
 
 interface EtiquetasProps {
   id: string;
   name: string;
+  color?: string;
 }
 
 const precioTemplate = {
@@ -145,7 +147,7 @@ const EnviarTemplate = () => {
               return
             }
             useEnviarTemplate.setState({
-              etiquetas: [...templateData.etiquetas, { id, name: etiquetas?.find((et) => et.id === id)?.nombre ?? ''}],
+              etiquetas: [...templateData.etiquetas, { id, name: etiquetas?.find((et) => et.id === id)?.nombre ?? '', color: etiquetas?.find((et) => et.id === id)?.grupo.color ?? ''}],
             });
             setOpenEtiqueta(false);
             toast.success('Etiqueta agregada correctamente');
@@ -153,19 +155,24 @@ const EnviarTemplate = () => {
           selectedIf={''}
           wFullMobile
         />
-        {templateData.etiquetas.map((etiqueta) => (
-          <div key={etiqueta.id} className='flex justify-between items-center gap-x-2 bg-red-500 px-2 py-0.5 rounded-full w-fit'>
-            <span className='text-sm'>{etiqueta.name}</span>
-              <CircleXIcon 
-                onClick={() => {
-                  useEnviarTemplate.setState({
-                    etiquetas: templateData.etiquetas.filter((et) => et.id !== etiqueta.id),
-                  });
-                }} 
-                className='h-4 w-4 text-white hover:cursor-pointer' 
-              />
-            </div>
-        ))}
+        <div className='flex flex-col gap-y-2 max-h-40 overflow-y-auto'>
+          {templateData.etiquetas.map((etiqueta) => (
+            <div key={etiqueta.id} className={`flex justify-between items-center gap-x-2 px-2 py-0.5 rounded-full w-fit`} style={{
+              backgroundColor: etiqueta.color,
+              color: getTextColorByBg(etiqueta.color ?? ''),
+            }}>
+              <span className='text-sm'>{etiqueta.name}</span>
+                <CircleXIcon 
+                  onClick={() => {
+                    useEnviarTemplate.setState({
+                      etiquetas: templateData.etiquetas.filter((et) => et.id !== etiqueta.id),
+                    });
+                  }} 
+                  className='h-4 w-4 text-white hover:cursor-pointer' 
+                />
+              </div>
+          ))}
+        </div>
       </div>
     </div>
     <div className='flex justify-around items-center'>
