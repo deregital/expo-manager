@@ -5,9 +5,8 @@ import SharedCard from '@/components/dashboard/SharedCard';
 import ComboBox from '@/components/ui/ComboBox';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { trpc } from '@/lib/trpc';
-import { dateFormatYYYYMMDD } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
-import { addDays } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import React, { useMemo, useState } from 'react';
 import { create } from 'zustand';
 
@@ -20,7 +19,7 @@ export const useDashboardData = create<{
   etiquetaId: string;
 }>(() => ({
   from: new Date(),
-  to: addDays(new Date().toISOString(), 1),
+  to: new Date(),
   grupoEtiquetaId: '',
   etiquetaId: '',
 }));
@@ -62,9 +61,8 @@ const PageClient = ({}: PageClientProps) => {
     trpc.etiqueta.getAll.useQuery();
   const { data: modelosData, isLoading: modelosLoading } =
     trpc.modelo.getByDateRange.useQuery({
-      start: dateFormatYYYYMMDD(from),
-      end: dateFormatYYYYMMDD(to),
-      //   etiquetaId: etiquetaId,
+      start: format(from, 'yyyy-MM-dd'),
+      end: format(addDays(to, 1), 'yyyy-MM-dd'),
     });
 
   const currentGrupo = useMemo(() => {
@@ -125,9 +123,11 @@ const PageClient = ({}: PageClientProps) => {
           initialDateTo={to}
           locale='es-AR'
           onUpdate={({ range }) => {
-            useDashboardData.setState({ from: range.from });
             useDashboardData.setState({
-              to: range.to ? range.to : addDays(new Date(), 1),
+              from: range.from,
+              to: range.to
+                ? new Date(addDays(range.to, 1).getTime() - 1000)
+                : new Date(addDays(new Date(), 1).getTime() - 1000),
             });
           }}
         />
@@ -195,10 +195,14 @@ const PageClient = ({}: PageClientProps) => {
         <GraficoCard isLoading={modelosLoading} modelos={modelosParaGrafico} />
       </section>
       <section className='rounded-md grid-in-listaModelos sm:h-full sm:max-h-full'>
-        <ModelosList modelos={modelosQueCuentan.slice(0, 20)} />
+        <ModelosList
+          isLoading={modelosLoading}
+          modelos={modelosQueCuentan.slice(0, 20)}
+        />
       </section>
       <section className='rounded-md grid-in-cardModelos sm:self-end sm:pb-2'>
         <SharedCard
+          popoverText='Cantidad de modelos que cuentan con la etiqueta seleccionada'
           title='Modelos'
           content={modelosQueCuentan.length.toString()}
           isLoading={modelosLoading}
@@ -206,6 +210,7 @@ const PageClient = ({}: PageClientProps) => {
       </section>
       <section className='rounded-md grid-in-cardRetencion sm:self-end sm:pb-2'>
         <SharedCard
+          popoverText='Porcentaje de modelos que aceptaron ser contactados'
           title='Retención de modelos'
           content={
             isNaN(retencion)

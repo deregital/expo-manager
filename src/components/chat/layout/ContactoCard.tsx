@@ -1,7 +1,7 @@
 import ChatFillIcon from '@/components/icons/ChatFillIcon';
+import FotoModelo from '@/components/ui/FotoModelo';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
-import Image from 'next/image';
 import React from 'react';
 
 interface ContactoCardProps {
@@ -17,13 +17,7 @@ const ContactoCard = ({ contacto, inPage }: ContactoCardProps) => {
         'bg-green-200 hover:bg-green-300': inPage,
       })}
     >
-      <Image
-        src={contacto.fotoUrl ?? '/img/profilePlaceholder.jpg'}
-        alt={contacto.nombreCompleto}
-        width={50}
-        height={50}
-        className='aspect-square rounded-full'
-      />
+      <FotoModelo url={contacto.fotoUrl} />
       <div className='flex w-full items-center justify-end gap-x-2'>
         <p className='truncate'>{contacto.nombreCompleto}</p>
         {contacto.inChat && <ChatFillIcon />}
