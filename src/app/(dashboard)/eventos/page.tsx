@@ -9,6 +9,7 @@ import ExpandContractEventos, {
   useExpandEventos,
 } from '@/components/eventos/expandcontracteventos';
 import { searchNormalize } from '@/lib/utils';
+import { useQueryClient } from 'react-query';
 
 const EventosPage = () => {
   const [search, setSearch] = useState('');
@@ -17,6 +18,8 @@ const EventosPage = () => {
     setNone: s.none,
     expandState: s.state,
   }));
+
+  const queryClient = useQueryClient(); 
 
   const eventosFiltrados = useMemo(() => {
     if (!eventos) return [];
@@ -38,8 +41,11 @@ const EventosPage = () => {
       });
     }
 
+    
+    queryClient.invalidateQueries('utils.evento.getAll');
+
     return filteredEventos;
-  }, [eventos, search]);
+  }, [eventos, search, queryClient]);
 
   return (
     <>
