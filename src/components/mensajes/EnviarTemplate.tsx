@@ -59,6 +59,10 @@ const EnviarTemplate = () => {
     return (0.0618)*(modelos ? modelos.length : 0)
   }, [modelos, templateData.plantilla]);
 
+  const currentEtiquetas = useMemo(() => {
+    return etiquetas?.filter((et) => !templateData.etiquetas.find((etiqueta) => etiqueta.id === et.id));
+  }, [etiquetas, templateData.etiquetas]);
+
   async function handleSubmit() {
     if (templateData.plantilla === '') {
       toast.error('Por favor seleccione una plantilla');
@@ -130,7 +134,7 @@ const EnviarTemplate = () => {
       </div>
       <div className='flex flex-col gap-y-3'>
       <ComboBox
-          data={etiquetas ? etiquetas : []}
+          data={currentEtiquetas ? currentEtiquetas : []}
           id={'id'}
           value={'nombre'}
           open={openEtiqueta}
