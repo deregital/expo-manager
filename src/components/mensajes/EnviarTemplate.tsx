@@ -186,7 +186,7 @@ const EnviarTemplate = () => {
             <span>{modelos?.length} modelos encontradas</span>
           </div>
           <div>
-            <span>USD${currentPrecio} precio estimado</span>
+            <span>USD${currentPrecio.toFixed(3)} precio estimado</span>
           </div>
           <Button onClick={handleSubmit} className='bg-black/70 text-white px-3 py-1.5 rounded-md'>Enviar</Button>
     </div>
