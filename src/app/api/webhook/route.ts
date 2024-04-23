@@ -61,7 +61,7 @@ async function crearMensaje(message: WebhookMessage) {
     return await prisma.mensaje.create({
       data: {
         wamId: message.id,
-        deliveredAt: new Date(Number.parseInt(message.timestamp) * 1000),
+        statusAt: new Date(Number.parseInt(message.timestamp) * 1000),
         message: message,
         perfil: {
           connect: {
