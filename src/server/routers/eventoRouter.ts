@@ -1,4 +1,5 @@
 import { protectedProcedure, router } from '@/server/trpc';
+import { TipoEtiqueta } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
@@ -25,13 +26,88 @@ export const eventoRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      const grupoEtiquetasEvento = await ctx.prisma.etiquetaGrupo.create({
+        data: {
+          nombre: input.nombre,
+          esExclusivo: true,
+          color: '#666666',
+        },
+      });
+
+      // creamos los subeventos con sus respectivas etiquetas
+      const subeventos = await Promise.all(
+        input.subeventos.map(async (subevento) => {
+          const grupoEtiquetaSubevento = await ctx.prisma.etiquetaGrupo.create({
+            data: {
+              nombre: subevento.nombre,
+              esExclusivo: true,
+              color: '#666666',
+            },
+          });
+
+          return await ctx.prisma.evento.create({
+            data: {
+              nombre: subevento.nombre,
+              fecha: subevento.fecha,
+              ubicacion: subevento.ubicacion,
+              etiquetaAsistio: {
+                create: {
+                  grupo: {
+                    connect: {
+                      id: grupoEtiquetaSubevento.id,
+                    },
+                  },
+                  nombre: `${subevento.nombre} - Asistió`,
+                  tipo: TipoEtiqueta.EVENTO,
+                },
+              },
+              etiquetaConfirmo: {
+                create: {
+                  grupo: {
+                    connect: {
+                      id: grupoEtiquetaSubevento.id,
+                    },
+                  },
+                  nombre: `${subevento.nombre} - Confirmó asistencia`,
+                  tipo: TipoEtiqueta.EVENTO,
+                },
+              },
+            },
+          });
+        })
+      );
+
       return await ctx.prisma.evento.create({
         data: {
           nombre: input.nombre,
           fecha: input.fecha,
           ubicacion: input.ubicacion,
+          etiquetaAsistio: {
+            create: {
+              grupo: {
+                connect: {
+                  id: grupoEtiquetasEvento.id,
+                },
+              },
+              nombre: `${input.nombre} - Asistió`,
+              tipo: TipoEtiqueta.EVENTO,
+            },
+          },
+          etiquetaConfirmo: {
+            create: {
+              grupo: {
+                connect: {
+                  id: grupoEtiquetasEvento.id,
+                },
+              },
+              nombre: `${input.nombre} - Confirmó asistencia`,
+              tipo: TipoEtiqueta.EVENTO,
+            },
+          },
           subEventos: {
-            createMany: { data: input.subeventos },
+            connect: subeventos.map((subevento) => ({
+              id: subevento.id,
+            })),
           },
         },
       });
@@ -95,7 +171,7 @@ export const eventoRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await ctx.prisma.evento.update({
+      const evento = await ctx.prisma.evento.update({
         where: {
           id: input.id,
         },
@@ -104,11 +180,56 @@ export const eventoRouter = router({
           fecha: input.fecha,
           ubicacion: input.ubicacion,
         },
+        select: {
+          etiquetaAsistio: {
+            include: {
+              grupo: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          etiquetaConfirmo: {
+            select: { id: true },
+          },
+        },
+      });
+
+      await ctx.prisma.etiquetaGrupo.update({
+        where: {
+          id: evento.etiquetaAsistio.grupo.id,
+        },
+        data: {
+          nombre: input.nombre,
+        },
+      });
+
+      await ctx.prisma.etiqueta.update({
+        where: {
+          id: evento.etiquetaAsistio.id,
+        },
+        data: {
+          nombre: `${input.nombre} - Asistió`,
+        },
+      });
+
+      await ctx.prisma.etiqueta.update({
+        where: {
+          id: evento.etiquetaConfirmo.id,
+        },
+        data: {
+          nombre: `${input.nombre} - Confirmó asistencia`,
+        },
       });
 
       const subeventos = await ctx.prisma.evento.findMany({
         where: {
           eventoPadreId: input.id,
+        },
+        include: {
+          etiquetaAsistio: true,
+          etiquetaConfirmo: true,
         },
       });
 
@@ -116,41 +237,121 @@ export const eventoRouter = router({
         (subevento) => !input.subeventos.some((sub) => sub.id === subevento.id)
       );
 
-      await Promise.all(
-        input.subeventos.map(async (subevento) => {
-          await ctx.prisma.evento.upsert({
+      input.subeventos.forEach(async (subevento) => {
+        let grupoEtiquetasSubeventoId: string;
+        if (subeventos.map((sub) => sub.id).includes(subevento.id)) {
+          // Si el subevento ya existe, acutalizamos el grupo de etiquetas junto con sus etiquetas
+          const inputSubevento = subeventos.find(
+            (sub) => sub.id === subevento.id
+          );
+
+          if (!inputSubevento) {
+            throw new TRPCError({
+              code: 'NOT_FOUND',
+              message: 'Subevento no encontrado',
+            });
+          }
+
+          await ctx.prisma.etiquetaGrupo.update({
             where: {
-              id: subevento.id,
+              id: inputSubevento.etiquetaAsistio.grupoId,
             },
-            update: {
-              fecha: subevento.fecha,
-              ubicacion: subevento.ubicacion,
+            data: {
               nombre: subevento.nombre,
             },
-            create: {
-              fecha: subevento.fecha,
-              ubicacion: subevento.ubicacion,
-              nombre: subevento.nombre,
-              eventoPadre: {
-                connect: {
-                  id: input.id,
-                },
+          });
+          await ctx.prisma.etiqueta.update({
+            where: {
+              id: inputSubevento.etiquetaAsistio.id,
+            },
+            data: {
+              nombre: `${subevento.nombre} - Asistió`,
+            },
+          });
+          await ctx.prisma.etiqueta.update({
+            where: {
+              id: inputSubevento.etiquetaConfirmo.id,
+            },
+            data: {
+              nombre: `${subevento.nombre} - Confirmó asistencia`,
+            },
+          });
+
+          grupoEtiquetasSubeventoId = inputSubevento.etiquetaAsistio.grupoId;
+        } else {
+          // create grupo de etiquetas:
+          const grupoEtiquetasSubevento = await ctx.prisma.etiquetaGrupo.create(
+            {
+              data: {
+                nombre: subevento.nombre,
+                esExclusivo: true,
+                color: '#666666',
+              },
+            }
+          );
+          grupoEtiquetasSubeventoId = grupoEtiquetasSubevento.id;
+        }
+
+        await ctx.prisma.evento.upsert({
+          where: {
+            id: subevento.id,
+          },
+          update: {
+            fecha: subevento.fecha,
+            ubicacion: subevento.ubicacion,
+            nombre: subevento.nombre,
+          },
+          create: {
+            fecha: subevento.fecha,
+            ubicacion: subevento.ubicacion,
+            nombre: subevento.nombre,
+            eventoPadre: {
+              connect: {
+                id: input.id,
               },
             },
-          });
-        })
-      );
+            etiquetaAsistio: {
+              create: {
+                grupo: {
+                  connect: {
+                    id: grupoEtiquetasSubeventoId,
+                  },
+                },
+                nombre: `${subevento.nombre} - Asistió`,
+                tipo: TipoEtiqueta.EVENTO,
+              },
+            },
+            etiquetaConfirmo: {
+              // same as above
+              create: {
+                grupo: {
+                  connect: {
+                    id: grupoEtiquetasSubeventoId,
+                  },
+                },
+                nombre: `${subevento.nombre} - Confirmó asistencia`,
+                tipo: TipoEtiqueta.EVENTO,
+              },
+            },
+          },
+        });
+      });
 
       // Eliminar los subeventos que no se encuentren en la lista de subeventos
-      await Promise.all(
-        subEventosEliminados.map(async (subevento) => {
-          await ctx.prisma.evento.delete({
-            where: {
-              id: subevento.id,
-            },
-          });
-        })
-      );
+      subEventosEliminados.forEach(async (subevento) => {
+        const grupoEtiquetaId = subevento.etiquetaAsistio.grupoId;
+        await ctx.prisma.evento.delete({
+          where: {
+            id: subevento.id,
+          },
+        });
+
+        await ctx.prisma.etiquetaGrupo.delete({
+          where: {
+            id: grupoEtiquetaId,
+          },
+        });
+      });
 
       return 'OK';
     }),
@@ -193,32 +394,5 @@ export const eventoRouter = router({
       }
 
       return evento.subEventos;
-    }),
-
-  addSubevento: protectedProcedure
-    .input(
-      z.object({
-        eventoId: z.string().uuid(),
-        subeventos: z.array(
-          z.object({
-            subeventoId: z.string().uuid(),
-            fecha: z.string(),
-            ubicacion: z.string(),
-            nombre: z.string(),
-          })
-        ),
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      return await ctx.prisma.evento.update({
-        where: {
-          id: input.eventoId,
-        },
-        data: {
-          subEventos: {
-            createMany: { data: input.subeventos },
-          },
-        },
-      });
     }),
 });
