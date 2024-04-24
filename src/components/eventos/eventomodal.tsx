@@ -271,10 +271,10 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
               {editEvento.isError ? 'Error al editar el evento' : ''}
             </p>
           ) : null}
-          <div className='flex h-full max-h-56 flex-col gap-y-3 overflow-y-auto'>
+          <div className='flex h-full max-h-64 flex-col gap-y-3 overflow-y-auto'>
             {modalData.subeventos.map((subevento, index) => (
               <div key={index}>
-                <hr className='bg-slate-400' />
+                <hr className='mb-2 bg-slate-400' />
                 <div key={index} className='flex flex-col gap-y-1.5'>
                   <div className='flex gap-3'>
                     <Input

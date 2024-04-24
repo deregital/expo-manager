@@ -116,12 +116,8 @@ export const eventoRouter = router({
         (subevento) => !input.subeventos.some((sub) => sub.id === subevento.id)
       );
 
-      const subEventosActualizadosOAgregados = input.subeventos.filter(
-        (subevento) => !subeventos.some((sub) => sub.id === subevento.id)
-      );
-
       await Promise.all(
-        subEventosActualizadosOAgregados.map(async (subevento) => {
+        input.subeventos.map(async (subevento) => {
           await ctx.prisma.evento.upsert({
             where: {
               id: subevento.id,
