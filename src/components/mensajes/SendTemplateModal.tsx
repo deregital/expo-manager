@@ -60,7 +60,7 @@ const SendTemplateModal = () => {
               ¿Estás seguro de que deseas enviar la plantilla{' '}
               {templateData.plantilla ? templateData.plantilla : '-'}
               {' '}a {' '}
-              {templateData.modelos}{' '} a un valor de USD${templateData.precio.toFixed(3)}?
+              {templateData.modelos}{' '}{templateData.modelos !== 1 ? 'modelos' : 'modelo'} a un valor de USD${templateData.precio.toFixed(3)}?
             </p>
             <div className='flex items-center justify-end gap-x-2'>
               <button
