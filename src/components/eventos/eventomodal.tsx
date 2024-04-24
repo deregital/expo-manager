@@ -15,7 +15,6 @@ import Loader from '@/components/ui/loader';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import EventFillIcon from '../icons/EventFillIcon';
-import ComboBox from '@/components/ui/ComboBox';
 
 interface EventoModalProps {
   action: 'CREATE' | 'EDIT';
@@ -27,12 +26,15 @@ interface EventoModalProps {
 
 type ModalData = {
   tipo: 'CREATE' | 'EDIT';
-  eventoPadreId: string;
   nombre: string;
   fecha: string;
   ubicacion: string;
-  eventoPadre: string;
-  subeventos: { nombre: string; fecha: string; ubicacion: string }[];
+  subeventos: {
+    id: string;
+    nombre: string;
+    fecha: string;
+    ubicacion: string;
+  }[];
 };
 
 export const useEventoModalData = create<ModalData>(() => ({
@@ -41,25 +43,20 @@ export const useEventoModalData = create<ModalData>(() => ({
   nombre: '',
   fecha: '',
   ubicacion: '',
-  eventoPadreId: '',
   subeventos: [],
 }));
 
 const EventoModal = ({ action, evento }: EventoModalProps) => {
-  const { data: eventos, isLoading: eventosLoading } =
-    trpc.evento.getAll.useQuery();
-
   const utils = trpc.useUtils();
   const modalData = useEventoModalData((state) => ({
-    eventoPadreId: state.eventoPadreId,
     tipo: state.tipo,
     nombre: state.nombre,
     fecha: state.fecha,
     ubicacion: state.ubicacion,
     subeventos: state.subeventos,
   }));
+
   const [open, setOpen] = useState(false);
-  const [openCombo, setOpenCombo] = useState(false);
   const [quiereEliminar, setQuiereEliminar] = useState(false);
   const createEvento = trpc.evento.create.useMutation();
   const deleteEvento = trpc.evento.delete.useMutation();
@@ -70,7 +67,6 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
       await createEvento
         .mutateAsync({
           nombre: modalData.nombre,
-          eventoPadreId: useEventoModalData.getState().eventoPadreId,
           fecha: modalData.fecha,
           ubicacion: modalData.ubicacion,
           subeventos: modalData.subeventos,
@@ -95,12 +91,20 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
       await editEvento
         .mutateAsync({
           id: evento.id,
-          eventoPadreId: useEventoModalData.getState().eventoPadreId,
+          fecha: modalData.fecha,
+          ubicacion: modalData.ubicacion,
           nombre: modalData.nombre,
+          subeventos: modalData.subeventos.map((subevento) => ({
+            id: subevento.id,
+            nombre: subevento.nombre,
+            fecha: subevento.fecha,
+            ubicacion: subevento.ubicacion,
+          })),
         })
         .then(() => {
           setOpen(!open);
           toast.success('Evento editado con éxito');
+          utils.evento.getAll.invalidate();
         })
         .catch((error: any) => {
           console.log(error);
@@ -111,11 +115,9 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
     if (createEvento.isSuccess || editEvento.isSuccess) {
       useEventoModalData.setState({
         tipo: 'CREATE',
-        eventoPadre: '',
         nombre: '',
         fecha: '',
         ubicacion: '',
-        eventoPadreId: '',
         subeventos: [],
       });
     }
@@ -126,11 +128,9 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
   async function handleCancel() {
     useEventoModalData.setState({
       tipo: 'CREATE',
-      eventoPadre: '',
       nombre: '',
       fecha: '',
       ubicacion: '',
-      eventoPadreId: '',
       subeventos: [],
     });
     createEvento.reset();
@@ -154,9 +154,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
       if (createEvento.isSuccess || editEvento.isSuccess) {
         useEventoModalData.setState({
           tipo: 'CREATE',
-          eventoPadreId: '',
           nombre: '',
-          eventoPadre: '',
           fecha: '',
           ubicacion: '',
           subeventos: [],
@@ -180,8 +178,6 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   useEventoModalData.setState({
                     tipo: 'CREATE',
                     nombre: '',
-                    eventoPadre: '',
-                    eventoPadreId: '',
                     fecha: '',
                     ubicacion: '',
                     subeventos: [],
@@ -196,16 +192,21 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
             ) : (
               <ModalTriggerEdit
                 onClick={(e) => {
+                  if (!evento) return;
                   e.preventDefault();
+                  e.stopPropagation();
                   setOpen(true);
                   useEventoModalData.setState({
                     tipo: 'EDIT',
-                    eventoPadre: evento?.id ?? '',
-                    nombre: evento?.nombre ?? '',
-                    eventoPadreId: evento?.eventoPadreId ?? '',
-                    fecha: evento?.fecha ?? '',
-                    ubicacion: evento?.ubicacion ?? '',
-                    subeventos: [],
+                    nombre: evento.nombre,
+                    fecha: evento.fecha,
+                    ubicacion: evento.ubicacion,
+                    subeventos: evento.subEventos.map((subevento) => ({
+                      id: subevento.id,
+                      nombre: subevento.nombre,
+                      fecha: subevento.fecha,
+                      ubicacion: subevento.ubicacion,
+                    })),
                   });
                 }}
               >
@@ -242,7 +243,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   name='fecha'
                   id='fecha'
                   placeholder='Fecha del evento'
-                  value={modalData.fecha}
+                  value={modalData.fecha.replace('Z', '')}
                   onChange={(e) =>
                     useEventoModalData.setState({ fecha: e.target.value })
                   }
@@ -261,24 +262,6 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   }
                   required // Atributo required agregado aquí
                 />
-                {eventosLoading ? (
-                  <Loader />
-                ) : (
-                  <ComboBox
-                    id='id'
-                    onSelect={(value) => {
-                      useEventoModalData.setState({
-                        eventoPadreId: value,
-                      });
-                    }}
-                    open={openCombo}
-                    setOpen={setOpenCombo}
-                    selectedIf={modalData.eventoPadreId}
-                    triggerChildren={<span>Evento padre</span>}
-                    value='nombre'
-                    data={eventos ?? []}
-                  />
-                )}
               </div>
             </div>
           </div>
@@ -288,10 +271,10 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
               {editEvento.isError ? 'Error al editar el evento' : ''}
             </p>
           ) : null}
-          <div className='flex h-full max-h-56 flex-col gap-y-3 overflow-y-auto overflow-x-scroll'>
+          <div className='flex h-full max-h-64 flex-col gap-y-3 overflow-y-auto'>
             {modalData.subeventos.map((subevento, index) => (
-              <>
-                <hr className='bg-slate-400' />
+              <div key={index}>
+                <hr className='mb-2 bg-slate-400' />
                 <div key={index} className='flex flex-col gap-y-1.5'>
                   <div className='flex gap-3'>
                     <Input
@@ -310,7 +293,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     <Input
                       type='datetime-local'
                       placeholder='Fecha del subevento'
-                      value={subevento.fecha}
+                      value={subevento.fecha.replace('Z', '')}
                       onChange={(e) => {
                         const updatedSubeventos = [...modalData.subeventos];
                         updatedSubeventos[index].fecha = e.target.value;
@@ -348,14 +331,19 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     </Button>
                   </div>
                 </div>
-              </>
+              </div>
             ))}
           </div>
 
           <Button
             onClick={() => {
               const updatedSubeventos = [...modalData.subeventos];
-              updatedSubeventos.push({ nombre: '', fecha: '', ubicacion: '' });
+              updatedSubeventos.push({
+                id: '',
+                nombre: '',
+                fecha: '',
+                ubicacion: '',
+              });
               useEventoModalData.setState({ subeventos: updatedSubeventos });
             }}
           >

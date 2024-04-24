@@ -72,7 +72,13 @@ const EventosPage = () => {
             <Loader />
           </div>
         ) : (
-          <EventosList eventos={eventosFiltrados} />
+          <EventosList
+            eventos={eventosFiltrados.sort((a, b) => {
+              if (a.fecha < b.fecha) return -1;
+              if (a.fecha > b.fecha) return 1;
+              return 0;
+            })}
+          />
         )}
       </div>
     </>
