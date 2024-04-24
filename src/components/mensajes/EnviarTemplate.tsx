@@ -9,12 +9,7 @@ import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import CircleXIcon from '../icons/CircleX';
 import { getTextColorByBg } from '@/lib/utils';
-
-interface EtiquetasProps {
-  id: string;
-  name: string;
-  color?: string;
-}
+import { useTemplateSend } from './SendTemplateModal';
 
 const precioTemplate = {
   'MARKETING': 0.0618,
@@ -22,16 +17,9 @@ const precioTemplate = {
   'AUTHENTICATION': 0.0367,
 } as const;
 
-export const useEnviarTemplate = create<{
-  plantilla: string;
-  etiquetas: EtiquetasProps[];
-}>(() => ({
-  plantilla: '',
-  etiquetas: [],
-}));
-
 const EnviarTemplate = () => {
-  const templateData = useEnviarTemplate((state) => ({
+  const templateData = useTemplateSend((state) => ({
+    open: state.open,
     plantilla: state.plantilla,
     etiquetas: state.etiquetas,
   }));
@@ -41,7 +29,7 @@ const EnviarTemplate = () => {
   const { data: template } = trpc.whatsapp.getTemplateById.useQuery(templateData.plantilla, {
     enabled: templateData.plantilla !== '',
   });
-  const sendMessage = trpc.whatsapp.sendMessageToEtiqueta.useMutation();
+  // const sendMessage = trpc.whatsapp.sendMessageToEtiqueta.useMutation();
 
   const [openPlantilla, setOpenPlantilla] = useState(false);
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
@@ -71,26 +59,11 @@ const EnviarTemplate = () => {
       toast.error('Por favor seleccione al menos una etiqueta');
       return;
     }
-    // const res = await sendMessage.mutateAsync({
-    //   plantillaName: templateData.plantilla,
-    //   etiquetas: templateData.etiquetas.map((et) => et.id),
-    // })
-    // if (res === 'Mensajes enviados') {
-    //   toast.success('Plantilla enviada correctamente');
-    //   useEnviarTemplate.setState({
-    //     plantilla: '',
-    //     etiquetas: [],
-    //   });
-    //   return
-    // } else {
-    //   toast.error('Error al enviar la plantilla a las etiquetas seleccionadas');
-    //   return
-    // }
-    toast.success('Plantilla enviada correctamente');
-      useEnviarTemplate.setState({
-        plantilla: '',
-        etiquetas: [],
-      });
+    useTemplateSend.setState({
+      open: true,
+      modelos: modelos?.length ?? 0,
+      precio: currentPrecio,
+    });
   }
 
   return (
@@ -116,13 +89,13 @@ const EnviarTemplate = () => {
         }
         onSelect={(id) => {
           if (templateData.plantilla === id) {
-            useEnviarTemplate.setState({
+            useTemplateSend.setState({
               plantilla: '',
             });
             setOpenPlantilla(false);
             return;
           }
-          useEnviarTemplate.setState({
+          useTemplateSend.setState({
             plantilla: id,
           });
           setOpenPlantilla(false);
@@ -152,7 +125,7 @@ const EnviarTemplate = () => {
               setOpenEtiqueta(false);
               return
             }
-            useEnviarTemplate.setState({
+            useTemplateSend.setState({
               etiquetas: [...templateData.etiquetas, { id, name: etiquetas?.find((et) => et.id === id)?.nombre ?? '', color: etiquetas?.find((et) => et.id === id)?.grupo.color ?? ''}],
             });
             setOpenEtiqueta(false);
@@ -170,7 +143,7 @@ const EnviarTemplate = () => {
               <span className='text-sm'>{etiqueta.name}</span>
                 <CircleXIcon 
                   onClick={() => {
-                    useEnviarTemplate.setState({
+                    useTemplateSend.setState({
                       etiquetas: templateData.etiquetas.filter((et) => et.id !== etiqueta.id),
                     });
                   }} 

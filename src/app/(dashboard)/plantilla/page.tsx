@@ -4,6 +4,7 @@ import DeleteTemplateModal, {
 } from '@/components/mensajes/DeleteTemplateModal';
 import EnviarTemplate from '@/components/mensajes/EnviarTemplate';
 import PlantillasList from '@/components/mensajes/PlantillasList';
+import SendTemplateModal from '@/components/mensajes/SendTemplateModal';
 import { GetTemplatesData } from '@/server/types/whatsapp';
 import React, { useState } from 'react';
 
@@ -19,6 +20,7 @@ const MensajesPage = () => {
       <PlantillasList />
       <EnviarTemplate />
       <DeleteTemplateModal open={open} plantilla={plantilla} />
+      <SendTemplateModal />
     </div>
   );
 };

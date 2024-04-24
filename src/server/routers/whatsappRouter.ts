@@ -80,6 +80,7 @@ export const whatsappRouter = router({
           body: JSON.stringify(contenido),
         }
       ).then((res) => res.json());
+      console.log(res);
       if (res.id) {
         return 'Plantilla creada correctamente';
       } else {
