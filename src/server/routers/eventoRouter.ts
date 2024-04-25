@@ -29,7 +29,7 @@ export const eventoRouter = router({
       const grupoEtiquetasEvento = await ctx.prisma.etiquetaGrupo.create({
         data: {
           nombre: input.nombre,
-          esExclusivo: true,
+          esExclusivo: false,
           color: '#666666',
         },
       });
@@ -40,7 +40,7 @@ export const eventoRouter = router({
           const grupoEtiquetaSubevento = await ctx.prisma.etiquetaGrupo.create({
             data: {
               nombre: subevento.nombre,
-              esExclusivo: true,
+              esExclusivo: false,
               color: '#666666',
             },
           });
@@ -284,7 +284,7 @@ export const eventoRouter = router({
             {
               data: {
                 nombre: subevento.nombre,
-                esExclusivo: true,
+                esExclusivo: false,
                 color: '#666666',
               },
             }
