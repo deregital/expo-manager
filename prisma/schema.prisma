@@ -76,6 +76,9 @@ model Etiqueta {
     plantillas Plantilla[]   @relation("PLANTILLA_X_ETIQUETA")
     cuentas    Cuenta[]      @relation("CUENTA_X_ETIQUETA")
 
+    eventosConfirmados Evento[] @relation("EVENTOCONFIRMADO_X_ETIQUETA")
+    eventosAsistidos   Evento[] @relation("EVENTOASISTIDO_X_ETIQUETA")
+
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 
@@ -123,6 +126,12 @@ model Evento {
     eventoPadreId String?  @map("evento_padre")
     eventoPadre   Evento?  @relation("SubEventos", fields: [eventoPadreId], references: [id])
     subEventos    Evento[] @relation("SubEventos")
+
+    etiquetaConfirmo   Etiqueta @relation("EVENTOCONFIRMADO_X_ETIQUETA", fields: [etiquetaConfirmoId], references: [id], onDelete: Cascade)
+    etiquetaConfirmoId String   @map("etiqueta_confirmo")
+
+    etiquetaAsistio   Etiqueta @relation("EVENTOASISTIDO_X_ETIQUETA", fields: [etiquetaAsistioId], references: [id], onDelete: Cascade)
+    etiquetaAsistioId String   @map("etiqueta_asistio")
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
