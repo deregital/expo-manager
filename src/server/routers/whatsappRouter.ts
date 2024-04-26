@@ -356,6 +356,7 @@ export const whatsappRouter = router({
         .catch(() => false);
 
       if (!doesFileExist) {
+        console.log('creando archivo');
         await fs.writeFile(path, '[]', 'utf8');
       }
 
