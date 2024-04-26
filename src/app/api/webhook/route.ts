@@ -1,5 +1,5 @@
 import { verifyWebhook } from '@/lib/verify';
-import { promises as fs } from 'fs';
+import fs from 'fs';
 import {
   ReceivedMessage,
   StatusChange,
@@ -140,18 +140,15 @@ async function updateJSONFile(waId: string, timestamp: string) {
     timestamp: timestamp,
   };
 
-  const path = process.cwd() + '/public/storeLastMessage.json';
+  const path = process.cwd() + '/storeLastMessage.json';
 
-  const doesFileExist = await fs
-    .access(path)
-    .then(() => true)
-    .catch(() => false);
+  const doesFileExist = fs.existsSync(path);
 
   if (!doesFileExist) {
-    await fs.writeFile(path, '[]', 'utf8');
+    fs.writeFileSync(path, '[]', 'utf8');
   }
 
-  const jsonData = JSON.parse(await fs.readFile(path, 'utf8'));
+  const jsonData = JSON.parse(fs.readFileSync(path, 'utf-8'));
 
   const myEntry = jsonData.find(
     (entry: { waId: string }) => entry.waId === waId
@@ -164,5 +161,5 @@ async function updateJSONFile(waId: string, timestamp: string) {
     jsonData.push(data);
   }
 
-  await fs.writeFile(path, JSON.stringify(jsonData), 'utf8');
+  fs.writeFileSync(path, JSON.stringify(jsonData), 'utf-8');
 }
