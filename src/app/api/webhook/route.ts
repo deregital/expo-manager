@@ -1,4 +1,5 @@
 import { verifyWebhook } from '@/lib/verify';
+import fs from 'fs';
 import {
   ReceivedMessage,
   StatusChange,
@@ -8,6 +9,7 @@ import { headers } from 'next/headers';
 import { prisma } from '@/server/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { MensajeStatus } from '@prisma/client';
+import { join as pathJoin } from 'path';
 
 export const revalidate = 0;
 
@@ -47,9 +49,19 @@ export async function POST(request: NextRequest) {
         if (changes[0].field === 'messages') {
           const value = changes[0].value;
           if ('messages' in value) {
-            await crearMensaje(value);
+            await crearMensaje(value).then(() => {
+              updateJSONFile(
+                value.contacts[0].wa_id,
+                value.messages[0].timestamp
+              );
+            });
           } else if ('statuses' in value) {
-            await actualizarStatus(value);
+            await actualizarStatus(value).then(() => {
+              updateJSONFile(
+                value.metadata.display_phone_number,
+                value.statuses[0].timestamp
+              );
+            });
           }
         }
       }
@@ -107,6 +119,18 @@ async function crearMensaje(value: ReceivedMessage) {
 
 async function actualizarStatus(value: StatusChange) {
   const status = value.statuses[0];
+  if (!status || status.status === 'failed') return;
+
+  const doesMessageExist = await prisma.mensaje.findFirst({
+    where: {
+      wamId: status.id,
+    },
+  });
+
+  if (!doesMessageExist) {
+    return;
+  }
+
   return await prisma.mensaje.update({
     where: {
       wamId: status.id,
@@ -121,4 +145,37 @@ async function actualizarStatus(value: StatusChange) {
             : MensajeStatus.ENVIADO,
     },
   });
+}
+
+async function updateJSONFile(waId: string, timestamp: string) {
+  const data = {
+    waId: waId,
+    timestamp: timestamp,
+  };
+
+  const path =
+    process.env.NODE_ENV === 'production'
+      ? '/tmp/storeLastMessage.json'
+      : pathJoin(process.cwd(), '/src/server/storeLastMessage.json');
+
+  const doesFileExist = fs.existsSync(path);
+
+  if (!doesFileExist) {
+    fs.writeFileSync(path, '[]', 'utf8');
+  }
+
+  const jsonData = JSON.parse(fs.readFileSync(path, 'utf-8'));
+
+  const myEntry = jsonData.find(
+    (entry: { waId: string }) => entry.waId === waId
+  );
+
+  if (myEntry) {
+    const index = jsonData.indexOf(myEntry);
+    jsonData[index] = data;
+  } else {
+    jsonData.push(data);
+  }
+
+  fs.writeFileSync(path, JSON.stringify(jsonData), 'utf-8');
 }

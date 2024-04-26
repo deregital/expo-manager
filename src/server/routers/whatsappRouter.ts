@@ -1,5 +1,7 @@
 import { protectedProcedure, router } from '@/server/trpc';
 import { z } from 'zod';
+import fs from 'fs';
+import { join as pathJoin } from 'path';
 import {
   Template,
   Buttons,
@@ -248,7 +250,6 @@ export const whatsappRouter = router({
           messages: { id: string }[];
         }
       ).messages[0].id;
-
       await ctx.prisma.mensaje.create({
         data: {
           message: {
@@ -323,6 +324,9 @@ export const whatsappRouter = router({
         where: {
           perfilTelefono: input,
         },
+        orderBy: {
+          created_at: 'asc',
+        },
       });
 
       return {
@@ -340,5 +344,31 @@ export const whatsappRouter = router({
           message: MessageJson;
         })[];
       };
+    }),
+  getLastMessageTimestamp: protectedProcedure
+    .input(z.string())
+    .query(async ({ input }) => {
+      const path =
+        process.env.NODE_ENV === 'production'
+          ? '/tmp/storeLastMessage.json'
+          : pathJoin(process.cwd(), '/src/server/storeLastMessage.json');
+
+      const doesFileExist = fs.existsSync(path);
+
+      if (!doesFileExist) {
+        fs.writeFileSync(path, '[]', 'utf8');
+      }
+
+      const file = fs.readFileSync(path, 'utf-8');
+
+      const myEntry = JSON.parse(file).find(
+        (entry: { waId: string }) => entry.waId === input
+      );
+
+      if (!myEntry) {
+        return new Date().getTime();
+      }
+
+      return myEntry.timestamp as number;
     }),
 });

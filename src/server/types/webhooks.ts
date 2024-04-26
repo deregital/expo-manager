@@ -56,7 +56,7 @@ export type StatusChange = {
   statuses: [
     {
       id: string;
-      status: 'delivered' | 'read' | 'sent';
+      status: 'delivered' | 'read' | 'sent' | 'failed';
       timestamp: string;
       recipient_id: string;
       conversation: {
