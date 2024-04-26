@@ -348,7 +348,7 @@ export const whatsappRouter = router({
   getLastMessageTimestamp: protectedProcedure
     .input(z.string())
     .query(async ({ input }) => {
-      const path = process.cwd() + '/storeLastMessage.json';
+      const path = process.cwd() + '/public/storeLastMessage.json';
 
       const doesFileExist = await fs
         .access(path)
