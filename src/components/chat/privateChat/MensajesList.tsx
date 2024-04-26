@@ -2,10 +2,11 @@ import MensajeRecibido from '@/components/chat/privateChat/MensajeRecibido';
 import TailWrapper from '@/components/chat/privateChat/TailWrapper';
 import CheckIcon from '@/components/icons/CheckIcon';
 import DoubleCheckIcon from '@/components/icons/DoubleCheckIcon';
+import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { MessageJson, TextMessage } from '@/server/types/whatsapp';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 type UIMessageModel = MensajesListProps['mensajes'][number] & {
   msgDate: string;
@@ -25,12 +26,26 @@ function addDateToMessages(
 
 interface MensajesListProps {
   mensajes: RouterOutputs['whatsapp']['getMessagesByTelefono']['mensajes'];
+  telefono: string;
 }
 
-const MensajesList = ({ mensajes }: MensajesListProps) => {
+const MensajesList = ({ mensajes, telefono }: MensajesListProps) => {
+  const [lastMessageSent, setLastMessageSent] = useState(Date.now());
+  const utils = trpc.useUtils();
   const stateMessages = useMemo(() => {
     return addDateToMessages(mensajes);
   }, [mensajes]);
+
+  trpc.whatsapp.getLastMessageTimestamp.useQuery(telefono, {
+    enabled: !!telefono,
+    refetchInterval: 1000,
+    onSuccess: (data) => {
+      if (data !== lastMessageSent) {
+        setLastMessageSent(data);
+        utils.whatsapp.getMessagesByTelefono.invalidate(telefono);
+      }
+    },
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {

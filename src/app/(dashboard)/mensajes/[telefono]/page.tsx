@@ -10,14 +10,17 @@ interface ChatPageProps {}
 
 const ChatPage = ({}: ChatPageProps) => {
   const { telefono } = useParams<{ telefono: string }>();
-  const { data } = trpc.whatsapp.getMessagesByTelefono.useQuery(telefono);
+  const { data } = trpc.whatsapp.getMessagesByTelefono.useQuery(telefono, {
+    enabled: !!telefono,
+    refetchInterval: 5000,
+  });
 
   return (
     <div className='relative w-full bg-[url(/img/whatsapp_background.png)]'>
       <div className='flex h-full flex-col'>
         <div className='h-full overflow-y-auto'>
           {data?.mensajes != null && (
-            <MensajesList mensajes={data?.mensajes ?? []} />
+            <MensajesList telefono={telefono} mensajes={data?.mensajes ?? []} />
           )}
         </div>
         <EnviarMensajeUI telefono={telefono} inChat={data?.inChat ?? false} />
