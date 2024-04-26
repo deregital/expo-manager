@@ -21,6 +21,7 @@ export const modeloRouter = router({
             grupo: {
               select: {
                 color: true,
+                esExclusivo: true,
               },
             },
           },
