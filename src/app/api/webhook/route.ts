@@ -1,4 +1,5 @@
 import { verifyWebhook } from '@/lib/verify';
+import { promises as fs } from 'fs';
 import {
   ReceivedMessage,
   StatusChange,
@@ -47,9 +48,19 @@ export async function POST(request: NextRequest) {
         if (changes[0].field === 'messages') {
           const value = changes[0].value;
           if ('messages' in value) {
-            await crearMensaje(value);
+            await crearMensaje(value).then(() => {
+              updateJSONFile(
+                value.contacts[0].wa_id,
+                value.messages[0].timestamp
+              );
+            });
           } else if ('statuses' in value) {
-            await actualizarStatus(value);
+            await actualizarStatus(value).then(() => {
+              updateJSONFile(
+                value.metadata.display_phone_number,
+                value.statuses[0].timestamp
+              );
+            });
           }
         }
       }
@@ -121,4 +132,37 @@ async function actualizarStatus(value: StatusChange) {
             : MensajeStatus.ENVIADO,
     },
   });
+}
+
+async function updateJSONFile(waId: string, timestamp: string) {
+  const data = {
+    waId: waId,
+    timestamp: timestamp,
+  };
+
+  const path = process.cwd() + '/src/server/storeLastMessage.json';
+
+  const doesFileExist = await fs
+    .access(path)
+    .then(() => true)
+    .catch(() => false);
+
+  if (!doesFileExist) {
+    await fs.writeFile(path, '[]', 'utf8');
+  }
+
+  const jsonData = JSON.parse(await fs.readFile(path, 'utf8'));
+
+  const myEntry = jsonData.find(
+    (entry: { waId: string }) => entry.waId === waId
+  );
+
+  if (myEntry) {
+    const index = jsonData.indexOf(myEntry);
+    jsonData[index] = data;
+  } else {
+    jsonData.push(data);
+  }
+
+  await fs.writeFile(path, JSON.stringify(jsonData), 'utf8');
 }

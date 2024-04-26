@@ -1,5 +1,6 @@
 import { protectedProcedure, router } from '@/server/trpc';
 import { z } from 'zod';
+import { promises as fs } from 'fs';
 import {
   Template,
   Buttons,
@@ -323,6 +324,9 @@ export const whatsappRouter = router({
         where: {
           perfilTelefono: input,
         },
+        orderBy: {
+          created_at: 'asc',
+        },
       });
 
       return {
@@ -340,5 +344,31 @@ export const whatsappRouter = router({
           message: MessageJson;
         })[];
       };
+    }),
+  getLastMessageTimestamp: protectedProcedure
+    .input(z.string())
+    .query(async ({ input }) => {
+      const path = process.cwd() + '/src/server/storeLastMessage.json';
+
+      const doesFileExist = await fs
+        .access(path)
+        .then(() => true)
+        .catch(() => false);
+
+      if (!doesFileExist) {
+        await fs.writeFile(path, '[]', 'utf8');
+      }
+
+      const file = await fs.readFile(path, 'utf-8');
+
+      const myEntry = JSON.parse(file).find(
+        (entry: { waId: string }) => entry.waId === input
+      );
+
+      if (!myEntry) {
+        return new Date().getTime();
+      }
+
+      return myEntry.timestamp as number;
     }),
 });
