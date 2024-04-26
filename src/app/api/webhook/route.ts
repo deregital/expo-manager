@@ -140,7 +140,7 @@ async function updateJSONFile(waId: string, timestamp: string) {
     timestamp: timestamp,
   };
 
-  const path = process.cwd() + '/tmp/storeLastMessage.json';
+  const path = '/tmp/storeLastMessage.json';
 
   const doesFileExist = fs.existsSync(path);
 
