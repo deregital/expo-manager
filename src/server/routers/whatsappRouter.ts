@@ -1,6 +1,7 @@
 import { protectedProcedure, router } from '@/server/trpc';
 import { z } from 'zod';
 import fs from 'fs';
+import { join as pathJoin } from 'path';
 import {
   Template,
   Buttons,
@@ -249,7 +250,6 @@ export const whatsappRouter = router({
           messages: { id: string }[];
         }
       ).messages[0].id;
-
       await ctx.prisma.mensaje.create({
         data: {
           message: {
@@ -348,7 +348,10 @@ export const whatsappRouter = router({
   getLastMessageTimestamp: protectedProcedure
     .input(z.string())
     .query(async ({ input }) => {
-      const path = '/tmp/storeLastMessage.json';
+      const path =
+        process.env.NODE_ENV === 'production'
+          ? '/tmp/storeLastMessage.json'
+          : pathJoin(process.cwd(), '/src/server/storeLastMessage.json');
 
       const doesFileExist = fs.existsSync(path);
 

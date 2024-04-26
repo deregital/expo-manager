@@ -9,6 +9,7 @@ import { headers } from 'next/headers';
 import { prisma } from '@/server/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { MensajeStatus } from '@prisma/client';
+import { join as pathJoin } from 'path';
 
 export const revalidate = 0;
 
@@ -118,6 +119,18 @@ async function crearMensaje(value: ReceivedMessage) {
 
 async function actualizarStatus(value: StatusChange) {
   const status = value.statuses[0];
+  if (!status || status.status === 'failed') return;
+
+  const doesMessageExist = await prisma.mensaje.findFirst({
+    where: {
+      wamId: status.id,
+    },
+  });
+
+  if (!doesMessageExist) {
+    return;
+  }
+
   return await prisma.mensaje.update({
     where: {
       wamId: status.id,
@@ -140,7 +153,10 @@ async function updateJSONFile(waId: string, timestamp: string) {
     timestamp: timestamp,
   };
 
-  const path = '/tmp/storeLastMessage.json';
+  const path =
+    process.env.NODE_ENV === 'production'
+      ? '/tmp/storeLastMessage.json'
+      : pathJoin(process.cwd(), '/src/server/storeLastMessage.json');
 
   const doesFileExist = fs.existsSync(path);
 
