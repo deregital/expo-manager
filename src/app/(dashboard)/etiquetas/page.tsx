@@ -10,31 +10,37 @@ import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal'
 import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
 import Loader from '@/components/ui/loader';
 import { normalize, searchNormalize } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
 import ExpandContractEtiquetas, {
-  useExpandEtiquetas,
+  useEtiquetasSettings,
 } from '@/components/etiquetas/list/ExpandContractEtiquetas';
 import { ModalTriggerCreate } from '@/components/etiquetas/modal/ModalTrigger';
 import Link from 'next/link';
 import StampIcon from '@/components/icons/StampIcon';
+import { TipoEtiqueta } from '@prisma/client';
+import SwitchEtiquetasEventos from '@/components/etiquetas/list/SwitchEtiquetasEventos';
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useState('');
   const { data: grupos, isLoading } = trpc.etiqueta.getByNombre.useQuery();
-  const { expandState, setNone } = useExpandEtiquetas((s) => ({
-    setNone: s.none,
-    expandState: s.state,
-  }));
+  const {
+    state: expandState,
+    none: setNone,
+    showEventos,
+  } = useEtiquetasSettings();
 
   const gruposFiltrados = useMemo(() => {
     if (!grupos) return [];
 
-    let g: RouterOutputs['etiqueta']['getByNombre'];
+    let g = showEventos
+      ? grupos
+      : grupos.filter((grupo) => {
+          return grupo.etiquetas.some(
+            (etiqueta) => etiqueta.tipo !== TipoEtiqueta.EVENTO
+          );
+        });
 
-    if (search === '') {
-      g = grupos;
-    } else {
-      g = grupos?.filter((grupo) => {
+    if (search !== '') {
+      g = g.filter((grupo) => {
         return (
           grupo.etiquetas.some((etiqueta) =>
             searchNormalize(etiqueta.nombre, search)
@@ -65,7 +71,7 @@ const EtiquetasPage = () => {
         })),
       };
     });
-  }, [grupos, search]);
+  }, [grupos, search, showEventos]);
 
   return (
     <>
@@ -84,6 +90,7 @@ const EtiquetasPage = () => {
           </Link>
         </div>
         <div className='flex items-center gap-x-2'>
+          <SwitchEtiquetasEventos />
           <ExpandContractEtiquetas />
           <SearchInput
             onChange={(value) => {
