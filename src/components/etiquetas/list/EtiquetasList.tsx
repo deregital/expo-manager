@@ -1,5 +1,5 @@
 import EtiquetasContent from '@/components/etiquetas/list/EtiquetasContent';
-import { useExpandEtiquetas } from '@/components/etiquetas/list/ExpandContractEtiquetas';
+import { useEtiquetasSettings } from '@/components/etiquetas/list/ExpandContractEtiquetas';
 import GrupoTrigger from '@/components/etiquetas/list/GrupoTrigger';
 import {
   Accordion,
@@ -26,12 +26,8 @@ interface EtiquetasListProps {
 }
 
 const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
-  const { state, setContract } = useExpandEtiquetas((s) => ({
-    state: s.state,
-    setContract: s.contract,
-  }));
-
   const [active, setActive] = useState<string[]>([]);
+  const { state, contract: setContract } = useEtiquetasSettings();
 
   useEffect(() => {
     if (state === 'EXPAND') {
