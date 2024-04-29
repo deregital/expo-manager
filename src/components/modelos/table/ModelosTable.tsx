@@ -31,7 +31,7 @@ function filterModelos(
       (search.nombre === undefined ||
         searchNormalize(modelo.nombreCompleto, search.nombre) ||
         (modelo.idLegible &&
-          searchNormalize(modelo.idLegible, search.nombre))) &&
+          searchNormalize(modelo.idLegible.toString(), search.nombre))) &&
       (search.etiquetaId === undefined ||
         modelo.etiquetas.some(
           (etiqueta) => etiqueta.id === search.etiquetaId
