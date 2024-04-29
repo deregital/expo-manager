@@ -121,8 +121,9 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
                   <SelectValue placeholder='Genero' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='F'>Femenino</SelectItem>
-                  <SelectItem value='M'>Masculino</SelectItem>
+                  <SelectItem value='Femenino'>Femenino</SelectItem>
+                  <SelectItem value='Masculino'>Masculino</SelectItem>
+                  <SelectItem value='Otro'>Otro</SelectItem>
                   <SelectItem value='N/A'>N/A</SelectItem>
                 </SelectContent>
               </Select>
