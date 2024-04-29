@@ -6,7 +6,8 @@ import Loader from '@/components/ui/loader';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
-import { Trash } from 'lucide-react';
+import { ArrowLeft, Trash } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
@@ -95,6 +96,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
     trpc.etiqueta.getAll.useQuery();
 
   const asignar = trpc.etiqueta.setMasivo.useMutation();
+  const router = useRouter();
 
   const {
     etiquetas: etiquetasList,
@@ -153,9 +155,15 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
 
   return (
     <div className='p-3 md:p-5'>
-      <h1 className='pb-3 text-xl font-bold md:text-3xl'>
-        Asignación masiva de etiquetas
-      </h1>
+      <div className='flex items-center gap-x-4 pb-3'>
+        <ArrowLeft
+          className='cursor-pointer md:h-8 md:w-8'
+          onClick={() => router.back()}
+        />
+        <h1 className='text-xl font-bold md:text-3xl'>
+          Asignación masiva de etiquetas
+        </h1>
+      </div>
       <div className='flex h-auto gap-x-2'>
         <div className='flex-1'>
           <ComboBox
