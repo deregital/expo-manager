@@ -1,5 +1,5 @@
 import { RouterOutputs } from '@/server';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ListaEtiquetas from '@/components/modelo/ListaEtiquetas';
 import { create } from 'zustand';
 import ComentariosSection from '@/components/modelo/ComentariosSection';
@@ -47,10 +47,15 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const [edit, setEdit] = useState(false);
   const utils = trpc.useUtils();
 
+  useEffect(() => {
+    setFotoUrl(modelo.fotoUrl);
+  }, [modelo]);
+
   async function handleDelete() {
     const form = new FormData();
     form.append('id', modelo.id);
-    form.append('url', modelo.fotoUrl ?? '');
+    form.append('url', fotoUrl ?? '');
+
     await fetch('/api/image', {
       method: 'DELETE',
       body: form,
@@ -154,7 +159,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
                     </Button>
                   </>
                 )}
-                {!inputRef.current?.value && (
+                {!inputRef.current?.value && fotoUrl && (
                   <Button
                     className='aspect-square h-8 w-[calc(33%-4px)] bg-red-600 p-1 hover:bg-red-800 md:h-max md:w-8'
                     onClick={handleDelete}

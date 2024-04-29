@@ -37,10 +37,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
       });
       response.on('end', async () => {
         if (response.statusCode !== 200 && response.statusCode !== 201) {
-          console.error('Error al eliminar el archivo:', responseBody);
+          // console.error('Error al eliminar el archivo:', responseBody);
           return new Response('Error al eliminar el archivo', { status: 500 });
         } else {
-          console.log('Archivo eliminado con éxito', responseBody);
+          // console.log('Archivo eliminado con éxito', responseBody);
         }
       });
     });
@@ -112,6 +112,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 export async function DELETE(req: NextRequest, res: NextResponse) {
   const form = await req.formData();
   const currentFotoUrl = form.get('url') as string;
+
   if (currentFotoUrl !== '') {
     const options = {
       hostname: process.env.HOSTNAME,
@@ -156,6 +157,7 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
       return new NextResponse('Error al eliminar el archivo', { status: 500 });
     });
     reqCDN.end();
+    return new NextResponse('Archivo eliminado con éxito', { status: 200 });
   }
   return new NextResponse('No se mandó ningún archivo', { status: 400 });
 }
