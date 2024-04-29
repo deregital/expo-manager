@@ -1,5 +1,5 @@
 import { RouterOutputs } from '@/server';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ListaEtiquetas from '@/components/modelo/ListaEtiquetas';
 import { create } from 'zustand';
 import ComentariosSection from '@/components/modelo/ComentariosSection';
@@ -11,6 +11,7 @@ import { Save, Trash2Icon } from 'lucide-react';
 import CirclePlus from '../icons/CirclePlus';
 import ModeloFoto from '@/components/modelo/ModeloFoto';
 import ModeloEditModal from '@/components/modelo/ModeloEditModal';
+import { TipoEtiqueta } from '@prisma/client';
 
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
@@ -46,6 +47,15 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const [video, setVideo] = useState<File | null>(null);
   const [edit, setEdit] = useState(false);
   const utils = trpc.useUtils();
+
+  const etiquetasFiltradas = useMemo(
+    () =>
+      etiquetas.filter(
+        (e) =>
+          e.tipo !== TipoEtiqueta.MODELO && e.tipo !== TipoEtiqueta.TENTATIVA
+      ),
+    [etiquetas]
+  );
 
   useEffect(() => {
     setFotoUrl(modelo.fotoUrl);
@@ -99,8 +109,6 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
         toast.success('Foto actualizada con éxito');
       })
       .catch((e) => {
-        console.log(e);
-
         toast.dismiss();
         toast.error('Error al subir la foto');
         setEdit(false);
@@ -190,13 +198,16 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
             </div>
           </div>
           <div className='hidden flex-wrap gap-2 md:flex'>
-            <ListaEtiquetas modeloId={modelo.id} etiquetas={etiquetas} />
+            <ListaEtiquetas
+              modeloId={modelo.id}
+              etiquetas={etiquetasFiltradas}
+            />
           </div>
         </div>
       </div>
 
       <div className='mt-4 flex flex-wrap gap-2 md:hidden'>
-        <ListaEtiquetas modeloId={modelo.id} etiquetas={etiquetas} />
+        <ListaEtiquetas modeloId={modelo.id} etiquetas={etiquetasFiltradas} />
       </div>
 
       <div className='mt-5'>
