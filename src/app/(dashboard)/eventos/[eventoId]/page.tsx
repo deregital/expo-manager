@@ -48,7 +48,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
         toast.success('Se agregó al presentismo');
         useUtils.modelo.getAll.invalidate()
     }
-    if (isLoadingEvento) return <Loader />;
+    if (isLoadingEvento) return <div className="flex justify-center items-center pt-5"><Loader /></div>;
     return (
         <div>
             <h1>Evento {params.eventoId}</h1>
