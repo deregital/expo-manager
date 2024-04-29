@@ -12,6 +12,8 @@ import CirclePlus from '../icons/CirclePlus';
 import ModeloFoto from '@/components/modelo/ModeloFoto';
 import ModeloEditModal from '@/components/modelo/ModeloEditModal';
 import { TipoEtiqueta } from '@prisma/client';
+import Link from 'next/link';
+import ChatFillIcon from '@/components/icons/ChatFillIcon';
 
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
@@ -188,9 +190,17 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
         </div>
         <div className='flex w-full flex-col gap-y-4'>
           <div className='flex flex-col gap-4'>
-            <h2 className='text-xl font-bold md:text-3xl'>
-              {modelo?.nombreCompleto}
-            </h2>
+            <div className='flex flex-wrap items-center gap-x-4'>
+              <h2 className='text-xl font-bold md:text-3xl'>
+                {modelo?.nombreCompleto}
+              </h2>
+              <Link
+                href={`/mensajes/${modelo.telefono}`}
+                className='rounded-md bg-slate-600 p-2'
+              >
+                <ChatFillIcon className='h-4 w-4 fill-white' />
+              </Link>
+            </div>
             <div className='flex gap-x-4'>
               <p>Edad: {modelo?.edad ?? 'N/A'}</p>
               <p>Género: {modelo?.genero ?? 'N/A'}</p>
