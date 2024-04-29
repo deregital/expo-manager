@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { trpc } from '@/lib/trpc';
@@ -21,6 +21,12 @@ const EtiquetaComboBoxModelos = () => {
           `${searchParams.get('grupoId')}`
         );
 
+  const filteredEtiquetas = useMemo(() => {
+    return data?.filter(
+      (etiqueta) => etiqueta.tipo !== 'MODELO' && etiqueta.tipo !== 'TENTATIVA'
+    );
+  }, [data]);
+
   useEffect(() => {
     setEtiquetaId(searchParams.get('etiqueta') ?? '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -35,14 +41,15 @@ const EtiquetaComboBoxModelos = () => {
         <>
           <span className='truncate'>
             {etiquetaId
-              ? data?.find((etiqueta) => etiqueta.id === etiquetaId)?.nombre ??
-                'Buscar etiqueta...'
+              ? filteredEtiquetas?.find(
+                  (etiqueta) => etiqueta.id === etiquetaId
+                )?.nombre ?? 'Buscar etiqueta...'
               : 'Buscar etiqueta...'}
           </span>
           <EtiquetaFillIcon className='h-5 w-5' />
         </>
       }
-      data={data ?? []}
+      data={filteredEtiquetas ?? []}
       id='id'
       value='nombre'
       onSelect={(value) => {
