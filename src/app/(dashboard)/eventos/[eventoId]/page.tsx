@@ -8,6 +8,9 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import SearchInput from "@/components/ui/SearchInput";
+import { useEffect, useState } from "react";
+import { searchNormalize } from "@/lib/utils";
 
 
 interface EventoPageProps {
@@ -27,8 +30,13 @@ const EventoPage = ({ params }: EventoPageProps) => {
     const editModelo = trpc.modelo.edit.useMutation();
     const useUtils = trpc.useUtils();
     const router = useRouter();
-
-    async function addPresentismo(modelo: RouterOutputs["modelo"]["getAll"][number], evento: RouterOutputs["evento"]["getById"]) {
+    const [search, setSearch] = useState('');
+    const [modelosData, setModelosData] = useState<RouterOutputs["modelo"]["getAll"]>([]);
+    useEffect(() => {
+        if (!modelos) return;
+        setModelosData(modelos.filter((modelo) => searchNormalize(modelo.nombreCompleto, search)));
+    }, [search]);
+    async function addPresentismo(modelo: RouterOutputs["modelo"]["getAll"][number]) {
         const etiquetasId = modelo.etiquetas.map((etiqueta) => {
             return {
                 id: etiqueta.id,
@@ -61,16 +69,16 @@ const EventoPage = ({ params }: EventoPageProps) => {
                     window.history.back();
                 }} />
             </div>
-            <div className="flex justify-center items-center gap-x-3">
+            <div className="flex justify-center items-center gap-x-3 pb-3">
                 <h3 className="text-lg p-2 border bg-gray-400 rounded-lg">{evento?.nombre}</h3>
                 <h3 className="text-lg p-2 border bg-gray-400 rounded-lg">{format(evento!.fecha, 'yyyy-MM-dd')}</h3>
                 <h3 className="text-lg p-2 border bg-gray-400 rounded-lg">{evento?.ubicacion}</h3>
             </div>
-            <div className="pb-5 flex justify-center items-center gap-x-2">
-                <Input className="" placeholder="Buscar por nombre o id de la modelo" />
+            <div className="pb-5 flex justify-start items-center gap-x-2">
+                <SearchInput onChange={setSearch} placeholder="Buscar por nombre o id de la modelo"/>
                 <Button className="rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500" onClick={() => router.push(`/eventos/${evento?.id}/presentismo`)}>Presentismo</Button>
             </div>
-            {modelos?.map((modelo) => {
+            {modelosData.map((modelo) => {
                 const etiquetasId = modelo.etiquetas.map((etiqueta) => etiqueta.id);
                 return (
                 <div key={modelo.id} className="flex justify-between items-center max-w-[800px] mx-auto mb-1 px-2 py-1 rounded-md bg-gray-400">
@@ -82,7 +90,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
                         </div>
                     ) : (
                         <>
-                            <Button className="ml-5 px-3 py-2 h-fit flex justify-center items-center gap-x-2" onClick={() => addPresentismo(modelo, evento!)}>
+                            <Button className="ml-5 px-3 py-2 h-fit flex justify-center items-center gap-x-2" onClick={() => addPresentismo(modelo)}>
                                 {editModelo.isLoading ?? <Loader />}
                                 <PlusIcon className="w-4 h-4" />
                             </Button>
