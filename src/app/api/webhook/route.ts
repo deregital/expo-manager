@@ -50,16 +50,19 @@ export async function POST(request: NextRequest) {
         if (changes[0].field === 'messages') {
           const value = changes[0].value;
           if ('messages' in value) {
-            const usuarioCreadoOModificado = await crearMensaje(value);
+            const { mensajeCreado, perfil, esPerfilTentativo } =
+              await crearMensaje(value);
 
             if (
-              usuarioCreadoOModificado &&
-              usuarioCreadoOModificado.perfil._count.Mensajes === 1
+              (!perfil ||
+                (esPerfilTentativo &&
+                  mensajeCreado.perfil._count.Mensajes === 1)) &&
+              mensajeCreado
             ) {
               await enviarRespuestaAutomatica(
                 value.contacts[0].wa_id,
-                usuarioCreadoOModificado.perfil.nombrePila ??
-                  usuarioCreadoOModificado.perfil.nombreCompleto
+                mensajeCreado.perfil.nombrePila ??
+                  mensajeCreado.perfil.nombreCompleto
               );
             }
             await updateJSONFile(
@@ -96,15 +99,27 @@ async function crearMensaje(value: ReceivedMessage) {
     },
   });
 
+  const perfil = await prisma.perfil.findFirst({
+    where: {
+      telefono: contact.wa_id,
+    },
+    include: {
+      etiquetas: true,
+    },
+  });
+
   if (!etiquetaTentativaId) {
     throw new Error('No se encontró la etiqueta TENTATIVA');
   }
 
   if (!message || message.type !== 'text') {
-    return null;
+    return {
+      perfil,
+      mensajeCreado: null,
+    };
   }
 
-  return await prisma.mensaje.create({
+  const mensajeCreado = await prisma.mensaje.create({
     data: {
       wamId: message.id,
       statusAt: new Date(Number.parseInt(message.timestamp) * 1000),
@@ -140,6 +155,12 @@ async function crearMensaje(value: ReceivedMessage) {
       },
     },
   });
+
+  const esPerfilTentativo = perfil?.etiquetas.some(
+    (etiqueta) => etiqueta.id === etiquetaTentativaId.id
+  );
+
+  return { perfil, mensajeCreado, esPerfilTentativo };
 }
 
 async function actualizarStatus(value: StatusChange) {
