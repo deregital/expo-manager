@@ -40,7 +40,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
             }
             return searchNormalize(modelo.nombreCompleto, search);
         }));
-    }, [search]);
+    }, [search, modelos]);
     async function addPresentismo(modelo: RouterOutputs["modelo"]["getAll"][number]) {
         const etiquetasId = modelo.etiquetas.map((etiqueta) => {
             return {
