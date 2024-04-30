@@ -84,7 +84,12 @@ const MensajesList = ({ mensajes, telefono }: MensajesListProps) => {
                 );
               }
             })()}
-            <div className='my-1'>
+            <div
+              className={cn(
+                'my-1 flex',
+                !!messageBody.to ? 'justify-end' : 'justify-start'
+              )}
+            >
               <TailWrapper
                 showTail={
                   index === 0
