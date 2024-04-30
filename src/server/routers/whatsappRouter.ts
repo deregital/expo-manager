@@ -109,15 +109,7 @@ export const whatsappRouter = router({
       if (input === undefined) {
         return undefined;
       }
-      const res: GetTemplateResponse = await fetch(
-        `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?name=${input}`,
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
-          },
-        }
-      ).then((res) => res.json());
+      const res = await getTemplateByName(input);
       return res;
     }),
   editTemplate: protectedProcedure
@@ -241,28 +233,57 @@ export const whatsappRouter = router({
           telefono: true,
         },
       });
-      telefonos.forEach(async (telefono) => {
-        await fetch(
-          `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER}/messages`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
-            },
-            body: JSON.stringify({
-              messaging_product: 'whatsapp',
-              to: `${telefono.telefono}`,
-              type: 'template',
-              template: {
-                name: `${input.plantillaName}`,
-                language: {
-                  code: 'es_AR',
-                },
+
+      const mensajesParaCrear: {
+        id: string;
+        templateName: string;
+        timestamp: string;
+        type: 'template';
+        to: string;
+      }[] = [];
+
+      await Promise.all(
+        telefonos.map(async (telefono) => {
+          const res = await fetch(
+            `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER}/messages`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
               },
-            }),
-          }
-        );
+              body: JSON.stringify({
+                messaging_product: 'whatsapp',
+                to: `${telefono.telefono}`,
+                type: 'template',
+                template: {
+                  name: `${input.plantillaName}`,
+                  language: {
+                    code: 'es_AR',
+                  },
+                },
+              }),
+            }
+          );
+
+          const resJson: { messages: [{ id: string }] } = await res.json();
+
+          mensajesParaCrear.push({
+            id: resJson.messages[0].id,
+            templateName: input.plantillaName,
+            timestamp: new Date().getTime().toString(),
+            type: 'template',
+            to: telefono.telefono,
+          });
+        })
+      );
+
+      await ctx.prisma.mensaje.createMany({
+        data: mensajesParaCrear.map((mensaje) => ({
+          message: mensaje,
+          wamId: mensaje.id,
+          perfilTelefono: mensaje.to!,
+        })),
       });
       return 'Mensajes enviados';
     }),
@@ -380,5 +401,18 @@ export async function enviarMensajeUnaSolaVez(
     },
   });
 
+  return res;
+}
+
+export async function getTemplateByName(plantillaName: string) {
+  const res: GetTemplateResponse = await fetch(
+    `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?name=${plantillaName}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+      },
+    }
+  ).then((res) => res.json());
   return res;
 }

@@ -5,7 +5,11 @@ import DoubleCheckIcon from '@/components/icons/DoubleCheckIcon';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
-import { MessageJson, TextMessage } from '@/server/types/whatsapp';
+import {
+  MessageJson,
+  TemplateMessage,
+  TextMessage,
+} from '@/server/types/whatsapp';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 type UIMessageModel = MensajesListProps['mensajes'][number] & {
@@ -109,8 +113,10 @@ const MensajesList = ({ mensajes, telefono }: MensajesListProps) => {
                               mensaje={messageBody as TextMessage}
                             />
                           );
+                        case 'template':
+                          return `Plantilla ${messageBody.type === 'template' && (messageBody as TemplateMessage).templateName}`;
                         default:
-                          return <div>Unsupported message</div>;
+                          return <div>Mensaje no soportado</div>;
                       }
                     })()}
                     <span className='invisible'>ww:ww wm</span>
