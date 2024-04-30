@@ -14,7 +14,7 @@ import {
 } from '@/server/types/whatsapp';
 import { TRPCError } from '@trpc/server';
 import { subDays } from 'date-fns';
-import { Mensaje } from '@prisma/client';
+import { Mensaje, PrismaClient } from '@prisma/client';
 
 export const whatsappRouter = router({
   createTemplate: protectedProcedure
@@ -217,58 +217,7 @@ export const whatsappRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const res = await fetch(
-        `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_API_PHONE_NUMBER_ID}/messages`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
-          },
-          body: JSON.stringify({
-            messaging_product: 'whatsapp',
-            to: `${input.telefono}`,
-            type: 'text',
-            text: {
-              body: `${input.text}`,
-            },
-          }),
-        }
-      );
-
-      if (!res.ok) {
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to send message',
-        });
-      }
-
-      const resJson = await res.json();
-
-      const messageId = (
-        resJson as {
-          messages: { id: string }[];
-        }
-      ).messages[0].id;
-      await ctx.prisma.mensaje.create({
-        data: {
-          message: {
-            id: messageId,
-            text: {
-              body: input.text,
-            },
-            type: 'text',
-            to: input.telefono,
-            timestamp: new Date().getTime(),
-          },
-          wamId: messageId,
-          perfil: {
-            connect: {
-              telefono: input.telefono,
-            },
-          },
-        },
-      });
+      await enviarMensajeUnaSolaVez(input.telefono, input.text, ctx.prisma);
 
       return 'Message sent';
     }),
@@ -372,3 +321,64 @@ export const whatsappRouter = router({
       return myEntry.timestamp as number;
     }),
 });
+
+export async function enviarMensajeUnaSolaVez(
+  telefono: string,
+  text: string,
+  db: PrismaClient
+) {
+  const res = await fetch(
+    `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_API_PHONE_NUMBER_ID}/messages`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: `${telefono}`,
+        type: 'text',
+        text: {
+          body: `${text}`,
+        },
+      }),
+    }
+  );
+
+  if (!res.ok) {
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Failed to send message',
+    });
+  }
+
+  const resJson = await res.json();
+
+  const messageId = (
+    resJson as {
+      messages: { id: string }[];
+    }
+  ).messages[0].id;
+  await db.mensaje.create({
+    data: {
+      message: {
+        id: messageId,
+        text: {
+          body: text,
+        },
+        type: 'text',
+        to: telefono,
+        timestamp: new Date().getTime(),
+      },
+      wamId: messageId,
+      perfil: {
+        connect: {
+          telefono: telefono,
+        },
+      },
+    },
+  });
+
+  return res;
+}
