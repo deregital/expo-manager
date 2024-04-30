@@ -31,10 +31,15 @@ const EventoPage = ({ params }: EventoPageProps) => {
     const useUtils = trpc.useUtils();
     const router = useRouter();
     const [search, setSearch] = useState('');
-    const [modelosData, setModelosData] = useState<RouterOutputs["modelo"]["getAll"]>([]);
+    const [modelosData, setModelosData] = useState<RouterOutputs["modelo"]["getAll"]>(modelos ?? []);
     useEffect(() => {
         if (!modelos) return;
-        setModelosData(modelos.filter((modelo) => searchNormalize(modelo.nombreCompleto, search)));
+        setModelosData(modelos.filter((modelo) => {
+            if (modelo.idLegible !== null) {
+                return searchNormalize(modelo.idLegible.toString(), search) || searchNormalize(modelo.nombreCompleto, search);
+            }
+            return searchNormalize(modelo.nombreCompleto, search);
+        }));
     }, [search]);
     async function addPresentismo(modelo: RouterOutputs["modelo"]["getAll"][number]) {
         const etiquetasId = modelo.etiquetas.map((etiqueta) => {
