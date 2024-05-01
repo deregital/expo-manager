@@ -133,17 +133,19 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               <Label htmlFor='edad'>Edad</Label>
               <Input
                 className='bg-white text-black'
-                type='number'
-                min={0}
+                type='text'
+                inputMode='numeric'
+                autoComplete='off'
+                pattern='[0-9]*'
                 name='edad'
                 id='edad'
                 placeholder='Edad'
-                value={isNaN(parseInt(edad)) ? 0 : edad}
-                onChange={(e) =>
+                value={isNaN(parseInt(edad)) ? '' : edad}
+                onChange={(e) => {
                   useModeloModalData.setState({
-                    edad: e.target.value,
-                  })
-                }
+                    edad: parseInt(e.target.value).toString(),
+                  });
+                }}
               />
             </div>
           </div>
