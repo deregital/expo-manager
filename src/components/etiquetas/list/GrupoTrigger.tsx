@@ -18,6 +18,7 @@ const GrupoTrigger = ({ grupo }: GrupoTriggerProps) => {
 
   function redirectTable(e: React.MouseEvent<HTMLSpanElement>) {
     e.preventDefault();
+    e.stopPropagation();
     searchParams.set('grupoId', grupo.id);
     router.push(`/modelos?${searchParams.toString()}`);
   }
