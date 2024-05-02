@@ -348,13 +348,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
             <Button
               className='w-full max-w-32'
               onClick={handleSubmit}
-              disabled={
-                // editGrupoEtiqueta.isLoading ||
-                // createGrupoEtiqueta.isLoading ||
-                // modelosGrupoLoading ||
-                // (conflict === undefined ? false : conflict.length > 0)
-                submitDisabled
-              }
+              disabled={submitDisabled}
             >
               {((editGrupoEtiqueta.isLoading ||
                 createGrupoEtiqueta.isLoading) && <Loader />) ||
@@ -363,7 +357,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
             {modalData.tipo === 'EDIT' && (
               <Button
                 variant='destructive'
-                className={cn({
+                className={cn('h-auto text-wrap', {
                   'bg-red-700 hover:bg-red-500': quiereEliminar,
                 })}
                 onClick={handleDelete}
@@ -373,7 +367,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
                   ? quiereEliminar
                     ? '¿Estás seguro?'
                     : 'Eliminar'
-                  : 'No se puede eliminar'}
+                  : 'No se puede eliminar, el grupo contiene etiquetas'}
               </Button>
             )}
             {quiereEliminar && (
