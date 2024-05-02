@@ -104,12 +104,15 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
                   Ubicación del subevento:{' '}
                   <span className='font-normal'>{subevento.ubicacion}</span>
                 </p>
-                <p className='font-semibold flex gap-x-1'>
+                <p className='flex gap-x-1 font-semibold'>
                   Vista particular del subevento:
-                  <EventIcon className='h-5 w-5 hover:cursor-pointer hover:text-black/60' onClick={(e) => {
-                    e.stopPropagation();
-                    redirectToEvent(subevento.id);
-                  }} />
+                  <EventIcon
+                    className='h-5 w-5 hover:cursor-pointer hover:text-black/60'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      redirectToEvent(subevento.id);
+                    }}
+                  />
                 </p>
               </div>
             ))}

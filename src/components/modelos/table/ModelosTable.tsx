@@ -14,7 +14,6 @@ export const useModelosTabla = create<{ cantidad: number; isLoading: boolean }>(
   })
 );
 
-
 function filterModelos(
   modelos: RouterOutputs['modelo']['getAll'],
   search: { nombre?: string; etiquetaId?: string; grupoId?: string }
@@ -58,7 +57,7 @@ const ModelosTable = () => {
     etiquetaId: searchParams.get('etiqueta') ?? undefined,
     grupoId: searchParams.get('grupoId') ?? undefined,
   });
-  
+
   function goToModel(id: string) {
     router.push(`/modelo/${id}`);
   }
