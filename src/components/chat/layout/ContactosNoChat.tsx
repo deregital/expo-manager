@@ -13,9 +13,13 @@ import FotoModelo from '@/components/ui/FotoModelo';
 
 interface ContactosNoChatProps {
   contactos: RouterOutputs['modelo']['getAllWithInChat'];
+  telefonoSelected: string;
 }
 
-const ContactosNoChat = ({ contactos }: ContactosNoChatProps) => {
+const ContactosNoChat = ({
+  contactos,
+  telefonoSelected,
+}: ContactosNoChatProps) => {
   const [isOpen, setIsOpen] = useState('');
   return (
     <Accordion value={isOpen} type='single'>
@@ -42,24 +46,35 @@ const ContactosNoChat = ({ contactos }: ContactosNoChatProps) => {
         </AccordionTrigger>
         <AccordionContent>
           <div className='flex flex-col gap-y-2'>
-            {contactos.map((contacto) => (
-              <Link
-                href={`/mensajes/${contacto.telefono}`}
-                onClick={() => {
-                  useChatSidebar.setState({ isOpen: false });
-                }}
-                key={contacto.id}
-                className='flex items-center gap-x-2 p-2 hover:bg-gray-200'
-              >
-                <FotoModelo url={contacto.fotoUrl} className='h-8 w-8' />
-                <div>
-                  <p className='text-sm font-semibold'>
-                    {contacto.nombreCompleto}
-                  </p>
-                  <p className='text-xs text-slate-400'>{contacto.telefono}</p>
-                </div>
-              </Link>
-            ))}
+            {contactos.map((contacto) => {
+              const inPage = telefonoSelected === contacto.telefono;
+              return (
+                <Link
+                  href={`/mensajes/${contacto.telefono}`}
+                  onClick={() => {
+                    useChatSidebar.setState({ isOpen: false });
+                  }}
+                  key={contacto.id}
+                  className={cn(
+                    'flex items-center gap-x-2 p-2 hover:bg-gray-200',
+                    {
+                      'hover:bg-gray-200': !inPage,
+                      'bg-green-200 hover:bg-green-300': inPage,
+                    }
+                  )}
+                >
+                  <FotoModelo url={contacto.fotoUrl} className='h-8 w-8' />
+                  <div>
+                    <p className='text-sm font-semibold'>
+                      {contacto.nombreCompleto}
+                    </p>
+                    <p className='text-xs text-slate-400'>
+                      {contacto.telefono}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </AccordionContent>
       </AccordionItem>

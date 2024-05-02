@@ -49,6 +49,7 @@ const ChatSidebar = ({}: ChatSidebarProps) => {
         </div>
         <div className='max-h-full overflow-y-auto'>
           <ContactosNoChat
+            telefonoSelected={telefonoSelected}
             contactos={contactos
               .filter((contacto) => !contacto.inChat)
               .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto))}
