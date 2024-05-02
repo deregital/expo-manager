@@ -31,16 +31,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
       },
     };
     const reqCDN = https.request(options, (response) => {
+      // eslint-disable-next-line no-unused-vars
       let responseBody = '';
       response.on('data', (chunk) => {
         responseBody += chunk;
       });
       response.on('end', async () => {
         if (response.statusCode !== 200 && response.statusCode !== 201) {
-          // console.error('Error al eliminar el archivo:', responseBody);
           return new Response('Error al eliminar el archivo', { status: 500 });
         } else {
-          // console.log('Archivo eliminado con éxito', responseBody);
         }
       });
     });
@@ -66,6 +65,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   };
 
   const reqCDN = https.request(options, (response) => {
+    // eslint-disable-next-line no-unused-vars
     let responseBody = '';
     response.on('data', (chunk) => {
       responseBody += chunk;
@@ -123,6 +123,7 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
       },
     };
     const reqCDN = https.request(options, (response) => {
+      // eslint-disable-next-line no-unused-vars
       let responseBody = '';
       response.on('data', (chunk) => {
         responseBody += chunk;
