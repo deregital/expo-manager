@@ -10,6 +10,7 @@ import { prisma } from '@/server/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { MensajeStatus } from '@prisma/client';
 import { join as pathJoin } from 'path';
+import { enviarMensajeUnaSolaVez } from '@/server/routers/whatsappRouter';
 
 export const revalidate = 0;
 
@@ -49,19 +50,31 @@ export async function POST(request: NextRequest) {
         if (changes[0].field === 'messages') {
           const value = changes[0].value;
           if ('messages' in value) {
-            await crearMensaje(value).then(() => {
-              updateJSONFile(
+            const { mensajeCreado, perfil, esPerfilTentativo } =
+              await crearMensaje(value);
+
+            if (
+              (!perfil ||
+                (esPerfilTentativo &&
+                  mensajeCreado.perfil._count.Mensajes === 1)) &&
+              mensajeCreado
+            ) {
+              await enviarRespuestaAutomatica(
                 value.contacts[0].wa_id,
-                value.messages[0].timestamp
+                mensajeCreado.perfil.nombrePila ??
+                  mensajeCreado.perfil.nombreCompleto
               );
-            });
+            }
+            await updateJSONFile(
+              value.contacts[0].wa_id,
+              value.messages[0].timestamp
+            );
           } else if ('statuses' in value) {
-            await actualizarStatus(value).then(() => {
-              updateJSONFile(
-                value.metadata.display_phone_number,
-                value.statuses[0].timestamp
-              );
-            });
+            await actualizarStatus(value);
+            await updateJSONFile(
+              value.metadata.display_phone_number,
+              value.statuses[0].timestamp
+            );
           }
         }
       }
@@ -86,35 +99,68 @@ async function crearMensaje(value: ReceivedMessage) {
     },
   });
 
+  const perfil = await prisma.perfil.findFirst({
+    where: {
+      telefono: contact.wa_id,
+    },
+    include: {
+      etiquetas: true,
+    },
+  });
+
   if (!etiquetaTentativaId) {
     throw new Error('No se encontró la etiqueta TENTATIVA');
   }
 
-  if (message && message.type === 'text') {
-    return await prisma.mensaje.create({
-      data: {
-        wamId: message.id,
-        statusAt: new Date(Number.parseInt(message.timestamp) * 1000),
-        message: message,
-        perfil: {
-          connectOrCreate: {
-            where: {
-              telefono: message.from,
-            },
-            create: {
-              nombreCompleto: contact.profile.name,
-              telefono: contact.wa_id,
-              etiquetas: {
-                connect: {
-                  id: etiquetaTentativaId.id,
-                },
+  if (!message || message.type !== 'text') {
+    return {
+      perfil,
+      mensajeCreado: null,
+    };
+  }
+
+  const mensajeCreado = await prisma.mensaje.create({
+    data: {
+      wamId: message.id,
+      statusAt: new Date(Number.parseInt(message.timestamp) * 1000),
+      message: message,
+      perfil: {
+        connectOrCreate: {
+          where: {
+            telefono: message.from,
+          },
+          create: {
+            nombreCompleto: contact.profile.name,
+            telefono: contact.wa_id,
+            etiquetas: {
+              connect: {
+                id: etiquetaTentativaId.id,
               },
             },
           },
         },
       },
-    });
-  }
+    },
+    include: {
+      perfil: {
+        select: {
+          nombrePila: true,
+          nombreCompleto: true,
+          _count: {
+            select: {
+              Mensajes: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const esPerfilTentativo = perfil?.etiquetas.some(
+    (etiqueta) => etiqueta.id === etiquetaTentativaId.id
+  );
+
+  return { perfil, mensajeCreado, esPerfilTentativo };
 }
 
 async function actualizarStatus(value: StatusChange) {
@@ -178,4 +224,15 @@ async function updateJSONFile(waId: string, timestamp: string) {
   }
 
   fs.writeFileSync(path, JSON.stringify(jsonData), 'utf-8');
+}
+
+async function enviarRespuestaAutomatica(
+  telefono: string,
+  nombreDePila: string
+) {
+  const mensaje = `¡Hola ${nombreDePila}! Muchas gracias por participar de Expo Desfiles. ¡Ya estás dentro! En los próximos días vas a recibir más información acerca de los próximos desfiles. Podés seguirnos en nuestro Instagram @expodesfiles para enterarte de todas las novedades. ¡Saludos!  `;
+
+  const res = enviarMensajeUnaSolaVez(telefono, mensaje, prisma);
+
+  return res;
 }

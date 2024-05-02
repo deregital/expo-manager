@@ -44,17 +44,22 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     },
   });
 
+  if (!user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+
+  const { esAdmin, etiquetas: etiquetasNoAdmin } = user;
+
   const etiquetasTotales = await ctx.prisma.etiqueta.findMany({
     select: {
       id: true,
     },
   });
 
-  const etiquetasVisibles = user?.esAdmin
+  const etiquetasVisibles = esAdmin
     ? etiquetasTotales.map((e) => e.id)
-    : user
-      ? user.etiquetas.map((e) => e.id)
-      : [];
+    : etiquetasNoAdmin.map((e) => e.id);
+
 
   return next({
     ctx: {

@@ -338,4 +338,18 @@ export const modeloRouter = router({
 
       return groupedModelos;
     }),
+  getByTelefono: protectedProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      return await ctx.prisma.perfil.findUnique({
+        where: {
+          telefono: input,
+          etiquetas: {
+            some: {
+              id: { in: ctx.etiquetasVisibles },
+            },
+          },
+        },
+      });
+    }),
 });

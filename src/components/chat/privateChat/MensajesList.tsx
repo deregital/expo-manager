@@ -5,7 +5,12 @@ import DoubleCheckIcon from '@/components/icons/DoubleCheckIcon';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
-import { MessageJson, TextMessage } from '@/server/types/whatsapp';
+import {
+  MessageJson,
+  TemplateMessage,
+  TextMessage,
+} from '@/server/types/whatsapp';
+import Link from 'next/link';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 type UIMessageModel = MensajesListProps['mensajes'][number] & {
@@ -84,7 +89,12 @@ const MensajesList = ({ mensajes, telefono }: MensajesListProps) => {
                 );
               }
             })()}
-            <div className='my-1'>
+            <div
+              className={cn(
+                'my-1 flex',
+                !!messageBody.to ? 'justify-end' : 'justify-start'
+              )}
+            >
               <TailWrapper
                 showTail={
                   index === 0
@@ -104,8 +114,17 @@ const MensajesList = ({ mensajes, telefono }: MensajesListProps) => {
                               mensaje={messageBody as TextMessage}
                             />
                           );
+                        case 'template':
+                          return (
+                            <Link
+                              className='text-blue-500 hover:underline'
+                              href={`/plantilla/${(messageBody as TemplateMessage).templateName}`}
+                            >
+                              {`Plantilla ${messageBody.type === 'template' && (messageBody as TemplateMessage).templateName}`}
+                            </Link>
+                          );
                         default:
-                          return <div>Unsupported message</div>;
+                          return <div>Mensaje no soportado</div>;
                       }
                     })()}
                     <span className='invisible'>ww:ww wm</span>
