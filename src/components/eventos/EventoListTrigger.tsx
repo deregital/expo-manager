@@ -12,8 +12,7 @@ interface EventoListTriggerProps {
 
 const EventoListTrigger = ({ evento }: EventoListTriggerProps) => {
   const router = useRouter();
-  async function redirectToEvent() {
-    // Redirect to event page
+  function redirectToEvent() {
     router.push(`/eventos/${evento.id}`);
   }
   return (
