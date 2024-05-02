@@ -44,7 +44,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
             return searchNormalize(modelo.nombreCompleto, search);
         }));
     }, [search, modelos]);
-    
+
     if (isLoadingEvento) return <div className="flex justify-center items-center pt-5"><Loader /></div>;
     return (
         <div className="">
@@ -53,10 +53,10 @@ const EventoPage = ({ params }: EventoPageProps) => {
                     window.history.back();
                 }} />
             </div>
-            <div className="flex justify-center items-center gap-x-3 pb-3">
-                <h3 className="sm:text-2xl text-xl p-2 font-bold">{evento?.nombre}</h3>
-                <h3 className="sm:text-base text-sm p-2">{format(evento!.fecha, 'yyyy-MM-dd')}</h3>
-                <h3 className="sm:text-base text-sm p-2">{evento?.ubicacion}</h3>
+            <div className="sm:flex justify-center items-center grid grid-cols-2 auto-rows-auto gap-x-3 pb-3">
+                <h3 className="text-2xl col-span-2 text-center p-2 font-bold">{evento?.nombre}</h3>
+                <h3 className="sm:text-base text-center text-sm p-2">{format(evento!.fecha, 'yyyy-MM-dd')}</h3>
+                <h3 className="sm:text-base text-center text-sm p-2">{evento?.ubicacion}</h3>
             </div>
             <div className="pb-5 flex justify-center items-center gap-x-2 px-2">
                 <SearchInput onChange={setSearch} placeholder="Buscar por nombre o id de la modelo"/>
