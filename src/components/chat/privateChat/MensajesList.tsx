@@ -10,6 +10,7 @@ import {
   TemplateMessage,
   TextMessage,
 } from '@/server/types/whatsapp';
+import Link from 'next/link';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 type UIMessageModel = MensajesListProps['mensajes'][number] & {
@@ -114,7 +115,14 @@ const MensajesList = ({ mensajes, telefono }: MensajesListProps) => {
                             />
                           );
                         case 'template':
-                          return `Plantilla ${messageBody.type === 'template' && (messageBody as TemplateMessage).templateName}`;
+                          return (
+                            <Link
+                              className='text-blue-500 hover:underline'
+                              href={`/plantilla/${(messageBody as TemplateMessage).templateName}`}
+                            >
+                              {`Plantilla ${messageBody.type === 'template' && (messageBody as TemplateMessage).templateName}`}
+                            </Link>
+                          );
                         default:
                           return <div>Mensaje no soportado</div>;
                       }
