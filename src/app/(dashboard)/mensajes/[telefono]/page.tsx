@@ -1,5 +1,6 @@
 'use client';
 
+import ChatTopbar from '@/components/chat/privateChat/ChatTopbar';
 import EnviarMensajeUI from '@/components/chat/privateChat/EnviarMensajeUI';
 import MensajesList from '@/components/chat/privateChat/MensajesList';
 import { trpc } from '@/lib/trpc';
@@ -10,14 +11,18 @@ interface ChatPageProps {}
 
 const ChatPage = ({}: ChatPageProps) => {
   const { telefono } = useParams<{ telefono: string }>();
-  const { data } = trpc.whatsapp.getMessagesByTelefono.useQuery(telefono);
+  const { data } = trpc.whatsapp.getMessagesByTelefono.useQuery(telefono, {
+    enabled: !!telefono,
+    refetchInterval: 5000,
+  });
 
   return (
     <div className='relative w-full bg-[url(/img/whatsapp_background.png)]'>
       <div className='flex h-full flex-col'>
+        <ChatTopbar inChat={data?.inChat ?? false} telefono={telefono} />
         <div className='h-full overflow-y-auto'>
           {data?.mensajes != null && (
-            <MensajesList mensajes={data?.mensajes ?? []} />
+            <MensajesList telefono={telefono} mensajes={data?.mensajes ?? []} />
           )}
         </div>
         <EnviarMensajeUI telefono={telefono} inChat={data?.inChat ?? false} />

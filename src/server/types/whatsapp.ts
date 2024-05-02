@@ -59,17 +59,20 @@ export type Components = Body | Buttons;
 
 export type MessageJson = {
   id: string;
-  text: {
-    body: string;
-  };
   timestamp: string;
   to?: string;
   from?: string;
-  type: string;
+  type: 'text' | 'template';
 };
 
 export type TextMessage = MessageJson & {
+  type: 'text';
   text: {
     body: string;
   };
+};
+
+export type TemplateMessage = MessageJson & {
+  type: 'template';
+  templateName: string;
 };

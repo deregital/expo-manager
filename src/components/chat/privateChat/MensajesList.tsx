@@ -2,10 +2,16 @@ import MensajeRecibido from '@/components/chat/privateChat/MensajeRecibido';
 import TailWrapper from '@/components/chat/privateChat/TailWrapper';
 import CheckIcon from '@/components/icons/CheckIcon';
 import DoubleCheckIcon from '@/components/icons/DoubleCheckIcon';
+import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
-import { MessageJson, TextMessage } from '@/server/types/whatsapp';
-import React, { useEffect, useMemo, useRef } from 'react';
+import {
+  MessageJson,
+  TemplateMessage,
+  TextMessage,
+} from '@/server/types/whatsapp';
+import Link from 'next/link';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 type UIMessageModel = MensajesListProps['mensajes'][number] & {
   msgDate: string;
@@ -25,12 +31,26 @@ function addDateToMessages(
 
 interface MensajesListProps {
   mensajes: RouterOutputs['whatsapp']['getMessagesByTelefono']['mensajes'];
+  telefono: string;
 }
 
-const MensajesList = ({ mensajes }: MensajesListProps) => {
+const MensajesList = ({ mensajes, telefono }: MensajesListProps) => {
+  const [lastMessageSent, setLastMessageSent] = useState(Date.now());
+  const utils = trpc.useUtils();
   const stateMessages = useMemo(() => {
     return addDateToMessages(mensajes);
   }, [mensajes]);
+
+  trpc.whatsapp.getLastMessageTimestamp.useQuery(telefono, {
+    enabled: !!telefono,
+    refetchInterval: 1000,
+    onSuccess: (data) => {
+      if (data !== lastMessageSent) {
+        setLastMessageSent(data);
+        utils.whatsapp.getMessagesByTelefono.invalidate(telefono);
+      }
+    },
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
@@ -69,7 +89,12 @@ const MensajesList = ({ mensajes }: MensajesListProps) => {
                 );
               }
             })()}
-            <div className='my-1'>
+            <div
+              className={cn(
+                'my-1 flex',
+                !!messageBody.to ? 'justify-end' : 'justify-start'
+              )}
+            >
               <TailWrapper
                 showTail={
                   index === 0
@@ -89,8 +114,17 @@ const MensajesList = ({ mensajes }: MensajesListProps) => {
                               mensaje={messageBody as TextMessage}
                             />
                           );
+                        case 'template':
+                          return (
+                            <Link
+                              className='text-blue-500 hover:underline'
+                              href={`/plantilla/${(messageBody as TemplateMessage).templateName}`}
+                            >
+                              {`Plantilla ${messageBody.type === 'template' && (messageBody as TemplateMessage).templateName}`}
+                            </Link>
+                          );
                         default:
-                          return <div>Unsupported message</div>;
+                          return <div>Mensaje no soportado</div>;
                       }
                     })()}
                     <span className='invisible'>ww:ww wm</span>

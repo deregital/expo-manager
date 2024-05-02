@@ -43,21 +43,21 @@ const Sidebar = () => {
             Mensajes
           </SidebarLink>
           <SidebarLink
-            to='/modelos'
+            to={['/modelos', '/modelo']}
             icon={<ModeloIcon height={24} width={24} />}
             iconActive={<ModeloFillIcon height={24} width={24} />}
           >
             Modelos
           </SidebarLink>
           <SidebarLink
-            to='/etiquetas'
+            to={['/etiquetas', '/asignacion']}
             icon={<EtiquetaIcon height={24} width={24} />}
             iconActive={<EtiquetasFillIcon height={24} width={24} />}
           >
             Etiquetas
           </SidebarLink>
           <SidebarLink
-            to='/eventos'
+            to={'/eventos'}
             icon={<EventIcon height={24} width={24} />}
             iconActive={<EventFillIcon height={24} width={24} />}
           >

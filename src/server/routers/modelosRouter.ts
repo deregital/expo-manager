@@ -29,11 +29,6 @@ export const modeloRouter = router({
       },
     });
 
-    modelos.forEach((modelo) => {
-      if (Number.isInteger(modelo.idLegible)) {
-        modelo.idLegible = Number(modelo.idLegible).toString(36);
-      }
-    });
     return modelos;
   }),
   getAllWithInChat: protectedProcedure.query(async ({ ctx }) => {
@@ -170,7 +165,7 @@ export const modeloRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        idLegible: z.string().optional(),
+        idLegible: z.number().optional(),
         nombreCompleto: z.string().optional(),
         nombrePila: z.string().optional(),
         telefono: z.string().optional(),
@@ -242,20 +237,10 @@ export const modeloRouter = router({
         where: {
           AND: [
             {
-              OR: [
-                {
-                  nombreCompleto: {
-                    contains: input.nombre,
-                    mode: 'insensitive',
-                  },
-                },
-                {
-                  idLegible: {
-                    contains: input.nombre,
-                    mode: 'insensitive',
-                  },
-                },
-              ],
+              nombreCompleto: {
+                contains: input.nombre,
+                mode: 'insensitive',
+              },
             },
             {
               etiquetas: {
@@ -353,5 +338,19 @@ export const modeloRouter = router({
       );
 
       return groupedModelos;
+    }),
+  getByTelefono: protectedProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      return await ctx.prisma.perfil.findUnique({
+        where: {
+          telefono: input,
+          etiquetas: {
+            some: {
+              id: { in: ctx.etiquetasVisibles },
+            },
+          },
+        },
+      });
     }),
 });

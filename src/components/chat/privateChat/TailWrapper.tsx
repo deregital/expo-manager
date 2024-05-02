@@ -11,7 +11,9 @@ const TailWrapper = ({
   isSent: boolean;
 }) => {
   return (
-    <div className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}>
+    <div
+      className={`flex max-w-[80%] ${isSent ? 'justify-end' : 'justify-start'}`}
+    >
       <div className='flex'>
         {showTail && !isSent ? (
           <div
