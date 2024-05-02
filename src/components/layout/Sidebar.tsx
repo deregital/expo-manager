@@ -50,7 +50,7 @@ const Sidebar = () => {
             Modelos
           </SidebarLink>
           <SidebarLink
-            to={'/etiquetas'}
+            to={['/etiquetas', '/asignacion']}
             icon={<EtiquetaIcon height={24} width={24} />}
             iconActive={<EtiquetasFillIcon height={24} width={24} />}
           >
