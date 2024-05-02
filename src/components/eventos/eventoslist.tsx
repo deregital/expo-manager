@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import { RouterOutputs } from '@/server';
+import EventIcon from '../icons/EventIcon';
+import { useRouter } from 'next/navigation';
 
 interface EventosListProps {
   eventos: RouterOutputs['evento']['getAll'];
@@ -22,7 +24,10 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
   }));
 
   const [active, setActive] = useState<string[]>([]);
-
+  const router = useRouter();
+  function redirectToEvent(subeventoId: string) {
+    router.push(`/eventos/${subeventoId}`);
+  }
   useEffect(() => {
     if (state === 'EXPAND') {
       setActive(eventos.map((evento) => evento.id));
@@ -98,6 +103,16 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
                 <p className='font-semibold'>
                   Ubicación del subevento:{' '}
                   <span className='font-normal'>{subevento.ubicacion}</span>
+                </p>
+                <p className='flex gap-x-1 font-semibold'>
+                  Vista particular del subevento:
+                  <EventIcon
+                    className='h-5 w-5 hover:cursor-pointer hover:text-black/60'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      redirectToEvent(subevento.id);
+                    }}
+                  />
                 </p>
               </div>
             ))}

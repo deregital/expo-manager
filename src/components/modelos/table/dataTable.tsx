@@ -21,7 +21,6 @@ import {
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import PaginationComp from './Pagination';
 import Loader from '@/components/ui/loader';
 
@@ -29,15 +28,16 @@ interface DataTableProps<TData extends { id: string }, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   isLoading?: boolean;
+  onClickRow?: (id: string) => void;
 }
 
 export const DataTable = <TData extends { id: string }, TValue>({
   columns,
   data,
   isLoading,
+  onClickRow,
 }: DataTableProps<TData, TValue>) => {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const router = useRouter();
 
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -47,6 +47,7 @@ export const DataTable = <TData extends { id: string }, TValue>({
   const table = useReactTable({
     data,
     columns,
+    autoResetPageIndex: false,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
@@ -62,10 +63,6 @@ export const DataTable = <TData extends { id: string }, TValue>({
       maxSize: 500, //enforced during column resizing
     },
   });
-
-  function goToModel(id: string) {
-    router.push(`/modelo/${id}`);
-  }
 
   return (
     <div className='rounded-md border'>
@@ -100,9 +97,9 @@ export const DataTable = <TData extends { id: string }, TValue>({
           ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row, idx) => (
               <TableRow
-                onClick={() => goToModel(row.original.id)}
+                onClick={() => onClickRow && onClickRow(row.original.id)}
                 className={cn(
-                  'cursor-pointer',
+                  onClickRow && 'cursor-pointer',
                   idx % 2 === 0
                     ? 'bg-gray-200 hover:bg-gray-300'
                     : 'hover:bg-gray-200/60'

@@ -4,7 +4,7 @@ import { trpc } from '@/lib/trpc';
 import { searchNormalize } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { TipoEtiqueta } from '@prisma/client';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { create } from 'zustand';
 
@@ -48,6 +48,7 @@ function filterModelos(
 const ModelosTable = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [search, setSearch] = useState<{
     nombre?: string;
     etiquetaId?: string;
@@ -57,6 +58,10 @@ const ModelosTable = () => {
     etiquetaId: searchParams.get('etiqueta') ?? undefined,
     grupoId: searchParams.get('grupoId') ?? undefined,
   });
+
+  function goToModel(id: string) {
+    router.push(`/modelo/${id}`);
+  }
 
   const {
     data: modelos,
@@ -97,6 +102,7 @@ const ModelosTable = () => {
             etiqueta.tipo !== TipoEtiqueta.TENTATIVA
         ),
       }))}
+      onClickRow={goToModel}
     />
   );
 };
