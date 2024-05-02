@@ -12,12 +12,7 @@ export const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
     accessorKey: 'idLegible',
     header: ({ column }) => {
       return (
-        <div
-          className='mx-auto w-full'
-          style={{
-            width: `${column.getSize()}px`,
-          }}
-        >
+        <div className='mx-auto w-14'>
           <Button
             className='px-1'
             variant='ghost'
@@ -34,7 +29,7 @@ export const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
     maxSize: 50,
     enableResizing: false,
     cell: ({ row }) => {
-      return <p className='w-full text-center'>{row.original.idLegible}</p>;
+      return <p className='w-14 text-center'>{row.original.idLegible}</p>;
     },
   },
   {
@@ -51,6 +46,9 @@ export const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
         </Button>
       );
     },
+    cell: ({ row }) => {
+      return <p className='w-40 truncate'>{row.original.nombreCompleto}</p>;
+    },
   },
   {
     accessorKey: 'edad',
@@ -66,31 +64,7 @@ export const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
   },
   {
     accessorKey: 'etiquetas',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant='ghost'
-          className='pl-0'
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Etiquetas
-          <SortingIcon isSorted={column.getIsSorted()} />
-        </Button>
-      );
-    },
-    sortingFn: (a, b, isAsc) => {
-      // sort by number of etiquetas
-      const aCount = a.original.etiquetas.length;
-      const bCount = b.original.etiquetas.length;
-      if (aCount === bCount) {
-        return 0;
-      }
-      if (isAsc) {
-        return aCount > bCount ? 1 : -1;
-      } else {
-        return aCount < bCount ? 1 : -1;
-      }
-    },
+    header: 'Etiquetas',
     cell: ({ row }) => {
       const etiquetas = row.original.etiquetas;
 
