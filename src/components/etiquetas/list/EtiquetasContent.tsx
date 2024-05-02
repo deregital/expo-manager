@@ -28,7 +28,7 @@ const EtiquetasContent = ({
         {etiqueta.nombre}
       </p>
       <div className='flex items-center gap-x-2'>
-        {etiqueta.tipo !== TipoEtiqueta.EVENTO && (
+        {etiqueta.tipo === TipoEtiqueta.PERSONAL && (
           <EtiquetaModal action='EDIT' etiqueta={etiqueta} />
         )}
         <p className='text-sm font-semibold'>{etiqueta._count.perfiles}</p>

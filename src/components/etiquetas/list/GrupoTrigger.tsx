@@ -1,6 +1,7 @@
 import { GrupoConMatch } from '@/components/etiquetas/list/EtiquetasList';
 import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
 import { cn } from '@/lib/utils';
+import { TipoEtiqueta } from '@prisma/client';
 import { LockIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useMemo } from 'react';
@@ -13,7 +14,15 @@ const GrupoTrigger = ({ grupo }: GrupoTriggerProps) => {
   const searchParams = new URLSearchParams(useSearchParams());
   const router = useRouter();
   const esEvento = useMemo(() => {
-    return grupo.etiquetas.some((etiqueta) => etiqueta.tipo === 'EVENTO');
+    return grupo.etiquetas.some(
+      (etiqueta) => etiqueta.tipo === TipoEtiqueta.EVENTO
+    );
+  }, [grupo.etiquetas]);
+
+  const esAdmin = useMemo(() => {
+    return grupo.etiquetas.some(
+      (etiqueta) => etiqueta.tipo === TipoEtiqueta.MODELO
+    );
   }, [grupo.etiquetas]);
 
   function redirectTable(e: React.MouseEvent<HTMLSpanElement>) {
@@ -39,7 +48,7 @@ const GrupoTrigger = ({ grupo }: GrupoTriggerProps) => {
       </div>
       <div className='flex items-center gap-x-2'>
         {grupo.esExclusivo ? <LockIcon className='h-5 w-5' /> : null}
-        {!esEvento && (
+        {!esEvento && !esAdmin && (
           <div onClick={(e) => e.preventDefault()}>
             <GrupoEtiquetaModal action='EDIT' grupo={grupo} />
           </div>
