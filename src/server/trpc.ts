@@ -64,6 +64,8 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
       ? etiquetasNoAdmin.etiquetas.map((e) => e.id)
       : [];
 
+  ctx.prisma.$disconnect();
+
   return next({
     ctx: {
       ...ctx,
