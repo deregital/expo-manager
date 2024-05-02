@@ -43,16 +43,15 @@ export const CellComponent = ({row, confirmoAsistenciaId}:{row: Row<RouterOutput
 
 
     return (
-        <div className='flex flex-wrap gap-1'>
+        <div className='flex flex-wrap justify-center items-center gap-1'>
             {etiquetasId.includes(confirmoAsistenciaId) ? (
                 <div className="flex justify-center items-center gap-x-2">
-                    <span>En presentismo</span>
+                    <p>En presentismo</p>
                     <CheckIcon className="w-6 h-6" />
                 </div>
             ) : (
                 <>
                     <Button
-                        variant='ghost'
                         className='px-1'
                         onClick={() => addPresentismo(row.original)}
                     >

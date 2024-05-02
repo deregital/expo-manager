@@ -55,6 +55,17 @@ export function generateColumns(id: string) {
         {
           accessorKey: 'Confirmó asistencia',
           cell: ({ row }) => <CellComponent row={row} confirmoAsistenciaId={id}/>,
+          header: () => {
+            return (
+            <div className='flex justify-center items-center'>
+              <p
+                className='pl-0'
+              >
+                Confirmó asistencia
+              </p>
+              </div>
+            );
+          },
         },
       ];
     return columns
