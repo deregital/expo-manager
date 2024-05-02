@@ -19,7 +19,7 @@ const SharedCard = ({
   return (
     <Card className='relative'>
       <CardHeader>
-        <CardTitle className={cn(isLoading && 'animate-pulse')}>
+        <CardTitle className={cn('truncate', isLoading && 'animate-pulse')}>
           {title}
         </CardTitle>
       </CardHeader>

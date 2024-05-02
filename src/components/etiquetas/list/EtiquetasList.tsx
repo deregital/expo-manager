@@ -1,5 +1,5 @@
 import EtiquetasContent from '@/components/etiquetas/list/EtiquetasContent';
-import { useExpandEtiquetas } from '@/components/etiquetas/list/ExpandContractEtiquetas';
+import { useEtiquetasSettings } from '@/components/etiquetas/list/ExpandContractEtiquetas';
 import GrupoTrigger from '@/components/etiquetas/list/GrupoTrigger';
 import {
   Accordion,
@@ -26,12 +26,14 @@ interface EtiquetasListProps {
 }
 
 const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
-  const { state, setContract } = useExpandEtiquetas((s) => ({
-    state: s.state,
-    setContract: s.contract,
-  }));
-
   const [active, setActive] = useState<string[]>([]);
+  const [prevShowEvento, setPrevShowEvento] = useState<boolean>(false);
+  const {
+    state,
+    contract: setContract,
+    showEventos,
+    expand: setExpand,
+  } = useEtiquetasSettings();
 
   useEffect(() => {
     if (state === 'EXPAND') {
@@ -43,8 +45,13 @@ const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
           .map((g) => g.id)
       );
     } else {
+      if (prevShowEvento !== showEventos) {
+        setPrevShowEvento(showEventos);
+        return;
+      }
       setActive([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [grupos, state]);
 
   if (grupos.length === 0) {
@@ -80,7 +87,11 @@ const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
                   setContract();
                 }
               } else {
-                setActive([...active, grupo.id]);
+                const newActive = [...active, grupo.id];
+                if (newActive.length === grupos.length) {
+                  setExpand();
+                }
+                setActive(newActive);
               }
             }}
             className='rounded-xl px-2 py-1.5'

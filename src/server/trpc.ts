@@ -40,6 +40,7 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     },
     select: {
       esAdmin: true,
+      etiquetas: true,
     },
   });
 
@@ -49,19 +50,10 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     },
   });
 
-  const etiquetasNoAdmin = await ctx.prisma.cuenta.findUnique({
-    where: {
-      id: ctx.session.user.id,
-    },
-    select: {
-      etiquetas: true,
-    },
-  });
-
   const etiquetasVisibles = user?.esAdmin
     ? etiquetasTotales.map((e) => e.id)
-    : etiquetasNoAdmin
-      ? etiquetasNoAdmin.etiquetas.map((e) => e.id)
+    : user
+      ? user.etiquetas.map((e) => e.id)
       : [];
 
   return next({
