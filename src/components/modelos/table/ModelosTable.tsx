@@ -3,8 +3,8 @@ import { DataTable } from '@/components/modelos/table/dataTable';
 import { trpc } from '@/lib/trpc';
 import { searchNormalize } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
-import { useSearchParams } from 'next/navigation';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import { create } from 'zustand';
 
 export const useModelosTabla = create<{ cantidad: number; isLoading: boolean }>(
@@ -13,6 +13,7 @@ export const useModelosTabla = create<{ cantidad: number; isLoading: boolean }>(
     isLoading: true,
   })
 );
+
 
 function filterModelos(
   modelos: RouterOutputs['modelo']['getAll'],
@@ -30,7 +31,7 @@ function filterModelos(
       (search.nombre === undefined ||
         searchNormalize(modelo.nombreCompleto, search.nombre) ||
         (modelo.idLegible &&
-          searchNormalize(modelo.idLegible, search.nombre))) &&
+          searchNormalize(modelo.idLegible.toString(), search.nombre))) &&
       (search.etiquetaId === undefined ||
         modelo.etiquetas.some(
           (etiqueta) => etiqueta.id === search.etiquetaId
@@ -47,6 +48,7 @@ function filterModelos(
 const ModelosTable = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [search, setSearch] = useState<{
     nombre?: string;
     etiquetaId?: string;
@@ -56,6 +58,10 @@ const ModelosTable = () => {
     etiquetaId: searchParams.get('etiqueta') ?? undefined,
     grupoId: searchParams.get('grupoId') ?? undefined,
   });
+  
+  function goToModel(id: string) {
+    router.push(`/modelo/${id}`);
+  }
 
   const {
     data: modelos,
@@ -88,6 +94,7 @@ const ModelosTable = () => {
       isLoading={isLoading && !isRefetching}
       columns={columns}
       data={data}
+      onClickRow={goToModel}
     />
   );
 };
