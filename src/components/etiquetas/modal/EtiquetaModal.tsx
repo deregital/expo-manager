@@ -240,7 +240,7 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
               <>
                 <Button
                   variant='destructive'
-                  className={cn({
+                  className={cn('h-auto text-wrap', {
                     'bg-red-700 hover:bg-red-500': quiereEliminar,
                   })}
                   onClick={handleDelete}
@@ -253,7 +253,7 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
                     ? quiereEliminar
                       ? '¿Estás seguro?'
                       : 'Eliminar'
-                    : 'No se puede eliminar'}
+                    : 'No se puede eliminar, la etiqueta tiene modelos asociadas'}
                 </Button>
                 {quiereEliminar && (
                   <Button

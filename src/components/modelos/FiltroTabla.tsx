@@ -6,6 +6,7 @@ import EtiquetaComboBoxModelos from './EtiquetaComboBox';
 import { useEffect, useState } from 'react';
 import SearchInput from '@/components/ui/SearchInput';
 import { useModelosTabla } from '@/components/modelos/table/ModelosTable';
+import { TipoEtiqueta } from '@prisma/client';
 
 const FiltroTabla = () => {
   const searchParams = new URLSearchParams(useSearchParams());
@@ -32,7 +33,19 @@ const FiltroTabla = () => {
   return (
     <div className='flex flex-col items-center justify-between gap-4 p-3 md:flex-row md:p-5'>
       <div className='flex w-full flex-col items-center gap-4 md:flex-row'>
-        <ComboBoxModelos data={grupos ?? []} />
+        <ComboBoxModelos
+          data={
+            grupos?.filter(
+              (grupo) =>
+                grupo.etiquetas.length > 0 &&
+                grupo.etiquetas.every(
+                  (e) =>
+                    e.tipo !== TipoEtiqueta.MODELO &&
+                    e.tipo !== TipoEtiqueta.TENTATIVA
+                )
+            ) ?? []
+          }
+        />
         <EtiquetaComboBoxModelos />
         {!isLoadingModelos && (
           <p className='self-start text-sm text-black/80 md:self-end'>

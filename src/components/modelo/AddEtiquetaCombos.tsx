@@ -15,6 +15,15 @@ function availableGrupos(
 ) {
   return gruposData.filter((grupo) => {
     if (grupo.etiquetas.length === 0) return false;
+    if (
+      grupo.etiquetas.every(
+        (etiqueta) =>
+          etiqueta.tipo === TipoEtiqueta.MODELO ||
+          etiqueta.tipo === TipoEtiqueta.TENTATIVA
+      )
+    ) {
+      return false;
+    }
     if (grupo.esExclusivo) {
       const etiquetasIds = etiquetas.map((etiqueta) => etiqueta.grupo.id);
       return !etiquetasIds.includes(grupo.id);
@@ -35,6 +44,11 @@ function availableEtiquetas(
   grupos: ReturnType<typeof availableGrupos>
 ) {
   return etiquetasData.filter((etiqueta) => {
+    if (
+      etiqueta.tipo === TipoEtiqueta.MODELO ||
+      etiqueta.tipo === TipoEtiqueta.TENTATIVA
+    )
+      return false;
     if (!grupos.map((g) => g.id).includes(etiqueta.grupo.id)) return false;
     return !etiquetas.map((etiqueta) => etiqueta.id).includes(etiqueta.id);
   });

@@ -3,20 +3,22 @@ import ExpandIcon from '@/components/icons/ExpandIcon';
 import React from 'react';
 import { create } from 'zustand';
 
-export const useExpandEtiquetas = create<{
+export const useEtiquetasSettings = create<{
   state: 'EXPAND' | 'CONTRACT' | 'NONE';
+  showEventos: boolean;
   expand: () => void;
   contract: () => void;
   none: () => void;
 }>((set) => ({
   state: 'NONE',
+  showEventos: false,
   expand: () => set({ state: 'EXPAND' }),
   contract: () => set({ state: 'CONTRACT' }),
   none: () => set({ state: 'NONE' }),
 }));
 
 const ExpandContractEtiquetas = () => {
-  const { state, contract, expand } = useExpandEtiquetas((s) => ({
+  const { state, contract, expand } = useEtiquetasSettings((s) => ({
     state: s.state,
     contract: s.contract,
     expand: s.expand,

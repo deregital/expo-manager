@@ -3,6 +3,7 @@ import { DataTable } from '@/components/modelos/table/dataTable';
 import { trpc } from '@/lib/trpc';
 import { searchNormalize } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
+import { TipoEtiqueta } from '@prisma/client';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { create } from 'zustand';
@@ -30,7 +31,7 @@ function filterModelos(
       (search.nombre === undefined ||
         searchNormalize(modelo.nombreCompleto, search.nombre) ||
         (modelo.idLegible &&
-          searchNormalize(modelo.idLegible, search.nombre))) &&
+          searchNormalize(modelo.idLegible.toString(), search.nombre))) &&
       (search.etiquetaId === undefined ||
         modelo.etiquetas.some(
           (etiqueta) => etiqueta.id === search.etiquetaId
@@ -73,6 +74,7 @@ const ModelosTable = () => {
 
   const data = useMemo(() => {
     const filtradas = filterModelos(modelos ?? [], search);
+
     return filtradas;
   }, [search, modelos]);
 
@@ -87,7 +89,14 @@ const ModelosTable = () => {
     <DataTable
       isLoading={isLoading && !isRefetching}
       columns={columns}
-      data={data}
+      data={data.map((modelo) => ({
+        ...modelo,
+        etiquetas: modelo.etiquetas.filter(
+          (etiqueta) =>
+            etiqueta.tipo !== TipoEtiqueta.MODELO &&
+            etiqueta.tipo !== TipoEtiqueta.TENTATIVA
+        ),
+      }))}
     />
   );
 };

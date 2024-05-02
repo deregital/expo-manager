@@ -60,6 +60,7 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     ? etiquetasTotales.map((e) => e.id)
     : etiquetasNoAdmin.map((e) => e.id);
 
+
   return next({
     ctx: {
       ...ctx,
