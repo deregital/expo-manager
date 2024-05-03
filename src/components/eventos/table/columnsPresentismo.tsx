@@ -5,9 +5,10 @@ import { RouterOutputs } from '@/server';
 import { ColumnDef, SortDirection } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import CellComponent from './CellComponent';
+import CellPresentismo from './CellPresentismo';
 
 export function generateColumnsPresentismo(id: string) {
-  const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
+  const columns: ColumnDef<RouterOutputs['modelo']['getByEtiqueta'][number]>[] = [
     {
       accessorKey: 'idLegible',
       header: ({ column }) => {
@@ -56,7 +57,7 @@ export function generateColumnsPresentismo(id: string) {
     },
     {
       accessorKey: '¿Vino?',
-      cell: ({ row }) => <CellComponent row={row} confirmoAsistenciaId={id} />,
+      cell: ({ row }) => <CellPresentismo row={row} AsistenciaId={id} />,
       sortingFn: (rowA, rowB) => {
         // This is a custom sorting function that sorts rows that contain id in etiquetas first
         const a = rowA.original.etiquetas.map((etiqueta) => etiqueta.id);

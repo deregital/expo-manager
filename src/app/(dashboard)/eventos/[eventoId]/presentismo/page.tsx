@@ -1,10 +1,14 @@
 'use client'
 import { generateColumnsPresentismo } from "@/components/eventos/table/columnsPresentismo";
 import { DataTable } from "@/components/modelos/table/dataTable";
+import SearchInput from "@/components/ui/SearchInput";
 import Loader from "@/components/ui/loader";
 import { trpc } from "@/lib/trpc";
+import { searchNormalize } from "@/lib/utils";
+import { RouterOutputs } from "@/server";
 import { format } from "date-fns";
 import { ArrowLeftIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface PresentismoPageProps {
   params: {
@@ -19,6 +23,25 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
   const {data: modelos} = trpc.modelo.getByEtiqueta.useQuery([evento!.etiquetaConfirmoId], {
     enabled: !!evento
   });
+
+  const [modelosData, setModelosData] = useState<RouterOutputs['modelo']['getByEtiqueta']>(modelos ?? []);
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    if (!modelos) return;
+    setModelosData(
+      modelos.filter((modelo) => {
+        if (modelo.idLegible !== null) {
+          return (
+            searchNormalize(modelo.idLegible.toString(), search) ||
+            searchNormalize(modelo.nombreCompleto, search)
+          );
+        }
+        return searchNormalize(modelo.nombreCompleto, search);
+      })
+    );
+  }, [search, modelos]);
+
   if (isLoadingEvento)
     return (
       <div className='flex items-center justify-center pt-5'>
@@ -50,7 +73,13 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
           {evento?.ubicacion}
         </h3>
       </div>
-      {/* <DataTable columns={generateColumnsPresentismo(params.eventoId)} data={modelos} /> */}
+      <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
+        <SearchInput
+          onChange={setSearch}
+          placeholder='Buscar por nombre o id de la modelo'
+        />
+      </div>
+      <DataTable columns={generateColumnsPresentismo(evento!.etiquetaAsistioId)} data={modelosData} />
     </div>
   );
 };

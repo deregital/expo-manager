@@ -6,18 +6,18 @@ import { Row } from '@tanstack/react-table';
 import { CheckIcon, PlusIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
-export const CellComponent = ({
+export const CellPresentismo = ({
   row,
-  confirmoAsistenciaId,
+  AsistenciaId,
 }: {
-  row: Row<RouterOutputs['modelo']['getAll'][number]>;
-  confirmoAsistenciaId: string;
+  row: Row<RouterOutputs['modelo']['getByEtiqueta'][number]>;
+  AsistenciaId: string;
 }) => {
   const etiquetasId = row.original.etiquetas.map(
     (etiqueta: any) => etiqueta.id
   );
   const { data: etiqueta } = trpc.etiqueta.getById.useQuery(
-    confirmoAsistenciaId,
+    AsistenciaId,
     {
       enabled: !!row.original,
     }
@@ -25,10 +25,10 @@ export const CellComponent = ({
   const editModelo = trpc.modelo.edit.useMutation();
   const useUtils = trpc.useUtils();
 
-  async function addPresentismo(
-    modelo: RouterOutputs['modelo']['getAll'][number]
+  async function addAsistencia(
+    modelo: RouterOutputs['modelo']['getByEtiqueta'][number]
   ) {
-    toast.loading('Agregando al presentismo');
+    toast.loading('Confirmando asistencia');
     const etiquetasId = modelo.etiquetas.map((etiqueta) => {
       return {
         id: etiqueta.id,
@@ -54,31 +54,46 @@ export const CellComponent = ({
       ],
     });
     toast.dismiss();
-    toast.success('Se agregó al presentismo');
+    toast.success('Se confirmó su asistencia');
+    useUtils.modelo.getAll.invalidate();
+  }
+
+  async function deleteAsistencia(
+    modelo: RouterOutputs['modelo']['getByEtiqueta'][number]
+  ) {
+    toast.loading('Eliminando presentismo');
+    const etiquetasId = modelo.etiquetas.map((etiqueta) => {
+      return {
+        id: etiqueta.id,
+        grupo: {
+          id: etiqueta.grupoId,
+          esExclusivo: etiqueta.grupo.esExclusivo,
+        },
+        nombre: etiqueta.nombre,
+      };
+    });
+    await editModelo.mutateAsync({
+      id: modelo.id,
+      etiquetas: etiquetasId.filter((et) => et.id !== etiqueta!.id),
+    });
+    toast.dismiss();
+    toast.success('Se eliminó del presentismo');
     useUtils.modelo.getAll.invalidate();
   }
 
   return (
     <div className='flex flex-wrap items-center justify-center gap-1'>
-      {etiquetasId.includes(confirmoAsistenciaId) ? (
+      {etiquetasId.includes(AsistenciaId) ? (
         <div className='flex items-center justify-center gap-x-2'>
-          <p>En presentismo</p>
-          <CheckIcon className='h-6 w-6' />
+          <input type='checkbox' className='w-6 h-6' checked onClick={() => deleteAsistencia(row.original)} />
         </div>
       ) : (
         <>
-          <Button
-            disabled={editModelo.isLoading}
-            className='px-1'
-            onClick={() => addPresentismo(row.original)}
-          >
-            Agregar al presentismo
-            <PlusIcon className='h-6 w-6' />
-          </Button>
+            <input type='checkbox' className='w-6 h-6' onClick={() => addAsistencia(row.original)} />
         </>
       )}
     </div>
   );
 };
 
-export default CellComponent;
+export default CellPresentismo;
