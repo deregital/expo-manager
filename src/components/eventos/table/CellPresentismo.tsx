@@ -53,7 +53,7 @@ export const CellPresentismo = ({
     });
     toast.dismiss();
     toast.success('Se confirmó su asistencia');
-    useUtils.modelo.getAll.invalidate();
+    useUtils.modelo.getByEtiqueta.invalidate();
   }
 
   async function deleteAsistencia(
@@ -76,18 +76,18 @@ export const CellPresentismo = ({
     });
     toast.dismiss();
     toast.success('Se eliminó del presentismo');
-    useUtils.modelo.getAll.invalidate();
+    useUtils.modelo.getByEtiqueta.invalidate();
   }
 
   return (
     <div className='flex flex-wrap items-center justify-center gap-1'>
       {etiquetasId.includes(AsistenciaId) ? (
         <div className='flex items-center justify-center gap-x-2'>
-          <input type='checkbox' className='w-6 h-6' checked onClick={() => deleteAsistencia(row.original)} />
+          <input type='checkbox' disabled={editModelo.isLoading} className='w-6 h-6' checked onChange={() => deleteAsistencia(row.original)} />
         </div>
       ) : (
         <>
-            <input type='checkbox' className='w-6 h-6' onClick={() => addAsistencia(row.original)} />
+            <input type='checkbox' disabled={editModelo.isLoading} className='w-6 h-6' onChange={() => addAsistencia(row.original)} />
         </>
       )}
     </div>

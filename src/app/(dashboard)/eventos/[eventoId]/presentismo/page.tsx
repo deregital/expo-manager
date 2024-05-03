@@ -20,7 +20,7 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
   const {data: evento, isLoading: isLoadingEvento} = trpc.evento.getById.useQuery({
     id: params.eventoId
   });
-  const {data: modelos} = trpc.modelo.getByEtiqueta.useQuery([evento!.etiquetaConfirmoId], {
+  const {data: modelos, isLoading: modelosIsLoading} = trpc.modelo.getByEtiqueta.useQuery(evento ? [evento!.etiquetaConfirmoId] : [], {
     enabled: !!evento
   });
 
@@ -79,7 +79,7 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
           placeholder='Buscar por nombre o id de la modelo'
         />
       </div>
-      <DataTable columns={generateColumnsPresentismo(evento!.etiquetaAsistioId)} data={modelosData} />
+      <DataTable columns={generateColumnsPresentismo(evento!.etiquetaAsistioId)} data={modelosData} isLoading={modelosIsLoading}/>
     </div>
   );
 };
