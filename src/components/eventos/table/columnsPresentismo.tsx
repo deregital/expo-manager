@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { RouterOutputs } from '@/server';
 import { ColumnDef, SortDirection } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
-import CellComponent from './CellComponent';
 import CellPresentismo from './CellPresentismo';
 
 export function generateColumnsPresentismo(id: string) {

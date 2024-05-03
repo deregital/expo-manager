@@ -1,9 +1,7 @@
 'use client';
-import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
 import { Row } from '@tanstack/react-table';
-import { CheckIcon, PlusIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const CellPresentismo = ({
