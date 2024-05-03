@@ -76,7 +76,7 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
       <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
         <SearchInput
           onChange={setSearch}
-          placeholder='Buscar por nombre o id de la modelo'
+          placeholder='Buscar por nombre o ID legible'
         />
       </div>
       <DataTable columns={generateColumnsPresentismo(evento!.etiquetaAsistioId)} data={modelosData} isLoading={modelosIsLoading}/>

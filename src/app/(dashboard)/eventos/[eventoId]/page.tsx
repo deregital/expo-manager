@@ -78,7 +78,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
       <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
         <SearchInput
           onChange={setSearch}
-          placeholder='Buscar por nombre o id de la modelo'
+          placeholder='Buscar por nombre o ID legible'
         />
         <Button
           className='rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500'
