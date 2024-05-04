@@ -13,13 +13,18 @@ const ConfiguracionPage = () => {
     try {
       toast.loading('Descargando CSV de modelos...');
       const csvData = await exportModelos.mutateAsync(); 
+      var now = new Date();
+      var filename = `PerfilModelos_${now.toISOString().slice(0,19).replace(/:/g, '-').replace('T', '_')}.csv`;
+
+
+      
 
       const blob = new Blob([csvData], { type: 'text/csv' });
 
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'modelos.csv');
+      link.setAttribute('download', filename);
       document.body.appendChild(link);
 
       link.click();
@@ -63,7 +68,7 @@ const ConfiguracionPage = () => {
 
   return (
     <div>
-      <p className='px-5'>ConfiguracionPage</p>
+      <p className='p-3 text-xl font-bold md:p-5 md:text-3xl'>Configuración</p>
       {}
       <div className='mt-5 px-5'>
         {/* Botón para descargar el archivo CSV con estilos */}
