@@ -316,19 +316,20 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                           subeventos: updatedSubeventos,
                         });
                       }}
-                      required // Atributo required agregado aquí
+                      required 
                     />
                     <Button
-                      onClick={() => {
-                        const updatedSubeventos = [...modalData.subeventos];
-                        updatedSubeventos.splice(index, 1); // Eliminar el subevento en el índice
-                        useEventoModalData.setState({
-                          subeventos: updatedSubeventos,
-                        });
-                      }}
-                    >
-                      Eliminar subevento
-                    </Button>
+                    onClick={() => {
+                    const updatedSubeventos = [...modalData.subeventos];
+                    updatedSubeventos.splice(index, 1); 
+                   useEventoModalData.setState({
+                  subeventos: updatedSubeventos,
+    });
+  }}
+  style={{ backgroundColor: 'red', color: 'white' }}
+>
+  Eliminar subevento
+</Button>
                   </div>
                 </div>
               </div>
