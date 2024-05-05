@@ -34,20 +34,23 @@ const ModelosList = ({ modelos, isLoading }: ModelosListProps) => {
             </div>
           )
         )}
-        {data.map((modelo) => (
-          <div
-            key={modelo.id}
-            className='flex items-center justify-between gap-x-4'
-          >
-            <div className='flex w-full items-center gap-x-1 truncate'>
-              <FotoModelo url={modelo.fotoUrl} />
-              <p className='w-full truncate py-1'>{modelo.nombreCompleto}</p>
+        {
+          // @ts-ignore
+          data.map((modelo) => (
+            <div
+              key={modelo.id}
+              className='flex items-center justify-between gap-x-4'
+            >
+              <div className='flex w-full items-center gap-x-1 truncate'>
+                <FotoModelo url={modelo.fotoUrl} />
+                <p className='w-full truncate py-1'>{modelo.nombreCompleto}</p>
+              </div>
+              <span className='w-fit'>
+                {format(modelo.created_at, 'dd/MM/yyyy')}
+              </span>
             </div>
-            <span className='w-fit'>
-              {format(modelo.created_at, 'dd/MM/yyyy')}
-            </span>
-          </div>
-        ))}
+          ))
+        }
       </div>
     </Card>
   );
