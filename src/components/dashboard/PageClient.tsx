@@ -6,6 +6,7 @@ import ComboBox from '@/components/ui/ComboBox';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
+import { MessageJson } from '@/server/types/whatsapp';
 import { addDays, format } from 'date-fns';
 import React, { useMemo, useState } from 'react';
 import { create } from 'zustand';
@@ -29,6 +30,7 @@ function filterModelos(
   search: { etiquetaId?: string; grupoId?: string }
 ) {
   if (search.etiquetaId === '' && search.grupoId === '') return modelos;
+  // @ts-ignore
   const mod = modelos.filter((modelo) => {
     return (
       (search.etiquetaId === '' ||
@@ -107,7 +109,9 @@ const PageClient = ({}: PageClientProps) => {
 
   const retencion = useMemo(() => {
     return (
-      (modelosQueCuentan.filter((modelo) => modelo.aceptoContacto).length /
+      (modelosQueCuentan.filter((modelo) =>
+        modelo.mensajes.filter((m) => 'from' in (m.message as MessageJson))
+      ).length /
         modelosQueCuentan.length) *
       100
     );

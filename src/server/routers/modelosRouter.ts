@@ -60,7 +60,7 @@ export const modeloRouter = router({
           },
         },
         include: {
-          Mensajes: true,
+          mensajes: true,
         },
       });
     return modelos;
@@ -313,6 +313,7 @@ export const modeloRouter = router({
           created_at: 'asc',
         },
         include: {
+          mensajes: true,
           etiquetas: {
             include: {
               grupo: {
