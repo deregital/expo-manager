@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
             if (
               (!perfil ||
                 (esPerfilTentativo &&
-                  mensajeCreado.perfil._count.Mensajes === 1)) &&
+                  mensajeCreado.perfil._count.mensajes === 1)) &&
               mensajeCreado
             ) {
               await enviarRespuestaAutomatica(
@@ -148,7 +148,7 @@ async function crearMensaje(value: ReceivedMessage) {
           nombreCompleto: true,
           _count: {
             select: {
-              Mensajes: true,
+              mensajes: true,
             },
           },
         },

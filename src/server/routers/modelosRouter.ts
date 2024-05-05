@@ -37,10 +37,10 @@ export const modeloRouter = router({
         result: {
           perfil: {
             inChat: {
-              compute(data: Perfil & { Mensajes: Mensaje[] }) {
+              compute(data: Perfil & { mensajes: Mensaje[] }) {
                 return (
-                  data.Mensajes.length > 0 &&
-                  data.Mensajes.some(
+                  data.mensajes.length > 0 &&
+                  data.mensajes.some(
                     (m) =>
                       m.created_at > subDays(new Date(), 1) &&
                       (m.message as MessageJson).from === data.telefono
@@ -60,7 +60,7 @@ export const modeloRouter = router({
           },
         },
         include: {
-          Mensajes: true,
+          mensajes: true,
         },
       });
     return modelos;
@@ -313,6 +313,7 @@ export const modeloRouter = router({
           created_at: 'asc',
         },
         include: {
+          mensajes: true,
           etiquetas: {
             include: {
               grupo: {
