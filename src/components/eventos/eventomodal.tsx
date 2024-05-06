@@ -316,19 +316,20 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                           subeventos: updatedSubeventos,
                         });
                       }}
-                      required // Atributo required agregado aquí
+                      required 
                     />
-                    <Button
-                      onClick={() => {
-                        const updatedSubeventos = [...modalData.subeventos];
-                        updatedSubeventos.splice(index, 1); // Eliminar el subevento en el índice
-                        useEventoModalData.setState({
-                          subeventos: updatedSubeventos,
-                        });
-                      }}
-                    >
-                      Eliminar subevento
-                    </Button>
+                    <Button variant='destructive'
+                    onClick={() => {
+                    const updatedSubeventos = [...modalData.subeventos];
+                    updatedSubeventos.splice(index, 1); 
+                   useEventoModalData.setState({
+                  subeventos: updatedSubeventos,
+    });
+  }}
+  
+>
+  Eliminar subevento
+</Button>
                   </div>
                 </div>
               </div>
@@ -358,7 +359,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
               {((editEvento.isLoading || createEvento.isLoading) && (
                 <Loader />
               )) ||
-                (modalData.tipo === 'CREATE' ? 'Crear' : 'Editar')}
+                (modalData.tipo === 'CREATE' ? 'Crear' : 'Confirmar Edición')}
             </Button>
             {modalData.tipo === 'EDIT' && (
               <>
@@ -377,7 +378,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     ? quiereEliminar
                       ? '¿Estás seguro?'
                       : 'Eliminar'
-                    : 'No se puede eliminar'}
+                    : 'No se puede eliminar, primero elimine subeventos.'}
                 </Button>
                 {quiereEliminar && (
                   <Button

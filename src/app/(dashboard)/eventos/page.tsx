@@ -62,8 +62,8 @@ const EventosPage = () => {
                 setNone();
               }
             }}
-            placeholder='Buscar evento o subevento'
-          />
+            placeholder='Buscar evento o subevento' className="pr-5"
+           />
         </div>
       </div>
       <div className='px-3 md:px-5'>
