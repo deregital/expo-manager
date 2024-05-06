@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/popover';
 import { cn, getTextColorByBg } from '@/lib/utils';
 import { CheckIcon } from 'lucide-react';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 type KeysOfType<T, U> = {
   [K in keyof T]: T[K] extends U ? K : never;
@@ -72,6 +72,13 @@ const ComboBox = <
     ? 'Grupo no encontrado.'
     : 'Etiqueta no encontrada.';
 
+  const dataSelectedFirst = useMemo(() => {
+    const selectedItem = data.filter((item) => item[id] === selectedIf)[0];
+    if (!selectedItem) return data;
+
+    return [selectedItem, ...data.filter((item) => item[id] !== selectedIf)];
+  }, [data, id, selectedIf]);
+
   return (
     <Popover modal open={open} onOpenChange={setOpen}>
       <PopoverTrigger className='text-black' asChild>
@@ -122,7 +129,7 @@ const ComboBox = <
             {data.length === 0 && !isLoading && (
               <CommandItem>{notFoundText ?? commandEmpty}</CommandItem>
             )}
-            {data.map((item) => (
+            {dataSelectedFirst.map((item) => (
               <CommandItem
                 disabled={enabled && !enabled.includes(item[id])}
                 className='cursor-pointer hover:bg-gray-100'
