@@ -62,7 +62,7 @@ const EventosPage = () => {
                 setNone();
               }
             }}
-            placeholder='Buscar evento o subevento'
+            placeholder='Buscar evento o subevento' style={{ paddingRight: '20px' }}
            />
         </div>
       </div>
