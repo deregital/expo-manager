@@ -1,3 +1,4 @@
+'use client';
 import GraficoCard from '@/components/dashboard/GraficoCard';
 import MensajesCard from '@/components/dashboard/MensajesCard';
 import ModelosList from '@/components/dashboard/ModelosList';
@@ -8,6 +9,7 @@ import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
 import { MessageJson } from '@/server/types/whatsapp';
 import { addDays, format } from 'date-fns';
+import { XIcon } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { create } from 'zustand';
 
@@ -18,11 +20,20 @@ export const useDashboardData = create<{
   to: Date;
   grupoEtiquetaId: string;
   etiquetaId: string;
-}>(() => ({
+  resetFilters: () => void;
+}>((set) => ({
   from: new Date(),
   to: new Date(),
   grupoEtiquetaId: '',
   etiquetaId: '',
+  resetFilters: () => {
+    set({
+      from: new Date(),
+      to: new Date(),
+      grupoEtiquetaId: '',
+      etiquetaId: '',
+    });
+  },
 }));
 
 function filterModelos(
@@ -47,12 +58,8 @@ function filterModelos(
 }
 
 const PageClient = ({}: PageClientProps) => {
-  const { from, to, etiquetaId, grupoEtiquetaId } = useDashboardData((s) => ({
-    from: s.from,
-    to: s.to,
-    etiquetaId: s.etiquetaId,
-    grupoEtiquetaId: s.grupoEtiquetaId,
-  }));
+  const { from, to, etiquetaId, grupoEtiquetaId, resetFilters } =
+    useDashboardData();
 
   const [grupoOpen, setGrupoOpen] = useState(false);
   const [etiquetaOpen, setEtiquetaOpen] = useState(false);
@@ -101,9 +108,10 @@ const PageClient = ({}: PageClientProps) => {
 
   const modelosQueCuentan = useMemo(() => {
     if (!modelosData) return [];
-    if (!etiquetaId && !grupoEtiquetaId)
-      return Object.values(modelosData ?? {}).flatMap((m) => m);
     const mod = Object.values(modelosData ?? {}).flatMap((m) => m);
+    if (!etiquetaId && !grupoEtiquetaId) {
+      return mod;
+    }
     return filterModelos(mod, { etiquetaId, grupoId: grupoEtiquetaId });
   }, [etiquetaId, grupoEtiquetaId, modelosData]);
 
@@ -122,6 +130,10 @@ const PageClient = ({}: PageClientProps) => {
       <section className='grid-in-calendar'>
         <DateRangePicker
           align='start'
+          value={{
+            from,
+            to,
+          }}
           showCompare={false}
           initialDateFrom={from}
           initialDateTo={to}
@@ -166,7 +178,7 @@ const PageClient = ({}: PageClientProps) => {
           contentClassName='sm:max-w-[--radix-popper-anchor-width] sm:w-full max-h-min'
         />
       </section>
-      <section className='w-full grid-in-etiqueta'>
+      <section className='flex w-full items-center gap-x-2 self-start grid-in-etiqueta'>
         <ComboBox
           data={etiquetas ?? []}
           id='id'
@@ -191,8 +203,14 @@ const PageClient = ({}: PageClientProps) => {
           }
           isLoading={etiquetasLoading}
           wFullMobile
-          buttonClassName='w-full sm:min-w-full h-[44px]'
+          buttonClassName='w-full sm:min-w-[calc(100%-2rem)] h-[44px]'
           contentClassName='sm:max-w-[--radix-popper-anchor-width]'
+        />
+        <XIcon
+          className='h-4 w-4 cursor-pointer'
+          onClick={() => {
+            resetFilters();
+          }}
         />
       </section>
       <section className='rounded-md grid-in-grafico sm:h-full'>
@@ -201,7 +219,13 @@ const PageClient = ({}: PageClientProps) => {
       <section className='rounded-md grid-in-listaModelos sm:h-full sm:max-h-full'>
         <ModelosList
           isLoading={modelosLoading}
-          modelos={modelosQueCuentan.slice(0, 20)}
+          modelos={modelosQueCuentan
+            .sort(
+              (a, b) =>
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime()
+            )
+            .slice(0, 20)}
         />
       </section>
       <section className='rounded-md grid-in-cardModelos sm:self-end sm:pb-2'>

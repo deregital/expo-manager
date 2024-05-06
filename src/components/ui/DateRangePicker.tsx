@@ -40,6 +40,11 @@ export interface DateRangePickerProps {
   locale?: string;
   /** Option for showing compare feature */
   showCompare?: boolean;
+
+  value: {
+    from: Date;
+    to: Date | undefined;
+  };
 }
 
 const formatDate = (
@@ -88,6 +93,7 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
   initialCompareFrom,
   initialCompareTo,
   onUpdate,
+  value,
   align = 'end',
   locale = 'es-AR',
   showCompare = true,
@@ -95,10 +101,13 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   const [range, setRange] = useState<DateRange>({
-    from: new Date(new Date(initialDateFrom).setHours(0, 0, 0, 0)),
-    to: initialDateTo
-      ? new Date(new Date(initialDateTo).setHours(0, 0, 0, 0))
-      : new Date(new Date(initialDateFrom).setHours(0, 0, 0, 0)),
+    from:
+      value.from ?? new Date(new Date(initialDateFrom).setHours(0, 0, 0, 0)),
+    to: value.to
+      ? value.to
+      : initialDateTo
+        ? new Date(new Date(initialDateTo).setHours(0, 0, 0, 0))
+        : new Date(new Date(initialDateFrom).setHours(0, 0, 0, 0)),
   });
   const [rangeCompare, setRangeCompare] = useState<DateRange | undefined>(
     initialCompareFrom
@@ -128,6 +137,15 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (value.from && value.to) {
+      setRange({
+        from: value.from,
+        to: value.to,
+      });
+    }
+  }, [value]);
 
   useEffect(() => {
     const handleResize = (): void => {
@@ -287,7 +305,7 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
 
   useEffect(() => {
     checkPreset();
-  }, [checkPreset, range]);
+  }, [checkPreset, value]);
 
   const PresetButton = ({
     preset,

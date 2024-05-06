@@ -18,6 +18,7 @@ import Link from 'next/link';
 import StampIcon from '@/components/icons/StampIcon';
 import { TipoEtiqueta } from '@prisma/client';
 import SwitchEtiquetasEventos from '@/components/etiquetas/list/SwitchEtiquetasEventos';
+import { XIcon } from 'lucide-react';
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useState('');
@@ -92,17 +93,23 @@ const EtiquetasPage = () => {
         <div className='flex items-center gap-x-2'>
           <SwitchEtiquetasEventos />
           <ExpandContractEtiquetas />
-          <SearchInput
-            onChange={(value) => {
-              setSearch(value);
-
-              if (value === '') {
-                setNone();
-              } else if (expandState === 'EXPAND') {
-                setNone();
-              }
-            }}
-            placeholder='Buscar grupo o etiqueta'
+          <div className='flex items-center gap-x-4'>
+            <SearchInput
+              value={search}
+              onChange={(value) => {
+                setSearch(value);
+                if (value === '') {
+                  setNone();
+                } else if (expandState === 'EXPAND') {
+                  setNone();
+                }
+              }}
+              placeholder='Buscar grupo o etiqueta'
+            />
+          </div>
+          <XIcon
+            className='h-4 w-4 cursor-pointer'
+            onClick={() => setSearch('')}
           />
         </div>
       </div>
