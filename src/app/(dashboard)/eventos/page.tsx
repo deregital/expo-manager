@@ -63,7 +63,7 @@ const EventosPage = () => {
               }
             }}
             placeholder='Buscar evento o subevento'
-          />
+           />
         </div>
       </div>
       <div className='px-3 md:px-5'>
