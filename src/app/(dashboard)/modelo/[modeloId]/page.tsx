@@ -16,9 +16,7 @@ interface ModeloPageProps {
 
 const ModeloPage = ({ params }: ModeloPageProps) => {
   const { data: modelo, isLoading: isLoadingModelo } =
-    trpc.modelo.getById.useQuery(params.modeloId, {
-      refetchOnWindowFocus: false,
-    });
+    trpc.modelo.getById.useQuery(params.modeloId);
   const {
     data: comentarios,
     isLoading: isLoadingComentarios,
