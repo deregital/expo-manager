@@ -114,7 +114,11 @@ const EnviarTemplate = () => {
         </div>
         <div className='flex flex-col gap-y-3'>
           <ComboBox
-            data={currentEtiquetas ? currentEtiquetas : []}
+            data={
+              currentEtiquetas
+                ? currentEtiquetas.sort((a, b) => a.nombre.localeCompare(b.nombre))
+                : []
+            }
             id={'id'}
             value={'nombre'}
             open={openEtiqueta}
