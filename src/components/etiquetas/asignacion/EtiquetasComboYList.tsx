@@ -34,6 +34,7 @@ const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
 
   const etiquetasParaElegir = useMemo(() => {
     const etPosibles = etiquetasData?.filter((et) => {
+      if (et.tipo !== TipoEtiqueta.PERSONAL) return false;
       if (!currentGrupo)
         return !etiquetasList.find(
           (e) =>
