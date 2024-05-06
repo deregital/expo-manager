@@ -18,8 +18,13 @@ const SharedCard = ({
 }: SharedCardProps) => {
   return (
     <Card className='relative'>
-      <CardHeader>
-        <CardTitle className={cn('truncate', isLoading && 'animate-pulse')}>
+      <CardHeader className='p-2 lg:p-6'>
+        <CardTitle
+          className={cn(
+            'w-[calc(100%-2rem)] truncate text-xl lg:text-2xl',
+            isLoading && 'animate-pulse'
+          )}
+        >
           {title}
         </CardTitle>
       </CardHeader>

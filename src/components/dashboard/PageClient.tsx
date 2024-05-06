@@ -1,3 +1,4 @@
+'use client';
 import GraficoCard from '@/components/dashboard/GraficoCard';
 import MensajesCard from '@/components/dashboard/MensajesCard';
 import ModelosList from '@/components/dashboard/ModelosList';
@@ -101,9 +102,10 @@ const PageClient = ({}: PageClientProps) => {
 
   const modelosQueCuentan = useMemo(() => {
     if (!modelosData) return [];
-    if (!etiquetaId && !grupoEtiquetaId)
-      return Object.values(modelosData ?? {}).flatMap((m) => m);
     const mod = Object.values(modelosData ?? {}).flatMap((m) => m);
+    if (!etiquetaId && !grupoEtiquetaId) {
+      return mod;
+    }
     return filterModelos(mod, { etiquetaId, grupoId: grupoEtiquetaId });
   }, [etiquetaId, grupoEtiquetaId, modelosData]);
 
@@ -201,7 +203,13 @@ const PageClient = ({}: PageClientProps) => {
       <section className='rounded-md grid-in-listaModelos sm:h-full sm:max-h-full'>
         <ModelosList
           isLoading={modelosLoading}
-          modelos={modelosQueCuentan.slice(0, 20)}
+          modelos={modelosQueCuentan
+            .sort(
+              (a, b) =>
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime()
+            )
+            .slice(0, 20)}
         />
       </section>
       <section className='rounded-md grid-in-cardModelos sm:self-end sm:pb-2'>
