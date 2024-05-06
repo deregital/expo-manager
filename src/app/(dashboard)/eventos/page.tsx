@@ -65,7 +65,7 @@ const EventosPage = () => {
                 setNone();
               }
             }}
-            placeholder='Buscar evento o subevento'
+            placeholder='Buscar evento o subevento' className='pr-5'
           />
           <XIcon
             className='h-6 w-6 cursor-pointer'
