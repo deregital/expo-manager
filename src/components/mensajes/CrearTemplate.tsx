@@ -1,5 +1,5 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Input } from '../ui/input';
 import { trpc } from '@/lib/trpc';
 import { Button } from '../ui/button';
@@ -46,12 +46,17 @@ const CrearTemplate = ({
   plantillaName?: string;
   typeTemplate: string;
 }) => {
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const { type, name, id, button1, button2, button3, content, clearTemplate } =
     useTemplate();
   const router = useRouter();
   const { data } = trpc.whatsapp.getTemplateById.useQuery(plantillaName, {
     enabled: type === 'VIEW' || type === 'EDIT',
   });
+
+  useEffect(() => {
+    setIsButtonDisabled(!(name && content)); 
+  }, [name, content]);
 
   useEffect(() => {
     useTemplate.setState({ type: typeTemplate });
@@ -175,7 +180,7 @@ const CrearTemplate = ({
         <div className='flex items-center justify-end gap-x-3 pb-3'>
           {type !== 'VIEW' && (
             <Button
-              disabled={crearTemplate.isLoading || editTemplate.isLoading}
+             disabled={isButtonDisabled || crearTemplate.isLoading || editTemplate.isLoading}
               className='flex items-center justify-center gap-x-2'
               onClick={handleCreateTemplate}
             >
