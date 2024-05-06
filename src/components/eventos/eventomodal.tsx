@@ -140,6 +140,10 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
   async function handleDelete() {
     if (!evento) return;
     if (quiereEliminar) {
+    if (modalData.subeventos.length > 0) {
+        toast.warning("Si tiene subeventos, primero deberá eliminarlos antes de eliminar el Evento general");
+        return; 
+      }
       await deleteEvento
         .mutateAsync({ id: evento.id })
         .then(() => {
@@ -359,7 +363,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
               {((editEvento.isLoading || createEvento.isLoading) && (
                 <Loader />
               )) ||
-                (modalData.tipo === 'CREATE' ? 'Crear' : 'Editar')}
+                (modalData.tipo === 'CREATE' ? 'Crear' : 'Confirmar Edición')}
             </Button>
             {modalData.tipo === 'EDIT' && (
               <>
