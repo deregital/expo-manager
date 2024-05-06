@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { RouterOutputs } from '@/server';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -15,6 +15,11 @@ const ComboBoxModelos = ({
   const [grupoId, setGrupoId] = useState(searchParams.get('grupoId') ?? '');
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    setGrupoId(searchParams.get('grupoId') ?? '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get('grupoId')]);
 
   return (
     <ComboBox
