@@ -318,7 +318,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                       }}
                       required 
                     />
-                    <Button
+                    <Button variant='destructive'
                     onClick={() => {
                     const updatedSubeventos = [...modalData.subeventos];
                     updatedSubeventos.splice(index, 1); 
@@ -326,7 +326,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   subeventos: updatedSubeventos,
     });
   }}
-  style={{ backgroundColor: 'red', color: 'white' }}
+  
 >
   Eliminar subevento
 </Button>
