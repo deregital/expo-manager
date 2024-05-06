@@ -140,10 +140,6 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
   async function handleDelete() {
     if (!evento) return;
     if (quiereEliminar) {
-    if (modalData.subeventos.length > 0) {
-        toast.warning("Si tiene subeventos, primero deberá eliminarlos antes de eliminar el Evento general");
-        return; 
-      }
       await deleteEvento
         .mutateAsync({ id: evento.id })
         .then(() => {
@@ -382,7 +378,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     ? quiereEliminar
                       ? '¿Estás seguro?'
                       : 'Eliminar'
-                    : 'No se puede eliminar'}
+                    : 'No se puede eliminar, primero elimine subeventos.'}
                 </Button>
                 {quiereEliminar && (
                   <Button
