@@ -89,9 +89,9 @@ const ModelosComboYList = ({}: ModelosComboYListProps) => {
   const { modelos: modelosList, setModelos } = asignacionSelectedData();
 
   const modelosParaElegir = useMemo(() => {
-    return modelos?.filter(
-      (modelo) => !modelosList.find((m) => m.id === modelo.id)
-    );
+    return modelos
+      ?.filter((modelo) => !modelosList.find((m) => m.id === modelo.id))
+      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
   }, [modelos, modelosList]);
 
   return (
