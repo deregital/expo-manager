@@ -21,7 +21,7 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
   const {data: evento, isLoading: isLoadingEvento} = trpc.evento.getById.useQuery({
     id: params.eventoId
   });
-  const {data: modelos, isLoading: modelosIsLoading} = trpc.modelo.getByEtiqueta.useQuery(evento ? [evento!.etiquetaConfirmoId] : [], {
+  const {data: modelos, isLoading: modelosIsLoading} = trpc.modelo.getByEtiqueta.useQuery(evento ? [evento.etiquetaConfirmoId, evento.etiquetaAsistioId] : [], {
     enabled: !!evento
   });
 
@@ -53,7 +53,8 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
 
   useEffect(() => {
     if (!modelos) return;
-    setProgress((modelos.filter((modelo) => modelo.etiquetas.find((etiqueta) => etiqueta.id === evento?.etiquetaAsistioId)).length / modelos.length) * 100);
+    const confirmaronAsistencia = modelos.filter((modelo) => modelo.etiquetas.find((etiqueta) => etiqueta.id === evento?.etiquetaConfirmoId)).length;
+    setProgress((modelos.filter((modelo) => modelo.etiquetas.find((etiqueta) => etiqueta.id === evento?.etiquetaAsistioId)).length / confirmaronAsistencia) * 100);
   }, [modelos]);
 
   if (isLoadingEvento)
@@ -87,13 +88,13 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
           {evento?.ubicacion}
         </h3>
       </div>
-      <div className="pb-5 flex justify-around items-center gap-x-5">
-          <div className="w-[30%]">
-            <h3 className="text-lg">Progreso: {progress}%</h3>
+      <div className="pb-5 flex flex-col sm:flex-row justify-around items-center gap-x-5">
+          <div className="sm:w-[30%] w-[80%] pb-2 sm:pb-0">
+            <h3 className="sm:text-lg text-sm">Progreso: {progress}%</h3>
             <Progress value={progress} className="bg-gray-300 rounded-full"/>
           </div>
           <div>
-            <h3 className="text-lg">Confirmaron: {countModelos}{' '}{countModelos === 1 ? 'modelo' : 'modelos'}</h3>
+            <h3 className="sm:text-lg text-sm">Confirmaron: {countModelos}{' '}{countModelos === 1 ? 'modelo' : 'modelos'}</h3>
           </div>
       </div>
       <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
