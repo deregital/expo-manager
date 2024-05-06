@@ -9,6 +9,7 @@ import ExpandContractEventos, {
   useExpandEventos,
 } from '@/components/eventos/expandcontracteventos';
 import { searchNormalize } from '@/lib/utils';
+import { XIcon } from 'lucide-react';
 
 const EventosPage = () => {
   const [search, setSearch] = useState('');
@@ -52,7 +53,9 @@ const EventosPage = () => {
         </div>
         <div className='flex items-center gap-x-2'>
           <ExpandContractEventos />
+
           <SearchInput
+            value={search}
             onChange={(value) => {
               setSearch(value);
 
@@ -63,6 +66,12 @@ const EventosPage = () => {
               }
             }}
             placeholder='Buscar evento o subevento'
+          />
+          <XIcon
+            className='h-6 w-6 cursor-pointer'
+            onClick={() => {
+              setSearch('');
+            }}
           />
         </div>
       </div>
