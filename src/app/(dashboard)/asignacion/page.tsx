@@ -17,6 +17,7 @@ interface AsignacionPageProps {}
 const AsignacionPage = ({}: AsignacionPageProps) => {
   const utils = trpc.useUtils();
   const asignar = trpc.etiqueta.setMasivo.useMutation();
+  const desasignar = trpc.etiqueta.unsetMasivo.useMutation();
   const router = useRouter();
 
   const {
@@ -78,6 +79,24 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
       });
   }
 
+  async function desasignarEtiquetas() {
+    const etiquetaIds = etiquetasList.map((e) => e.id);
+    const modeloIds = modelosList.map((m) => m.id);
+
+    await desasignar
+      .mutateAsync({
+        etiquetaIds,
+        modeloIds,
+      })
+      .then(() => {
+        toast.success('Etiquetas desasignadas correctamente');
+        clearModelos();
+        clearEtiquetas();
+        clearGrupo();
+        utils.modelo.getAll.invalidate();
+      });
+  }
+
   return (
     <div className='p-3 md:p-5'>
       <div className='flex items-center gap-x-4 pb-3'>
@@ -92,22 +111,49 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
       <div className='flex h-auto gap-x-2'>
         <div className='flex-1'>
           <ModelosComboYList />
+          {modelosList.length === 0 && (
+            <p className='mt-2'>
+              Seleccione las modelos a las que quiere asignarle o desasignarle
+              etiquetas
+            </p>
+          )}
         </div>
         <div className='flex-1'>
           <EtiquetasComboYList />
+          {etiquetasList.length === 0 && (
+            <p className='mt-2'>
+              Seleccione las etiquetas que quiere asignar o desasignar de las
+              modelos
+            </p>
+          )}
         </div>
       </div>
-      <Button
-        className='mt-4'
-        onClick={asignarEtiquetas}
-        disabled={
-          etiquetasList.length === 0 ||
-          modelosList.length === 0 ||
-          asignar.isLoading
-        }
-      >
-        {asignar.isLoading ? <Loader /> : 'Asignar'}
-      </Button>
+      <div className='flex gap-x-4'>
+        <Button
+          className='mt-4'
+          onClick={() => asignarEtiquetas()}
+          disabled={
+            etiquetasList.length === 0 ||
+            modelosList.length === 0 ||
+            desasignar.isLoading ||
+            asignar.isLoading
+          }
+        >
+          {asignar.isLoading ? <Loader /> : 'Asignar'}
+        </Button>
+        <Button
+          className='mt-4'
+          onClick={() => desasignarEtiquetas()}
+          disabled={
+            etiquetasList.length === 0 ||
+            modelosList.length === 0 ||
+            desasignar.isLoading ||
+            asignar.isLoading
+          }
+        >
+          {desasignar.isLoading || asignar.isLoading ? <Loader /> : 'Dessignar'}
+        </Button>
+      </div>
     </div>
   );
 };

@@ -6,6 +6,7 @@ import ComboBox from '@/components/ui/ComboBox';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
+import { TipoEtiqueta } from '@prisma/client';
 import { Trash } from 'lucide-react';
 import React, { useMemo } from 'react';
 
@@ -58,6 +59,12 @@ const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
     );
   }, [currentGrupo, etiquetasData, etiquetasList]);
 
+  const gruposParaElegir = useMemo(() => {
+    return grupoEtiquetasData?.filter((g) =>
+      g.etiquetas.some((et) => et.tipo === TipoEtiqueta.PERSONAL)
+    );
+  }, [grupoEtiquetasData]);
+
   return (
     <>
       <div className='flex flex-col gap-4 sm:flex-row'>
@@ -68,7 +75,7 @@ const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
           triggerChildren={<p>{currentGrupo?.nombre ?? 'Grupos'}</p>}
           notFoundText='No hay grupos disponibles'
           placeholder='Buscar grupos...'
-          data={grupoEtiquetasData ?? []}
+          data={gruposParaElegir ?? []}
           id='id'
           value='nombre'
           wFullMobile
