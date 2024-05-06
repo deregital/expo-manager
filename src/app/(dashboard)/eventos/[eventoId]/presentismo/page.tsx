@@ -3,6 +3,7 @@ import { generateColumnsPresentismo } from "@/components/eventos/table/columnsPr
 import { DataTable } from "@/components/modelos/table/dataTable";
 import SearchInput from "@/components/ui/SearchInput";
 import Loader from "@/components/ui/loader";
+import { Progress } from "@/components/ui/progress";
 import { trpc } from "@/lib/trpc";
 import { searchNormalize } from "@/lib/utils";
 import { RouterOutputs } from "@/server";
@@ -26,6 +27,8 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
 
   const [modelosData, setModelosData] = useState<RouterOutputs['modelo']['getByEtiqueta']>(modelos ?? []);
   const [search, setSearch] = useState('');
+  const [countModelos, setCountModelos] = useState(0);
+  const [progress, setProgress] = useState<number>(0);
 
   useEffect(() => {
     if (!modelos) return;
@@ -41,6 +44,17 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
       })
     );
   }, [search, modelos]);
+
+  useEffect(() => {
+    if (!modelos) return;
+    if (!evento) return;
+    setCountModelos(modelos.filter((modelo) => modelo.etiquetas.find((etiqueta) => etiqueta.id === evento?.etiquetaAsistioId)).length);
+  }, [modelos, evento]);
+
+  useEffect(() => {
+    if (!modelos) return;
+    setProgress((modelos.filter((modelo) => modelo.etiquetas.find((etiqueta) => etiqueta.id === evento?.etiquetaAsistioId)).length / modelos.length) * 100);
+  }, [modelos]);
 
   if (isLoadingEvento)
     return (
@@ -72,6 +86,15 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
         <h3 className='p-2 text-center text-sm sm:text-base'>
           {evento?.ubicacion}
         </h3>
+      </div>
+      <div className="pb-5 flex justify-around items-center gap-x-5">
+          <div className="w-[30%]">
+            <h3 className="text-lg">Progreso: {progress}%</h3>
+            <Progress value={progress} className="bg-gray-300 rounded-full"/>
+          </div>
+          <div>
+            <h3 className="text-lg">Confirmaron: {countModelos}{' '}{countModelos === 1 ? 'modelo' : 'modelos'}</h3>
+          </div>
       </div>
       <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
         <SearchInput
