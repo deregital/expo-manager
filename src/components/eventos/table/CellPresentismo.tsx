@@ -14,12 +14,9 @@ export const CellPresentismo = ({
   const etiquetasId = row.original.etiquetas.map(
     (etiqueta: any) => etiqueta.id
   );
-  const { data: etiqueta } = trpc.etiqueta.getById.useQuery(
-    AsistenciaId,
-    {
-      enabled: !!row.original,
-    }
-  );
+  const { data: etiqueta } = trpc.etiqueta.getById.useQuery(AsistenciaId, {
+    enabled: !!row.original,
+  });
   const editModelo = trpc.modelo.edit.useMutation();
   const useUtils = trpc.useUtils();
 
@@ -81,15 +78,19 @@ export const CellPresentismo = ({
 
   return (
     <div className='flex flex-wrap items-center justify-center gap-1'>
-      {etiquetasId.includes(AsistenciaId) ? (
-        <div className='flex items-center justify-center gap-x-2'>
-          <input type='checkbox' disabled={editModelo.isLoading} className='w-6 h-6' checked onChange={() => deleteAsistencia(row.original)} />
-        </div>
-      ) : (
-        <>
-            <input type='checkbox' disabled={editModelo.isLoading} className='w-6 h-6' onChange={() => addAsistencia(row.original)} />
-        </>
-      )}
+      <div className='flex items-center justify-center gap-x-2'>
+        <input
+          type='checkbox'
+          disabled={editModelo.isLoading}
+          className='h-6 w-6'
+          checked={etiquetasId.includes(AsistenciaId)}
+          onChange={() =>
+            etiquetasId.includes(AsistenciaId)
+              ? deleteAsistencia(row.original)
+              : addAsistencia(row.original)
+          }
+        />
+      </div>
     </div>
   );
 };
