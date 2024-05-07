@@ -28,6 +28,7 @@ export const CellComponent = ({
   async function addPresentismo(
     modelo: RouterOutputs['modelo']['getAll'][number]
   ) {
+    toast.loading('Agregando al presentismo');
     const etiquetasId = modelo.etiquetas.map((etiqueta) => {
       return {
         id: etiqueta.id,
@@ -52,6 +53,7 @@ export const CellComponent = ({
         },
       ],
     });
+    toast.dismiss();
     toast.success('Se agregó al presentismo');
     useUtils.modelo.getAll.invalidate();
   }
