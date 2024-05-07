@@ -1,42 +1,36 @@
-'use client'
-import AsistenciaModal from "@/components/eventos/AsistenciaModal";
-import { generateColumnsPresentismo } from "@/components/eventos/table/columnsPresentismo";
-import { DataTable } from "@/components/modelos/table/dataTable";
-import SearchInput from "@/components/ui/SearchInput";
-import Loader from "@/components/ui/loader";
-import { Progress } from "@/components/ui/progress";
-import { trpc } from "@/lib/trpc";
-import { searchNormalize } from "@/lib/utils";
-import { RouterOutputs } from "@/server";
-import { format } from "date-fns";
-import { ArrowLeftIcon, Router } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { create } from "zustand";
+'use client';
+import AsistenciaModal, {
+  usePresentismoModal,
+} from '@/components/eventos/AsistenciaModal';
+import { generateColumnsPresentismo } from '@/components/eventos/table/columnsPresentismo';
+import { DataTable } from '@/components/modelos/table/dataTable';
+import SearchInput from '@/components/ui/SearchInput';
+import Loader from '@/components/ui/loader';
+import { Progress } from '@/components/ui/progress';
+import { trpc } from '@/lib/trpc';
+import { searchNormalize } from '@/lib/utils';
+import { format } from 'date-fns';
+import { ArrowLeftIcon } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface PresentismoPageProps {
   params: {
     eventoId: string;
-  }
+  };
 }
-type PresentismoModal = {
-  isOpen: boolean;
-  evento: RouterOutputs['evento']['getById'] | null;
-  modeloId: string;
-}
-export const usePresentismoModal = create<PresentismoModal>((set) => ({
-  isOpen: false,
-  evento: null,
-  modeloId: ''
-}));
-
-const PresentismoPage = ({params}: PresentismoPageProps) => {
-  const {data: evento, isLoading: isLoadingEvento} = trpc.evento.getById.useQuery({
-    id: params.eventoId
-  });
-  const modalPresentismo = usePresentismoModal()
-  const {data: modelos, isLoading: modelosIsLoading} = trpc.modelo.getByEtiqueta.useQuery(evento ? [evento.etiquetaConfirmoId, evento.etiquetaAsistioId] : [], {
-    enabled: !!evento
-  });
+const PresentismoPage = ({ params }: PresentismoPageProps) => {
+  const { data: evento, isLoading: isLoadingEvento } =
+    trpc.evento.getById.useQuery({
+      id: params.eventoId,
+    });
+  const modalPresentismo = usePresentismoModal();
+  const { data: modelos, isLoading: modelosIsLoading } =
+    trpc.modelo.getByEtiqueta.useQuery(
+      evento ? [evento.etiquetaConfirmoId, evento.etiquetaAsistioId] : [],
+      {
+        enabled: !!evento,
+      }
+    );
 
   const [search, setSearch] = useState('');
 
@@ -55,19 +49,39 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
 
   const countModelos = useMemo(() => {
     if (!modelos || !evento) return 0;
-    return modelos.filter((modelo) => modelo.etiquetas.find((etiqueta) => etiqueta.id === evento.etiquetaAsistioId)).length;
-  }, [modelos]);
+    return modelos.filter((modelo) =>
+      modelo.etiquetas.find(
+        (etiqueta) => etiqueta.id === evento.etiquetaAsistioId
+      )
+    ).length;
+  }, [evento, modelos]);
 
   useEffect(() => {
     if (!evento) return;
-    usePresentismoModal.setState({evento: evento});
+    usePresentismoModal.setState({ evento: evento });
   }, [evento]);
 
   const progress = useMemo(() => {
     if (!modelos) return 0;
-    const confirmaronAsistencia = modelos.filter((modelo) => modelo.etiquetas.find((etiqueta) => etiqueta.id === evento?.etiquetaConfirmoId)).length;
-    return modelos.filter((modelo) => modelo.etiquetas.find((etiqueta) => etiqueta.id === evento?.etiquetaAsistioId)).filter((modelo) => modelo.etiquetas.find((et) => et.id === evento?.etiquetaConfirmoId)).length / confirmaronAsistencia * 100;
-  }, [modelos]);
+    const confirmaronAsistencia = modelos.filter((modelo) =>
+      modelo.etiquetas.find(
+        (etiqueta) => etiqueta.id === evento?.etiquetaConfirmoId
+      )
+    ).length;
+    return (
+      (modelos
+        .filter((modelo) =>
+          modelo.etiquetas.find(
+            (etiqueta) => etiqueta.id === evento?.etiquetaAsistioId
+          )
+        )
+        .filter((modelo) =>
+          modelo.etiquetas.find((et) => et.id === evento?.etiquetaConfirmoId)
+        ).length /
+        confirmaronAsistencia) *
+      100
+    );
+  }, [evento?.etiquetaAsistioId, evento?.etiquetaConfirmoId, modelos]);
 
   if (isLoadingEvento)
     return (
@@ -86,8 +100,8 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
           }}
         />
       </div>
-      <div className="flex justify-center items-center pb-3">
-        <h1 className="text-3xl font-extrabold">Presentismo</h1>
+      <div className='flex items-center justify-center pb-3'>
+        <h1 className='text-3xl font-extrabold'>Presentismo</h1>
       </div>
       <div className='grid auto-rows-auto grid-cols-2 items-center justify-center gap-x-3 pb-3 sm:flex'>
         <h3 className='col-span-2 p-2 text-center text-2xl font-semibold'>
@@ -100,14 +114,17 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
           {evento?.ubicacion}
         </h3>
       </div>
-      <div className="pb-5 flex flex-col sm:flex-row justify-around items-center gap-x-5">
-          <div className="sm:w-[30%] w-[80%] pb-3 sm:pb-0">
-            <h3 className="sm:text-lg text-sm">Progreso: {progress}%</h3>
-            <Progress value={progress} className="bg-gray-300 rounded-full"/>
-          </div>
-          <div>
-            <h3 className="sm:text-lg text-sm">Confirmaron: {countModelos}{' '}{countModelos === 1 ? 'modelo' : 'modelos'}</h3>
-          </div>
+      <div className='flex flex-col items-center justify-around gap-x-5 pb-5 sm:flex-row'>
+        <div className='w-[80%] pb-3 sm:w-[30%] sm:pb-0'>
+          <h3 className='text-sm sm:text-lg'>Progreso: {progress}%</h3>
+          <Progress value={progress} className='rounded-full bg-gray-300' />
+        </div>
+        <div>
+          <h3 className='text-sm sm:text-lg'>
+            Confirmaron: {countModelos}{' '}
+            {countModelos === 1 ? 'modelo' : 'modelos'}
+          </h3>
+        </div>
       </div>
       <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
         <SearchInput
@@ -115,9 +132,13 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
           placeholder='Buscar por nombre o ID legible'
         />
       </div>
-      <DataTable columns={generateColumnsPresentismo(evento!.etiquetaAsistioId)} data={modelosData} isLoading={modelosIsLoading}/>
-      <div className="flex justify-end items-center m-5">
-          <AsistenciaModal open={modalPresentismo.isOpen}/>
+      <DataTable
+        columns={generateColumnsPresentismo(evento!.etiquetaAsistioId)}
+        data={modelosData}
+        isLoading={modelosIsLoading}
+      />
+      <div className='m-5 flex items-center justify-end'>
+        <AsistenciaModal open={modalPresentismo.isOpen} />
       </div>
     </div>
   );
