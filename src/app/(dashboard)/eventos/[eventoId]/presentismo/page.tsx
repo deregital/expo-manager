@@ -1,4 +1,5 @@
 'use client'
+import AsistenciaModal from "@/components/eventos/AsistenciaModal";
 import { generateColumnsPresentismo } from "@/components/eventos/table/columnsPresentismo";
 import { DataTable } from "@/components/modelos/table/dataTable";
 import SearchInput from "@/components/ui/SearchInput";
@@ -8,53 +9,64 @@ import { trpc } from "@/lib/trpc";
 import { searchNormalize } from "@/lib/utils";
 import { RouterOutputs } from "@/server";
 import { format } from "date-fns";
-import { ArrowLeftIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeftIcon, Router } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { create } from "zustand";
 
 interface PresentismoPageProps {
   params: {
     eventoId: string;
   }
 }
+type PresentismoModal = {
+  isOpen: boolean;
+  evento: RouterOutputs['evento']['getById'] | null;
+  modeloId: string;
+}
+export const usePresentismoModal = create<PresentismoModal>((set) => ({
+  isOpen: false,
+  evento: null,
+  modeloId: ''
+}));
 
 const PresentismoPage = ({params}: PresentismoPageProps) => {
   const {data: evento, isLoading: isLoadingEvento} = trpc.evento.getById.useQuery({
     id: params.eventoId
   });
+  const modalPresentismo = usePresentismoModal()
   const {data: modelos, isLoading: modelosIsLoading} = trpc.modelo.getByEtiqueta.useQuery(evento ? [evento.etiquetaConfirmoId, evento.etiquetaAsistioId] : [], {
     enabled: !!evento
   });
 
-  const [modelosData, setModelosData] = useState<RouterOutputs['modelo']['getByEtiqueta']>(modelos ?? []);
   const [search, setSearch] = useState('');
-  const [countModelos, setCountModelos] = useState(0);
-  const [progress, setProgress] = useState<number>(0);
 
-  useEffect(() => {
-    if (!modelos) return;
-    setModelosData(
-      modelos.filter((modelo) => {
-        if (modelo.idLegible !== null) {
-          return (
-            searchNormalize(modelo.idLegible.toString(), search) ||
-            searchNormalize(modelo.nombreCompleto, search)
-          );
-        }
-        return searchNormalize(modelo.nombreCompleto, search);
-      })
-    );
+  const modelosData = useMemo(() => {
+    if (!modelos) return [];
+    return modelos.filter((modelo) => {
+      if (modelo.idLegible !== null) {
+        return (
+          searchNormalize(modelo.idLegible.toString(), search) ||
+          searchNormalize(modelo.nombreCompleto, search)
+        );
+      }
+      return searchNormalize(modelo.nombreCompleto, search);
+    });
   }, [search, modelos]);
 
-  useEffect(() => {
-    if (!modelos) return;
-    if (!evento) return;
-    setCountModelos(modelos.filter((modelo) => modelo.etiquetas.find((etiqueta) => etiqueta.id === evento?.etiquetaAsistioId)).length);
-  }, [modelos, evento]);
+  const countModelos = useMemo(() => {
+    if (!modelos || !evento) return 0;
+    return modelos.filter((modelo) => modelo.etiquetas.find((etiqueta) => etiqueta.id === evento.etiquetaAsistioId)).length;
+  }, [modelos]);
 
   useEffect(() => {
-    if (!modelos) return;
+    if (!evento) return;
+    usePresentismoModal.setState({evento: evento});
+  }, [evento]);
+
+  const progress = useMemo(() => {
+    if (!modelos) return 0;
     const confirmaronAsistencia = modelos.filter((modelo) => modelo.etiquetas.find((etiqueta) => etiqueta.id === evento?.etiquetaConfirmoId)).length;
-    setProgress((modelos.filter((modelo) => modelo.etiquetas.find((etiqueta) => etiqueta.id === evento?.etiquetaAsistioId)).length / confirmaronAsistencia) * 100);
+    return modelos.filter((modelo) => modelo.etiquetas.find((etiqueta) => etiqueta.id === evento?.etiquetaAsistioId)).filter((modelo) => modelo.etiquetas.find((et) => et.id === evento?.etiquetaConfirmoId)).length / confirmaronAsistencia * 100;
   }, [modelos]);
 
   if (isLoadingEvento)
@@ -89,7 +101,7 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
         </h3>
       </div>
       <div className="pb-5 flex flex-col sm:flex-row justify-around items-center gap-x-5">
-          <div className="sm:w-[30%] w-[80%] pb-2 sm:pb-0">
+          <div className="sm:w-[30%] w-[80%] pb-3 sm:pb-0">
             <h3 className="sm:text-lg text-sm">Progreso: {progress}%</h3>
             <Progress value={progress} className="bg-gray-300 rounded-full"/>
           </div>
@@ -104,6 +116,9 @@ const PresentismoPage = ({params}: PresentismoPageProps) => {
         />
       </div>
       <DataTable columns={generateColumnsPresentismo(evento!.etiquetaAsistioId)} data={modelosData} isLoading={modelosIsLoading}/>
+      <div className="flex justify-end items-center m-5">
+          <AsistenciaModal open={modalPresentismo.isOpen}/>
+      </div>
     </div>
   );
 };
