@@ -151,7 +151,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
             asignar.isLoading
           }
         >
-          {desasignar.isLoading || asignar.isLoading ? <Loader /> : 'Dessignar'}
+          {desasignar.isLoading || asignar.isLoading ? <Loader /> : 'Desasignar'}
         </Button>
       </div>
     </div>
