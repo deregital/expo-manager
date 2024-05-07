@@ -1,5 +1,6 @@
 import type { Config } from 'tailwindcss';
 import defaulTheme from 'tailwindcss/defaultTheme';
+import colors from 'tailwindcss/colors';
 
 const config = {
   darkMode: ['class'],
@@ -19,6 +20,26 @@ const config = {
       },
     },
     extend: {
+      boxShadow: {
+        message: '0 1px .5px rgba(#0b141a,.13)',
+      },
+      gridTemplateAreas: {
+        dashboardLarge: [
+          'calendar grupo etiqueta',
+          'grafico grafico listaModelos',
+          'cardModelos cardRetencion cardMensajes',
+        ],
+        dashboardSmall: [
+          'calendar',
+          'grupo',
+          'etiqueta',
+          'grafico',
+          'listaModelos',
+          'cardModelos',
+          'cardRetencion',
+          'cardMensajes',
+        ],
+      },
       fontFamily: {
         sans: ['var(--font-sans)', ...defaulTheme.fontFamily.sans],
       },
@@ -26,7 +47,12 @@ const config = {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
+        background: colors.blue[50],
+        sidebar: {
+          background: colors.neutral[100],
+          foreground: '#212529',
+        },
+        topbar: colors.white,
         foreground: 'hsl(var(--foreground))',
         primary: {
           DEFAULT: 'hsl(var(--primary))',
@@ -78,7 +104,10 @@ const config = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+    require('tailwindcss-animate'),
+    require('@savvywombat/tailwindcss-grid-areas'),
+  ],
 } satisfies Config;
 
 export default config;

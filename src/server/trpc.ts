@@ -29,14 +29,42 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 export const router = t.router;
 export const publicProcedure = t.procedure;
 
-export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   if (!ctx.session || !ctx.session.user) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
+
+  const user = await ctx.prisma.cuenta.findUnique({
+    where: {
+      id: ctx.session.user.id,
+    },
+    select: {
+      esAdmin: true,
+      etiquetas: true,
+    },
+  });
+
+  if (!user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+
+  const { esAdmin, etiquetas: etiquetasNoAdmin } = user;
+
+  const etiquetasTotales = await ctx.prisma.etiqueta.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  const etiquetasVisibles = esAdmin
+    ? etiquetasTotales.map((e) => e.id)
+    : etiquetasNoAdmin.map((e) => e.id);
+
+
   return next({
     ctx: {
-      // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      ...ctx,
+      etiquetasVisibles,
     },
   });
 });
