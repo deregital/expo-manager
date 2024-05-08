@@ -34,6 +34,13 @@ export const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
   },
   {
     accessorKey: 'nombreCompleto',
+    sortingFn: (rowA, rowB, dir) => {
+      return (
+        rowA.original.nombreCompleto.localeCompare(
+          rowB.original.nombreCompleto
+        ) * (dir === 'asc' ? -1 : 1)
+      );
+    },
     header: ({ column }) => {
       return (
         <Button
