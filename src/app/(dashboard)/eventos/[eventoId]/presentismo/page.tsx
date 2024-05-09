@@ -68,7 +68,7 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
         (etiqueta) => etiqueta.id === evento?.etiquetaConfirmoId
       )
     ).length;
-    return (
+    const porcentaje =
       (modelos
         .filter((modelo) =>
           modelo.etiquetas.find(
@@ -79,8 +79,10 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
           modelo.etiquetas.find((et) => et.id === evento?.etiquetaConfirmoId)
         ).length /
         confirmaronAsistencia) *
-      100
-    );
+      100;
+
+    if (isNaN(porcentaje)) return 0;
+    return porcentaje % 1 === 0 ? porcentaje : Number(porcentaje.toFixed(2));
   }, [evento?.etiquetaAsistioId, evento?.etiquetaConfirmoId, modelos]);
 
   if (isLoadingEvento)
@@ -133,7 +135,10 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
         />
       </div>
       <DataTable
-        columns={generateColumnsPresentismo(evento!.etiquetaAsistioId)}
+        columns={generateColumnsPresentismo({
+          asistenciaId: evento!.etiquetaAsistioId,
+          confirmoId: evento!.etiquetaConfirmoId,
+        })}
         data={modelosData}
         isLoading={modelosIsLoading}
       />

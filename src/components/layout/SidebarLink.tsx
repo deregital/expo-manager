@@ -1,4 +1,5 @@
 'use client';
+import { useSidebar } from '@/components/layout/MobileSidebar';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -29,7 +30,13 @@ const SidebarLink = ({
     : justPathname === to;
 
   return (
-    <Link href={href} className={cn('w-full text-sidebar-foreground')}>
+    <Link
+      href={href}
+      onClick={() => {
+        useSidebar.setState({ isOpen: false });
+      }}
+      className={cn('w-full text-sidebar-foreground')}
+    >
       <p
         className={cn(
           'flex w-full items-center px-3 py-2 font-medium transition-colors hover:bg-black/5',

@@ -56,6 +56,7 @@ export const CellComponent = ({
     toast.dismiss();
     toast.success('Se agregó al presentismo');
     useUtils.modelo.getAll.invalidate();
+    useUtils.modelo.getByEtiqueta.invalidate();
   }
 
   return (
@@ -70,7 +71,13 @@ export const CellComponent = ({
           <Button
             disabled={editModelo.isLoading}
             className='px-1'
-            onClick={() => addPresentismo(row.original)}
+            onClick={() => {
+              if (!row.original.id) {
+                toast.error('No se ha encontrado el modelo');
+                return;
+              }
+              addPresentismo(row.original);
+            }}
           >
             Agregar al presentismo
             <PlusIcon className='h-6 w-6' />

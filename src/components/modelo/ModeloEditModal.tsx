@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 
@@ -38,6 +38,12 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
   const { open, genero, edad } = useModeloModalData();
   const [openSelect, setOpenSelect] = useState(false);
   const utils = trpc.useUtils();
+
+  useEffect(() => {
+    useModeloModalData.setState({
+      edad: modelo.edad?.toString() ?? 'N/A',
+    });
+  }, [modelo.edad]);
 
   const editModelo = trpc.modelo.edit.useMutation({
     onSuccess: () => {
@@ -68,8 +74,8 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
 
   async function handleCancel() {
     useModeloModalData.setState({
-      genero: 'N/A',
-      edad: 'N/A',
+      genero: modelo.genero ?? 'N/A',
+      edad: modelo.edad?.toString() ?? 'N/A',
       open: false,
     });
     setOpenSelect(false);
@@ -124,7 +130,9 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
                   <SelectItem value='Femenino'>Femenino</SelectItem>
                   <SelectItem value='Masculino'>Masculino</SelectItem>
                   <SelectItem value='Otro'>Otro</SelectItem>
-                  <SelectItem value='N/A'>N/A</SelectItem>
+                  <SelectItem disabled={!!modelo.genero} value='N/A'>
+                    N/A
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -162,7 +170,10 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             onClick={edit}
             disabled={editModelo.isLoading}
           >
-            {(editModelo.isLoading && <Loader />) || 'Editar'}
+            {(editModelo.isLoading && <Loader />) || 'Aceptar'}
+          </Button>
+          <Button variant='destructive' onClick={handleCancel}>
+            Cancelar
           </Button>
         </div>
       </DialogContent>

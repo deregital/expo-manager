@@ -1,5 +1,7 @@
+import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
 import FotoModelo from '@/components/ui/FotoModelo';
 import { trpc } from '@/lib/trpc';
+import Link from 'next/link';
 import React from 'react';
 
 interface ChatTopbarProps {
@@ -24,6 +26,14 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
             <p>
               <span className='font-bold'>{`${perfil.nombreCompleto} - ${perfil.telefono}`}</span>
               {inChat && <span className='text-gray-400'> en línea</span>}
+              <span className='align-text-top'>
+                <Link
+                  className='ml-2 inline-block'
+                  href={`/modelo/${perfil.id}`}
+                >
+                  <ModeloFillIcon />
+                </Link>
+              </span>
             </p>
           </div>
         </>

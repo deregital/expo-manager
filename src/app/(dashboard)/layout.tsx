@@ -16,7 +16,9 @@ const RootLayout = ({
 }>) => {
   return (
     <div className='grid grid-cols-1 md:grid-cols-[auto,1fr]'>
-      <Sidebar />
+      <div className='hidden md:block'>
+        <Sidebar />
+      </div>
       <div className='grid grid-rows-[auto,1fr]'>
         <Topbar />
         <main className='h-[calc(100vh-4rem)] flex-1 overflow-y-auto bg-background'>

@@ -8,12 +8,19 @@ import SearchInput from '@/components/ui/SearchInput';
 import { useModelosTabla } from '@/components/modelos/table/ModelosTable';
 import { TipoEtiqueta } from '@prisma/client';
 import { XIcon } from 'lucide-react';
+import SwitchEventos from '@/components/ui/SwitchEventos';
+import { create } from 'zustand';
+
+export const useModelosFiltro = create(() => ({
+  showEventos: false,
+}));
 
 const FiltroTabla = () => {
   const searchParams = new URLSearchParams(useSearchParams());
   const [search, setSearch] = useState('');
   const pathname = usePathname();
   const router = useRouter();
+  const { showEventos } = useModelosFiltro();
   const { data: grupos } = trpc.grupoEtiqueta.getAll.useQuery();
 
   const { cantidadDeModelos, isLoadingModelos } = useModelosTabla((s) => ({
@@ -70,7 +77,13 @@ const FiltroTabla = () => {
           </p>
         )}
       </div>
-      <div className='flex w-full min-w-[300px] items-center justify-end gap-x-4 md:w-fit'>
+      <div className='flex w-full min-w-[320px] items-center justify-end gap-x-4 md:w-fit'>
+        <SwitchEventos
+          setShowEventos={(value) => {
+            useModelosFiltro.setState({ showEventos: value });
+          }}
+          showEventos={showEventos}
+        />
         <div className='relative mr-auto w-full'>
           <SearchInput
             className='w-full'
