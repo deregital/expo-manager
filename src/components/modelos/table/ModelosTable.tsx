@@ -1,4 +1,4 @@
-import { columns } from '@/components/modelos/table/columns';
+import { useModelosFiltro } from '@/components/modelos/FiltroTabla';
 import { DataTable } from '@/components/modelos/table/dataTable';
 import { trpc } from '@/lib/trpc';
 import { searchNormalize } from '@/lib/utils';
@@ -7,6 +7,7 @@ import { TipoEtiqueta } from '@prisma/client';
 import { useSearchParams, useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { create } from 'zustand';
+import { generateColumns } from '@/components/modelos/table/columns';
 
 export const useModelosTabla = create<{ cantidad: number; isLoading: boolean }>(
   () => ({
@@ -49,6 +50,7 @@ const ModelosTable = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { showEventos } = useModelosFiltro();
   const [search, setSearch] = useState<{
     nombre?: string;
     etiquetaId?: string;
@@ -89,6 +91,10 @@ const ModelosTable = () => {
       cantidad: data.length,
     });
   }, [isLoading, data]);
+
+  const columns = useMemo(() => {
+    return generateColumns(showEventos);
+  }, [showEventos]);
 
   return (
     <DataTable

@@ -17,7 +17,7 @@ import { ModalTriggerCreate } from '@/components/etiquetas/modal/ModalTrigger';
 import Link from 'next/link';
 import StampIcon from '@/components/icons/StampIcon';
 import { TipoEtiqueta } from '@prisma/client';
-import SwitchEtiquetasEventos from '@/components/etiquetas/list/SwitchEtiquetasEventos';
+import SwitchEventos from '@/components/ui/SwitchEventos';
 import { XIcon } from 'lucide-react';
 
 const EtiquetasPage = () => {
@@ -91,7 +91,12 @@ const EtiquetasPage = () => {
           </Link>
         </div>
         <div className='flex items-center gap-x-2'>
-          <SwitchEtiquetasEventos />
+          <SwitchEventos
+            showEventos={showEventos}
+            setShowEventos={(value) => {
+              useEtiquetasSettings.setState({ showEventos: value });
+            }}
+          />
           <ExpandContractEtiquetas />
           <div className='flex items-center gap-x-4'>
             <SearchInput
