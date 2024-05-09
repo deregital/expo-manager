@@ -16,7 +16,7 @@ const RootLayout = ({
 }>) => {
   return (
     <div className='grid grid-cols-1 md:grid-cols-[auto,1fr]'>
-      <div className='hidden sm:block'>
+      <div className='hidden md:block'>
         <Sidebar />
       </div>
       <div className='grid grid-rows-[auto,1fr]'>

@@ -11,8 +11,8 @@ const Topbar = async () => {
   }
 
   return (
-    <header className='flex h-16 items-center justify-between border-b-[3px] border-black/20 bg-topbar pr-4 sm:justify-end'>
-      <div className='block sm:hidden'>
+    <header className='flex h-16 items-center justify-between border-b-[3px] border-black/20 bg-topbar pr-4 md:justify-end'>
+      <div className='block md:hidden'>
         <MobileSidebar />
       </div>
       <SessionMenu user={session.user} />
