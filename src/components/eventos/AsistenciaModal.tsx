@@ -36,13 +36,15 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
 
   const modelosData = useMemo(() => {
     if (!modelos) return [];
-    return modelos.filter((modelo) =>
-      modelo.etiquetas.every(
-        (etiqueta) =>
-          etiqueta.id !== modalPresentismo.evento?.etiquetaAsistioId &&
-          etiqueta.id !== modalPresentismo.evento?.etiquetaConfirmoId
+    return modelos
+      .filter((modelo) =>
+        modelo.etiquetas.every(
+          (etiqueta) =>
+            etiqueta.id !== modalPresentismo.evento?.etiquetaAsistioId &&
+            etiqueta.id !== modalPresentismo.evento?.etiquetaConfirmoId
+        )
       )
-    );
+      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
   }, [
     modalPresentismo.evento?.etiquetaAsistioId,
     modalPresentismo.evento?.etiquetaConfirmoId,
@@ -110,7 +112,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
         <h3 className='text-lg font-semibold'>
           Añadir asistencia de una modelo
         </h3>
-        <div className='flex items-center justify-around'>
+        <div className='flex items-center justify-between'>
           <ComboBox
             data={modelosData}
             id={'id'}
