@@ -79,9 +79,9 @@ const FiltroTabla = () => {
       </div>
       <div className='flex w-full min-w-[320px] items-center justify-end gap-x-4 md:w-fit'>
         <SwitchEventos
-          setShowEventos={(value) =>
-            useModelosFiltro.setState({ showEventos: value })
-          }
+          setShowEventos={(value) => {
+            useModelosFiltro.setState({ showEventos: value });
+          }}
           showEventos={showEventos}
         />
         <div className='relative mr-auto w-full'>

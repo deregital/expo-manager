@@ -124,13 +124,10 @@ export function generateColumns(
         return (
           <div className='flex flex-1'>
             {etiquetas
-              .filter((etiqueta) => {
-                if (showEventos) {
-                  return true;
-                } else {
-                  return etiqueta.tipo !== TipoEtiqueta.EVENTO;
-                }
-              })
+              .filter(
+                (etiqueta) =>
+                  showEventos || etiqueta.tipo !== TipoEtiqueta.EVENTO
+              )
               .sort((a, b) => {
                 if (
                   a.tipo === TipoEtiqueta.PERSONAL &&

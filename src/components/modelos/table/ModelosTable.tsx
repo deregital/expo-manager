@@ -50,7 +50,9 @@ const ModelosTable = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { showEventos } = useModelosFiltro();
+  const { showEventos } = useModelosFiltro((s) => ({
+    showEventos: s.showEventos,
+  }));
   const [search, setSearch] = useState<{
     nombre?: string;
     etiquetaId?: string;
@@ -81,7 +83,6 @@ const ModelosTable = () => {
 
   const data = useMemo(() => {
     const filtradas = filterModelos(modelos ?? [], search);
-
     return filtradas;
   }, [search, modelos]);
 
@@ -92,14 +93,10 @@ const ModelosTable = () => {
     });
   }, [isLoading, data]);
 
-  const columns = useMemo(() => {
-    return generateColumns(showEventos);
-  }, [showEventos]);
-
   return (
     <DataTable
       isLoading={isLoading && !isRefetching}
-      columns={columns}
+      columns={generateColumns(showEventos)}
       data={data.map((modelo) => ({
         ...modelo,
         etiquetas: modelo.etiquetas.filter(
