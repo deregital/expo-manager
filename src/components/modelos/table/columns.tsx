@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { getTextColorByBg } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
+import { TipoEtiqueta } from '@prisma/client';
 import { ColumnDef, SortDirection } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
@@ -60,14 +61,54 @@ export const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
   {
     accessorKey: 'edad',
     header: 'Edad',
+    size: 50,
+    minSize: 50,
+    maxSize: 50,
   },
   {
     accessorKey: 'genero',
     header: 'Género',
+    size: 100,
+    minSize: 100,
+    maxSize: 100,
   },
   {
     accessorKey: 'telefono',
     header: 'Teléfono',
+    size: 150,
+    minSize: 150,
+    maxSize: 150,
+  },
+  {
+    accessorKey: 'created_at',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant='ghost'
+          className='pl-0'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Creado el
+          <SortingIcon isSorted={column.getIsSorted()} />
+        </Button>
+      );
+    },
+    size: 150,
+    minSize: 150,
+    maxSize: 150,
+    cell: ({ row }) => {
+      const date = new Date(row.original.created_at).toLocaleDateString(
+        undefined,
+        {
+          localeMatcher: 'best fit',
+        }
+      );
+
+      const month = date.split('/')[0];
+      const day = date.split('/')[1];
+      const year = date.split('/')[2];
+      return <p>{`${day}/${month}/${year}`}</p>;
+    },
   },
   {
     accessorKey: 'etiquetas',
@@ -77,18 +118,34 @@ export const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
 
       return (
         <div className='flex flex-1'>
-          {etiquetas.map((etiqueta) => (
-            <Badge
-              key={etiqueta.id}
-              style={{
-                backgroundColor: etiqueta.grupo.color,
-                color: getTextColorByBg(etiqueta.grupo.color),
-              }}
-              className='mr-1 whitespace-nowrap'
-            >
-              {etiqueta.nombre}
-            </Badge>
-          ))}
+          {etiquetas
+            .sort((a, b) => {
+              if (
+                a.tipo === TipoEtiqueta.PERSONAL &&
+                b.tipo !== TipoEtiqueta.PERSONAL
+              ) {
+                return -1;
+              } else if (
+                a.tipo !== TipoEtiqueta.PERSONAL &&
+                b.tipo === TipoEtiqueta.PERSONAL
+              ) {
+                return 1;
+              } else {
+                return 0;
+              }
+            })
+            .map((etiqueta) => (
+              <Badge
+                key={etiqueta.id}
+                style={{
+                  backgroundColor: etiqueta.grupo.color,
+                  color: getTextColorByBg(etiqueta.grupo.color),
+                }}
+                className='mr-1 max-w-24'
+              >
+                <span className='truncate'>{etiqueta.nombre}</span>
+              </Badge>
+            ))}
         </div>
       );
     },
