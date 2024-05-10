@@ -131,6 +131,7 @@ async function crearMensaje(value: ReceivedMessage) {
           },
           create: {
             nombreCompleto: contact.profile.name,
+            nombrePila: contact.profile.name.split(' ')[0],
             telefono: contact.wa_id,
             etiquetas: {
               connect: {

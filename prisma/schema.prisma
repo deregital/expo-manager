@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider     = "postgresql"
-  url          = env("DATABASE_URL_SUPA")
+  url          = env("DATABASE_URL_PROD")
   relationMode = "foreignKeys"
 }
 
@@ -31,7 +31,7 @@ model Perfil {
   fotoUrl        String?      @map("foto_url")
   created_at     DateTime     @default(now())
   updated_at     DateTime     @updatedAt
-  idLegible      Int?         @unique @default(autoincrement()) @map("id_legible")
+  idLegible      Int?         @default(autoincrement()) @map("id_legible")
   comentarios    Comentario[]
   mensajes       Mensaje[]    @relation("PERFIL_X_MENSAJE")
   etiquetas      Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
