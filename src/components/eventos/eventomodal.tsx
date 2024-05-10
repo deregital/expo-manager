@@ -275,7 +275,10 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
             {modalData.subeventos.map((subevento, index) => (
               <div key={index}>
                 <hr className='mb-2 bg-slate-400' />
-                <div key={index} className='flex flex-col gap-y-1.5'>
+                <div
+                  key={index}
+                  className='mx-auto flex w-[98%] flex-col gap-y-1.5'
+                >
                   <div className='flex gap-3'>
                     <Input
                       type='text'
@@ -304,7 +307,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                       required // Atributo required agregado aquí
                     />
                   </div>
-                  <div className='flex gap-3'>
+                  <div className='mb-1.5 flex gap-3'>
                     <Input
                       type='text'
                       placeholder='Ubicación del subevento'
@@ -316,20 +319,20 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                           subeventos: updatedSubeventos,
                         });
                       }}
-                      required 
+                      required
                     />
-                    <Button variant='destructive'
-                    onClick={() => {
-                    const updatedSubeventos = [...modalData.subeventos];
-                    updatedSubeventos.splice(index, 1); 
-                   useEventoModalData.setState({
-                  subeventos: updatedSubeventos,
-    });
-  }}
-  
->
-  Eliminar subevento
-</Button>
+                    <Button
+                      variant='destructive'
+                      onClick={() => {
+                        const updatedSubeventos = [...modalData.subeventos];
+                        updatedSubeventos.splice(index, 1);
+                        useEventoModalData.setState({
+                          subeventos: updatedSubeventos,
+                        });
+                      }}
+                    >
+                      Eliminar subevento
+                    </Button>
                   </div>
                 </div>
               </div>

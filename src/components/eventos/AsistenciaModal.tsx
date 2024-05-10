@@ -69,14 +69,19 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
       return;
     }
 
-    const etiquetasModelo = modelo?.etiquetas.map((etiqueta) => ({
-      id: etiqueta.id,
-      nombre: etiqueta.nombre,
-      grupo: {
-        id: etiqueta.grupoId,
-        esExclusivo: etiqueta.grupo.esExclusivo,
-      },
-    }));
+    const etiquetasModelo = modelo?.etiquetas
+      .map((etiqueta) => ({
+        id: etiqueta.id,
+        nombre: etiqueta.nombre,
+        grupo: {
+          id: etiqueta.grupoId,
+          esExclusivo: etiqueta.grupo.esExclusivo,
+        },
+      }))
+      .filter(
+        (etiqueta) =>
+          etiqueta.id !== modalPresentismo.evento?.etiquetaConfirmoId
+      );
 
     const etiquetaAsistio = {
       id: modalPresentismo.evento!.etiquetaAsistioId,
