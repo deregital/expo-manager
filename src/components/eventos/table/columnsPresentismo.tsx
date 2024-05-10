@@ -69,7 +69,7 @@ export function generateColumnsPresentismo({
           <CellPresentismo
             row={row}
             confirmoId={confirmoId}
-            asistenciaId={asistenciaId}
+            asistioId={asistenciaId}
           />
         ),
         sortingFn: (rowA, rowB) => {

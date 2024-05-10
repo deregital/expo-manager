@@ -16,7 +16,7 @@ export const CellComponent = ({
   const etiquetasId = row.original.etiquetas.map(
     (etiqueta: any) => etiqueta.id
   );
-  const { data: etiqueta } = trpc.etiqueta.getById.useQuery(
+  const { data: etiquetaConfirmo } = trpc.etiqueta.getById.useQuery(
     confirmoAsistenciaId,
     {
       enabled: !!row.original,
@@ -44,12 +44,12 @@ export const CellComponent = ({
       etiquetas: [
         ...etiquetasId,
         {
-          id: etiqueta!.id,
+          id: etiquetaConfirmo!.id,
           grupo: {
-            id: etiqueta!.grupo.id,
-            esExclusivo: etiqueta!.grupo.esExclusivo,
+            id: etiquetaConfirmo!.grupo.id,
+            esExclusivo: etiquetaConfirmo!.grupo.esExclusivo,
           },
-          nombre: etiqueta!.nombre,
+          nombre: etiquetaConfirmo!.nombre,
         },
       ],
     });

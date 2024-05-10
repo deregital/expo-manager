@@ -9,7 +9,7 @@ interface LayoutProps {
 const Layout = async ({ children }: LayoutProps) => {
   const session = await getServerAuthSession();
   if (session && session.user) {
-    return redirect('/');
+    return redirect('/modelos');
   }
 
   return (
