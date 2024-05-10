@@ -29,7 +29,7 @@ export const eventoRouter = router({
       const grupoEtiquetasEvento = await ctx.prisma.etiquetaGrupo.create({
         data: {
           nombre: input.nombre,
-          esExclusivo: false,
+          esExclusivo: true,
           color: '#666666',
         },
       });
@@ -40,7 +40,7 @@ export const eventoRouter = router({
           const grupoEtiquetaSubevento = await ctx.prisma.etiquetaGrupo.create({
             data: {
               nombre: subevento.nombre,
-              esExclusivo: false,
+              esExclusivo: true,
               color: '#666666',
             },
           });
@@ -146,7 +146,6 @@ export const eventoRouter = router({
 
       return evento;
     }),
-
   update: protectedProcedure
     .input(
       z.object({
@@ -284,7 +283,7 @@ export const eventoRouter = router({
             {
               data: {
                 nombre: subevento.nombre,
-                esExclusivo: false,
+                esExclusivo: true,
                 color: '#666666',
               },
             }
@@ -355,7 +354,6 @@ export const eventoRouter = router({
 
       return 'OK';
     }),
-
   delete: protectedProcedure
     .input(
       z.object({
@@ -369,7 +367,6 @@ export const eventoRouter = router({
         },
       });
     }),
-
   getSubeventos: protectedProcedure
     .input(
       z.object({

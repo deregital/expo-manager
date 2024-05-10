@@ -63,27 +63,17 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
 
   const progress = useMemo(() => {
     if (!modelos) return 0;
-    const confirmaronAsistencia = modelos.filter((modelo) =>
+    const asistieron = modelos.filter((modelo) =>
       modelo.etiquetas.find(
-        (etiqueta) => etiqueta.id === evento?.etiquetaConfirmoId
+        (etiqueta) => etiqueta.id === evento?.etiquetaAsistioId
       )
     ).length;
-    const porcentaje =
-      (modelos
-        .filter((modelo) =>
-          modelo.etiquetas.find(
-            (etiqueta) => etiqueta.id === evento?.etiquetaAsistioId
-          )
-        )
-        .filter((modelo) =>
-          modelo.etiquetas.find((et) => et.id === evento?.etiquetaConfirmoId)
-        ).length /
-        confirmaronAsistencia) *
-      100;
+
+    const porcentaje = (asistieron / modelos.length) * 100;
 
     if (isNaN(porcentaje)) return 0;
     return porcentaje % 1 === 0 ? porcentaje : Number(porcentaje.toFixed(2));
-  }, [evento?.etiquetaAsistioId, evento?.etiquetaConfirmoId, modelos]);
+  }, [evento?.etiquetaAsistioId, modelos]);
 
   if (isLoadingEvento)
     return (
