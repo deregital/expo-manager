@@ -175,7 +175,7 @@ const PageClient = ({}: PageClientProps) => {
           isLoading={grupoEtiquetasLoading}
           wFullMobile
           buttonClassName='w-full sm:min-w-full h-[44px]'
-          contentClassName='sm:max-w-[--radix-popper-anchor-width] sm:w-full max-h-min'
+          contentClassName='sm:max-w-[--radix-popper-anchor-width]'
         />
       </section>
       <section className='flex w-full items-center gap-x-2 self-start grid-in-etiqueta'>

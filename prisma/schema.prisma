@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider     = "postgresql"
-  url          = env("DATABASE_URL_SUPA")
+  url          = env("DATABASE_URL_PROD")
   relationMode = "foreignKeys"
 }
 
@@ -22,19 +22,20 @@ model Cuenta {
 }
 
 model Perfil {
-  id             String       @id @default(uuid())
-  telefono       String       @unique
-  nombreCompleto String       @map("nombre_completo")
-  nombrePila     String?      @map("nombre_pila")
-  genero         String?
-  edad           Int?
-  fotoUrl        String?      @map("foto_url")
-  created_at     DateTime     @default(now())
-  updated_at     DateTime     @updatedAt
-  idLegible      Int?         @unique @default(autoincrement()) @map("id_legible")
-  comentarios    Comentario[]
-  mensajes       Mensaje[]    @relation("PERFIL_X_MENSAJE")
-  etiquetas      Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
+  id              String       @id @default(uuid())
+  telefono        String       @unique
+  nombreCompleto  String       @map("nombre_completo")
+  nombrePila      String?      @map("nombre_pila")
+  genero          String?
+  edad            Int?
+  fechaNacimiento DateTime?    @map("fecha_nacimiento")
+  fotoUrl         String?      @map("foto_url")
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+  idLegible       Int?         @default(autoincrement()) @map("id_legible")
+  comentarios     Comentario[]
+  mensajes        Mensaje[]    @relation("PERFIL_X_MENSAJE")
+  etiquetas       Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
 
   @@map("PERFIL")
 }
@@ -47,7 +48,7 @@ model Comentario {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   cuenta     Cuenta   @relation(fields: [creadoPor], references: [id])
-  perfil     Perfil   @relation(fields: [perfilId], references: [id])
+  perfil     Perfil   @relation(fields: [perfilId], references: [id], onDelete: Cascade)
 
   @@map("COMENTARIO")
 }
@@ -92,7 +93,7 @@ model Evento {
   etiquetaConfirmoId String   @map("etiqueta_confirmo")
   etiquetaAsistio    Etiqueta @relation("EVENTOASISTIDO_X_ETIQUETA", fields: [etiquetaAsistioId], references: [id], onDelete: Cascade)
   etiquetaConfirmo   Etiqueta @relation("EVENTOCONFIRMADO_X_ETIQUETA", fields: [etiquetaConfirmoId], references: [id], onDelete: Cascade)
-  eventoPadre        Evento?  @relation("SubEventos", fields: [eventoPadreId], references: [id])
+  eventoPadre        Evento?  @relation("SubEventos", fields: [eventoPadreId], references: [id], onDelete: Cascade)
   subEventos         Evento[] @relation("SubEventos")
 
   @@map("EVENTO")
@@ -107,7 +108,7 @@ model Mensaje {
   created_at     DateTime      @default(now())
   updated_at     DateTime      @updatedAt
   statusAt       DateTime?     @map("status_at")
-  perfil         Perfil        @relation("PERFIL_X_MENSAJE", fields: [perfilTelefono], references: [telefono])
+  perfil         Perfil        @relation("PERFIL_X_MENSAJE", fields: [perfilTelefono], references: [telefono], onDelete: Cascade)
 
   @@map("MENSAJE")
 }
