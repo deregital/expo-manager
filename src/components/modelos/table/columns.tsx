@@ -35,7 +35,7 @@ export function generateColumns(
       maxSize: 50,
       enableResizing: false,
       cell: ({ row }) => {
-        return <p className='w-14 text-center'>{row.original.idLegible}</p>;
+        return <p className='w-full text-center'>{row.original.idLegible}</p>;
       },
     },
     {
