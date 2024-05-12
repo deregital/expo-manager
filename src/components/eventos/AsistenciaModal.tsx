@@ -149,7 +149,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
             selectedIf={modalPresentismo.modeloId}
           />
           <Button disabled={editModelo.isLoading} onClick={handleSubmit}>
-            Enviar
+            Añadir
           </Button>
         </div>
       </DialogContent>
