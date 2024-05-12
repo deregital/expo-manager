@@ -90,6 +90,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
       <DataTable
         columns={generateColumns(evento!.etiquetaConfirmoId)}
         data={modelosData}
+        initialSortingColumn={{ id: 'created_at', desc: true }}
       />
     </div>
   );
