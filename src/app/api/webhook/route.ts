@@ -13,6 +13,7 @@ import { join as pathJoin } from 'path';
 import { enviarMensajeUnaSolaVez } from '@/server/routers/whatsappRouter';
 
 export const revalidate = 0;
+const FECHA_LIMITE_MENSAJE_AUTOMATICO = new Date(2024, 4, 10);
 
 export async function GET(request: Request) {
   const urlDecoded = new URL(request.url);
@@ -50,15 +51,18 @@ export async function POST(request: NextRequest) {
         if (changes[0].field === 'messages') {
           const value = changes[0].value;
           if ('messages' in value) {
-            const { mensajeCreado, perfil, esPerfilTentativo } =
-              await crearMensaje(value);
+            const { mensajeCreado, perfil } = await crearMensaje(value);
+
+            // console.log('mensajeCreado', mensajeCreado, 'perfil', perfil);
 
             if (
               (!perfil ||
-                (esPerfilTentativo &&
-                  mensajeCreado.perfil._count.mensajes === 1)) &&
-              mensajeCreado
+                perfil?.created_at > FECHA_LIMITE_MENSAJE_AUTOMATICO) &&
+              mensajeCreado &&
+              mensajeCreado.perfil._count.mensajes === 1
             ) {
+              // console.log('enviando mensaje');
+
               await enviarRespuestaAutomatica(
                 value.contacts[0].wa_id,
                 mensajeCreado.perfil.nombrePila ??
@@ -157,11 +161,7 @@ async function crearMensaje(value: ReceivedMessage) {
     },
   });
 
-  const esPerfilTentativo = perfil?.etiquetas.some(
-    (etiqueta) => etiqueta.id === etiquetaTentativaId.id
-  );
-
-  return { perfil, mensajeCreado, esPerfilTentativo };
+  return { perfil, mensajeCreado };
 }
 
 async function actualizarStatus(value: StatusChange) {

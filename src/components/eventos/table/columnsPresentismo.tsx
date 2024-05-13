@@ -64,6 +64,39 @@ export function generateColumnsPresentismo({
         },
       },
       {
+        accessorKey: 'created_at',
+        header: ({ column }) => {
+          return (
+            <Button
+              variant='ghost'
+              className='pl-0'
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+            >
+              Creado el
+              <SortingIcon isSorted={column.getIsSorted()} />
+            </Button>
+          );
+        },
+        size: 100,
+        minSize: 100,
+        maxSize: 100,
+        cell: ({ row }) => {
+          const date = new Date(row.original.created_at).toLocaleDateString(
+            undefined,
+            {
+              localeMatcher: 'best fit',
+            }
+          );
+
+          const month = date.split('/')[0];
+          const day = date.split('/')[1];
+          const year = date.split('/')[2];
+          return <p>{`${day}/${month}/${year}`}</p>;
+        },
+      },
+      {
         accessorKey: '¿Vino?',
         cell: ({ row }) => (
           <CellPresentismo

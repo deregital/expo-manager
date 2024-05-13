@@ -1,5 +1,6 @@
 'use client';
 
+import { edadFromFechaNacimiento } from '@/components/modelo/ModeloEditModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { getTextColorByBg } from '@/lib/utils';
@@ -35,7 +36,7 @@ export function generateColumns(
       maxSize: 50,
       enableResizing: false,
       cell: ({ row }) => {
-        return <p className='w-14 text-center'>{row.original.idLegible}</p>;
+        return <p className='w-full text-center'>{row.original.idLegible}</p>;
       },
     },
     {
@@ -69,6 +70,11 @@ export function generateColumns(
       size: 50,
       minSize: 50,
       maxSize: 50,
+      cell: ({ row }) => {
+        if (row.original.fechaNacimiento === null) return <></>;
+        const edad = edadFromFechaNacimiento(row.original.fechaNacimiento);
+        return <p className='whitespace-nowrap'>{`${edad} años`}</p>;
+      },
     },
     {
       accessorKey: 'genero',

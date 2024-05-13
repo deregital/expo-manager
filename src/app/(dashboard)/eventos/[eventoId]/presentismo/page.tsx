@@ -131,6 +131,10 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
         })}
         data={modelosData}
         isLoading={modelosIsLoading}
+        initialSortingColumn={{
+          id: '¿Vino?' as keyof (typeof modelosData)[number],
+          desc: false,
+        }}
       />
       <div className='m-5 flex items-center justify-end'>
         <AsistenciaModal open={modalPresentismo.isOpen} />

@@ -27,7 +27,6 @@ model Perfil {
   nombreCompleto  String       @map("nombre_completo")
   nombrePila      String?      @map("nombre_pila")
   genero          String?
-  edad            Int?
   fechaNacimiento DateTime?    @map("fecha_nacimiento")
   fotoUrl         String?      @map("foto_url")
   created_at      DateTime     @default(now())
