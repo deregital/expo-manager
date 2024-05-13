@@ -16,6 +16,7 @@ import ModeloEditModal, {
 import { TipoEtiqueta } from '@prisma/client';
 import Link from 'next/link';
 import ChatFillIcon from '@/components/icons/ChatFillIcon';
+import WhatsappIcon from '@/components/icons/WhatsappIcon';
 
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
@@ -199,9 +200,19 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
               <Link
                 href={`/mensajes/${modelo.telefono}`}
                 className='rounded-md bg-slate-600 p-2'
+                title='Enviar mensaje por chat'
               >
                 <ChatFillIcon className='h-4 w-4 fill-white' />
               </Link>
+              <a
+                className='cursor-pointer rounded-md bg-lime-600 p-2'
+                title='Enviar mensaje por WhatsApp'
+                href={`https://wa.me/${modelo.telefono}`}
+                target='_blank'
+                rel='noreferrer'
+              >
+                <WhatsappIcon className='h-4 w-4 fill-white' />
+              </a>
             </div>
             <div className='flex gap-x-4'>
               <p>
