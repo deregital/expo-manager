@@ -8,7 +8,7 @@ import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
 import { MessageJson } from '@/server/types/whatsapp';
-import { addDays, format } from 'date-fns';
+import { addDays, format, startOfMonth } from 'date-fns';
 import { XIcon } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { create } from 'zustand';
@@ -22,13 +22,13 @@ export const useDashboardData = create<{
   etiquetaId: string;
   resetFilters: () => void;
 }>((set) => ({
-  from: new Date(),
+  from: startOfMonth(new Date()),
   to: new Date(),
   grupoEtiquetaId: '',
   etiquetaId: '',
   resetFilters: () => {
     set({
-      from: new Date(),
+      from: startOfMonth(new Date()),
       to: new Date(),
       grupoEtiquetaId: '',
       etiquetaId: '',
@@ -175,7 +175,7 @@ const PageClient = ({}: PageClientProps) => {
           isLoading={grupoEtiquetasLoading}
           wFullMobile
           buttonClassName='w-full sm:min-w-full h-[44px]'
-          contentClassName='sm:max-w-[--radix-popper-anchor-width] sm:w-full max-h-min'
+          contentClassName='sm:max-w-[--radix-popper-anchor-width]'
         />
       </section>
       <section className='flex w-full items-center gap-x-2 self-start grid-in-etiqueta'>

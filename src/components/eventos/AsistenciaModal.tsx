@@ -36,13 +36,15 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
 
   const modelosData = useMemo(() => {
     if (!modelos) return [];
-    return modelos.filter((modelo) =>
-      modelo.etiquetas.every(
-        (etiqueta) =>
-          etiqueta.id !== modalPresentismo.evento?.etiquetaAsistioId &&
-          etiqueta.id !== modalPresentismo.evento?.etiquetaConfirmoId
+    return modelos
+      .filter((modelo) =>
+        modelo.etiquetas.every(
+          (etiqueta) =>
+            etiqueta.id !== modalPresentismo.evento?.etiquetaAsistioId &&
+            etiqueta.id !== modalPresentismo.evento?.etiquetaConfirmoId
+        )
       )
-    );
+      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
   }, [
     modalPresentismo.evento?.etiquetaAsistioId,
     modalPresentismo.evento?.etiquetaConfirmoId,
@@ -67,14 +69,19 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
       return;
     }
 
-    const etiquetasModelo = modelo?.etiquetas.map((etiqueta) => ({
-      id: etiqueta.id,
-      nombre: etiqueta.nombre,
-      grupo: {
-        id: etiqueta.grupoId,
-        esExclusivo: etiqueta.grupo.esExclusivo,
-      },
-    }));
+    const etiquetasModelo = modelo?.etiquetas
+      .map((etiqueta) => ({
+        id: etiqueta.id,
+        nombre: etiqueta.nombre,
+        grupo: {
+          id: etiqueta.grupoId,
+          esExclusivo: etiqueta.grupo.esExclusivo,
+        },
+      }))
+      .filter(
+        (etiqueta) =>
+          etiqueta.id !== modalPresentismo.evento?.etiquetaConfirmoId
+      );
 
     const etiquetaAsistio = {
       id: modalPresentismo.evento!.etiquetaAsistioId,
@@ -110,7 +117,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
         <h3 className='text-lg font-semibold'>
           Añadir asistencia de una modelo
         </h3>
-        <div className='flex items-center justify-around'>
+        <div className='flex items-center justify-between'>
           <ComboBox
             data={modelosData}
             id={'id'}
@@ -142,7 +149,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
             selectedIf={modalPresentismo.modeloId}
           />
           <Button disabled={editModelo.isLoading} onClick={handleSubmit}>
-            Enviar
+            Añadir
           </Button>
         </div>
       </DialogContent>

@@ -63,25 +63,17 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
 
   const progress = useMemo(() => {
     if (!modelos) return 0;
-    const confirmaronAsistencia = modelos.filter((modelo) =>
+    const asistieron = modelos.filter((modelo) =>
       modelo.etiquetas.find(
-        (etiqueta) => etiqueta.id === evento?.etiquetaConfirmoId
+        (etiqueta) => etiqueta.id === evento?.etiquetaAsistioId
       )
     ).length;
-    return (
-      (modelos
-        .filter((modelo) =>
-          modelo.etiquetas.find(
-            (etiqueta) => etiqueta.id === evento?.etiquetaAsistioId
-          )
-        )
-        .filter((modelo) =>
-          modelo.etiquetas.find((et) => et.id === evento?.etiquetaConfirmoId)
-        ).length /
-        confirmaronAsistencia) *
-      100
-    );
-  }, [evento?.etiquetaAsistioId, evento?.etiquetaConfirmoId, modelos]);
+
+    const porcentaje = (asistieron / modelos.length) * 100;
+
+    if (isNaN(porcentaje)) return 0;
+    return porcentaje % 1 === 0 ? porcentaje : Number(porcentaje.toFixed(2));
+  }, [evento?.etiquetaAsistioId, modelos]);
 
   if (isLoadingEvento)
     return (
@@ -133,9 +125,16 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
         />
       </div>
       <DataTable
-        columns={generateColumnsPresentismo(evento!.etiquetaAsistioId)}
+        columns={generateColumnsPresentismo({
+          asistenciaId: evento!.etiquetaAsistioId,
+          confirmoId: evento!.etiquetaConfirmoId,
+        })}
         data={modelosData}
         isLoading={modelosIsLoading}
+        initialSortingColumn={{
+          id: '¿Vino?' as keyof (typeof modelosData)[number],
+          desc: false,
+        }}
       />
       <div className='m-5 flex items-center justify-end'>
         <AsistenciaModal open={modalPresentismo.isOpen} />

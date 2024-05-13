@@ -18,7 +18,7 @@ import ChatIcon from '@/components/icons/ChatIcon';
 
 const Sidebar = () => {
   return (
-    <div className='hidden w-48 flex-col border-r-[3px] border-black/20 bg-sidebar-background md:flex'>
+    <div className='flex h-full w-48 flex-col border-r-[3px] border-black/20 bg-sidebar-background md:flex'>
       <Image
         src='/img/logo.webp'
         className='w-full select-none px-2 pb-10 pt-5'
@@ -27,7 +27,7 @@ const Sidebar = () => {
         height={100}
       />
       <div className='flex-1'>
-        <ul className='divide-y-2 divide-black/80'>
+        <ul className='h-full divide-y-2 divide-black/80'>
           <SidebarLink
             to='/'
             icon={<HomeIcon height={24} width={24} />}

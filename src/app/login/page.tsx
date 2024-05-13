@@ -16,13 +16,13 @@ const LoginPage = () => {
     const res = await signIn('credentials', {
       username,
       password,
-      callbackUrl: '/',
+      callbackUrl: '/modelos',
       redirect: false,
     });
 
     if (res?.ok) {
       setError(null);
-      redirect('/');
+      redirect('/modelos');
     }
 
     if (res?.status === 401) {

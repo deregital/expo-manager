@@ -16,7 +16,7 @@ export const CellComponent = ({
   const etiquetasId = row.original.etiquetas.map(
     (etiqueta: any) => etiqueta.id
   );
-  const { data: etiqueta } = trpc.etiqueta.getById.useQuery(
+  const { data: etiquetaConfirmo } = trpc.etiqueta.getById.useQuery(
     confirmoAsistenciaId,
     {
       enabled: !!row.original,
@@ -44,18 +44,19 @@ export const CellComponent = ({
       etiquetas: [
         ...etiquetasId,
         {
-          id: etiqueta!.id,
+          id: etiquetaConfirmo!.id,
           grupo: {
-            id: etiqueta!.grupo.id,
-            esExclusivo: etiqueta!.grupo.esExclusivo,
+            id: etiquetaConfirmo!.grupo.id,
+            esExclusivo: etiquetaConfirmo!.grupo.esExclusivo,
           },
-          nombre: etiqueta!.nombre,
+          nombre: etiquetaConfirmo!.nombre,
         },
       ],
     });
     toast.dismiss();
     toast.success('Se agregó al presentismo');
     useUtils.modelo.getAll.invalidate();
+    useUtils.modelo.getByEtiqueta.invalidate();
   }
 
   return (
@@ -70,7 +71,13 @@ export const CellComponent = ({
           <Button
             disabled={editModelo.isLoading}
             className='px-1'
-            onClick={() => addPresentismo(row.original)}
+            onClick={() => {
+              if (!row.original.id) {
+                toast.error('No se ha encontrado el modelo');
+                return;
+              }
+              addPresentismo(row.original);
+            }}
           >
             Agregar al presentismo
             <PlusIcon className='h-6 w-6' />

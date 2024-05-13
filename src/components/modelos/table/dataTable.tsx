@@ -29,6 +29,7 @@ interface DataTableProps<TData extends { id: string }, TValue> {
   data: TData[];
   isLoading?: boolean;
   onClickRow?: (id: string) => void;
+  initialSortingColumn?: { id: keyof TData; desc: boolean };
 }
 
 export const DataTable = <TData extends { id: string }, TValue>({
@@ -36,8 +37,18 @@ export const DataTable = <TData extends { id: string }, TValue>({
   data,
   isLoading,
   onClickRow,
+  initialSortingColumn,
 }: DataTableProps<TData, TValue>) => {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>(
+    initialSortingColumn
+      ? [
+          {
+            id: initialSortingColumn.id as string,
+            desc: initialSortingColumn.desc,
+          },
+        ]
+      : []
+  );
 
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -58,9 +69,8 @@ export const DataTable = <TData extends { id: string }, TValue>({
       pagination,
     },
     defaultColumn: {
-      size: 200, //starting column size
-      minSize: 10, //enforced during column resizing
-      maxSize: 500, //enforced during column resizing
+      maxSize: 150, //starting column size
+      enableResizing: false,
     },
   });
 
@@ -72,7 +82,12 @@ export const DataTable = <TData extends { id: string }, TValue>({
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    style={{
+                      width: header.getSize(),
+                    }}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
