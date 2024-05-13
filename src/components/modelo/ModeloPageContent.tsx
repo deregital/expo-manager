@@ -10,7 +10,9 @@ import CircleXIcon from '../icons/CircleX';
 import { Save, Trash2Icon } from 'lucide-react';
 import CirclePlus from '../icons/CirclePlus';
 import ModeloFoto from '@/components/modelo/ModeloFoto';
-import ModeloEditModal from '@/components/modelo/ModeloEditModal';
+import ModeloEditModal, {
+  edadFromFechaNacimiento,
+} from '@/components/modelo/ModeloEditModal';
 import { TipoEtiqueta } from '@prisma/client';
 import Link from 'next/link';
 import ChatFillIcon from '@/components/icons/ChatFillIcon';
@@ -202,7 +204,12 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
               </Link>
             </div>
             <div className='flex gap-x-4'>
-              <p>Edad: {modelo?.edad ?? 'N/A'}</p>
+              <p>
+                Edad:{' '}
+                {modelo.fechaNacimiento
+                  ? `${edadFromFechaNacimiento(modelo.fechaNacimiento)} años`
+                  : 'N/A'}
+              </p>
               <p>Género: {modelo?.genero ?? 'N/A'}</p>
               <ModeloEditModal modelo={modelo} />
             </div>

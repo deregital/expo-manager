@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
+import { differenceInYears } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
@@ -25,32 +26,41 @@ interface ModeloEditModalProps {
 interface ModeloModalData {
   open: boolean;
   genero: string;
-  edad: string;
+  fechaNacimiento: Date | undefined;
+}
+
+export function edadFromFechaNacimiento(fechaNacimiento: string) {
+  return differenceInYears(new Date(), new Date(fechaNacimiento));
 }
 
 const useModeloModalData = create<ModeloModalData>(() => ({
   open: false,
   genero: 'N/A',
-  edad: 'N/A',
+  fechaNacimiento: undefined,
 }));
 
 const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
-  const { open, genero, edad } = useModeloModalData();
+  const { open, genero, fechaNacimiento } = useModeloModalData();
   const [openSelect, setOpenSelect] = useState(false);
+  const [error, setError] = useState('');
   const utils = trpc.useUtils();
 
   useEffect(() => {
     useModeloModalData.setState({
-      edad: modelo.edad?.toString() ?? 'N/A',
+      fechaNacimiento: modelo.fechaNacimiento
+        ? new Date(modelo.fechaNacimiento)
+        : undefined,
     });
-  }, [modelo.edad]);
+  }, [modelo.fechaNacimiento]);
 
   const editModelo = trpc.modelo.edit.useMutation({
     onSuccess: () => {
       toast.success('Modelo editado con éxito');
       useModeloModalData.setState({
-        genero: 'N/A',
-        edad: 'N/A',
+        genero: modelo.genero ?? 'N/A',
+        fechaNacimiento: modelo.fechaNacimiento
+          ? new Date(modelo.fechaNacimiento)
+          : undefined,
         open: false,
       });
       setOpenSelect(false);
@@ -59,23 +69,24 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
   });
 
   async function edit() {
-    const edadnum = parseInt(edad);
-
-    if (!genero || !edadnum) {
+    if (!genero || !fechaNacimiento) {
+      setError('Debe ingresar un género y una fecha de nacimiento');
       return;
     }
 
     return await editModelo.mutateAsync({
       id: modelo.id,
       genero,
-      edad: edadnum,
+      fechaNacimiento: fechaNacimiento.toString(),
     });
   }
 
   async function handleCancel() {
     useModeloModalData.setState({
       genero: modelo.genero ?? 'N/A',
-      edad: modelo.edad?.toString() ?? 'N/A',
+      fechaNacimiento: modelo.fechaNacimiento
+        ? new Date(modelo.fechaNacimiento)
+        : undefined,
       open: false,
     });
     setOpenSelect(false);
@@ -97,7 +108,9 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             useModeloModalData.setState({
               open: true,
               genero: modelo.genero ?? 'N/A',
-              edad: modelo.edad?.toString() ?? 'N/A',
+              fechaNacimiento: modelo.fechaNacimiento
+                ? new Date(modelo.fechaNacimiento)
+                : undefined,
             });
           }}
         >
@@ -138,30 +151,31 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             </div>
 
             <div>
-              <Label htmlFor='edad'>Edad</Label>
+              <Label htmlFor='fechaNacimiento'>Fecha de Nacimiento</Label>
               <Input
                 className='bg-white text-black'
-                type='text'
-                inputMode='numeric'
+                type='date'
                 autoComplete='off'
-                pattern='[0-9]*'
                 name='edad'
-                id='edad'
-                placeholder='Edad'
-                value={isNaN(parseInt(edad)) ? '' : edad}
+                id='fechaNacimiento'
+                value={
+                  fechaNacimiento
+                    ? fechaNacimiento.toISOString().split('T')[0]
+                    : ''
+                }
                 onChange={(e) => {
                   useModeloModalData.setState({
-                    edad: parseInt(e.target.value).toString(),
+                    fechaNacimiento: new Date(e.currentTarget.value),
                   });
                 }}
               />
             </div>
           </div>
         </div>
-        {editModelo.isError ? (
+        {editModelo.isError || error !== '' ? (
           <p className='text-sm font-semibold text-red-500'>
-            Error al editar la modelo, asegúrese de poner un genero y asignarle
-            una edad
+            {error ??
+              'Error al editar la modelo, asegúrese de poner un genero y asignarle una edad'}
           </p>
         ) : null}
         <div className='flex gap-x-4'>
