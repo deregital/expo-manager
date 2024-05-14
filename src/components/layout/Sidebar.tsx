@@ -20,8 +20,8 @@ const Sidebar = () => {
   return (
     <div className='flex h-full w-48 flex-col border-r-[3px] border-black/20 bg-sidebar-background md:flex'>
       <Image
-        src='/img/logo.webp'
-        className='w-full select-none px-2 pb-10 pt-5'
+        src='/img/logo_manager.png'
+        className='w-full select-none px-2 pb-4 pt-5'
         alt='Expo Manager'
         width={100}
         height={100}
