@@ -160,6 +160,48 @@ export const modeloRouter = router({
         data: input,
       });
     }),
+  createManual: publicProcedure
+    .input(
+      z.object({
+        nombreCompleto: z.string(),
+        telefono: z.string(),
+        genero: z.string().optional(),
+        fechaNacimiento: z.string().optional(),
+        fotoUrl: z.string().optional().nullable(),
+        etiquetas: z.array(z.string().uuid()).optional(),
+        apodos: z.array(z.string()).optional(),
+        dni: z.string().optional(),
+        mail: z.string().includes('@').optional(),
+        instagram: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await ctx.prisma.perfil.create({
+        data: {
+          nombreCompleto: input.nombreCompleto,
+          nombrePila: input.nombreCompleto.split(' ')[0],
+          telefono: input.telefono,
+          genero: input.genero,
+          fechaNacimiento: input.fechaNacimiento
+            ? new Date(input.fechaNacimiento)
+            : undefined,
+          fotoUrl: input.fotoUrl,
+          etiquetas: input.etiquetas
+            ? {
+                connect: input.etiquetas.map((etiqueta) => {
+                  return {
+                    id: etiqueta,
+                  };
+                }),
+              }
+            : undefined,
+          nombresAlternativos: input.apodos ? input.apodos : undefined,
+          dni: input.dni,
+          mail: input.mail,
+          instagram: input.instagram,
+        },
+      });
+    }),
   delete: publicProcedure
     .input(z.string().uuid())
     .mutation(async ({ input, ctx }) => {
