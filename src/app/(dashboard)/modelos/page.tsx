@@ -3,6 +3,7 @@
 import React, { Suspense } from 'react';
 import FiltroTabla from '@/components/modelos/FiltroTabla';
 import ModelosTable from '@/components/modelos/table/ModelosTable';
+import CrearModelo from '@/components/modelos/CrearModelo';
 
 const ModelosPage = () => {
   return (
@@ -12,6 +13,7 @@ const ModelosPage = () => {
       </p>
       <FiltroTabla />
       <ModelosTable />
+      <CrearModelo />
     </Suspense>
   );
 };
