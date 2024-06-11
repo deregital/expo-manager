@@ -180,6 +180,10 @@ export const modeloRouter = router({
         fotoUrl: z.string().optional().nullable(),
         genero: z.string().optional(),
         fechaNacimiento: z.string().optional(),
+        instagram: z.string().optional().nullable(),
+        mail: z.string().optional().nullable(),
+        dni: z.string().optional().nullable(),
+        nombresAlternativos: z.array(z.string()).optional().nullable(),
         etiquetas: z
           .array(
             z.object({
@@ -222,6 +226,10 @@ export const modeloRouter = router({
           fechaNacimiento: input.fechaNacimiento
             ? new Date(input.fechaNacimiento)
             : undefined,
+          instagram: input.instagram,
+          mail: input.mail,
+          dni: input.dni,
+          nombresAlternativos: input.nombresAlternativos ?? undefined,
           etiquetas: input.etiquetas
             ? {
                 set: (input.etiquetas ?? []).map((etiqueta) => {
