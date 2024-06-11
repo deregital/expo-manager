@@ -27,6 +27,10 @@ interface ModeloModalData {
   open: boolean;
   genero: string;
   fechaNacimiento: Date | undefined;
+  nombresAlternativos: string[];
+  instagram: string | undefined;
+  mail: string | undefined;
+  dni: string | undefined;
 }
 
 export function edadFromFechaNacimiento(fechaNacimiento: string) {
@@ -37,10 +41,22 @@ const useModeloModalData = create<ModeloModalData>(() => ({
   open: false,
   genero: 'N/A',
   fechaNacimiento: undefined,
+  nombresAlternativos: [],
+  instagram: undefined,
+  mail: undefined,
+  dni: undefined,
 }));
 
 const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
-  const { open, genero, fechaNacimiento } = useModeloModalData();
+  const {
+    open,
+    genero,
+    fechaNacimiento,
+    nombresAlternativos,
+    instagram,
+    mail,
+    dni,
+  } = useModeloModalData();
   const [openSelect, setOpenSelect] = useState(false);
   const [error, setError] = useState('');
   const utils = trpc.useUtils();
@@ -50,8 +66,18 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       fechaNacimiento: modelo.fechaNacimiento
         ? new Date(modelo.fechaNacimiento)
         : undefined,
+      nombresAlternativos: modelo.nombresAlternativos,
+      instagram: modelo.instagram ?? undefined,
+      mail: modelo.mail ?? undefined,
+      dni: modelo.dni ?? undefined,
     });
-  }, [modelo.fechaNacimiento]);
+  }, [
+    modelo.fechaNacimiento,
+    modelo.nombresAlternativos,
+    modelo.instagram,
+    modelo.mail,
+    modelo.dni,
+  ]);
 
   const editModelo = trpc.modelo.edit.useMutation({
     onSuccess: () => {
@@ -78,6 +104,10 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       id: modelo.id,
       genero,
       fechaNacimiento: fechaNacimiento.toString(),
+      nombresAlternativos: modelo.nombresAlternativos,
+      instagram: instagram ?? null,
+      mail: mail ?? null,
+      dni: dni ?? null,
     });
   }
 
@@ -111,6 +141,10 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               fechaNacimiento: modelo.fechaNacimiento
                 ? new Date(modelo.fechaNacimiento)
                 : undefined,
+              nombresAlternativos: modelo.nombresAlternativos,
+              instagram: modelo.instagram ?? undefined,
+              mail: modelo.mail ?? undefined,
+              dni: modelo.dni ?? undefined,
             });
           }}
         >
@@ -125,7 +159,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           <p className='w-fit py-1.5 text-base font-semibold'>Editar modelo</p>
           <div className='flex gap-x-3'>
             <div>
-              <Label htmlFor='genero'>Genero</Label>
+              <Label htmlFor='genero'>Género</Label>
               <Select
                 open={openSelect}
                 onOpenChange={setOpenSelect}
@@ -137,7 +171,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
                 defaultValue={modelo.genero ?? 'N/A'}
               >
                 <SelectTrigger className='w-[180px]'>
-                  <SelectValue placeholder='Genero' />
+                  <SelectValue placeholder='Género' />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value='Femenino'>Femenino</SelectItem>
@@ -172,10 +206,69 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             </div>
           </div>
         </div>
+        <div>
+          <Label htmlFor='nombresAlternativos'>Nombres Alternativos</Label>
+          <Input
+            type='text'
+            name='nombresAlternativos'
+            id='nombresAlternativos'
+            value={nombresAlternativos.join(', ')}
+            onChange={(e) => {
+              const values = e.currentTarget.value
+                .split(',')
+                .map((v) => v.trim());
+              useModeloModalData.setState({
+                nombresAlternativos: values,
+              });
+            }}
+          />
+        </div>
+        <div>
+          <Label htmlFor='instagram'>Instagram</Label>
+          <Input
+            type='text'
+            name='instagram'
+            id='instagram'
+            value={instagram ?? ''}
+            onChange={(e) => {
+              useModeloModalData.setState({
+                instagram: e.currentTarget.value || undefined,
+              });
+            }}
+          />
+        </div>
+        <div>
+          <Label htmlFor='mail'>Correo Electrónico</Label>
+          <Input
+            type='text'
+            name='mail'
+            id='mail'
+            value={mail ?? ''}
+            onChange={(e) => {
+              useModeloModalData.setState({
+                mail: e.currentTarget.value || undefined,
+              });
+            }}
+          />
+        </div>
+        <div>
+          <Label htmlFor='dni'>DNI</Label>
+          <Input
+            type='text'
+            name='dni'
+            id='dni'
+            value={dni ?? ''}
+            onChange={(e) => {
+              useModeloModalData.setState({
+                dni: e.currentTarget.value || undefined,
+              });
+            }}
+          />
+        </div>
         {editModelo.isError || error !== '' ? (
           <p className='text-sm font-semibold text-red-500'>
             {error ??
-              'Error al editar la modelo, asegúrese de poner un genero y asignarle una edad'}
+              'Error al editar el modelo, asegúrese de ingresar todos los campos requeridos correctamente'}
           </p>
         ) : null}
         <div className='flex gap-x-4'>
