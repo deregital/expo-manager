@@ -1,6 +1,6 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { MessageJson } from '@/server/types/whatsapp';
-import { Mensaje, Perfil } from '@prisma/client';
+import { Mensaje, Perfil, TipoEtiqueta } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { subDays } from 'date-fns';
 import { z } from 'zod';
@@ -171,11 +171,24 @@ export const modeloRouter = router({
         etiquetas: z.array(z.string().uuid()).optional(),
         apodos: z.array(z.string()).optional(),
         dni: z.string().optional(),
-        mail: z.string().includes('@').optional(),
+        mail: z.union([z.literal(''), z.string().email()]),
         instagram: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
+      const modeloEtiqueta = await ctx.prisma.etiqueta.findFirst({
+        where: {
+          tipo: TipoEtiqueta.MODELO,
+        },
+      });
+
+      if (!modeloEtiqueta) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'No se encontró la etiqueta de modelo',
+        });
+      }
+
       return await ctx.prisma.perfil.create({
         data: {
           nombreCompleto: input.nombreCompleto,
@@ -186,15 +199,15 @@ export const modeloRouter = router({
             ? new Date(input.fechaNacimiento)
             : undefined,
           fotoUrl: input.fotoUrl ? input.fotoUrl : undefined,
-          etiquetas: input.etiquetas
-            ? {
-                connect: input.etiquetas.map((etiqueta) => {
-                  return {
-                    id: etiqueta,
-                  };
-                }),
+          etiquetas: {
+            connect: [modeloEtiqueta.id, ...(input.etiquetas ?? [])].map(
+              (etiqueta) => {
+                return {
+                  id: etiqueta,
+                };
               }
-            : undefined,
+            ),
+          },
           nombresAlternativos: input.apodos ? input.apodos : undefined,
           dni: input.dni ? input.dni : undefined,
           mail: input.mail ? input.mail : undefined,

@@ -12,13 +12,13 @@ import { RouterOutputs } from '@/server';
 
 const CrearModeloModal = ({ open }: { open: boolean }) => {
   const modalModelo = useCrearModeloModal();
+  const utils = trpc.useUtils();
   const createModelo = trpc.modelo.createManual.useMutation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [video, setVideo] = useState<File | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
 
   async function handleSave() {
-    console.log(modalModelo.modelo);
     if (modalModelo.modelo.nombreCompleto === '') {
       toast.error('El nombre es un campo obligatorio');
       return;
@@ -37,8 +37,11 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         etiquetas: modalModelo.modelo.etiquetas,
       })
       .then(async (res: RouterOutputs['modelo']['createManual']) => {
-        handleUpload(res.id);
+        await handleUpload(res.id);
+        toast.success('Participante creado correctamente');
+        utils.modelo.getAll.invalidate();
       });
+
     useCrearModeloModal.setState({
       open: false,
       modelo: {
@@ -54,14 +57,16 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       },
     });
   }
+
   async function handleUpload(id: string) {
     if (!video) {
       toast.error('No se ha seleccionado una imagen');
       return;
     }
+
     const form = new FormData();
     form.append('imagen', video);
-    form.append('modeloId', id);
+    form.append('id', id);
     form.append('url', fotoUrl ?? '');
 
     toast.loading('Subiendo foto...');
@@ -115,15 +120,12 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         }
       >
         <DialogTrigger></DialogTrigger>
-        <DialogContent
-          onCloseAutoFocus={handleCancel}
-          className='max-h-[450px] overflow-y-auto'
-        >
+        <DialogContent onCloseAutoFocus={handleCancel} className=''>
           <div className='flex flex-col gap-y-0.5'>
             <p className='text-base font-semibold'>
               Crear participante manualmente
             </p>
-            <div className='flex flex-col gap-y-1'>
+            <div className='flex max-h-[450px] flex-col gap-y-1 overflow-y-auto px-2'>
               <p className='text-sm'>Nombre completo: (obligatorio)</p>
               <Input
                 type='text'
