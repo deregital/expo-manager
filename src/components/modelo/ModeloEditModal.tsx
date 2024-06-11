@@ -66,7 +66,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       fechaNacimiento: modelo.fechaNacimiento
         ? new Date(modelo.fechaNacimiento)
         : undefined,
-      nombresAlternativos: modelo.nombresAlternativos,
+      nombresAlternativos: modelo.nombresAlternativos ?? undefined,
       instagram: modelo.instagram ?? undefined,
       mail: modelo.mail ?? undefined,
       dni: modelo.dni ?? undefined,
@@ -104,7 +104,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       id: modelo.id,
       genero,
       fechaNacimiento: fechaNacimiento.toString(),
-      nombresAlternativos: modelo.nombresAlternativos,
+      nombresAlternativos: nombresAlternativos,
       instagram: instagram ?? null,
       mail: mail ?? null,
       dni: dni ?? null,
