@@ -181,11 +181,11 @@ export const modeloRouter = router({
           nombreCompleto: input.nombreCompleto,
           nombrePila: input.nombreCompleto.split(' ')[0],
           telefono: input.telefono,
-          genero: input.genero,
+          genero: input.genero !== 'N/A' ? input.genero : undefined,
           fechaNacimiento: input.fechaNacimiento
             ? new Date(input.fechaNacimiento)
             : undefined,
-          fotoUrl: input.fotoUrl,
+          fotoUrl: input.fotoUrl ? input.fotoUrl : undefined,
           etiquetas: input.etiquetas
             ? {
                 connect: input.etiquetas.map((etiqueta) => {
@@ -196,9 +196,9 @@ export const modeloRouter = router({
               }
             : undefined,
           nombresAlternativos: input.apodos ? input.apodos : undefined,
-          dni: input.dni,
-          mail: input.mail,
-          instagram: input.instagram,
+          dni: input.dni ? input.dni : undefined,
+          mail: input.mail ? input.mail : undefined,
+          instagram: input.instagram ? input.instagram : undefined,
         },
       });
     }),

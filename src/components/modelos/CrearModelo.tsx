@@ -10,7 +10,6 @@ type ModeloModal = {
     telefono: string;
     fechaNacimiento: Date | undefined;
     genero: string;
-    fotoUrl: string;
     etiquetas: string[];
     apodos: string[];
     dni: string;
@@ -26,7 +25,6 @@ export const useCrearModeloModal = create<ModeloModal>(() => ({
     telefono: '',
     fechaNacimiento: undefined,
     genero: 'N/A',
-    fotoUrl: '',
     etiquetas: [],
     apodos: [],
     dni: '',
