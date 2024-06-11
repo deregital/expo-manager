@@ -1,18 +1,22 @@
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogTrigger,
-} from '../ui/alert-dialog';
+'use client';
+import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
+import { useCrearModeloModal } from './CrearModelo';
 
 const CrearModeloModal = ({ open }: { open: boolean }) => {
+  const modalModelo = useCrearModeloModal();
   return (
     <>
-      <AlertDialog open={open}>
-        <AlertDialogTrigger></AlertDialogTrigger>
-        <AlertDialogContent>
+      <Dialog
+        open={open}
+        onOpenChange={() =>
+          useCrearModeloModal.setState({ open: !modalModelo.open })
+        }
+      >
+        <DialogTrigger></DialogTrigger>
+        <DialogContent>
           <p>Crear modelo manualmente</p>
-        </AlertDialogContent>
-      </AlertDialog>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
