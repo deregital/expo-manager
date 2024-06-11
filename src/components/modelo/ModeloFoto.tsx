@@ -10,7 +10,7 @@ const ModeloFoto = ({ onClick, alt, src }: ModeloFotoProps) => {
   return (
     <div
       onClick={onClick}
-      className='group relative aspect-square w-28 select-none rounded-lg hover:cursor-pointer md:w-[200px]'
+      className='group relative aspect-square w-full max-w-[200px] select-none rounded-lg hover:cursor-pointer md:w-[200px]'
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

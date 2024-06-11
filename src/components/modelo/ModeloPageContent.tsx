@@ -17,6 +17,9 @@ import { TipoEtiqueta } from '@prisma/client';
 import Link from 'next/link';
 import ChatFillIcon from '@/components/icons/ChatFillIcon';
 import WhatsappIcon from '@/components/icons/WhatsappIcon';
+import InstagramIcon from '@/components/icons/InstagramIcon';
+import MailIcon from '@/components/icons/MailIcon';
+import DNIIcon from '@/components/icons/DNIIcon';
 
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
@@ -131,8 +134,8 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
 
   return (
     <>
-      <div className='mt-4 flex gap-x-4'>
-        <div className='relative w-28 md:w-[200px]'>
+      <div className='mt-4 flex flex-col gap-x-4 sm:flex-row'>
+        <div className='relative flex w-full flex-col items-center md:w-[200px]'>
           <ModeloFoto
             onClick={() => {
               setEdit(true);
@@ -146,9 +149,9 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           />
           {edit && (
             <>
-              <div className='mt-2 flex items-center justify-between gap-x-3'>
-                <label className='flex aspect-square w-[calc(33%-4px)] items-center justify-center rounded-full border-2 bg-black text-white hover:cursor-pointer md:h-8 md:w-8'>
-                  <CirclePlus className='h-6 w-6 md:h-8 md:w-8' />
+              <div className='mt-2 flex w-full max-w-[200px] items-center justify-between gap-x-3'>
+                <label className='flex aspect-square w-[calc(33%-4px)] max-w-12 items-center justify-center rounded-full border-2 bg-black text-white hover:cursor-pointer md:h-8 md:w-8'>
+                  <CirclePlus className='h-8 w-8 md:h-8 md:w-8' />
                   <input
                     type='file'
                     name='imagen'
@@ -165,7 +168,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
                 {inputRef.current?.value && (
                   <>
                     <Button
-                      className={`aspect-square h-8 w-[calc(33%-4px)] p-1 text-xs md:w-8`}
+                      className={`aspect-square h-10 w-[calc(33%-4px)] max-w-10 p-1 text-xs md:h-8 md:w-8`}
                       onClick={handleUpload}
                     >
                       <Save className='h-5 w-5' />
@@ -174,7 +177,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
                 )}
                 {!inputRef.current?.value && fotoUrl && (
                   <Button
-                    className='aspect-square h-8 w-[calc(33%-4px)] bg-red-600 p-1 hover:bg-red-800 md:h-max md:w-8'
+                    className='aspect-square h-10 w-[calc(33%-4px)] max-w-10 bg-red-600 p-1 hover:bg-red-800 md:h-max md:w-8'
                     onClick={handleDelete}
                   >
                     <Trash2Icon className='h-5 w-5' />
@@ -182,7 +185,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
                 )}
                 <CircleXIcon
                   onClick={handleCancel}
-                  className='aspect-square w-[calc(33%-4px)] cursor-pointer md:h-8 md:w-8'
+                  className='aspect-square w-[calc(33%-4px)] max-w-12 cursor-pointer md:h-8 md:w-8'
                 />
               </div>
               {video && (
@@ -191,7 +194,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
             </>
           )}
         </div>
-        <div className='flex w-full flex-col gap-y-4'>
+        <div className='mt-2 flex w-full flex-col gap-y-4 sm:mt-0'>
           <div className='flex flex-col gap-4'>
             <div className='flex flex-wrap items-center gap-x-4'>
               <h2 className='text-xl font-bold md:text-3xl'>
@@ -213,7 +216,35 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
               >
                 <WhatsappIcon className='h-4 w-4 fill-white' />
               </a>
+              {modelo.instagram && (
+                <a
+                  className='cursor-pointer rounded-md bg-[#c000b3] p-2'
+                  title={`Instagram de ${modelo.nombreCompleto}`}
+                  href={`https://instagram.com/${modelo.instagram}`}
+                  target='_blank'
+                  rel='noreferrer'
+                >
+                  <InstagramIcon className='h-4 w-4 fill-white' />
+                </a>
+              )}
+              {modelo.mail && (
+                <p className='w-full whitespace-nowrap'>
+                  <MailIcon className='mr-2 inline-block h-5 w-5 fill-black' />
+                  <span>{modelo.mail}</span>
+                </p>
+              )}
+              {modelo.dni && (
+                <p>
+                  <DNIIcon className='mr-2 inline-block h-5 w-5 fill-black' />
+                  <span>{modelo.dni}</span>
+                </p>
+              )}
             </div>
+            {modelo.nombresAlternativos.length > 0 && (
+              <p className='text-sm text-black/80'>
+                Nombres alternativos: {modelo.nombresAlternativos.join(', ')}
+              </p>
+            )}
             <div className='flex gap-x-4'>
               <p>
                 Edad:{' '}
