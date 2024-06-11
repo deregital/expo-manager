@@ -17,6 +17,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import { Badge } from '../ui/badge';
+import { getTextColorByBg } from '@/lib/utils';
+import CircleXIcon from '../icons/CircleX';
+import ComboBox from '../ui/ComboBox';
+import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
 
 const CrearModeloModal = ({ open }: { open: boolean }) => {
   const modalModelo = useCrearModeloModal();
@@ -26,6 +31,12 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   const [video, setVideo] = useState<File | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
   const [openSelect, setOpenSelect] = useState(false);
+  const [addEtiquetaOpen, setAddEtiquetaOpen] = useState(false);
+  const [comboBoxGrupoOpen, setComboBoxGrupoOpen] = useState(false);
+  const { data: grupoEtiquetas } = trpc.grupoEtiqueta.getAll.useQuery();
+  const [grupoEtiquetaSelected, setGrupoEtiquetaSelected] = useState<
+    string | null
+  >(null);
 
   async function handleSave() {
     if (modalModelo.modelo.nombreCompleto === '') {
@@ -43,7 +54,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         dni: modalModelo.modelo.dni ?? undefined,
         mail: modalModelo.modelo.mail ?? undefined,
         instagram: modalModelo.modelo.instagram,
-        etiquetas: modalModelo.modelo.etiquetas,
+        etiquetas: modalModelo.modelo.etiquetas.map((e) => e.id),
       })
       .then(async (res: RouterOutputs['modelo']['createManual']) => {
         await handleUpload(res.id);
@@ -119,6 +130,18 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     setVideo(null);
     setFotoUrl(null);
     // inputRef.current!.value = '';
+  }
+  async function handleDeleteEtiqueta(
+    etiqueta: NonNullable<RouterOutputs['etiqueta']['getById']>
+  ) {
+    useCrearModeloModal.setState({
+      modelo: {
+        ...modalModelo.modelo,
+        etiquetas: modalModelo.modelo.etiquetas.filter(
+          (e) => e.id !== etiqueta.id
+        ),
+      },
+    });
   }
   return (
     <>
@@ -275,21 +298,58 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                 )}
               </div>
               <p className='pt-2 text-sm'>Etiquetas:</p>
-              {/* <Input
-                type='text'
-                placeholder='Etiquetas'
-                className=''
-                value={modalModelo.modelo.etiquetas.join(',')}
-                onChange={(e) =>
-                  useCrearModeloModal.setState({
-                    modelo: {
-                      ...modalModelo.modelo,
-                      etiquetas: e.target.value.split(','),
-                    },
-                  })
-                }
-              /> */}
-              <div className=''></div>
+              <div className='flex flex-wrap items-center gap-2'>
+                {modalModelo.modelo.etiquetas?.map((etiqueta) => {
+                  if (!etiqueta) return;
+                  return (
+                    <Badge
+                      className='group whitespace-nowrap transition-transform duration-200 ease-in-out hover:shadow-md'
+                      style={{
+                        backgroundColor: etiqueta?.grupo.color,
+                        color: getTextColorByBg(etiqueta.grupo.color),
+                      }}
+                      key={etiqueta.id}
+                    >
+                      {etiqueta.nombre}
+
+                      <CircleXIcon
+                        onClick={() => handleDeleteEtiqueta(etiqueta)}
+                        className='invisible w-0 cursor-pointer group-hover:visible group-hover:ml-1 group-hover:w-4'
+                        width={16}
+                        height={16}
+                      />
+                    </Badge>
+                  );
+                })}
+                <CirclePlus
+                  className='h-5 w-5 cursor-pointer'
+                  onClick={() => setAddEtiquetaOpen(true)}
+                />
+              </div>
+              {addEtiquetaOpen && (
+                <ComboBox
+                  open={comboBoxGrupoOpen}
+                  setOpen={setComboBoxGrupoOpen}
+                  value='nombre'
+                  id={'id'}
+                  data={grupoEtiquetas ?? []}
+                  onSelect={(selectedItem) => {
+                    setGrupoEtiquetaSelected(selectedItem);
+                  }}
+                  wFullMobile
+                  selectedIf={
+                    grupoEtiquetaSelected ? grupoEtiquetaSelected : ''
+                  }
+                  triggerChildren={
+                    <>
+                      <span className='max-w-[calc(100%-30px)] truncate'>
+                        Buscar grupo...
+                      </span>
+                      <EtiquetasFillIcon className='h-5 w-5' />
+                    </>
+                  }
+                />
+              )}
             </div>
             <div className='flex justify-end gap-x-2 pt-2'>
               <Button

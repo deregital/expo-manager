@@ -1,4 +1,5 @@
 'use client';
+import { RouterOutputs } from '@/server';
 import { Button } from '../ui/button';
 import CrearModeloModal from './CrearModeloModal';
 import { create } from 'zustand';
@@ -10,7 +11,7 @@ type ModeloModal = {
     telefono: string;
     fechaNacimiento: Date | undefined;
     genero: string;
-    etiquetas: string[];
+    etiquetas: NonNullable<RouterOutputs['etiqueta']['getById']>[];
     apodos: string[];
     dni: string;
     mail: string;
