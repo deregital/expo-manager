@@ -9,6 +9,14 @@ import Loader from '../ui/loader';
 import CirclePlus from '../icons/CirclePlus';
 import { useRef, useState } from 'react';
 import { RouterOutputs } from '@/server';
+import { Label } from '../ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
 
 const CrearModeloModal = ({ open }: { open: boolean }) => {
   const modalModelo = useCrearModeloModal();
@@ -17,6 +25,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [video, setVideo] = useState<File | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
+  const [openSelect, setOpenSelect] = useState(false);
 
   async function handleSave() {
     if (modalModelo.modelo.nombreCompleto === '') {
@@ -125,7 +134,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
             <p className='text-base font-semibold'>
               Crear participante manualmente
             </p>
-            <div className='flex max-h-[450px] flex-col gap-y-1 overflow-y-auto px-2'>
+            <div className='mt-1 flex max-h-[400px] flex-col gap-y-1 overflow-y-auto px-2'>
               <p className='text-sm'>Nombre completo: (obligatorio)</p>
               <Input
                 type='text'
@@ -186,6 +195,32 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                   })
                 }
               />
+              <div>
+                <Label htmlFor='genero'>Genero</Label>
+                <Select
+                  open={openSelect}
+                  onOpenChange={setOpenSelect}
+                  onValueChange={(value) => {
+                    useCrearModeloModal.setState({
+                      modelo: {
+                        ...modalModelo.modelo,
+                        genero: value as string,
+                      },
+                    });
+                  }}
+                  defaultValue={modalModelo.modelo.genero ?? 'N/A'}
+                >
+                  <SelectTrigger className=''>
+                    <SelectValue placeholder='Genero' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='Femenino'>Femenino</SelectItem>
+                    <SelectItem value='Masculino'>Masculino</SelectItem>
+                    <SelectItem value='Otro'>Otro</SelectItem>
+                    <SelectItem value='N/A'>N/A</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <p className='pt-2 text-sm'>Mail:</p>
               <Input
                 type='text'
