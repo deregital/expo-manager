@@ -8,6 +8,7 @@ import { trpc } from '@/lib/trpc';
 import Loader from '../ui/loader';
 import CirclePlus from '../icons/CirclePlus';
 import { useRef, useState } from 'react';
+import { RouterOutputs } from '@/server';
 
 const CrearModeloModal = ({ open }: { open: boolean }) => {
   const modalModelo = useCrearModeloModal();
@@ -26,14 +27,18 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       toast.error('El teléfono es un campo obligatorio');
       return;
     }
-    await createModelo.mutateAsync({
-      nombreCompleto: modalModelo.modelo.nombreCompleto,
-      telefono: modalModelo.modelo.telefono,
-      dni: modalModelo.modelo.dni ?? undefined,
-      mail: modalModelo.modelo.mail ?? undefined,
-      instagram: modalModelo.modelo.instagram,
-      etiquetas: modalModelo.modelo.etiquetas,
-    });
+    await createModelo
+      .mutateAsync({
+        nombreCompleto: modalModelo.modelo.nombreCompleto,
+        telefono: modalModelo.modelo.telefono,
+        dni: modalModelo.modelo.dni ?? undefined,
+        mail: modalModelo.modelo.mail ?? undefined,
+        instagram: modalModelo.modelo.instagram,
+        etiquetas: modalModelo.modelo.etiquetas,
+      })
+      .then(async (res: RouterOutputs['modelo']['createManual']) => {
+        handleUpload(res.id);
+      });
     useCrearModeloModal.setState({
       open: false,
       modelo: {
@@ -49,13 +54,15 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       },
     });
   }
-  async function handleUpload() {
+  async function handleUpload(id: string) {
     if (!video) {
       toast.error('No se ha seleccionado una imagen');
       return;
     }
     const form = new FormData();
     form.append('imagen', video);
+    form.append('modeloId', id);
+    form.append('url', fotoUrl ?? '');
 
     toast.loading('Subiendo foto...');
 
@@ -70,12 +77,13 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
           inputRef.current!.value = '';
         }
         setVideo(null);
-        toast.success('Foto actualizada con éxito');
+        setFotoUrl(null);
       })
       .catch((e) => {
         toast.dismiss();
         toast.error('Error al subir la foto');
         setVideo(null);
+        setFotoUrl(null);
       });
   }
 
@@ -95,6 +103,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       },
     });
     setVideo(null);
+    setFotoUrl(null);
     // inputRef.current!.value = '';
   }
   return (
@@ -115,7 +124,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
               Crear participante manualmente
             </p>
             <div className='flex flex-col gap-y-1'>
-              <p className='text-sm'>Nombre completo:</p>
+              <p className='text-sm'>Nombre completo: (obligatorio)</p>
               <Input
                 type='text'
                 placeholder='Nombre Completo'
@@ -131,7 +140,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                 }
                 required
               />
-              <p className='pt-2 text-sm'>Teléfono:</p>
+              <p className='pt-2 text-sm'>Teléfono: (obligatorio)</p>
               <Input
                 type='text'
                 placeholder='Teléfono'
@@ -170,7 +179,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                   useCrearModeloModal.setState({
                     modelo: {
                       ...modalModelo.modelo,
-                      fechaNacimiento: new Date(e.target.value),
+                      fechaNacimiento: new Date(e.currentTarget.value),
                     },
                   })
                 }
@@ -218,6 +227,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       setVideo(file ?? null);
+                      setFotoUrl(!file ? null : URL.createObjectURL(file));
                     }}
                   />
                 </label>
@@ -228,7 +238,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                 )}
               </div>
               <p className='pt-2 text-sm'>Etiquetas:</p>
-              <Input
+              {/* <Input
                 type='text'
                 placeholder='Etiquetas'
                 className=''
@@ -241,7 +251,8 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                     },
                   })
                 }
-              />
+              /> */}
+              <div className=''></div>
             </div>
             <div className='flex justify-end gap-x-2 pt-2'>
               <Button

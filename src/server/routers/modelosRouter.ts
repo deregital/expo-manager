@@ -200,6 +200,9 @@ export const modeloRouter = router({
           mail: input.mail ? input.mail : undefined,
           instagram: input.instagram ? input.instagram : undefined,
         },
+        select: {
+          id: true,
+        },
       });
     }),
   delete: publicProcedure
