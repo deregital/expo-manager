@@ -137,6 +137,9 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     });
     setVideo(null);
     setFotoUrl(null);
+    setGrupoEtiquetaSelected('');
+    setEtiquetaSelected('');
+    setAddEtiquetaOpen(false);
     // inputRef.current!.value = '';
   }
   async function handleDeleteEtiqueta(
@@ -150,6 +153,20 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         ),
       },
     });
+  }
+  async function handleAddEtiqueta() {
+    if (etiquetaSelected === '') return;
+    const etiqueta = etiquetasGrupo?.find((e) => e.id === etiquetaSelected);
+    if (!etiqueta) return;
+    useCrearModeloModal.setState({
+      modelo: {
+        ...modalModelo.modelo,
+        etiquetas: [...modalModelo.modelo.etiquetas, etiqueta],
+      },
+    });
+    setEtiquetaSelected('');
+    setGrupoEtiquetaSelected('');
+    setAddEtiquetaOpen(false);
   }
   return (
     <>
@@ -335,7 +352,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                 />
               </div>
               {addEtiquetaOpen && (
-                <div>
+                <div className='flex flex-wrap gap-x-2 gap-y-1'>
                   <ComboBox
                     open={comboBoxGrupoOpen}
                     setOpen={setComboBoxGrupoOpen}
@@ -396,6 +413,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                       </>
                     }
                   />
+                  <Button onClick={handleAddEtiqueta}>Agregar</Button>
                 </div>
               )}
             </div>
