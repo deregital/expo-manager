@@ -237,6 +237,10 @@ export const modeloRouter = router({
         });
       }
 
+      const nombrePila = input.nombreCompleto
+        ? input.nombreCompleto.split(' ')[0]
+        : input.nombrePila;
+
       return await ctx.prisma.perfil.update({
         where: {
           id: input.id,
@@ -244,7 +248,7 @@ export const modeloRouter = router({
         data: {
           nombreCompleto: input.nombreCompleto,
           idLegible: input.idLegible,
-          nombrePila: input.nombrePila,
+          nombrePila: nombrePila,
           telefono: input.telefono,
           genero: input.genero,
           fotoUrl: input.fotoUrl,
