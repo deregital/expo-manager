@@ -83,7 +83,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     modelo.instagram,
     modelo.mail,
     modelo.dni,
-    modelo.telefono, // Asegurarse de actualizar cuando el teléfono cambie
+    modelo.telefono,
   ]);
 
   const editModelo = trpc.modelo.edit.useMutation({
@@ -175,7 +175,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               instagram: modelo.instagram ?? undefined,
               mail: modelo.mail ?? undefined,
               dni: modelo.dni ?? undefined,
-              telefono: modelo.telefono ?? undefined, // Iniciar el estado con el valor de teléfono
+              telefono: modelo.telefono ?? undefined,
             });
           }}
         >
@@ -302,8 +302,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           />
         </div>
         <div>
-          <Label htmlFor='telefono'>Teléfono</Label>{' '}
-          {/* Nuevo campo para teléfono */}
+          <Label htmlFor='telefono'>Teléfono</Label> {}
           <Input
             type='text'
             name='telefono'
