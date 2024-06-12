@@ -206,12 +206,37 @@ export const modeloRouter = router({
           );
           if (exclusividad && exclusividad.length > 0) {
             throw new TRPCError({
-              code: 'CONFLICT',
+              code: 'PARSE_ERROR',
               message: `Las etiquetas ${etiqueta.nombre} y ${exclusividad[0].nombre} son exclusivas del mismo grupo`,
             });
           }
         }
       });
+
+      const perfilConMismoTelefono = await ctx.prisma.perfil.findMany({
+        where: {
+          OR: [
+            {
+              telefono: input.telefono,
+            },
+            {
+              dni: input.dni ?? undefined,
+            },
+          ],
+        },
+      });
+
+      if (
+        perfilConMismoTelefono &&
+        perfilConMismoTelefono.length > 0 &&
+        perfilConMismoTelefono.find((p) => p.id !== input.id)
+      ) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: `Ya existe un perfil con el teléfono ${input.telefono}`,
+        });
+      }
+
       return await ctx.prisma.perfil.update({
         where: {
           id: input.id,

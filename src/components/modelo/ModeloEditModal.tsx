@@ -1,4 +1,5 @@
 import { ModalTriggerEdit } from '@/components/etiquetas/modal/ModalTrigger';
+import CirclePlus from '@/components/icons/CirclePlus';
 import EditFillIcon from '@/components/icons/EditFillIcon';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
@@ -15,6 +16,7 @@ import {
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
 import { differenceInYears } from 'date-fns';
+import { TrashIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
@@ -42,7 +44,7 @@ const useModeloModalData = create<ModeloModalData>(() => ({
   open: false,
   genero: 'N/A',
   fechaNacimiento: undefined,
-  nombresAlternativos: [''],
+  nombresAlternativos: [],
   instagram: undefined,
   mail: undefined,
   dni: undefined,
@@ -69,9 +71,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       fechaNacimiento: modelo.fechaNacimiento
         ? new Date(modelo.fechaNacimiento)
         : undefined,
-      nombresAlternativos: modelo.nombresAlternativos.length
-        ? modelo.nombresAlternativos
-        : [''],
+      nombresAlternativos: modelo.nombresAlternativos,
       instagram: modelo.instagram ?? undefined,
       mail: modelo.mail ?? undefined,
       dni: modelo.dni ?? undefined,
@@ -97,7 +97,16 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
         open: false,
       });
       setOpenSelect(false);
+      setError('');
       utils.modelo.getById.invalidate(modelo.id);
+    },
+    onError: (error) => {
+      const errorCode = error.data?.code;
+      if (errorCode === 'CONFLICT') {
+        setError('Ya existe un modelo con ese teléfono o DNI');
+      } else if (errorCode === 'PARSE_ERROR') {
+        setError(error.message);
+      }
     },
   });
 
@@ -127,16 +136,20 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       return;
     }
 
-    return await editModelo.mutateAsync({
-      id: modelo.id,
-      genero,
-      fechaNacimiento: fechaNacimiento.toString(),
-      nombresAlternativos: nombresAlternativos.filter(Boolean),
-      instagram: instagram ?? null,
-      mail: mail ?? null,
-      dni: dni ?? null,
-      telefono: telefono ?? undefined,
-    });
+    try {
+      return await editModelo.mutateAsync({
+        id: modelo.id,
+        genero,
+        fechaNacimiento: fechaNacimiento.toString(),
+        nombresAlternativos: nombresAlternativos.filter(
+          (apodo) => apodo !== ''
+        ),
+        instagram: instagram ?? null,
+        mail: mail ?? null,
+        dni: dni ?? null,
+        telefono: telefono ?? undefined,
+      });
+    } catch (error) {}
   }
 
   async function handleCancel() {
@@ -148,6 +161,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       open: false,
     });
     setOpenSelect(false);
+    setError('');
   }
 
   return (
@@ -169,9 +183,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               fechaNacimiento: modelo.fechaNacimiento
                 ? new Date(modelo.fechaNacimiento)
                 : undefined,
-              nombresAlternativos: modelo.nombresAlternativos.length
-                ? modelo.nombresAlternativos
-                : [''],
+              nombresAlternativos: modelo.nombresAlternativos,
               instagram: modelo.instagram ?? undefined,
               mail: modelo.mail ?? undefined,
               dni: modelo.dni ?? undefined,
@@ -184,7 +196,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       </DialogTrigger>
       <DialogContent
         onCloseAutoFocus={handleCancel}
-        className='flex w-full flex-col gap-y-3 rounded-md bg-slate-100 px-5 py-3 md:mx-auto md:max-w-2xl'
+        className='flex max-h-[66%] w-full flex-col gap-y-3 overflow-y-auto rounded-md bg-slate-100 px-5 py-3 md:mx-auto md:max-w-2xl'
       >
         <div className='flex flex-col gap-y-0.5'>
           <p className='w-fit py-1.5 text-base font-semibold'>Editar modelo</p>
@@ -237,7 +249,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             </div>
           </div>
         </div>
-        <div>
+        <div className='flex flex-col gap-y-2'>
           <Label htmlFor='nombresAlternativos'>Nombres Alternativos</Label>
           {nombresAlternativos.map((apodo, index) => (
             <div key={index} className='flex items-center gap-x-2'>
@@ -250,13 +262,21 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
                   handleNicknameChange(index, e.currentTarget.value)
                 }
               />
-              <Button variant='secondary' onClick={() => removeNickname(index)}>
-                -
+              <Button
+                variant='secondary'
+                className='px-0'
+                onClick={() => removeNickname(index)}
+              >
+                <TrashIcon />
               </Button>
             </div>
           ))}
-          <Button variant='secondary' onClick={addNickname}>
-            +
+          <Button
+            className='w-fit pl-0'
+            variant='secondary'
+            onClick={addNickname}
+          >
+            <CirclePlus className='h-6 w-6' />
           </Button>
         </div>
         <div>
@@ -302,7 +322,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           />
         </div>
         <div>
-          <Label htmlFor='telefono'>Teléfono</Label> {}
+          <Label htmlFor='telefono'>Teléfono</Label>
           <Input
             type='text'
             name='telefono'
