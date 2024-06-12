@@ -238,7 +238,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           </div>
         </div>
         <div>
-          <Label htmlFor='nombresAlternativos'>Apodos</Label>
+          <Label htmlFor='nombresAlternativos'>Nombres Alternativos</Label>
           {nombresAlternativos.map((apodo, index) => (
             <div key={index} className='flex items-center gap-x-2'>
               <Input
