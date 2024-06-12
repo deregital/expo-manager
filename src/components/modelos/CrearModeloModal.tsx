@@ -31,6 +31,8 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   const [video, setVideo] = useState<File | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
   const [openSelect, setOpenSelect] = useState(false);
+  const [addNombreOpen, setAddNombreOpen] = useState(false);
+  const [nombreAlternativo, setNombreAlternativo] = useState<string>('');
   const [addEtiquetaOpen, setAddEtiquetaOpen] = useState(false);
   const [comboBoxGrupoOpen, setComboBoxGrupoOpen] = useState(false);
   const [comboBoxEtiquetaOpen, setComboBoxEtiquetaOpen] = useState(false);
@@ -61,8 +63,12 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         telefono: modalModelo.modelo.telefono,
         dni: modalModelo.modelo.dni ?? undefined,
         mail: modalModelo.modelo.mail ?? undefined,
+        fechaNacimiento: modalModelo.modelo.fechaNacimiento
+          ? modalModelo.modelo.fechaNacimiento.toISOString()
+          : undefined,
         instagram: modalModelo.modelo.instagram,
         etiquetas: modalModelo.modelo.etiquetas.map((e) => e.id),
+        apodos: modalModelo.modelo.apodos,
       })
       .then(async (res: RouterOutputs['modelo']['createManual']) => {
         await handleUpload(res.id);
@@ -87,25 +93,17 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   }
 
   async function handleUpload(id: string) {
-    if (!video) {
-      toast.error('No se ha seleccionado una imagen');
-      return;
-    }
-
+    if (!video) return;
     const form = new FormData();
     form.append('imagen', video);
     form.append('id', id);
     form.append('url', fotoUrl ?? '');
-
-    toast.loading('Subiendo foto...');
 
     await fetch('/api/image', {
       method: 'POST',
       body: form,
     })
       .then(() => {
-        toast.dismiss();
-
         if (inputRef.current) {
           inputRef.current!.value = '';
         }
@@ -113,8 +111,6 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         setFotoUrl(null);
       })
       .catch((e) => {
-        toast.dismiss();
-        toast.error('Error al subir la foto');
         setVideo(null);
         setFotoUrl(null);
       });
@@ -140,6 +136,8 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     setGrupoEtiquetaSelected('');
     setEtiquetaSelected('');
     setAddEtiquetaOpen(false);
+    setAddNombreOpen(false);
+    setNombreAlternativo('');
     // inputRef.current!.value = '';
   }
   async function handleDeleteEtiqueta(
@@ -151,6 +149,14 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         etiquetas: modalModelo.modelo.etiquetas.filter(
           (e) => e.id !== etiqueta.id
         ),
+      },
+    });
+  }
+  async function handleDeleteNombre(apodo: string) {
+    useCrearModeloModal.setState({
+      modelo: {
+        ...modalModelo.modelo,
+        apodos: modalModelo.modelo.apodos.filter((e) => e !== apodo),
       },
     });
   }
@@ -168,6 +174,17 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     setGrupoEtiquetaSelected('');
     setAddEtiquetaOpen(false);
   }
+  async function handleAddNombre() {
+    if (nombreAlternativo === '') return;
+    useCrearModeloModal.setState({
+      modelo: {
+        ...modalModelo.modelo,
+        apodos: [...modalModelo.modelo.apodos, nombreAlternativo],
+      },
+    });
+    setNombreAlternativo('');
+    setAddNombreOpen(false);
+  }
   return (
     <>
       <Dialog
@@ -183,7 +200,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
               Crear participante manualmente
             </p>
             <div className='mt-1 flex max-h-[400px] flex-col gap-y-1 overflow-y-auto px-2'>
-              <p className='text-sm'>Nombre completo: (obligatorio)</p>
+              <Label className='text-sm'>Nombre completo: (obligatorio)</Label>
               <Input
                 type='text'
                 placeholder='Nombre Completo'
@@ -199,7 +216,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                 }
                 required
               />
-              <p className='pt-2 text-sm'>Teléfono: (obligatorio)</p>
+              <Label className='pt-2 text-sm'>Teléfono: (obligatorio)</Label>
               <Input
                 type='text'
                 placeholder='Teléfono'
@@ -212,7 +229,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                 }
                 required
               />
-              <p className='pt-2 text-sm'>DNI:</p>
+              <Label className='pt-2 text-sm'>DNI:</Label>
               <Input
                 type='text'
                 placeholder='DNI'
@@ -224,7 +241,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                   })
                 }
               />
-              <p className='pt-2 text-sm'>Fecha de nacimiento:</p>
+              <Label className='pt-2 text-sm'>Fecha de nacimiento:</Label>
               <Input
                 type='date'
                 placeholder='Fecha de nacimiento'
@@ -269,7 +286,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                   </SelectContent>
                 </Select>
               </div>
-              <p className='pt-2 text-sm'>Mail:</p>
+              <Label className='pt-2 text-sm'>Mail:</Label>
               <Input
                 type='text'
                 placeholder='Mail'
@@ -281,7 +298,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                   })
                 }
               />
-              <p className='pt-2 text-sm'>Instagram:</p>
+              <Label className='pt-2 text-sm'>Instagram:</Label>
               <div className='flex items-center justify-center gap-x-2'>
                 <p className='text-xs'>instagram.com/</p>
                 <Input
@@ -299,7 +316,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                   }
                 />
               </div>
-              <p className='pt-2 text-sm'>Foto:</p>
+              <Label className='pt-2 text-sm'>Foto:</Label>
               <div className='flex gap-x-2'>
                 <label className='flex aspect-square h-8 w-8 items-center justify-center rounded-full border-2 bg-black text-white hover:cursor-pointer'>
                   <CirclePlus className='h-6 w-6 md:h-8 md:w-8' />
@@ -322,7 +339,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                   </span>
                 )}
               </div>
-              <p className='pt-2 text-sm'>Etiquetas:</p>
+              <Label className='pt-2 text-sm'>Etiquetas:</Label>
               <div className='flex flex-wrap items-center gap-2'>
                 {modalModelo.modelo.etiquetas?.map((etiqueta) => {
                   if (!etiqueta) return;
@@ -346,10 +363,17 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                     </Badge>
                   );
                 })}
-                <CirclePlus
-                  className='h-5 w-5 cursor-pointer'
-                  onClick={() => setAddEtiquetaOpen(true)}
-                />
+                {addEtiquetaOpen ? (
+                  <CircleXIcon
+                    onClick={() => setAddEtiquetaOpen(false)}
+                    className='h-5 w-5 cursor-pointer'
+                  />
+                ) : (
+                  <CirclePlus
+                    className='h-5 w-5 cursor-pointer'
+                    onClick={() => setAddEtiquetaOpen(true)}
+                  />
+                )}
               </div>
               {addEtiquetaOpen && (
                 <div className='flex flex-wrap gap-x-2 gap-y-1'>
@@ -416,6 +440,56 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                   <Button onClick={handleAddEtiqueta}>Agregar</Button>
                 </div>
               )}
+              <Label className='pt-2 text-sm'>Nombres alternativos:</Label>
+              <div className='flex flex-wrap items-center gap-2'>
+                {modalModelo.modelo.apodos?.map((apodo, index) => {
+                  if (!apodo) return;
+                  return (
+                    <Badge
+                      className='group whitespace-nowrap transition-transform duration-200 ease-in-out hover:shadow-md'
+                      style={{
+                        backgroundColor: '#000000',
+                        color: getTextColorByBg('#000000'),
+                      }}
+                      key={index}
+                    >
+                      {apodo}
+
+                      <CircleXIcon
+                        onClick={() => handleDeleteNombre(apodo)}
+                        className='invisible w-0 cursor-pointer group-hover:visible group-hover:ml-1 group-hover:w-4'
+                        width={16}
+                        height={16}
+                      />
+                    </Badge>
+                  );
+                })}
+                {addNombreOpen ? (
+                  <CircleXIcon
+                    onClick={() => setAddNombreOpen(false)}
+                    className='h-5 w-5 cursor-pointer'
+                  />
+                ) : (
+                  <CirclePlus
+                    className='h-5 w-5 cursor-pointer'
+                    onClick={() => setAddNombreOpen(true)}
+                  />
+                )}
+              </div>
+              <div>
+                {addNombreOpen && (
+                  <div className='flex gap-x-2'>
+                    <Input
+                      type='text'
+                      placeholder='Nombre'
+                      className=''
+                      value={nombreAlternativo}
+                      onChange={(e) => setNombreAlternativo(e.target.value)}
+                    />
+                    <Button onClick={handleAddNombre}>Agregar</Button>
+                  </div>
+                )}
+              </div>
             </div>
             <div className='flex justify-end gap-x-2 pt-2'>
               <Button
