@@ -7,7 +7,7 @@ import { useCrearModeloModal } from './CrearModelo';
 import { trpc } from '@/lib/trpc';
 import Loader from '../ui/loader';
 import CirclePlus from '../icons/CirclePlus';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { RouterOutputs } from '@/server';
 import { Label } from '../ui/label';
 import {
@@ -33,10 +33,18 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   const [openSelect, setOpenSelect] = useState(false);
   const [addEtiquetaOpen, setAddEtiquetaOpen] = useState(false);
   const [comboBoxGrupoOpen, setComboBoxGrupoOpen] = useState(false);
+  const [comboBoxEtiquetaOpen, setComboBoxEtiquetaOpen] = useState(false);
   const { data: grupoEtiquetas } = trpc.grupoEtiqueta.getAll.useQuery();
-  const [grupoEtiquetaSelected, setGrupoEtiquetaSelected] = useState<
-    string | null
-  >(null);
+  const [grupoEtiquetaSelected, setGrupoEtiquetaSelected] =
+    useState<string>('');
+  const [etiquetaSelected, setEtiquetaSelected] = useState<string>('');
+  const { data: etiquetasGrupo } =
+    grupoEtiquetaSelected === ''
+      ? trpc.etiqueta.getAll.useQuery()
+      : trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoEtiquetaSelected);
+  const currentGrupo = useMemo(() => {
+    return grupoEtiquetas?.find((g) => g.id === grupoEtiquetaSelected);
+  }, [grupoEtiquetas, grupoEtiquetaSelected]);
 
   async function handleSave() {
     if (modalModelo.modelo.nombreCompleto === '') {
@@ -327,28 +335,68 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                 />
               </div>
               {addEtiquetaOpen && (
-                <ComboBox
-                  open={comboBoxGrupoOpen}
-                  setOpen={setComboBoxGrupoOpen}
-                  value='nombre'
-                  id={'id'}
-                  data={grupoEtiquetas ?? []}
-                  onSelect={(selectedItem) => {
-                    setGrupoEtiquetaSelected(selectedItem);
-                  }}
-                  wFullMobile
-                  selectedIf={
-                    grupoEtiquetaSelected ? grupoEtiquetaSelected : ''
-                  }
-                  triggerChildren={
-                    <>
-                      <span className='max-w-[calc(100%-30px)] truncate'>
-                        Buscar grupo...
-                      </span>
-                      <EtiquetasFillIcon className='h-5 w-5' />
-                    </>
-                  }
-                />
+                <div>
+                  <ComboBox
+                    open={comboBoxGrupoOpen}
+                    setOpen={setComboBoxGrupoOpen}
+                    value='nombre'
+                    id={'id'}
+                    data={grupoEtiquetas ?? []}
+                    onSelect={(selectedItem) => {
+                      if (selectedItem === grupoEtiquetaSelected) {
+                        setGrupoEtiquetaSelected('');
+                        setComboBoxGrupoOpen(false);
+                      } else {
+                        setGrupoEtiquetaSelected(selectedItem);
+                        setComboBoxGrupoOpen(false);
+                      }
+                    }}
+                    wFullMobile
+                    selectedIf={
+                      grupoEtiquetaSelected ? grupoEtiquetaSelected : ''
+                    }
+                    triggerChildren={
+                      <>
+                        <span className='max-w-[calc(100%-30px)] truncate'>
+                          {grupoEtiquetaSelected
+                            ? currentGrupo?.nombre
+                            : 'Buscar grupo...'}
+                        </span>
+                        <EtiquetasFillIcon className='h-5 w-5' />
+                      </>
+                    }
+                  />
+                  <ComboBox
+                    data={etiquetasGrupo ?? []}
+                    id={'id'}
+                    value='nombre'
+                    wFullMobile
+                    open={comboBoxEtiquetaOpen}
+                    setOpen={setComboBoxEtiquetaOpen}
+                    onSelect={(selectedItem) => {
+                      if (selectedItem === etiquetaSelected) {
+                        setEtiquetaSelected('');
+                        setComboBoxEtiquetaOpen(false);
+                      } else {
+                        setEtiquetaSelected(selectedItem);
+                        setComboBoxEtiquetaOpen(false);
+                      }
+                    }}
+                    selectedIf={etiquetaSelected}
+                    triggerChildren={
+                      <>
+                        <span className='truncate'>
+                          {etiquetaSelected !== ''
+                            ? etiquetasGrupo?.find(
+                                (etiqueta) => etiqueta.id === etiquetaSelected
+                              )?.nombre ?? 'Buscar etiqueta...'
+                            : 'Buscar etiqueta...'}
+                        </span>
+                        <EtiquetasFillIcon className='h-5 w-5' />
+                      </>
+                    }
+                  />
+                </div>
               )}
             </div>
             <div className='flex justify-end gap-x-2 pt-2'>
