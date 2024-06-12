@@ -136,8 +136,8 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
   };
 
   async function edit() {
-    if (!genero || !fechaNacimiento) {
-      setError('Debe ingresar un género y una fecha de nacimiento');
+    if (!genero || !fechaNacimiento || !nombreCompleto) {
+      setError('Debe ingresar un género, una fecha de nacimiento y un nombre');
       return;
     }
 
@@ -207,53 +207,130 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       >
         <div className='flex flex-col gap-y-0.5'>
           <p className='w-fit py-1.5 text-base font-semibold'>Editar modelo</p>
-          <div className='flex gap-x-3'>
-            <div>
-              <Label htmlFor='genero'>Género</Label>
-              <Select
-                open={openSelect}
-                onOpenChange={setOpenSelect}
-                onValueChange={(value) => {
-                  useModeloModalData.setState({
-                    genero: value as string,
-                  });
-                }}
-                defaultValue={modelo.genero ?? 'N/A'}
-              >
-                <SelectTrigger className='w-[180px]'>
-                  <SelectValue placeholder='Género' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='Femenino'>Femenino</SelectItem>
-                  <SelectItem value='Masculino'>Masculino</SelectItem>
-                  <SelectItem value='Otro'>Otro</SelectItem>
-                  <SelectItem disabled={!!modelo.genero} value='N/A'>
-                    N/A
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        </div>
+        <div className='flex gap-x-3 [&>*]:w-full'>
+          <div>
+            <Label htmlFor='nombreCompleto'>Nombre Completo</Label>
+            <Input
+              required
+              type='text'
+              name='nombreCompleto'
+              id='nombreCompleto'
+              value={nombreCompleto ?? ''}
+              onChange={(e) => {
+                useModeloModalData.setState({
+                  nombreCompleto: e.currentTarget.value || undefined,
+                });
+              }}
+            />
+          </div>
+          <div>
+            <Label htmlFor='genero'>Género</Label>
+            <Select
+              required
+              open={openSelect}
+              onOpenChange={setOpenSelect}
+              onValueChange={(value) => {
+                useModeloModalData.setState({
+                  genero: value as string,
+                });
+              }}
+              defaultValue={modelo.genero ?? 'N/A'}
+            >
+              <SelectTrigger className='w-full'>
+                <SelectValue placeholder='Género' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='Femenino'>Femenino</SelectItem>
+                <SelectItem value='Masculino'>Masculino</SelectItem>
+                <SelectItem value='Otro'>Otro</SelectItem>
+                <SelectItem disabled={!!modelo.genero} value='N/A'>
+                  N/A
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-            <div>
-              <Label htmlFor='fechaNacimiento'>Fecha de Nacimiento</Label>
-              <Input
-                className='bg-white text-black'
-                type='date'
-                autoComplete='off'
-                name='edad'
-                id='fechaNacimiento'
-                value={
-                  fechaNacimiento
-                    ? fechaNacimiento.toISOString().split('T')[0]
-                    : ''
-                }
-                onChange={(e) => {
-                  useModeloModalData.setState({
-                    fechaNacimiento: new Date(e.currentTarget.value),
-                  });
-                }}
-              />
-            </div>
+          <div>
+            <Label htmlFor='fechaNacimiento'>Fecha de Nacimiento</Label>
+            <Input
+              required
+              className='w-full bg-background text-black'
+              type='date'
+              autoComplete='off'
+              name='edad'
+              id='fechaNacimiento'
+              value={
+                fechaNacimiento
+                  ? fechaNacimiento.toISOString().split('T')[0]
+                  : ''
+              }
+              onChange={(e) => {
+                useModeloModalData.setState({
+                  fechaNacimiento: new Date(e.currentTarget.value),
+                });
+              }}
+            />
+          </div>
+        </div>
+        <div className='flex gap-x-3'>
+          <div className='w-full'>
+            <Label htmlFor='instagram'>Instagram</Label>
+            <Input
+              type='text'
+              name='instagram'
+              id='instagram'
+              value={instagram ?? ''}
+              onChange={(e) => {
+                useModeloModalData.setState({
+                  instagram: e.currentTarget.value || undefined,
+                });
+              }}
+            />
+          </div>
+          <div className='w-full'>
+            <Label htmlFor='mail'>Correo Electrónico</Label>
+            <Input
+              type='email'
+              name='mail'
+              id='mail'
+              value={mail ?? ''}
+              onChange={(e) => {
+                useModeloModalData.setState({
+                  mail: e.currentTarget.value || undefined,
+                });
+              }}
+            />
+          </div>
+        </div>
+        <div className='flex gap-x-3'>
+          <div className='w-full'>
+            <Label htmlFor='dni'>DNI</Label>
+            <Input
+              type='number'
+              name='dni'
+              id='dni'
+              value={dni ?? ''}
+              onChange={(e) => {
+                useModeloModalData.setState({
+                  dni: e.currentTarget.value || undefined,
+                });
+              }}
+            />
+          </div>
+          <div className='w-full'>
+            <Label htmlFor='telefono'>Teléfono</Label>
+            <Input
+              type='text'
+              name='telefono'
+              id='telefono'
+              value={telefono ?? ''}
+              onChange={(e) => {
+                useModeloModalData.setState({
+                  telefono: e.currentTarget.value || undefined,
+                });
+              }}
+            />
           </div>
         </div>
         <div className='flex flex-col gap-y-2'>
@@ -286,76 +363,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             <CirclePlus className='h-6 w-6' />
           </Button>
         </div>
-        <div>
-          <Label htmlFor='nombreCompleto'>Nombre Completo</Label>
-          <Input
-            type='text'
-            name='nombreCompleto'
-            id='nombreCompleto'
-            value={nombreCompleto ?? ''}
-            onChange={(e) => {
-              useModeloModalData.setState({
-                nombreCompleto: e.currentTarget.value || undefined,
-              });
-            }}
-          />
-        </div>
-        <div>
-          <Label htmlFor='instagram'>Instagram</Label>
-          <Input
-            type='text'
-            name='instagram'
-            id='instagram'
-            value={instagram ?? ''}
-            onChange={(e) => {
-              useModeloModalData.setState({
-                instagram: e.currentTarget.value || undefined,
-              });
-            }}
-          />
-        </div>
-        <div>
-          <Label htmlFor='mail'>Correo Electrónico</Label>
-          <Input
-            type='text'
-            name='mail'
-            id='mail'
-            value={mail ?? ''}
-            onChange={(e) => {
-              useModeloModalData.setState({
-                mail: e.currentTarget.value || undefined,
-              });
-            }}
-          />
-        </div>
-        <div>
-          <Label htmlFor='dni'>DNI</Label>
-          <Input
-            type='text'
-            name='dni'
-            id='dni'
-            value={dni ?? ''}
-            onChange={(e) => {
-              useModeloModalData.setState({
-                dni: e.currentTarget.value || undefined,
-              });
-            }}
-          />
-        </div>
-        <div>
-          <Label htmlFor='telefono'>Teléfono</Label>
-          <Input
-            type='text'
-            name='telefono'
-            id='telefono'
-            value={telefono ?? ''}
-            onChange={(e) => {
-              useModeloModalData.setState({
-                telefono: e.currentTarget.value || undefined,
-              });
-            }}
-          />
-        </div>
+
         {editModelo.isError || error !== '' ? (
           <p className='text-sm font-semibold text-red-500'>
             {error ??
