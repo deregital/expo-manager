@@ -34,6 +34,7 @@ interface ModeloModalData {
   mail: string | undefined;
   dni: string | undefined;
   telefono: string | undefined;
+  nombreCompleto: string | undefined;
 }
 
 export function edadFromFechaNacimiento(fechaNacimiento: string) {
@@ -49,6 +50,7 @@ const useModeloModalData = create<ModeloModalData>(() => ({
   mail: undefined,
   dni: undefined,
   telefono: undefined,
+  nombreCompleto: undefined,
 }));
 
 const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
@@ -61,6 +63,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     mail,
     dni,
     telefono,
+    nombreCompleto,
   } = useModeloModalData();
   const [openSelect, setOpenSelect] = useState(false);
   const [error, setError] = useState('');
@@ -76,6 +79,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       mail: modelo.mail ?? undefined,
       dni: modelo.dni ?? undefined,
       telefono: modelo.telefono ?? undefined,
+      nombreCompleto: modelo.nombreCompleto ?? undefined,
     });
   }, [
     modelo.fechaNacimiento,
@@ -84,6 +88,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     modelo.mail,
     modelo.dni,
     modelo.telefono,
+    modelo.nombreCompleto,
   ]);
 
   const editModelo = trpc.modelo.edit.useMutation({
@@ -148,6 +153,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
         mail: mail ?? null,
         dni: dni ?? null,
         telefono: telefono ?? undefined,
+        nombreCompleto: nombreCompleto ?? undefined,
       });
     } catch (error) {}
   }
@@ -188,6 +194,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               mail: modelo.mail ?? undefined,
               dni: modelo.dni ?? undefined,
               telefono: modelo.telefono ?? undefined,
+              nombreCompleto: modelo.nombreCompleto ?? undefined,
             });
           }}
         >
@@ -278,6 +285,20 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           >
             <CirclePlus className='h-6 w-6' />
           </Button>
+        </div>
+        <div>
+          <Label htmlFor='nombreCompleto'>Nombre Completo</Label>
+          <Input
+            type='text'
+            name='nombreCompleto'
+            id='nombreCompleto'
+            value={nombreCompleto ?? ''}
+            onChange={(e) => {
+              useModeloModalData.setState({
+                nombreCompleto: e.currentTarget.value || undefined,
+              });
+            }}
+          />
         </div>
         <div>
           <Label htmlFor='instagram'>Instagram</Label>
