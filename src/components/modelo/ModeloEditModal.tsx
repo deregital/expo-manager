@@ -31,6 +31,7 @@ interface ModeloModalData {
   instagram: string | undefined;
   mail: string | undefined;
   dni: string | undefined;
+  telefono: string | undefined;
 }
 
 export function edadFromFechaNacimiento(fechaNacimiento: string) {
@@ -45,6 +46,7 @@ const useModeloModalData = create<ModeloModalData>(() => ({
   instagram: undefined,
   mail: undefined,
   dni: undefined,
+  telefono: undefined,
 }));
 
 const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
@@ -56,6 +58,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     instagram,
     mail,
     dni,
+    telefono,
   } = useModeloModalData();
   const [openSelect, setOpenSelect] = useState(false);
   const [error, setError] = useState('');
@@ -70,6 +73,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       instagram: modelo.instagram ?? undefined,
       mail: modelo.mail ?? undefined,
       dni: modelo.dni ?? undefined,
+      telefono: modelo.telefono ?? undefined,
     });
   }, [
     modelo.fechaNacimiento,
@@ -77,6 +81,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     modelo.instagram,
     modelo.mail,
     modelo.dni,
+    modelo.telefono, // Asegurarse de actualizar cuando el teléfono cambie
   ]);
 
   const editModelo = trpc.modelo.edit.useMutation({
@@ -108,6 +113,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       instagram: instagram ?? null,
       mail: mail ?? null,
       dni: dni ?? null,
+      telefono: telefono ?? undefined,
     });
   }
 
@@ -145,6 +151,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               instagram: modelo.instagram ?? undefined,
               mail: modelo.mail ?? undefined,
               dni: modelo.dni ?? undefined,
+              telefono: modelo.telefono ?? undefined, // Iniciar el estado con el valor de teléfono
             });
           }}
         >
@@ -261,6 +268,21 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             onChange={(e) => {
               useModeloModalData.setState({
                 dni: e.currentTarget.value || undefined,
+              });
+            }}
+          />
+        </div>
+        <div>
+          <Label htmlFor='telefono'>Teléfono</Label>{' '}
+          {/* Nuevo campo para teléfono */}
+          <Input
+            type='text'
+            name='telefono'
+            id='telefono'
+            value={telefono ?? ''}
+            onChange={(e) => {
+              useModeloModalData.setState({
+                telefono: e.currentTarget.value || undefined,
               });
             }}
           />
