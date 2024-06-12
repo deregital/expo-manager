@@ -180,6 +180,10 @@ export const modeloRouter = router({
         fotoUrl: z.string().optional().nullable(),
         genero: z.string().optional(),
         fechaNacimiento: z.string().optional(),
+        instagram: z.string().optional().nullable(),
+        mail: z.string().optional().nullable(),
+        dni: z.string().optional().nullable(),
+        nombresAlternativos: z.array(z.string()).optional().nullable(),
         etiquetas: z
           .array(
             z.object({
@@ -202,12 +206,41 @@ export const modeloRouter = router({
           );
           if (exclusividad && exclusividad.length > 0) {
             throw new TRPCError({
-              code: 'CONFLICT',
+              code: 'PARSE_ERROR',
               message: `Las etiquetas ${etiqueta.nombre} y ${exclusividad[0].nombre} son exclusivas del mismo grupo`,
             });
           }
         }
       });
+
+      const perfilConMismoTelefono = await ctx.prisma.perfil.findMany({
+        where: {
+          OR: [
+            {
+              telefono: input.telefono,
+            },
+            {
+              dni: input.dni ?? undefined,
+            },
+          ],
+        },
+      });
+
+      if (
+        perfilConMismoTelefono &&
+        perfilConMismoTelefono.length > 0 &&
+        perfilConMismoTelefono.find((p) => p.id !== input.id)
+      ) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: `Ya existe un perfil con el teléfono ${input.telefono}`,
+        });
+      }
+
+      const nombrePila = input.nombreCompleto
+        ? input.nombreCompleto.split(' ')[0]
+        : input.nombrePila;
+
       return await ctx.prisma.perfil.update({
         where: {
           id: input.id,
@@ -215,13 +248,17 @@ export const modeloRouter = router({
         data: {
           nombreCompleto: input.nombreCompleto,
           idLegible: input.idLegible,
-          nombrePila: input.nombrePila,
+          nombrePila: nombrePila,
           telefono: input.telefono,
           genero: input.genero,
           fotoUrl: input.fotoUrl,
           fechaNacimiento: input.fechaNacimiento
             ? new Date(input.fechaNacimiento)
             : undefined,
+          instagram: input.instagram,
+          mail: input.mail,
+          dni: input.dni,
+          nombresAlternativos: input.nombresAlternativos ?? undefined,
           etiquetas: input.etiquetas
             ? {
                 set: (input.etiquetas ?? []).map((etiqueta) => {
