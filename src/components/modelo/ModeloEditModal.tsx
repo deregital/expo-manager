@@ -42,7 +42,7 @@ const useModeloModalData = create<ModeloModalData>(() => ({
   open: false,
   genero: 'N/A',
   fechaNacimiento: undefined,
-  nombresAlternativos: [],
+  nombresAlternativos: [''],
   instagram: undefined,
   mail: undefined,
   dni: undefined,
@@ -69,7 +69,9 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       fechaNacimiento: modelo.fechaNacimiento
         ? new Date(modelo.fechaNacimiento)
         : undefined,
-      nombresAlternativos: modelo.nombresAlternativos ?? undefined,
+      nombresAlternativos: modelo.nombresAlternativos.length
+        ? modelo.nombresAlternativos
+        : [''],
       instagram: modelo.instagram ?? undefined,
       mail: modelo.mail ?? undefined,
       dni: modelo.dni ?? undefined,
@@ -99,6 +101,26 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     },
   });
 
+  const addNickname = () => {
+    useModeloModalData.setState({
+      nombresAlternativos: [...nombresAlternativos, ''],
+    });
+  };
+
+  const removeNickname = (index: number) => {
+    useModeloModalData.setState({
+      nombresAlternativos: nombresAlternativos.filter((_, i) => i !== index),
+    });
+  };
+
+  const handleNicknameChange = (index: number, value: string) => {
+    const newNombresAlternativos = [...nombresAlternativos];
+    newNombresAlternativos[index] = value;
+    useModeloModalData.setState({
+      nombresAlternativos: newNombresAlternativos,
+    });
+  };
+
   async function edit() {
     if (!genero || !fechaNacimiento) {
       setError('Debe ingresar un género y una fecha de nacimiento');
@@ -109,7 +131,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       id: modelo.id,
       genero,
       fechaNacimiento: fechaNacimiento.toString(),
-      nombresAlternativos: nombresAlternativos,
+      nombresAlternativos: nombresAlternativos.filter(Boolean),
       instagram: instagram ?? null,
       mail: mail ?? null,
       dni: dni ?? null,
@@ -147,7 +169,9 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               fechaNacimiento: modelo.fechaNacimiento
                 ? new Date(modelo.fechaNacimiento)
                 : undefined,
-              nombresAlternativos: modelo.nombresAlternativos,
+              nombresAlternativos: modelo.nombresAlternativos.length
+                ? modelo.nombresAlternativos
+                : [''],
               instagram: modelo.instagram ?? undefined,
               mail: modelo.mail ?? undefined,
               dni: modelo.dni ?? undefined,
@@ -214,21 +238,26 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           </div>
         </div>
         <div>
-          <Label htmlFor='nombresAlternativos'>Nombres Alternativos</Label>
-          <Input
-            type='text'
-            name='nombresAlternativos'
-            id='nombresAlternativos'
-            value={nombresAlternativos.join(', ')}
-            onChange={(e) => {
-              const values = e.currentTarget.value
-                .split(',')
-                .map((v) => v.trim());
-              useModeloModalData.setState({
-                nombresAlternativos: values,
-              });
-            }}
-          />
+          <Label htmlFor='nombresAlternativos'>Apodos</Label>
+          {nombresAlternativos.map((apodo, index) => (
+            <div key={index} className='flex items-center gap-x-2'>
+              <Input
+                type='text'
+                name={`nombresAlternativos-${index}`}
+                id={`nombresAlternativos-${index}`}
+                value={apodo}
+                onChange={(e) =>
+                  handleNicknameChange(index, e.currentTarget.value)
+                }
+              />
+              <Button variant='secondary' onClick={() => removeNickname(index)}>
+                -
+              </Button>
+            </div>
+          ))}
+          <Button variant='secondary' onClick={addNickname}>
+            +
+          </Button>
         </div>
         <div>
           <Label htmlFor='instagram'>Instagram</Label>
