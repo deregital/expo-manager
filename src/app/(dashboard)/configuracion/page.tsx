@@ -36,7 +36,7 @@ const ConfiguracionPage = () => {
   const handleDownloadCSV = async (password: string) => {
     try {
       toast.loading('Descargando CSV de modelos...');
-      const csvData = await exportModelos.mutateAsync();
+      const csvData = await exportModelos.mutateAsync({ password });
 
       const now = new Date();
       const filename = `PerfilModelos_${now.toISOString().slice(0, 19).replace(/:/g, '-').replace('T', '_')}.csv`;

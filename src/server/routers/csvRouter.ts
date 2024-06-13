@@ -3,44 +3,58 @@ import { TRPCError } from '@trpc/server';
 import * as fastCsv from 'fast-csv';
 import JSZip from 'jszip';
 import ExcelJS from 'exceljs';
+import { z } from 'zod';
 
 export const csvRouter = router({
-  downloadModelos: protectedProcedure.mutation(async ({ ctx }) => {
-    if (!ctx.session?.user) {
-      throw new TRPCError({
-        code: 'UNAUTHORIZED',
-        message: 'No tienes permisos para realizar esta acción',
-      });
-    }
-
-    try {
-      const modelos = await ctx.prisma.perfil.findMany();
-
-      const csvStream = fastCsv.format({ headers: true });
-      let csvData = '';
-
-      csvStream.on('data', (chunk: any) => {
-        csvData += chunk;
-      });
-
-      modelos.forEach((row: any) => {
-        csvStream.write(row);
-      });
-
-      csvStream.end();
-
-      await new Promise<void>((resolve) => {
-        csvStream.on('end', () => {
-          resolve();
+  downloadModelos: protectedProcedure
+    .input(z.object({ password: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { password } = input;
+      if (!ctx.session?.user) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'No tienes permisos para realizar esta acción',
         });
-      });
+      }
 
-      return csvData;
-    } catch (error) {
-      console.error('Error exporting to CSV:', error);
-      throw error;
-    }
-  }),
+      const user = await ctx.prisma.cuenta.findUnique({
+        where: { id: ctx.session.user.id },
+      });
+      if (!user || user.contrasena !== password) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Contraseña incorrecta',
+        });
+      }
+
+      try {
+        const modelos = await ctx.prisma.perfil.findMany();
+
+        const csvStream = fastCsv.format({ headers: true });
+        let csvData = '';
+
+        csvStream.on('data', (chunk: any) => {
+          csvData += chunk;
+        });
+
+        modelos.forEach((row: any) => {
+          csvStream.write(row);
+        });
+
+        csvStream.end();
+
+        await new Promise<void>((resolve) => {
+          csvStream.on('end', () => {
+            resolve();
+          });
+        });
+
+        return csvData;
+      } catch (error) {
+        console.error('Error exporting to CSV:', error);
+        throw error;
+      }
+    }),
   downloadAllTables: protectedProcedure.mutation(async ({ ctx }) => {
     if (!ctx.session?.user) {
       throw new TRPCError({
@@ -48,7 +62,8 @@ export const csvRouter = router({
         message: 'No tienes permisos para realizar esta acción',
       });
     }
-    const today = new Date().toISOString().split('.')[0].replaceAll(':', '_')+"Z";
+    const today =
+      new Date().toISOString().split('.')[0].replaceAll(':', '_') + 'Z';
     try {
       let dataTables = [];
       for (const table in ctx.prisma) {
@@ -56,22 +71,23 @@ export const csvRouter = router({
           continue;
         }
         if (table === 'perfil' || table === 'cuenta') {
-          dataTables.push(await (ctx.prisma as any)[table].findMany({
-            include: {
-              etiquetas: true,
-              comentarios: true,
-            }
-          }));
-          dataTables.push(table)
-        }
-        else {
+          dataTables.push(
+            await (ctx.prisma as any)[table].findMany({
+              include: {
+                etiquetas: true,
+                comentarios: true,
+              },
+            })
+          );
+          dataTables.push(table);
+        } else {
           dataTables.push(await (ctx.prisma as any)[table].findMany());
-          dataTables.push(table)
+          dataTables.push(table);
         }
-      } // Lista de todas tus tablas en la base de datos
+      }
       const zip = new JSZip();
       const workbook = new ExcelJS.Workbook();
-      for (let i = 0; i < dataTables.length; i+=2) {
+      for (let i = 0; i < dataTables.length; i += 2) {
         let csvData = '';
         const worksheet = workbook.addWorksheet(dataTables[i + 1]);
 
@@ -80,10 +96,16 @@ export const csvRouter = router({
         csvStream.on('data', (chunk: any) => {
           csvData += chunk;
         });
-        worksheet.addRow(dataTables[i][0] ? Object.keys(dataTables[i][0]) : undefined);
+        worksheet.addRow(
+          dataTables[i][0] ? Object.keys(dataTables[i][0]) : undefined
+        );
         dataTables[i].forEach((row: any) => {
-          row.etiquetas = row.etiquetas ? row.etiquetas.map((etiqueta: any) => etiqueta.id).join('+') : undefined//row = { ...row, etiquetas: null};
-          row.comentarios = row.comentarios ? row.comentarios.map((comentario: any) => comentario.id).join('+') : undefined//row = { ...row, comentarios: null};
+          row.etiquetas = row.etiquetas
+            ? row.etiquetas.map((etiqueta: any) => etiqueta.id).join('+')
+            : undefined; //row = { ...row, etiquetas: null};
+          row.comentarios = row.comentarios
+            ? row.comentarios.map((comentario: any) => comentario.id).join('+')
+            : undefined; //row = { ...row, comentarios: null};
           csvStream.write(row);
           worksheet.addRow(Object.values(row));
         });
@@ -95,14 +117,14 @@ export const csvRouter = router({
             resolve();
           });
         });
-    
-        zip.file(`${today}-${dataTables[i + 1]}.csv`, csvData);        
+
+        zip.file(`${today}-${dataTables[i + 1]}.csv`, csvData);
       }
       const excelBuffer = await workbook.xlsx.writeBuffer();
       zip.file(`${today}_Database.xlsx`, excelBuffer);
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const zipData = await zipBlob.arrayBuffer();
-  
+
       return Buffer.from(zipData);
     } catch (error) {
       console.error('Error exporting to ZIP:', error);
