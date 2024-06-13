@@ -22,6 +22,7 @@ import { getTextColorByBg } from '@/lib/utils';
 import CircleXIcon from '../icons/CircleX';
 import ComboBox from '../ui/ComboBox';
 import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
+import { TrashIcon } from 'lucide-react';
 
 const CrearModeloModal = ({ open }: { open: boolean }) => {
   const modalModelo = useCrearModeloModal();
@@ -31,8 +32,6 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   const [video, setVideo] = useState<File | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
   const [openSelect, setOpenSelect] = useState(false);
-  const [addNombreOpen, setAddNombreOpen] = useState(false);
-  const [nombreAlternativo, setNombreAlternativo] = useState<string>('');
   const [addEtiquetaOpen, setAddEtiquetaOpen] = useState(false);
   const [comboBoxGrupoOpen, setComboBoxGrupoOpen] = useState(false);
   const [comboBoxEtiquetaOpen, setComboBoxEtiquetaOpen] = useState(false);
@@ -68,7 +67,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
           : undefined,
         instagram: modalModelo.modelo.instagram,
         etiquetas: modalModelo.modelo.etiquetas.map((e) => e.id),
-        apodos: modalModelo.modelo.apodos,
+        apodos: modalModelo.modelo.apodos.filter((e) => e !== ''),
       })
       .then(async (res: RouterOutputs['modelo']['createManual']) => {
         await handleUpload(res.id);
@@ -136,8 +135,6 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     setGrupoEtiquetaSelected('');
     setEtiquetaSelected('');
     setAddEtiquetaOpen(false);
-    setAddNombreOpen(false);
-    setNombreAlternativo('');
     // inputRef.current!.value = '';
   }
   async function handleDeleteEtiqueta(
@@ -152,17 +149,27 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       },
     });
   }
-  async function handleDeleteNombre(apodo: string) {
+  async function handleDeleteNombre(index: number) {
+    const newApodos = modalModelo.modelo.apodos;
+    newApodos.splice(index, 1);
     useCrearModeloModal.setState({
       modelo: {
         ...modalModelo.modelo,
-        apodos: modalModelo.modelo.apodos.filter((e) => e !== apodo),
+        apodos: newApodos,
       },
     });
   }
   async function handleAddEtiqueta() {
     if (etiquetaSelected === '') return;
     const etiqueta = etiquetasGrupo?.find((e) => e.id === etiquetaSelected);
+    if (
+      useCrearModeloModal
+        .getState()
+        .modelo.etiquetas.find((e) => e.id === etiqueta?.id)
+    ) {
+      toast.error('La etiqueta ya fue agregada');
+      return;
+    }
     if (!etiqueta) return;
 
     // Verificar grupo exclusivo o no
@@ -187,17 +194,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     setGrupoEtiquetaSelected('');
     setAddEtiquetaOpen(false);
   }
-  async function handleAddNombre() {
-    if (nombreAlternativo === '') return;
-    useCrearModeloModal.setState({
-      modelo: {
-        ...modalModelo.modelo,
-        apodos: [...modalModelo.modelo.apodos, nombreAlternativo],
-      },
-    });
-    setNombreAlternativo('');
-    setAddNombreOpen(false);
-  }
+
   return (
     <>
       <Dialog
@@ -454,54 +451,49 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                 </div>
               )}
               <Label className='pt-2 text-sm'>Nombres alternativos:</Label>
-              <div className='flex flex-wrap items-center gap-2'>
+              <div className='flex w-full flex-col items-start gap-y-1'>
                 {modalModelo.modelo.apodos?.map((apodo, index) => {
-                  if (!apodo) return;
                   return (
-                    <Badge
-                      className='group whitespace-nowrap transition-transform duration-200 ease-in-out hover:shadow-md'
-                      style={{
-                        backgroundColor: '#000000',
-                        color: getTextColorByBg('#000000'),
-                      }}
+                    <div
                       key={index}
+                      className='flex w-full items-center justify-between gap-x-3'
                     >
-                      {apodo}
-
-                      <CircleXIcon
-                        onClick={() => handleDeleteNombre(apodo)}
-                        className='invisible w-0 cursor-pointer group-hover:visible group-hover:ml-1 group-hover:w-4'
+                      <Input
+                        type='text'
+                        placeholder='Nombre'
+                        value={apodo}
+                        key={index}
+                        onChange={(e) => {
+                          const newApodos = modalModelo.modelo.apodos;
+                          newApodos[index] = e.target.value;
+                          useCrearModeloModal.setState({
+                            modelo: {
+                              ...modalModelo.modelo,
+                              apodos: newApodos,
+                            },
+                          });
+                        }}
+                      />
+                      <TrashIcon
+                        onClick={() => handleDeleteNombre(index)}
+                        className='h-6 w-6 cursor-pointer'
                         width={16}
                         height={16}
                       />
-                    </Badge>
+                    </div>
                   );
                 })}
-                {addNombreOpen ? (
-                  <CircleXIcon
-                    onClick={() => setAddNombreOpen(false)}
-                    className='h-5 w-5 cursor-pointer'
-                  />
-                ) : (
-                  <CirclePlus
-                    className='h-5 w-5 cursor-pointer'
-                    onClick={() => setAddNombreOpen(true)}
-                  />
-                )}
-              </div>
-              <div>
-                {addNombreOpen && (
-                  <div className='flex gap-x-2'>
-                    <Input
-                      type='text'
-                      placeholder='Nombre'
-                      className=''
-                      value={nombreAlternativo}
-                      onChange={(e) => setNombreAlternativo(e.target.value)}
-                    />
-                    <Button onClick={handleAddNombre}>Agregar</Button>
-                  </div>
-                )}
+                <CirclePlus
+                  className='h-5 w-5 cursor-pointer'
+                  onClick={() => {
+                    useCrearModeloModal.setState({
+                      modelo: {
+                        ...modalModelo.modelo,
+                        apodos: [...modalModelo.modelo.apodos, ''],
+                      },
+                    });
+                  }}
+                />
               </div>
             </div>
             <div className='flex justify-end gap-x-2 pt-2'>
