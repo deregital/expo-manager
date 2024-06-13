@@ -164,6 +164,19 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     if (etiquetaSelected === '') return;
     const etiqueta = etiquetasGrupo?.find((e) => e.id === etiquetaSelected);
     if (!etiqueta) return;
+
+    // Verificar grupo exclusivo o no
+    if (
+      etiqueta.grupo.esExclusivo &&
+      useCrearModeloModal
+        .getState()
+        .modelo.etiquetas.find(
+          (e) => e.grupo.id === etiqueta?.grupo.id && e.id !== etiqueta?.id
+        )
+    ) {
+      toast.error('No puedes agregar dos etiquetas exclusivas del mismo grupo');
+      return;
+    }
     useCrearModeloModal.setState({
       modelo: {
         ...modalModelo.modelo,
