@@ -188,7 +188,16 @@ export const modeloRouter = router({
           message: 'No se encontró la etiqueta de modelo',
         });
       }
-
+      const modelos = await ctx.prisma.perfil.findMany();
+      modelos.forEach(async (modelo) => {
+        if (modelo.telefono === input.telefono) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: 'Ya existe un registro con ese teléfono',
+          });
+        }
+        // string-comparison
+      });
       return await ctx.prisma.perfil.create({
         data: {
           nombreCompleto: input.nombreCompleto,
