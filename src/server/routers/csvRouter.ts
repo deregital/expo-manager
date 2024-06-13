@@ -102,10 +102,10 @@ export const csvRouter = router({
         dataTables[i].forEach((row: any) => {
           row.etiquetas = row.etiquetas
             ? row.etiquetas.map((etiqueta: any) => etiqueta.id).join('+')
-            : undefined; //row = { ...row, etiquetas: null};
+            : undefined;
           row.comentarios = row.comentarios
             ? row.comentarios.map((comentario: any) => comentario.id).join('+')
-            : undefined; //row = { ...row, comentarios: null};
+            : undefined;
           csvStream.write(row);
           worksheet.addRow(Object.values(row));
         });
