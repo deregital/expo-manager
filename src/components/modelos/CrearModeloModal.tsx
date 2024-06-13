@@ -258,7 +258,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
               <Input
                 type='date'
                 placeholder='Fecha de nacimiento'
-                className=''
+                className='py-4'
                 value={
                   modalModelo.modelo.fechaNacimiento
                     ?.toISOString()
