@@ -4,6 +4,8 @@ import { Mensaje, Perfil, TipoEtiqueta } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { subDays } from 'date-fns';
 import { z } from 'zod';
+import levenshtein from 'string-comparison';
+import { ModelosSimilarity } from '../types/modelos';
 
 export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -189,6 +191,7 @@ export const modeloRouter = router({
         });
       }
       const modelos = await ctx.prisma.perfil.findMany();
+      const similarityModelos: ModelosSimilarity = [];
       modelos.forEach(async (modelo) => {
         if (modelo.telefono === input.telefono) {
           throw new TRPCError({
@@ -196,7 +199,21 @@ export const modeloRouter = router({
             message: 'Ya existe un registro con ese teléfono',
           });
         }
-        // string-comparison
+        const similarityTelefono = levenshtein.levenshtein.similarity(
+          modelo.telefono,
+          input.telefono
+        );
+        const similarityNombre = levenshtein.levenshtein.similarity(
+          modelo.nombreCompleto,
+          input.nombreCompleto
+        );
+        if (similarityTelefono >= 0.9 || similarityNombre >= 0.9) {
+          similarityModelos.push({
+            similarityTelefono,
+            similarityNombre,
+            modelo,
+          });
+        }
       });
       return await ctx.prisma.perfil.create({
         data: {
