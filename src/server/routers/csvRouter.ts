@@ -55,80 +55,95 @@ export const csvRouter = router({
         throw error;
       }
     }),
-  downloadAllTables: protectedProcedure.mutation(async ({ ctx }) => {
-    if (!ctx.session?.user) {
-      throw new TRPCError({
-        code: 'UNAUTHORIZED',
-        message: 'No tienes permisos para realizar esta acción',
+  downloadAllTables: protectedProcedure
+    .input(z.object({ password: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.session?.user) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'No tienes permisos para realizar esta acción',
+        });
+      }
+
+      const user = await ctx.prisma.cuenta.findUnique({
+        where: { id: ctx.session.user.id },
       });
-    }
-    const today =
-      new Date().toISOString().split('.')[0].replaceAll(':', '_') + 'Z';
-    try {
-      let dataTables = [];
-      for (const table in ctx.prisma) {
-        if (table.charAt(0) === '_' || table.charAt(0) === '$') {
-          continue;
-        }
-        if (table === 'perfil' || table === 'cuenta') {
-          dataTables.push(
-            await (ctx.prisma as any)[table].findMany({
-              include: {
-                etiquetas: true,
-                comentarios: true,
-              },
-            })
-          );
-          dataTables.push(table);
-        } else {
-          dataTables.push(await (ctx.prisma as any)[table].findMany());
-          dataTables.push(table);
-        }
+      if (!user || user.contrasena !== input.password) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Contraseña incorrecta',
+        });
       }
-      const zip = new JSZip();
-      const workbook = new ExcelJS.Workbook();
-      for (let i = 0; i < dataTables.length; i += 2) {
-        let csvData = '';
-        const worksheet = workbook.addWorksheet(dataTables[i + 1]);
 
-        const csvStream = fastCsv.format({ headers: true });
+      const today =
+        new Date().toISOString().split('.')[0].replaceAll(':', '_') + 'Z';
+      try {
+        let dataTables = [];
+        for (const table in ctx.prisma) {
+          if (table.charAt(0) === '_' || table.charAt(0) === '$') {
+            continue;
+          }
+          if (table === 'perfil' || table === 'cuenta') {
+            dataTables.push(
+              await (ctx.prisma as any)[table].findMany({
+                include: {
+                  etiquetas: true,
+                  comentarios: true,
+                },
+              })
+            );
+            dataTables.push(table);
+          } else {
+            dataTables.push(await (ctx.prisma as any)[table].findMany());
+            dataTables.push(table);
+          }
+        }
+        const zip = new JSZip();
+        const workbook = new ExcelJS.Workbook();
+        for (let i = 0; i < dataTables.length; i += 2) {
+          let csvData = '';
+          const worksheet = workbook.addWorksheet(dataTables[i + 1]);
 
-        csvStream.on('data', (chunk: any) => {
-          csvData += chunk;
-        });
-        worksheet.addRow(
-          dataTables[i][0] ? Object.keys(dataTables[i][0]) : undefined
-        );
-        dataTables[i].forEach((row: any) => {
-          row.etiquetas = row.etiquetas
-            ? row.etiquetas.map((etiqueta: any) => etiqueta.id).join('+')
-            : undefined;
-          row.comentarios = row.comentarios
-            ? row.comentarios.map((comentario: any) => comentario.id).join('+')
-            : undefined;
-          csvStream.write(row);
-          worksheet.addRow(Object.values(row));
-        });
+          const csvStream = fastCsv.format({ headers: true });
 
-        csvStream.end();
-
-        await new Promise<void>((resolve) => {
-          csvStream.on('end', () => {
-            resolve();
+          csvStream.on('data', (chunk: any) => {
+            csvData += chunk;
           });
-        });
+          worksheet.addRow(
+            dataTables[i][0] ? Object.keys(dataTables[i][0]) : undefined
+          );
+          dataTables[i].forEach((row: any) => {
+            row.etiquetas = row.etiquetas
+              ? row.etiquetas.map((etiqueta: any) => etiqueta.id).join('+')
+              : undefined;
+            row.comentarios = row.comentarios
+              ? row.comentarios
+                  .map((comentario: any) => comentario.id)
+                  .join('+')
+              : undefined;
+            csvStream.write(row);
+            worksheet.addRow(Object.values(row));
+          });
 
-        zip.file(`${today}-${dataTables[i + 1]}.csv`, csvData);
+          csvStream.end();
+
+          await new Promise<void>((resolve) => {
+            csvStream.on('end', () => {
+              resolve();
+            });
+          });
+
+          zip.file(`${today}-${dataTables[i + 1]}.csv`, csvData);
+        }
+        const excelBuffer = await workbook.xlsx.writeBuffer();
+        zip.file(`${today}_Database.xlsx`, excelBuffer);
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        const zipData = await zipBlob.arrayBuffer();
+
+        return Buffer.from(zipData);
+      } catch (error) {
+        console.error('Error exporting to ZIP:', error);
+        throw error;
       }
-      const excelBuffer = await workbook.xlsx.writeBuffer();
-      zip.file(`${today}_Database.xlsx`, excelBuffer);
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      const zipData = await zipBlob.arrayBuffer();
-
-      return Buffer.from(zipData);
-    } catch (error) {
-      console.error('Error exporting to ZIP:', error);
-      throw error;
-    }
-  }),
+    }),
 });

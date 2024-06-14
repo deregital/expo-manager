@@ -2,11 +2,9 @@
 import { trpc } from '@/lib/trpc';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { useSession } from 'next-auth/react';
 import ModalPassword from '@/components/config/ModalPassword';
 
 const ConfiguracionPage = () => {
-  const { data: session, status } = useSession();
   const exportModelos = trpc.csv.downloadModelos.useMutation();
   const exportAllTables = trpc.csv.downloadAllTables.useMutation();
 
@@ -24,7 +22,7 @@ const ConfiguracionPage = () => {
   };
 
   const handlePasswordSubmit = async (password: string) => {
-    setModalOpen(false);
+    handleCloseModal();
 
     if (downloadType === 'csv') {
       handleDownloadCSV(password);
@@ -36,7 +34,27 @@ const ConfiguracionPage = () => {
   const handleDownloadCSV = async (password: string) => {
     try {
       toast.loading('Descargando CSV de modelos...');
-      const csvData = await exportModelos.mutateAsync({ password });
+      const csvData = await exportModelos
+        .mutateAsync(
+          { password },
+          {
+            onError: (error) => {
+              if (error.data?.code === 'UNAUTHORIZED') {
+                toast.dismiss();
+                toast.error('Contraseña incorrecta');
+                setModalOpen(true);
+                return;
+              }
+            },
+          }
+        )
+        .catch((error) => {
+          return;
+        });
+
+      if (!csvData) {
+        return;
+      }
 
       const now = new Date();
       const filename = `PerfilModelos_${now.toISOString().slice(0, 19).replace(/:/g, '-').replace('T', '_')}.csv`;
@@ -64,7 +82,27 @@ const ConfiguracionPage = () => {
     const today = new Date();
     try {
       toast.loading('Descargando ZIP...');
-      const zipData = await exportAllTables.mutateAsync();
+      const zipData = await exportAllTables
+        .mutateAsync(
+          { password },
+          {
+            onError: (error) => {
+              if (error.data?.code === 'UNAUTHORIZED') {
+                toast.dismiss();
+                toast.error('Contraseña incorrecta');
+                setModalOpen(true);
+                return;
+              }
+            },
+          }
+        )
+        .catch((error) => {
+          return;
+        });
+
+      if (!zipData) {
+        return;
+      }
 
       const uint8Array = new Uint8Array(zipData.data);
 
@@ -93,25 +131,24 @@ const ConfiguracionPage = () => {
   return (
     <div>
       <p className='p-3 text-xl font-bold md:p-5 md:text-3xl'>Configuración</p>
-      <div className='mt-5 px-5'>
-        <button
-          onClick={() => handleOpenModal('csv')}
-          className='cursor-pointer rounded bg-blue-500 px-4 py-2 text-lg font-bold text-white shadow-md transition duration-300 hover:bg-blue-600'
+      <div className='mt-5 flex gap-x-5 px-5'>
+        <ModalPassword
+          onSubmit={handlePasswordSubmit}
+          handleCloseModal={handleCloseModal}
+          handleOpenModal={() => handleOpenModal('csv')}
+          isModalOpen={isModalOpen}
         >
           Descargar Modelos
-        </button>
-        <button
-          onClick={() => handleOpenModal('zip')}
-          className='ml-3 cursor-pointer rounded bg-blue-500 px-4 py-2 text-lg font-bold text-white shadow-md transition duration-300 hover:bg-blue-600'
+        </ModalPassword>
+        <ModalPassword
+          onSubmit={handlePasswordSubmit}
+          handleCloseModal={handleCloseModal}
+          handleOpenModal={() => handleOpenModal('zip')}
+          isModalOpen={isModalOpen}
         >
-          Descargar tabla
-        </button>
+          Descargar Modelos
+        </ModalPassword>
       </div>
-      <ModalPassword
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSubmit={handlePasswordSubmit}
-      />
     </div>
   );
 };

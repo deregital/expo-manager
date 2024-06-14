@@ -1,17 +1,22 @@
 'use client';
-import { FormEvent, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { FormEvent, PropsWithChildren, useState } from 'react';
 
 interface ModalPasswordProps {
-  isOpen: boolean;
-  onClose: () => void;
   onSubmit: (password: string) => void;
+  handleOpenModal: () => void;
+  handleCloseModal: () => void;
+  isModalOpen: boolean;
 }
 
-const ModalPassword: React.FC<ModalPasswordProps> = ({
-  isOpen,
-  onClose,
+const ModalPassword = ({
   onSubmit,
-}) => {
+  handleCloseModal,
+  handleOpenModal,
+  isModalOpen,
+  children,
+}: PropsWithChildren<ModalPasswordProps>) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -20,49 +25,68 @@ const ModalPassword: React.FC<ModalPasswordProps> = ({
     onSubmit(password);
   };
 
-  if (!isOpen) {
-    return null;
-  }
+  const handleClose = () => {
+    setPassword('');
+    handleCloseModal();
+  };
 
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
-      <div className='w-80 rounded bg-white p-6 shadow-md'>
-        <h2 className='mb-4 text-2xl'>Ingresa tu contraseña</h2>
-        <form onSubmit={handleSubmit}>
-          <div className='relative mb-4'>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              className='w-full rounded border p-2'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button
-              type='button'
-              className='absolute inset-y-0 right-0 px-4 py-2 text-sm text-gray-600'
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? 'Ocultar' : 'Mostrar'}
-            </button>
-          </div>
-          <div className='flex justify-end'>
-            <button
-              type='button'
-              className='mr-4 rounded bg-gray-300 px-4 py-2'
-              onClick={onClose}
-            >
-              Cancelar
-            </button>
-            <button
-              type='submit'
-              className='rounded bg-blue-500 px-4 py-2 text-white'
-            >
-              Confirmar
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Dialog
+      open={isModalOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          handleCloseModal();
+        }
+      }}
+    >
+      <DialogTrigger asChild>
+        <button
+          onClick={handleOpenModal}
+          className='cursor-pointer rounded bg-blue-500 px-4 py-2 text-lg font-bold text-white shadow-md transition duration-300 hover:bg-blue-600'
+        >
+          {children}
+        </button>
+      </DialogTrigger>
+      <DialogContent className='min-h-40' onCloseAutoFocus={handleClose}>
+        <div className='h-full w-full bg-white'>
+          <h2 className='mb-4 text-2xl'>Ingresa tu contraseña</h2>
+          <form onSubmit={handleSubmit}>
+            <div className='relative mb-4'>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                className='w-full rounded border p-2'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <Button
+                variant={'ghost'}
+                type='button'
+                className='absolute inset-y-0 right-0 px-4 py-2 text-sm text-gray-600 hover:bg-transparent'
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? 'Ocultar' : 'Mostrar'}
+              </Button>
+            </div>
+            <div className='flex justify-end'>
+              <button
+                type='button'
+                className='mr-4 rounded bg-gray-300 px-4 py-2'
+                onClick={handleClose}
+              >
+                Cancelar
+              </button>
+              <Button
+                type='submit'
+                className='rounded bg-blue-500 px-4 py-2 text-white'
+              >
+                Confirmar
+              </Button>
+            </div>
+          </form>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
