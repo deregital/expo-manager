@@ -1,9 +1,11 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { MessageJson } from '@/server/types/whatsapp';
-import { Mensaje, Perfil } from '@prisma/client';
+import { Mensaje, Perfil, TipoEtiqueta } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { subDays } from 'date-fns';
 import { z } from 'zod';
+import levenshtein from 'string-comparison';
+import { ModelosSimilarity } from '../types/modelos';
 
 export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -158,6 +160,102 @@ export const modeloRouter = router({
     .mutation(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.create({
         data: input,
+      });
+    }),
+  createManual: publicProcedure
+    .input(
+      z.object({
+        nombreCompleto: z.string(),
+        telefono: z.string(),
+        genero: z.string().optional(),
+        fechaNacimiento: z.string().optional(),
+        fotoUrl: z.string().optional().nullable(),
+        etiquetas: z.array(z.string().uuid()).optional(),
+        apodos: z.array(z.string()).optional(),
+        dni: z.string().optional(),
+        mail: z.union([z.literal(''), z.string().email()]),
+        instagram: z.string().optional(),
+        similarity: z.boolean(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const modeloEtiqueta = await ctx.prisma.etiqueta.findFirst({
+        where: {
+          tipo: TipoEtiqueta.MODELO,
+        },
+      });
+
+      if (!modeloEtiqueta) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'No se encontró la etiqueta de modelo',
+        });
+      }
+      const modelos = await ctx.prisma.perfil.findMany({
+        select: {
+          id: true,
+          nombreCompleto: true,
+          telefono: true,
+        },
+      });
+      const similarityModelos: ModelosSimilarity = [];
+      if (!input.similarity) {
+        modelos.forEach(async (modelo) => {
+          if (modelo.telefono === input.telefono) {
+            throw new TRPCError({
+              code: 'CONFLICT',
+              message: 'Ya existe un registro con ese teléfono',
+            });
+          }
+          const similarityTelefono = levenshtein.levenshtein.similarity(
+            modelo.telefono,
+            input.telefono
+          );
+          const similarityNombre = levenshtein.levenshtein.similarity(
+            modelo.nombreCompleto,
+            input.nombreCompleto
+          );
+          if (similarityTelefono >= 0.9 || similarityNombre >= 0.9) {
+            similarityModelos.push({
+              similarityTelefono: similarityTelefono,
+              similarityNombre: similarityNombre,
+              modelo: {
+                ...modelo,
+              },
+            });
+          }
+        });
+        if (similarityModelos.length > 0) {
+          return similarityModelos;
+        }
+      }
+      return await ctx.prisma.perfil.create({
+        data: {
+          nombreCompleto: input.nombreCompleto,
+          nombrePila: input.nombreCompleto.split(' ')[0],
+          telefono: input.telefono,
+          genero: input.genero !== 'N/A' ? input.genero : undefined,
+          fechaNacimiento: input.fechaNacimiento
+            ? new Date(input.fechaNacimiento)
+            : undefined,
+          fotoUrl: input.fotoUrl ? input.fotoUrl : undefined,
+          etiquetas: {
+            connect: [modeloEtiqueta.id, ...(input.etiquetas ?? [])].map(
+              (etiqueta) => {
+                return {
+                  id: etiqueta,
+                };
+              }
+            ),
+          },
+          nombresAlternativos: input.apodos ? input.apodos : undefined,
+          dni: input.dni ? input.dni : undefined,
+          mail: input.mail ? input.mail : undefined,
+          instagram: input.instagram ? input.instagram : undefined,
+        },
+        select: {
+          id: true,
+        },
       });
     }),
   delete: publicProcedure
