@@ -24,10 +24,13 @@ import ComboBox from '../ui/ComboBox';
 import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
 import { TrashIcon } from 'lucide-react';
 import { ModelosSimilarity } from '@/server/types/modelos';
+import ModeloFillIcon from '../icons/ModeloFillIcon';
+import { useRouter } from 'next/navigation';
 
 const CrearModeloModal = ({ open }: { open: boolean }) => {
   const modalModelo = useCrearModeloModal();
   const utils = trpc.useUtils();
+  const router = useRouter();
   const createModelo = trpc.modelo.createManual.useMutation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [video, setVideo] = useState<File | null>(null);
@@ -62,31 +65,28 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       toast.error('El teléfono es un campo obligatorio');
       return;
     }
-    await createModelo
-      .mutateAsync({
-        nombreCompleto: modalModelo.modelo.nombreCompleto,
-        telefono: modalModelo.modelo.telefono,
-        dni: modalModelo.modelo.dni ?? undefined,
-        mail: modalModelo.modelo.mail ?? undefined,
-        fechaNacimiento: modalModelo.modelo.fechaNacimiento
-          ? modalModelo.modelo.fechaNacimiento.toISOString()
-          : undefined,
-        instagram: modalModelo.modelo.instagram,
-        etiquetas: modalModelo.modelo.etiquetas.map((e) => e.id),
-        apodos: modalModelo.modelo.apodos.filter((e) => e !== ''),
-        similarity: similarity,
-      })
-      .then(async (res: RouterOutputs['modelo']['createManual']) => {
-        if (Array.isArray(res)) {
-          setSimilarity(true);
-          // setSimilarityModelos(res);
-          return;
-        }
-        await handleUpload(res.id);
-        toast.success('Participante creado correctamente');
-        utils.modelo.getAll.invalidate();
-      });
-    if (!similarity) {
+    const res = await createModelo.mutateAsync({
+      nombreCompleto: modalModelo.modelo.nombreCompleto,
+      telefono: modalModelo.modelo.telefono,
+      dni: modalModelo.modelo.dni ?? undefined,
+      mail: modalModelo.modelo.mail ?? undefined,
+      fechaNacimiento: modalModelo.modelo.fechaNacimiento
+        ? modalModelo.modelo.fechaNacimiento.toISOString()
+        : undefined,
+      instagram: modalModelo.modelo.instagram,
+      etiquetas: modalModelo.modelo.etiquetas.map((e) => e.id),
+      apodos: modalModelo.modelo.apodos.filter((e) => e !== ''),
+      similarity: similarity,
+    });
+
+    if (Array.isArray(res)) {
+      setSimilarity(true);
+      console.log('similarity', similarity);
+      // setSimilarityModelos(res);
+    } else {
+      await handleUpload(res.id);
+      toast.success('Participante creado correctamente');
+      utils.modelo.getAll.invalidate();
       useCrearModeloModal.setState({
         open: false,
         modelo: {
@@ -148,6 +148,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     setGrupoEtiquetaSelected('');
     setEtiquetaSelected('');
     setAddEtiquetaOpen(false);
+    setSimilarity(false);
     // inputRef.current!.value = '';
   }
   async function handleDeleteEtiqueta(
@@ -524,6 +525,12 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                   >
                     <p>Nombre: {modelo.modelo.nombreCompleto}</p>
                     <p>Teléfono: {modelo.modelo.nombreCompleto}</p>
+                    <ModeloFillIcon
+                      className='h-6 w-6 hover:bg-gray-400'
+                      onClick={() => {
+                        router.push(`/modelos/${modelo.modelo.id}`);
+                      }}
+                    />
                   </div>
                 ))}
                 <Button onClick={() => setSimilarityView(false)}>Volver</Button>
