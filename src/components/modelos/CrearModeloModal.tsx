@@ -82,7 +82,26 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     if (Array.isArray(res)) {
       setSimilarity(true);
       console.log('similarity', similarity);
-      // setSimilarityModelos(res);
+      res.forEach((r) => {
+        // Cambiar la fecha de nacimiento de Date a string
+        const fechanacimiento = r.modelo.fechaNacimiento
+          ? new Date(r.modelo.fechaNacimiento)
+          : null;
+      });
+      setSimilarityModelos(
+        res.map((r) => ({
+          similarityTelefono: r.similarityTelefono,
+          similarityNombre: r.similarityNombre,
+          modelo: {
+            ...r.modelo,
+            fechaNacimiento: r.modelo.fechaNacimiento
+              ? new Date(r.modelo.fechaNacimiento)
+              : null,
+            created_at: new Date(r.modelo.created_at),
+            updated_at: new Date(r.modelo.updated_at),
+          },
+        }))
+      );
     } else {
       await handleUpload(res.id);
       toast.success('Participante creado correctamente');
@@ -526,9 +545,9 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                     <p>Nombre: {modelo.modelo.nombreCompleto}</p>
                     <p>Teléfono: {modelo.modelo.nombreCompleto}</p>
                     <ModeloFillIcon
-                      className='h-6 w-6 hover:bg-gray-400'
+                      className='h-6 w-6 hover:text-gray-400'
                       onClick={() => {
-                        router.push(`/modelos/${modelo.modelo.id}`);
+                        router.push(`/modelo/${modelo.modelo.id}`);
                       }}
                     />
                   </div>
@@ -541,11 +560,17 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
             >
               {similarity && (
                 <div>
-                  <span>
-                    Hay {similarityModelos.length} modelos similares. ¿Quieres
-                    agregar a este participante?
+                  <span className='text-xs'>
+                    Hay {similarityModelos.length}{' '}
+                    {similarityModelos.length === 1
+                      ? 'modelo similar.'
+                      : 'modelos similares.'}{' '}
+                    ¿Quieres agregar a este participante?
                   </span>
-                  <Button onClick={() => setSimilarityView(true)}>
+                  <Button
+                    className='text-xs'
+                    onClick={() => setSimilarityView(true)}
+                  >
                     Ver los participantes similares
                   </Button>
                 </div>

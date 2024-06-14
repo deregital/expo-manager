@@ -211,9 +211,14 @@ export const modeloRouter = router({
           );
           if (similarityTelefono >= 0.9 || similarityNombre >= 0.9) {
             similarityModelos.push({
-              similarityTelefono,
-              similarityNombre,
-              modelo,
+              similarityTelefono: similarityTelefono,
+              similarityNombre: similarityNombre,
+              modelo: {
+                ...modelo,
+                fechaNacimiento: modelo.fechaNacimiento
+                  ? new Date(modelo.fechaNacimiento)
+                  : null,
+              },
             });
           }
         });
