@@ -14,7 +14,19 @@ import ModelosSimilares from '@/components/modelos/ModelosSimilares';
 const CrearModeloModal = ({ open }: { open: boolean }) => {
   const modalModelo = useCrearModeloModal();
   const utils = trpc.useUtils();
-  const createModelo = trpc.modelo.createManual.useMutation();
+  const createModelo = trpc.modelo.createManual.useMutation({
+    onError: (error) => {
+      if (
+        error.data?.code === 'CONFLICT' ||
+        error.data?.code === 'PARSE_ERROR'
+      ) {
+        toast.error(error.message);
+      }
+      // if (error.data?.zodError) {
+      //   toast.error(error.message.);
+      // }
+    },
+  });
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [video, setVideo] = useState<File | null>(null);
