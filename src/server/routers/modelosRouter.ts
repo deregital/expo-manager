@@ -175,6 +175,7 @@ export const modeloRouter = router({
         dni: z.string().optional(),
         mail: z.union([z.literal(''), z.string().email()]),
         instagram: z.string().optional(),
+        similarity: z.boolean(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -192,29 +193,35 @@ export const modeloRouter = router({
       }
       const modelos = await ctx.prisma.perfil.findMany();
       const similarityModelos: ModelosSimilarity = [];
-      modelos.forEach(async (modelo) => {
-        if (modelo.telefono === input.telefono) {
-          throw new TRPCError({
-            code: 'CONFLICT',
-            message: 'Ya existe un registro con ese teléfono',
-          });
+      if (!input.similarity) {
+        modelos.forEach(async (modelo) => {
+          if (modelo.telefono === input.telefono) {
+            throw new TRPCError({
+              code: 'CONFLICT',
+              message: 'Ya existe un registro con ese teléfono',
+            });
+          }
+          const similarityTelefono = levenshtein.levenshtein.similarity(
+            modelo.telefono,
+            input.telefono
+          );
+          const similarityNombre = levenshtein.levenshtein.similarity(
+            modelo.nombreCompleto,
+            input.nombreCompleto
+          );
+          if (similarityTelefono >= 0.9 || similarityNombre >= 0.9) {
+            similarityModelos.push({
+              similarityTelefono,
+              similarityNombre,
+              modelo,
+            });
+          }
+        });
+        if (similarityModelos.length > 0) {
+          console.log(similarityModelos);
+          return similarityModelos;
         }
-        const similarityTelefono = levenshtein.levenshtein.similarity(
-          modelo.telefono,
-          input.telefono
-        );
-        const similarityNombre = levenshtein.levenshtein.similarity(
-          modelo.nombreCompleto,
-          input.nombreCompleto
-        );
-        if (similarityTelefono >= 0.9 || similarityNombre >= 0.9) {
-          similarityModelos.push({
-            similarityTelefono,
-            similarityNombre,
-            modelo,
-          });
-        }
-      });
+      }
       return await ctx.prisma.perfil.create({
         data: {
           nombreCompleto: input.nombreCompleto,

@@ -23,6 +23,7 @@ import CircleXIcon from '../icons/CircleX';
 import ComboBox from '../ui/ComboBox';
 import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
 import { TrashIcon } from 'lucide-react';
+import { ModelosSimilarity } from '@/server/types/modelos';
 
 const CrearModeloModal = ({ open }: { open: boolean }) => {
   const modalModelo = useCrearModeloModal();
@@ -31,6 +32,11 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [video, setVideo] = useState<File | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
+  const [similarity, setSimilarity] = useState<boolean>(false);
+  const [similarityView, setSimilarityView] = useState<boolean>(false);
+  const [similarityModelos, setSimilarityModelos] = useState<ModelosSimilarity>(
+    []
+  );
   const [openSelect, setOpenSelect] = useState(false);
   const [addEtiquetaOpen, setAddEtiquetaOpen] = useState(false);
   const [comboBoxGrupoOpen, setComboBoxGrupoOpen] = useState(false);
@@ -68,13 +74,19 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         instagram: modalModelo.modelo.instagram,
         etiquetas: modalModelo.modelo.etiquetas.map((e) => e.id),
         apodos: modalModelo.modelo.apodos.filter((e) => e !== ''),
+        similarity: similarity,
       })
       .then(async (res: RouterOutputs['modelo']['createManual']) => {
+        if (Array.isArray(res)) {
+          setSimilarity(true);
+          // setSimilarityModelos(res);
+          return;
+        }
         await handleUpload(res.id);
         toast.success('Participante creado correctamente');
         utils.modelo.getAll.invalidate();
       });
-
+    if (similarity) return;
     useCrearModeloModal.setState({
       open: false,
       modelo: {
@@ -209,300 +221,333 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
             <p className='text-base font-semibold'>
               Crear participante manualmente
             </p>
-            <div className='mt-1 flex max-h-[400px] flex-col gap-y-1 overflow-y-auto px-2'>
-              <Label className='text-sm'>Nombre completo: (obligatorio)</Label>
-              <Input
-                type='text'
-                placeholder='Nombre Completo'
-                className=''
-                value={modalModelo.modelo.nombreCompleto}
-                onChange={(e) =>
-                  useCrearModeloModal.setState({
-                    modelo: {
-                      ...modalModelo.modelo,
-                      nombreCompleto: e.target.value,
-                    },
-                  })
-                }
-                required
-              />
-              <Label className='pt-2 text-sm'>Teléfono: (obligatorio)</Label>
-              <Input
-                type='text'
-                placeholder='Teléfono'
-                className=''
-                value={modalModelo.modelo.telefono}
-                onChange={(e) =>
-                  useCrearModeloModal.setState({
-                    modelo: { ...modalModelo.modelo, telefono: e.target.value },
-                  })
-                }
-                required
-              />
-              <Label className='pt-2 text-sm'>DNI:</Label>
-              <Input
-                type='text'
-                placeholder='DNI'
-                className=''
-                value={modalModelo.modelo.dni}
-                onChange={(e) =>
-                  useCrearModeloModal.setState({
-                    modelo: { ...modalModelo.modelo, dni: e.target.value },
-                  })
-                }
-              />
-              <Label className='pt-2 text-sm'>Fecha de nacimiento:</Label>
-              <Input
-                type='date'
-                placeholder='Fecha de nacimiento'
-                className='py-4'
-                value={
-                  modalModelo.modelo.fechaNacimiento
-                    ?.toISOString()
-                    .split('T')[0]
-                }
-                onChange={(e) =>
-                  useCrearModeloModal.setState({
-                    modelo: {
-                      ...modalModelo.modelo,
-                      fechaNacimiento: new Date(e.currentTarget.value),
-                    },
-                  })
-                }
-              />
-              <div>
-                <Label htmlFor='genero'>Genero</Label>
-                <Select
-                  open={openSelect}
-                  onOpenChange={setOpenSelect}
-                  onValueChange={(value) => {
-                    useCrearModeloModal.setState({
-                      modelo: {
-                        ...modalModelo.modelo,
-                        genero: value as string,
-                      },
-                    });
-                  }}
-                  defaultValue={modalModelo.modelo.genero ?? 'N/A'}
-                >
-                  <SelectTrigger className=''>
-                    <SelectValue placeholder='Genero' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='Femenino'>Femenino</SelectItem>
-                    <SelectItem value='Masculino'>Masculino</SelectItem>
-                    <SelectItem value='Otro'>Otro</SelectItem>
-                    <SelectItem value='N/A'>N/A</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Label className='pt-2 text-sm'>Mail:</Label>
-              <Input
-                type='text'
-                placeholder='Mail'
-                className=''
-                value={modalModelo.modelo.mail}
-                onChange={(e) =>
-                  useCrearModeloModal.setState({
-                    modelo: { ...modalModelo.modelo, mail: e.target.value },
-                  })
-                }
-              />
-              <Label className='pt-2 text-sm'>Instagram:</Label>
-              <div className='flex items-center justify-center gap-x-2'>
-                <p className='text-xs'>instagram.com/</p>
+            {!similarityView ? (
+              <div className='mt-1 flex max-h-[400px] flex-col gap-y-1 overflow-y-auto px-2'>
+                <Label className='text-sm'>
+                  Nombre completo: (obligatorio)
+                </Label>
                 <Input
                   type='text'
-                  placeholder='Instagram'
+                  placeholder='Nombre Completo'
                   className=''
-                  value={modalModelo.modelo.instagram}
+                  value={modalModelo.modelo.nombreCompleto}
                   onChange={(e) =>
                     useCrearModeloModal.setState({
                       modelo: {
                         ...modalModelo.modelo,
-                        instagram: e.target.value,
+                        nombreCompleto: e.target.value,
+                      },
+                    })
+                  }
+                  required
+                />
+                <Label className='pt-2 text-sm'>Teléfono: (obligatorio)</Label>
+                <Input
+                  type='text'
+                  placeholder='Teléfono'
+                  className=''
+                  value={modalModelo.modelo.telefono}
+                  onChange={(e) =>
+                    useCrearModeloModal.setState({
+                      modelo: {
+                        ...modalModelo.modelo,
+                        telefono: e.target.value,
+                      },
+                    })
+                  }
+                  required
+                />
+                <Label className='pt-2 text-sm'>DNI:</Label>
+                <Input
+                  type='text'
+                  placeholder='DNI'
+                  className=''
+                  value={modalModelo.modelo.dni}
+                  onChange={(e) =>
+                    useCrearModeloModal.setState({
+                      modelo: { ...modalModelo.modelo, dni: e.target.value },
+                    })
+                  }
+                />
+                <Label className='pt-2 text-sm'>Fecha de nacimiento:</Label>
+                <Input
+                  type='date'
+                  placeholder='Fecha de nacimiento'
+                  className='py-4'
+                  value={
+                    modalModelo.modelo.fechaNacimiento
+                      ?.toISOString()
+                      .split('T')[0]
+                  }
+                  onChange={(e) =>
+                    useCrearModeloModal.setState({
+                      modelo: {
+                        ...modalModelo.modelo,
+                        fechaNacimiento: new Date(e.currentTarget.value),
                       },
                     })
                   }
                 />
-              </div>
-              <Label className='pt-2 text-sm'>Foto:</Label>
-              <div className='flex gap-x-2'>
-                <label className='flex aspect-square h-8 w-8 items-center justify-center rounded-full border-2 bg-black text-white hover:cursor-pointer'>
-                  <CirclePlus className='h-6 w-6 md:h-8 md:w-8' />
-                  <input
-                    type='file'
-                    name='imagen'
-                    className='hidden'
-                    accept='image/jpeg,image/png,image/webp'
-                    ref={inputRef}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      setVideo(file ?? null);
-                      setFotoUrl(!file ? null : URL.createObjectURL(file));
+                <div>
+                  <Label htmlFor='genero'>Genero</Label>
+                  <Select
+                    open={openSelect}
+                    onOpenChange={setOpenSelect}
+                    onValueChange={(value) => {
+                      useCrearModeloModal.setState({
+                        modelo: {
+                          ...modalModelo.modelo,
+                          genero: value as string,
+                        },
+                      });
                     }}
+                    defaultValue={modalModelo.modelo.genero ?? 'N/A'}
+                  >
+                    <SelectTrigger className=''>
+                      <SelectValue placeholder='Genero' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='Femenino'>Femenino</SelectItem>
+                      <SelectItem value='Masculino'>Masculino</SelectItem>
+                      <SelectItem value='Otro'>Otro</SelectItem>
+                      <SelectItem value='N/A'>N/A</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Label className='pt-2 text-sm'>Mail:</Label>
+                <Input
+                  type='text'
+                  placeholder='Mail'
+                  className=''
+                  value={modalModelo.modelo.mail}
+                  onChange={(e) =>
+                    useCrearModeloModal.setState({
+                      modelo: { ...modalModelo.modelo, mail: e.target.value },
+                    })
+                  }
+                />
+                <Label className='pt-2 text-sm'>Instagram:</Label>
+                <div className='flex items-center justify-center gap-x-2'>
+                  <p className='text-xs'>instagram.com/</p>
+                  <Input
+                    type='text'
+                    placeholder='Instagram'
+                    className=''
+                    value={modalModelo.modelo.instagram}
+                    onChange={(e) =>
+                      useCrearModeloModal.setState({
+                        modelo: {
+                          ...modalModelo.modelo,
+                          instagram: e.target.value,
+                        },
+                      })
+                    }
                   />
-                </label>
-                {video && (
-                  <span className='mt-1 max-w-full truncate text-sm'>
-                    {video.name}
-                  </span>
-                )}
-              </div>
-              <Label className='pt-2 text-sm'>Etiquetas:</Label>
-              <div className='flex flex-wrap items-center gap-2'>
-                {modalModelo.modelo.etiquetas?.map((etiqueta) => {
-                  if (!etiqueta) return;
-                  return (
-                    <Badge
-                      className='group whitespace-nowrap transition-transform duration-200 ease-in-out hover:shadow-md'
-                      style={{
-                        backgroundColor: etiqueta?.grupo.color,
-                        color: getTextColorByBg(etiqueta.grupo.color),
+                </div>
+                <Label className='pt-2 text-sm'>Foto:</Label>
+                <div className='flex gap-x-2'>
+                  <label className='flex aspect-square h-8 w-8 items-center justify-center rounded-full border-2 bg-black text-white hover:cursor-pointer'>
+                    <CirclePlus className='h-6 w-6 md:h-8 md:w-8' />
+                    <input
+                      type='file'
+                      name='imagen'
+                      className='hidden'
+                      accept='image/jpeg,image/png,image/webp'
+                      ref={inputRef}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        setVideo(file ?? null);
+                        setFotoUrl(!file ? null : URL.createObjectURL(file));
                       }}
-                      key={etiqueta.id}
-                    >
-                      {etiqueta.nombre}
+                    />
+                  </label>
+                  {video && (
+                    <span className='mt-1 max-w-full truncate text-sm'>
+                      {video.name}
+                    </span>
+                  )}
+                </div>
+                <Label className='pt-2 text-sm'>Etiquetas:</Label>
+                <div className='flex flex-wrap items-center gap-2'>
+                  {modalModelo.modelo.etiquetas?.map((etiqueta) => {
+                    if (!etiqueta) return;
+                    return (
+                      <Badge
+                        className='group whitespace-nowrap transition-transform duration-200 ease-in-out hover:shadow-md'
+                        style={{
+                          backgroundColor: etiqueta?.grupo.color,
+                          color: getTextColorByBg(etiqueta.grupo.color),
+                        }}
+                        key={etiqueta.id}
+                      >
+                        {etiqueta.nombre}
 
-                      <CircleXIcon
-                        onClick={() => handleDeleteEtiqueta(etiqueta)}
-                        className='invisible w-0 cursor-pointer group-hover:visible group-hover:ml-1 group-hover:w-4'
-                        width={16}
-                        height={16}
-                      />
-                    </Badge>
-                  );
-                })}
-                {addEtiquetaOpen ? (
-                  <CircleXIcon
-                    onClick={() => setAddEtiquetaOpen(false)}
-                    className='h-5 w-5 cursor-pointer'
-                  />
-                ) : (
+                        <CircleXIcon
+                          onClick={() => handleDeleteEtiqueta(etiqueta)}
+                          className='invisible w-0 cursor-pointer group-hover:visible group-hover:ml-1 group-hover:w-4'
+                          width={16}
+                          height={16}
+                        />
+                      </Badge>
+                    );
+                  })}
+                  {addEtiquetaOpen ? (
+                    <CircleXIcon
+                      onClick={() => setAddEtiquetaOpen(false)}
+                      className='h-5 w-5 cursor-pointer'
+                    />
+                  ) : (
+                    <CirclePlus
+                      className='h-5 w-5 cursor-pointer'
+                      onClick={() => setAddEtiquetaOpen(true)}
+                    />
+                  )}
+                </div>
+                {addEtiquetaOpen && (
+                  <div className='flex flex-wrap gap-x-2 gap-y-1'>
+                    <ComboBox
+                      open={comboBoxGrupoOpen}
+                      setOpen={setComboBoxGrupoOpen}
+                      value='nombre'
+                      id={'id'}
+                      data={grupoEtiquetas ?? []}
+                      onSelect={(selectedItem) => {
+                        if (selectedItem === grupoEtiquetaSelected) {
+                          setGrupoEtiquetaSelected('');
+                          setComboBoxGrupoOpen(false);
+                        } else {
+                          setGrupoEtiquetaSelected(selectedItem);
+                          setComboBoxGrupoOpen(false);
+                        }
+                      }}
+                      wFullMobile
+                      selectedIf={
+                        grupoEtiquetaSelected ? grupoEtiquetaSelected : ''
+                      }
+                      triggerChildren={
+                        <>
+                          <span className='max-w-[calc(100%-30px)] truncate'>
+                            {grupoEtiquetaSelected
+                              ? currentGrupo?.nombre
+                              : 'Buscar grupo...'}
+                          </span>
+                          <EtiquetasFillIcon className='h-5 w-5' />
+                        </>
+                      }
+                    />
+                    <ComboBox
+                      data={etiquetasGrupo ?? []}
+                      id={'id'}
+                      value='nombre'
+                      wFullMobile
+                      open={comboBoxEtiquetaOpen}
+                      setOpen={setComboBoxEtiquetaOpen}
+                      onSelect={(selectedItem) => {
+                        if (selectedItem === etiquetaSelected) {
+                          setEtiquetaSelected('');
+                          setComboBoxEtiquetaOpen(false);
+                        } else {
+                          setEtiquetaSelected(selectedItem);
+                          setComboBoxEtiquetaOpen(false);
+                        }
+                      }}
+                      selectedIf={etiquetaSelected}
+                      triggerChildren={
+                        <>
+                          <span className='truncate'>
+                            {etiquetaSelected !== ''
+                              ? etiquetasGrupo?.find(
+                                  (etiqueta) => etiqueta.id === etiquetaSelected
+                                )?.nombre ?? 'Buscar etiqueta...'
+                              : 'Buscar etiqueta...'}
+                          </span>
+                          <EtiquetasFillIcon className='h-5 w-5' />
+                        </>
+                      }
+                    />
+                    <Button onClick={handleAddEtiqueta}>Agregar</Button>
+                  </div>
+                )}
+                <Label className='pt-2 text-sm'>Nombres alternativos:</Label>
+                <div className='flex w-full flex-col items-start gap-y-1'>
+                  {modalModelo.modelo.apodos?.map((apodo, index) => {
+                    return (
+                      <div
+                        key={index}
+                        className='flex w-full items-center justify-between gap-x-3'
+                      >
+                        <Input
+                          type='text'
+                          placeholder='Nombre'
+                          value={apodo}
+                          key={index}
+                          onChange={(e) => {
+                            const newApodos = modalModelo.modelo.apodos;
+                            newApodos[index] = e.target.value;
+                            useCrearModeloModal.setState({
+                              modelo: {
+                                ...modalModelo.modelo,
+                                apodos: newApodos,
+                              },
+                            });
+                          }}
+                        />
+                        <TrashIcon
+                          onClick={() => handleDeleteNombre(index)}
+                          className='h-6 w-6 cursor-pointer'
+                          width={16}
+                          height={16}
+                        />
+                      </div>
+                    );
+                  })}
                   <CirclePlus
                     className='h-5 w-5 cursor-pointer'
-                    onClick={() => setAddEtiquetaOpen(true)}
+                    onClick={() => {
+                      useCrearModeloModal.setState({
+                        modelo: {
+                          ...modalModelo.modelo,
+                          apodos: [...modalModelo.modelo.apodos, ''],
+                        },
+                      });
+                    }}
                   />
-                )}
+                </div>
               </div>
-              {addEtiquetaOpen && (
-                <div className='flex flex-wrap gap-x-2 gap-y-1'>
-                  <ComboBox
-                    open={comboBoxGrupoOpen}
-                    setOpen={setComboBoxGrupoOpen}
-                    value='nombre'
-                    id={'id'}
-                    data={grupoEtiquetas ?? []}
-                    onSelect={(selectedItem) => {
-                      if (selectedItem === grupoEtiquetaSelected) {
-                        setGrupoEtiquetaSelected('');
-                        setComboBoxGrupoOpen(false);
-                      } else {
-                        setGrupoEtiquetaSelected(selectedItem);
-                        setComboBoxGrupoOpen(false);
-                      }
-                    }}
-                    wFullMobile
-                    selectedIf={
-                      grupoEtiquetaSelected ? grupoEtiquetaSelected : ''
-                    }
-                    triggerChildren={
-                      <>
-                        <span className='max-w-[calc(100%-30px)] truncate'>
-                          {grupoEtiquetaSelected
-                            ? currentGrupo?.nombre
-                            : 'Buscar grupo...'}
-                        </span>
-                        <EtiquetasFillIcon className='h-5 w-5' />
-                      </>
-                    }
-                  />
-                  <ComboBox
-                    data={etiquetasGrupo ?? []}
-                    id={'id'}
-                    value='nombre'
-                    wFullMobile
-                    open={comboBoxEtiquetaOpen}
-                    setOpen={setComboBoxEtiquetaOpen}
-                    onSelect={(selectedItem) => {
-                      if (selectedItem === etiquetaSelected) {
-                        setEtiquetaSelected('');
-                        setComboBoxEtiquetaOpen(false);
-                      } else {
-                        setEtiquetaSelected(selectedItem);
-                        setComboBoxEtiquetaOpen(false);
-                      }
-                    }}
-                    selectedIf={etiquetaSelected}
-                    triggerChildren={
-                      <>
-                        <span className='truncate'>
-                          {etiquetaSelected !== ''
-                            ? etiquetasGrupo?.find(
-                                (etiqueta) => etiqueta.id === etiquetaSelected
-                              )?.nombre ?? 'Buscar etiqueta...'
-                            : 'Buscar etiqueta...'}
-                        </span>
-                        <EtiquetasFillIcon className='h-5 w-5' />
-                      </>
-                    }
-                  />
-                  <Button onClick={handleAddEtiqueta}>Agregar</Button>
+            ) : (
+              <div className='flex max-h-[400px] flex-col gap-y-2 overflow-y-auto'>
+                {similarityModelos.map((modelo) => (
+                  <div
+                    key={modelo.modelo.id}
+                    className='flex items-center justify-between'
+                  >
+                    <p>Nombre: {modelo.modelo.nombreCompleto}</p>
+                    <p>Teléfono: {modelo.modelo.nombreCompleto}</p>
+                  </div>
+                ))}
+                <Button onClick={() => setSimilarityView(false)}>Volver</Button>
+              </div>
+            )}
+            <div
+              className={`flex ${similarity ? 'justify-between' : 'justify-end'} gap-x-2 pt-2`}
+            >
+              {similarity && (
+                <div>
+                  <span>
+                    Hay {similarityModelos.length} modelos similares. ¿Quieres
+                    agregar a este participante?
+                  </span>
+                  <Button onClick={() => setSimilarityView(true)}>
+                    Ver los participantes similares
+                  </Button>
                 </div>
               )}
-              <Label className='pt-2 text-sm'>Nombres alternativos:</Label>
-              <div className='flex w-full flex-col items-start gap-y-1'>
-                {modalModelo.modelo.apodos?.map((apodo, index) => {
-                  return (
-                    <div
-                      key={index}
-                      className='flex w-full items-center justify-between gap-x-3'
-                    >
-                      <Input
-                        type='text'
-                        placeholder='Nombre'
-                        value={apodo}
-                        key={index}
-                        onChange={(e) => {
-                          const newApodos = modalModelo.modelo.apodos;
-                          newApodos[index] = e.target.value;
-                          useCrearModeloModal.setState({
-                            modelo: {
-                              ...modalModelo.modelo,
-                              apodos: newApodos,
-                            },
-                          });
-                        }}
-                      />
-                      <TrashIcon
-                        onClick={() => handleDeleteNombre(index)}
-                        className='h-6 w-6 cursor-pointer'
-                        width={16}
-                        height={16}
-                      />
-                    </div>
-                  );
-                })}
-                <CirclePlus
-                  className='h-5 w-5 cursor-pointer'
-                  onClick={() => {
-                    useCrearModeloModal.setState({
-                      modelo: {
-                        ...modalModelo.modelo,
-                        apodos: [...modalModelo.modelo.apodos, ''],
-                      },
-                    });
-                  }}
-                />
-              </div>
-            </div>
-            <div className='flex justify-end gap-x-2 pt-2'>
               <Button
                 onClick={handleSave}
                 className='flex justify-center gap-x-2'
               >
                 {createModelo.isLoading ?? <Loader className='h-5 w-5' />}
-                <p>Guardar</p>
+                <p>{similarity ? 'Agregar' : 'Guardar'}</p>
               </Button>
             </div>
           </div>
