@@ -32,12 +32,6 @@ export const modelosChartData = create<{
 }));
 
 const ModelosChart = ({ data, className }: BarChartProps) => {
-  const error = console.error;
-  console.error = (...args: any) => {
-    if (/defaultProps/.test(args[0])) return;
-    error(...args);
-  };
-
   const dataMostrar = useMemo(() => {
     return data.map((d) => {
       const [anio, mes, dia] = d.fecha.split('-');

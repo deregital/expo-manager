@@ -6,6 +6,8 @@ import { subDays } from 'date-fns';
 import { z } from 'zod';
 import levenshtein from 'string-comparison';
 import { ModelosSimilarity } from '../types/modelos';
+import { normalize } from '@/lib/utils';
+import { modeloSchemaCrearOEditar } from '@/server/schemas/modelo';
 
 export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -165,16 +167,7 @@ export const modeloRouter = router({
   createManual: publicProcedure
     .input(
       z.object({
-        nombreCompleto: z.string(),
-        telefono: z.string(),
-        genero: z.string().optional(),
-        fechaNacimiento: z.string().optional(),
-        fotoUrl: z.string().optional().nullable(),
-        etiquetas: z.array(z.string().uuid()).optional(),
-        apodos: z.array(z.string()).optional(),
-        dni: z.string().optional(),
-        mail: z.union([z.literal(''), z.string().email()]),
-        instagram: z.string().optional(),
+        modelo: modeloSchemaCrearOEditar,
         similarity: z.boolean(),
       })
     )
@@ -191,14 +184,19 @@ export const modeloRouter = router({
           message: 'No se encontró la etiqueta de modelo',
         });
       }
+
+      const telefono = input.modelo.telefono.startsWith('549')
+        ? input.modelo.telefono
+        : `549${input.modelo.telefono}`;
+
       const perfilConMismoTelefonoDNI = await ctx.prisma.perfil.findMany({
         where: {
           OR: [
             {
-              telefono: input.telefono,
+              telefono: telefono,
             },
             {
-              dni: input.dni ?? undefined,
+              dni: input.modelo.dni ?? undefined,
             },
           ],
         },
@@ -219,7 +217,7 @@ export const modeloRouter = router({
       const similarityModelos: ModelosSimilarity = [];
       if (!input.similarity) {
         modelos.forEach(async (modelo) => {
-          if (modelo.telefono === input.telefono) {
+          if (modelo.telefono === input.modelo.telefono) {
             throw new TRPCError({
               code: 'CONFLICT',
               message: 'Ya existe un registro con ese teléfono',
@@ -227,13 +225,13 @@ export const modeloRouter = router({
           }
           const similarityTelefono = levenshtein.levenshtein.similarity(
             modelo.telefono,
-            input.telefono
+            input.modelo.telefono
           );
           const similarityNombre = levenshtein.levenshtein.similarity(
-            modelo.nombreCompleto,
-            input.nombreCompleto
+            normalize(modelo.nombreCompleto).toLowerCase(),
+            normalize(input.modelo.nombreCompleto).toLocaleLowerCase()
           );
-          if (similarityTelefono >= 0.9 || similarityNombre >= 0.9) {
+          if (similarityTelefono >= 0.75 || similarityNombre >= 0.75) {
             similarityModelos.push({
               similarityTelefono: similarityTelefono,
               similarityNombre: similarityNombre,
@@ -247,18 +245,20 @@ export const modeloRouter = router({
           return similarityModelos;
         }
       }
+
       return await ctx.prisma.perfil.create({
         data: {
-          nombreCompleto: input.nombreCompleto,
-          nombrePila: input.nombreCompleto.split(' ')[0],
-          telefono: input.telefono,
-          genero: input.genero !== 'N/A' ? input.genero : undefined,
-          fechaNacimiento: input.fechaNacimiento
-            ? new Date(input.fechaNacimiento)
+          nombreCompleto: input.modelo.nombreCompleto,
+          nombrePila: input.modelo.nombreCompleto.split(' ')[0],
+          telefono: telefono,
+          genero:
+            input.modelo.genero !== 'N/A' ? input.modelo.genero : undefined,
+          fechaNacimiento: input.modelo.fechaNacimiento
+            ? new Date(input.modelo.fechaNacimiento)
             : undefined,
-          fotoUrl: input.fotoUrl ? input.fotoUrl : undefined,
+          fotoUrl: input.modelo.fotoUrl ? input.modelo.fotoUrl : undefined,
           etiquetas: {
-            connect: [modeloEtiqueta.id, ...(input.etiquetas ?? [])].map(
+            connect: [modeloEtiqueta.id, ...(input.modelo.etiquetas ?? [])].map(
               (etiqueta) => {
                 return {
                   id: etiqueta,
@@ -266,10 +266,14 @@ export const modeloRouter = router({
               }
             ),
           },
-          nombresAlternativos: input.apodos ? input.apodos : undefined,
-          dni: input.dni ? input.dni : undefined,
-          mail: input.mail ? input.mail : undefined,
-          instagram: input.instagram ? input.instagram : undefined,
+          nombresAlternativos: input.modelo.apodos
+            ? input.modelo.apodos
+            : undefined,
+          dni: input.modelo.dni ? input.modelo.dni : undefined,
+          mail: input.modelo.mail ? input.modelo.mail : undefined,
+          instagram: input.modelo.instagram
+            ? input.modelo.instagram
+            : undefined,
         },
         select: {
           id: true,
