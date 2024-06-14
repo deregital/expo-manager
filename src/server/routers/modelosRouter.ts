@@ -191,6 +191,24 @@ export const modeloRouter = router({
           message: 'No se encontró la etiqueta de modelo',
         });
       }
+      const perfilConMismoTelefonoDNI = await ctx.prisma.perfil.findMany({
+        where: {
+          OR: [
+            {
+              telefono: input.telefono,
+            },
+            {
+              dni: input.dni ?? undefined,
+            },
+          ],
+        },
+      });
+      if (perfilConMismoTelefonoDNI && perfilConMismoTelefonoDNI.length > 0) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: `Ya existe un perfil con el mismo teléfono o DNI`,
+        });
+      }
       const modelos = await ctx.prisma.perfil.findMany({
         select: {
           id: true,
