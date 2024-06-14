@@ -39,6 +39,7 @@ const CrearModelo = () => {
   return (
     <>
       <Button
+        className='mx-3 my-2 md:mx-5'
         onClick={() =>
           useCrearModeloModal.setState({ open: !modalModelo.open })
         }

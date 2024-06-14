@@ -191,7 +191,13 @@ export const modeloRouter = router({
           message: 'No se encontró la etiqueta de modelo',
         });
       }
-      const modelos = await ctx.prisma.perfil.findMany();
+      const modelos = await ctx.prisma.perfil.findMany({
+        select: {
+          id: true,
+          nombreCompleto: true,
+          telefono: true,
+        },
+      });
       const similarityModelos: ModelosSimilarity = [];
       if (!input.similarity) {
         modelos.forEach(async (modelo) => {
@@ -215,15 +221,11 @@ export const modeloRouter = router({
               similarityNombre: similarityNombre,
               modelo: {
                 ...modelo,
-                fechaNacimiento: modelo.fechaNacimiento
-                  ? new Date(modelo.fechaNacimiento)
-                  : null,
               },
             });
           }
         });
         if (similarityModelos.length > 0) {
-          console.log(similarityModelos);
           return similarityModelos;
         }
       }
