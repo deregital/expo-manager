@@ -86,21 +86,22 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         toast.success('Participante creado correctamente');
         utils.modelo.getAll.invalidate();
       });
-    if (similarity) return;
-    useCrearModeloModal.setState({
-      open: false,
-      modelo: {
-        nombreCompleto: '',
-        telefono: '',
-        fechaNacimiento: undefined,
-        genero: 'N/A',
-        etiquetas: [],
-        apodos: [],
-        dni: '',
-        mail: '',
-        instagram: '',
-      },
-    });
+    if (!similarity) {
+      useCrearModeloModal.setState({
+        open: false,
+        modelo: {
+          nombreCompleto: '',
+          telefono: '',
+          fechaNacimiento: undefined,
+          genero: 'N/A',
+          etiquetas: [],
+          apodos: [],
+          dni: '',
+          mail: '',
+          instagram: '',
+        },
+      });
+    }
   }
 
   async function handleUpload(id: string) {
