@@ -5,6 +5,7 @@ import { useCrearModeloModal } from '@/components/modelos/CrearModelo';
 import ComboBox from '@/components/ui/ComboBox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -14,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { getTextColorByBg } from '@/lib/utils';
-import { Badge, TrashIcon } from 'lucide-react';
+import { TrashIcon } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { RouterOutputs } from '@/server';
 import { trpc } from '@/lib/trpc';
@@ -23,13 +24,11 @@ import { toast } from 'sonner';
 interface FormCrearModeloProps {
   inputRef: React.RefObject<HTMLInputElement>;
   video: File | null;
-  fotoUrl: string | null;
   setVideo: React.Dispatch<React.SetStateAction<File | null>>;
   setFotoUrl: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const FormCrearModelo = ({
-  fotoUrl,
   inputRef,
   setFotoUrl,
   setVideo,
@@ -118,7 +117,6 @@ const FormCrearModelo = ({
       <Input
         type='text'
         placeholder='Nombre Completo'
-        className=''
         value={modalModelo.modelo.nombreCompleto}
         onChange={(e) =>
           useCrearModeloModal.setState({
@@ -134,7 +132,6 @@ const FormCrearModelo = ({
       <Input
         type='text'
         placeholder='Teléfono'
-        className=''
         value={modalModelo.modelo.telefono}
         onChange={(e) =>
           useCrearModeloModal.setState({
@@ -150,7 +147,6 @@ const FormCrearModelo = ({
       <Input
         type='text'
         placeholder='DNI'
-        className=''
         value={modalModelo.modelo.dni}
         onChange={(e) =>
           useCrearModeloModal.setState({
@@ -188,7 +184,7 @@ const FormCrearModelo = ({
           }}
           defaultValue={modalModelo.modelo.genero ?? 'N/A'}
         >
-          <SelectTrigger className=''>
+          <SelectTrigger>
             <SelectValue placeholder='Genero' />
           </SelectTrigger>
           <SelectContent>
@@ -203,7 +199,6 @@ const FormCrearModelo = ({
       <Input
         type='text'
         placeholder='Mail'
-        className=''
         value={modalModelo.modelo.mail}
         onChange={(e) =>
           useCrearModeloModal.setState({
@@ -217,7 +212,6 @@ const FormCrearModelo = ({
         <Input
           type='text'
           placeholder='Instagram'
-          className=''
           value={modalModelo.modelo.instagram}
           onChange={(e) =>
             useCrearModeloModal.setState({

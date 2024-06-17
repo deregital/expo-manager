@@ -16,8 +16,7 @@ const ModelosSimilares = ({ similarityModelos }: ModelosSimilaresProps) => {
         {modelo.modelo.nombreCompleto}
       </p>
       <p>
-        <span className='font-bold'>Teléfono:</span>{' '}
-        {modelo.modelo.nombreCompleto}
+        <span className='font-bold'>Teléfono:</span> {modelo.modelo.telefono}
       </p>
       <ModeloFillIcon
         className='h-6 w-6 hover:text-gray-400'

@@ -14,7 +14,26 @@ import ModelosSimilares from '@/components/modelos/ModelosSimilares';
 const CrearModeloModal = ({ open }: { open: boolean }) => {
   const modalModelo = useCrearModeloModal();
   const utils = trpc.useUtils();
-  const createModelo = trpc.modelo.createManual.useMutation();
+  const createModelo = trpc.modelo.createManual.useMutation({
+    onError: (error) => {
+      if (
+        error?.data?.zodError?.fieldErrors &&
+        Object.keys(error?.data?.zodError?.fieldErrors).length > 0
+      ) {
+        const primerError = Object.values(
+          error?.data?.zodError?.fieldErrors
+        )[0];
+        toast.error(primerError ? primerError[0] : error.message);
+      }
+
+      if (
+        error.data?.code === 'CONFLICT' ||
+        error.data?.code === 'PARSE_ERROR'
+      ) {
+        toast.error(error.message);
+      }
+    },
+  });
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [video, setVideo] = useState<File | null>(null);
@@ -27,27 +46,27 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   );
 
   async function handleSave() {
-    if (modalModelo.modelo.nombreCompleto === '') {
-      toast.error('El nombre es un campo obligatorio');
-      return;
-    }
-    if (modalModelo.modelo.telefono === '') {
-      toast.error('El teléfono es un campo obligatorio');
-      return;
-    }
-    const res = await createModelo.mutateAsync({
-      nombreCompleto: modalModelo.modelo.nombreCompleto,
-      telefono: modalModelo.modelo.telefono,
-      dni: modalModelo.modelo.dni ?? undefined,
-      mail: modalModelo.modelo.mail ?? undefined,
-      fechaNacimiento: modalModelo.modelo.fechaNacimiento
-        ? modalModelo.modelo.fechaNacimiento.toISOString()
-        : undefined,
-      instagram: modalModelo.modelo.instagram,
-      etiquetas: modalModelo.modelo.etiquetas.map((e) => e.id),
-      apodos: modalModelo.modelo.apodos.filter((e) => e !== ''),
-      similarity: similarity,
-    });
+    const res = await createModelo
+      .mutateAsync({
+        modelo: {
+          nombreCompleto: modalModelo.modelo.nombreCompleto,
+          telefono: modalModelo.modelo.telefono,
+          dni: modalModelo.modelo.dni ?? undefined,
+          mail: modalModelo.modelo.mail ?? undefined,
+          fechaNacimiento: modalModelo.modelo.fechaNacimiento
+            ? modalModelo.modelo.fechaNacimiento.toISOString()
+            : undefined,
+          instagram: modalModelo.modelo.instagram,
+          etiquetas: modalModelo.modelo.etiquetas.map((e) => e.id),
+          apodos: modalModelo.modelo.apodos.filter((e) => e !== ''),
+        },
+        similarity: similarity,
+      })
+      .catch((e) => {
+        return;
+      });
+
+    if (!res) return;
 
     if (Array.isArray(res)) {
       setSimilarity(true);
@@ -134,7 +153,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         }
       >
         <DialogTrigger></DialogTrigger>
-        <DialogContent onCloseAutoFocus={handleCancel} className=''>
+        <DialogContent onCloseAutoFocus={handleCancel}>
           <div className='flex flex-col gap-y-0.5'>
             <p className='text-xl font-semibold'>
               Crear participante manualmente
@@ -144,7 +163,6 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                 <FormCrearModelo
                   video={video}
                   setVideo={setVideo}
-                  fotoUrl={fotoUrl}
                   setFotoUrl={setFotoUrl}
                   inputRef={inputRef}
                 />
