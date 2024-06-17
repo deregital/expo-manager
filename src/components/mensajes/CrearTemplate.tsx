@@ -55,7 +55,7 @@ const CrearTemplate = ({
   });
 
   useEffect(() => {
-    setIsButtonDisabled(!(name && content)); 
+    setIsButtonDisabled(!(name && content));
   }, [name, content]);
 
   useEffect(() => {
@@ -100,7 +100,10 @@ const CrearTemplate = ({
           buttons: [button1 ?? '', button2 ?? '', button3 ?? ''],
         })
         .then(() => {
-          toast.success('Plantilla creada correctamente. Por favor recargue la página dentro de poco para actualizar el estado de la plantilla', { duration: 5000 });
+          toast.success(
+            'Plantilla creada correctamente. Por favor recargue la página dentro de poco para actualizar el estado de la plantilla',
+            { duration: 5000 }
+          );
           clearTemplate();
           router.push('/plantilla');
         })
@@ -180,7 +183,11 @@ const CrearTemplate = ({
         <div className='flex items-center justify-end gap-x-3 pb-3'>
           {type !== 'VIEW' && (
             <Button
-             disabled={isButtonDisabled || crearTemplate.isLoading || editTemplate.isLoading}
+              disabled={
+                isButtonDisabled ||
+                crearTemplate.isLoading ||
+                editTemplate.isLoading
+              }
               className='flex items-center justify-center gap-x-2'
               onClick={handleCreateTemplate}
             >
