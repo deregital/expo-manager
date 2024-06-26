@@ -228,18 +228,23 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
                 </a>
               )}
               {modelo.mail && (
-                <p className='w-full whitespace-nowrap'>
-                  <MailIcon className='mr-2 inline-block h-5 w-5 fill-black' />
-                  <span>{modelo.mail}</span>
-                </p>
-              )}
-              {modelo.dni && (
-                <p>
-                  <DNIIcon className='mr-2 inline-block h-5 w-5 fill-black' />
-                  <span>{modelo.dni}</span>
-                </p>
+                <a
+                  className='cursor-pointer rounded-md bg-[#ea1c1c] p-2'
+                  title={`Mail de ${modelo.nombreCompleto}`}
+                  href={`mailto:${modelo.mail}`}
+                  target='_blank'
+                  rel='noreferrer'
+                >
+                  <MailIcon className='h-4 w-4 fill-white' />
+                </a>
               )}
             </div>
+            {modelo.dni && (
+              <p>
+                <DNIIcon className='mr-2 inline-block h-5 w-5 fill-black' />
+                <span>{modelo.dni}</span>
+              </p>
+            )}
             {modelo.nombresAlternativos.length > 0 && (
               <p className='text-sm text-black/80'>
                 Nombres alternativos: {modelo.nombresAlternativos.join(', ')}
