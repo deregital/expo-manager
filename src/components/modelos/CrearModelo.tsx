@@ -3,6 +3,8 @@ import { RouterOutputs } from '@/server';
 import { Button } from '../ui/button';
 import CrearModeloModal from './CrearModeloModal';
 import { create } from 'zustand';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 type ModeloModal = {
   open: boolean;
@@ -35,18 +37,26 @@ export const useCrearModeloModal = create<ModeloModal>(() => ({
 }));
 
 const CrearModelo = () => {
-  const modalModelo = useCrearModeloModal();
+  // const modalModelo = useCrearModeloModal();
+  const searchParams = new URLSearchParams(useSearchParams());
+  const [search, setSearch] = useState(searchParams.get('modal') ?? '');
+
+  useEffect(() => {
+    setSearch(searchParams.get('modal') ?? '');
+  }, [searchParams.get('modal')]);
+
   return (
     <>
       <Button
         className='mx-3 my-2 md:mx-5'
         onClick={() =>
-          useCrearModeloModal.setState({ open: !modalModelo.open })
+          // useCrearModeloModal.setState({ open: !modalModelo.open })
+          searchParams.set('modal', 'true')
         }
       >
         Crear Modelo
       </Button>
-      <CrearModeloModal open={modalModelo.open} />
+      <CrearModeloModal open={search === 'true' ? true : false} />
     </>
   );
 };

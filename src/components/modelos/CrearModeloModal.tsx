@@ -10,6 +10,7 @@ import Loader from '../ui/loader';
 import { useCrearModeloModal } from './CrearModelo';
 import { useRef, useState } from 'react';
 import ModelosSimilares from '@/components/modelos/ModelosSimilares';
+import { useSearchParams } from 'next/navigation';
 
 const CrearModeloModal = ({ open }: { open: boolean }) => {
   const modalModelo = useCrearModeloModal();
@@ -36,6 +37,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   });
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchParams = new URLSearchParams(useSearchParams());
   const [video, setVideo] = useState<File | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
 
@@ -97,6 +99,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
           instagram: '',
         },
       });
+      searchParams.delete('modal');
     }
   }
 
@@ -139,6 +142,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         instagram: '',
       },
     });
+    searchParams.delete('modal');
     setVideo(null);
     setFotoUrl(null);
     setSimilarity(false);
