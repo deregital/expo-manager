@@ -8,6 +8,7 @@ import ModeloIcon from '../icons/ModeloIcon';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { RouterOutputs } from '@/server';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 type PresentismoModal = {
   isOpen: boolean;
@@ -25,6 +26,8 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
   const [openModelos, setOpenModelos] = useState(false);
   const { data: modelos } = trpc.modelo.getAll.useQuery();
   const utils = trpc.useUtils();
+  const router = useRouter();
+  const searchParams = new URLSearchParams(useSearchParams());
   const editModelo = trpc.modelo.edit.useMutation();
 
   const { data: EtiquetaAsistencia } = trpc.etiqueta.getById.useQuery(
@@ -118,36 +121,46 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
           Añadir asistencia de una modelo
         </h3>
         <div className='flex items-center justify-between'>
-          <ComboBox
-            data={modelosData}
-            id={'id'}
-            value='nombreCompleto'
-            open={openModelos}
-            setOpen={setOpenModelos}
-            wFullMobile
-            triggerChildren={
-              <>
-                <span className='max-w-[calc(100%-30px)] truncate'>
-                  {modalPresentismo.modeloId !== ''
-                    ? modelos?.find(
-                        (modelo) => modelo.id === modalPresentismo.modeloId
-                      )?.nombreCompleto
-                    : 'Buscar modelo...'}
-                </span>
-                <ModeloIcon className='h-5 w-5' />
-              </>
-            }
-            onSelect={(id) => {
-              if (modalPresentismo.modeloId === id) {
-                usePresentismoModal.setState({ modeloId: '' });
-                setOpenModelos(false);
-                return;
+          <div className='flex items-center justify-center gap-x-2'>
+            <ComboBox
+              data={modelosData}
+              id={'id'}
+              value='nombreCompleto'
+              open={openModelos}
+              setOpen={setOpenModelos}
+              wFullMobile
+              triggerChildren={
+                <>
+                  <span className='max-w-[calc(100%-30px)] truncate'>
+                    {modalPresentismo.modeloId !== ''
+                      ? modelos?.find(
+                          (modelo) => modelo.id === modalPresentismo.modeloId
+                        )?.nombreCompleto
+                      : 'Buscar modelo...'}
+                  </span>
+                  <ModeloIcon className='h-5 w-5' />
+                </>
               }
-              usePresentismoModal.setState({ modeloId: id });
-              setOpenModelos(false);
-            }}
-            selectedIf={modalPresentismo.modeloId}
-          />
+              onSelect={(id) => {
+                if (modalPresentismo.modeloId === id) {
+                  usePresentismoModal.setState({ modeloId: '' });
+                  setOpenModelos(false);
+                  return;
+                }
+                usePresentismoModal.setState({ modeloId: id });
+                setOpenModelos(false);
+              }}
+              selectedIf={modalPresentismo.modeloId}
+            />
+            <Button
+              onClick={() => {
+                searchParams.set('modal', 'true');
+                router.push(`/modelos?${searchParams.toString()}`);
+              }}
+            >
+              Agregar
+            </Button>
+          </div>
           <Button disabled={editModelo.isLoading} onClick={handleSubmit}>
             Añadir
           </Button>
