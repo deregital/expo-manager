@@ -5,16 +5,17 @@ import { ModelosSimilarity } from '@/server/types/modelos';
 import clsx from 'clsx';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
+import { Dialog, DialogContent } from '../ui/dialog';
 import Loader from '../ui/loader';
 import { useCrearModeloModal } from './CrearModelo';
 import { useRef, useState } from 'react';
 import ModelosSimilares from '@/components/modelos/ModelosSimilares';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 const CrearModeloModal = ({ open }: { open: boolean }) => {
   const modalModelo = useCrearModeloModal();
   const utils = trpc.useUtils();
+  const router = useRouter();
   const createModelo = trpc.modelo.createManual.useMutation({
     onError: (error) => {
       if (
@@ -38,6 +39,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const searchParams = new URLSearchParams(useSearchParams());
+  const pathname = usePathname();
   const [video, setVideo] = useState<File | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
 
@@ -100,6 +102,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         },
       });
       searchParams.delete('modal');
+      router.push(`${pathname}?${searchParams.toString()}`);
     }
   }
 
@@ -146,17 +149,19 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     setVideo(null);
     setFotoUrl(null);
     setSimilarity(false);
+    router.push(`${pathname}?${searchParams.toString()}`);
   }
 
   return (
     <>
       <Dialog
         open={open}
-        onOpenChange={() =>
-          useCrearModeloModal.setState({ open: !modalModelo.open })
-        }
+        onOpenChange={() => {
+          open
+            ? searchParams.delete('modal')
+            : searchParams.set('modal', 'true');
+        }}
       >
-        <DialogTrigger></DialogTrigger>
         <DialogContent onCloseAutoFocus={handleCancel}>
           <div className='flex flex-col gap-y-0.5'>
             <p className='text-xl font-semibold'>

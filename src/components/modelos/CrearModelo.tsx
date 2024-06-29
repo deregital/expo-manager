@@ -3,7 +3,7 @@ import { RouterOutputs } from '@/server';
 import { Button } from '../ui/button';
 import CrearModeloModal from './CrearModeloModal';
 import { create } from 'zustand';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 type ModeloModal = {
@@ -39,6 +39,8 @@ export const useCrearModeloModal = create<ModeloModal>(() => ({
 const CrearModelo = () => {
   // const modalModelo = useCrearModeloModal();
   const searchParams = new URLSearchParams(useSearchParams());
+  const pathname = usePathname();
+  const router = useRouter();
   const [search, setSearch] = useState(searchParams.get('modal') ?? '');
 
   useEffect(() => {
@@ -49,10 +51,10 @@ const CrearModelo = () => {
     <>
       <Button
         className='mx-3 my-2 md:mx-5'
-        onClick={() =>
-          // useCrearModeloModal.setState({ open: !modalModelo.open })
-          searchParams.set('modal', 'true')
-        }
+        onClick={() => {
+          searchParams.set('modal', 'true');
+          router.push(`${pathname}?${searchParams.toString()}`);
+        }}
       >
         Crear Modelo
       </Button>
