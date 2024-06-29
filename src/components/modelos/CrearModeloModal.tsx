@@ -157,9 +157,8 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       <Dialog
         open={open}
         onOpenChange={() => {
-          open
-            ? searchParams.delete('modal')
-            : searchParams.set('modal', 'true');
+          searchParams.delete('modal');
+          router.push(`${pathname}?${searchParams.toString()}`);
         }}
       >
         <DialogContent onCloseAutoFocus={handleCancel}>
