@@ -155,10 +155,11 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
             <Button
               onClick={() => {
                 searchParams.set('modal', 'true');
+                searchParams.set('evento', modalPresentismo.evento?.id ?? '');
                 router.push(`/modelos?${searchParams.toString()}`);
               }}
             >
-              Agregar
+              Crear
             </Button>
           </div>
           <Button disabled={editModelo.isLoading} onClick={handleSubmit}>

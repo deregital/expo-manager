@@ -8,7 +8,7 @@ import { Button } from '../ui/button';
 import { Dialog, DialogContent } from '../ui/dialog';
 import Loader from '../ui/loader';
 import { useCrearModeloModal } from './CrearModelo';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ModelosSimilares from '@/components/modelos/ModelosSimilares';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
@@ -39,6 +39,9 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const searchParams = new URLSearchParams(useSearchParams());
+  const [eventoId, setEventoId] = useState<string | null>(
+    searchParams.get('evento') ?? null
+  );
   const pathname = usePathname();
   const [video, setVideo] = useState<File | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
@@ -48,6 +51,11 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   const [similarityModelos, setSimilarityModelos] = useState<ModelosSimilarity>(
     []
   );
+  useEffect(() => {
+    setEventoId(
+      searchParams.get('evento') !== '' ? searchParams.get('evento') : null
+    );
+  }, [searchParams.get('evento')]);
 
   async function handleSave() {
     const res = await createModelo
@@ -102,7 +110,12 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         },
       });
       searchParams.delete('modal');
-      router.push(`${pathname}?${searchParams.toString()}`);
+      if (eventoId && eventoId !== '') {
+        router.push(`eventos/${eventoId}/presentismo`);
+        searchParams.delete('evento');
+      } else {
+        router.push(`${pathname}?${searchParams.toString()}`);
+      }
     }
   }
 
