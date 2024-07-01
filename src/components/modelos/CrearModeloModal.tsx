@@ -164,7 +164,13 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     setSimilarity(false);
 
     if (createModelo.isSuccess) return;
-    router.push(`${pathname}?${searchParams.toString()}`);
+    if (eventoId && eventoId !== '') {
+      router.push(`eventos/${eventoId}/presentismo`);
+      searchParams.delete('evento');
+    } else {
+      router.push(`${pathname}?${searchParams.toString()}`);
+      searchParams.delete('evento');
+    }
   }
 
   return (
