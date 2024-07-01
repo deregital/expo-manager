@@ -162,6 +162,8 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     setVideo(null);
     setFotoUrl(null);
     setSimilarity(false);
+
+    if (createModelo.isSuccess) return;
     router.push(`${pathname}?${searchParams.toString()}`);
   }
 
