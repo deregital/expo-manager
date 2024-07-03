@@ -51,6 +51,12 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   const [similarityModelos, setSimilarityModelos] = useState<ModelosSimilarity>(
     []
   );
+  const { data: etiquetaEvento } = trpc.etiqueta.getById.useQuery(
+    eventoId ?? '',
+    {
+      enabled: !!eventoId,
+    }
+  );
   useEffect(() => {
     setEventoId(
       searchParams.get('evento') !== '' ? searchParams.get('evento') : null
@@ -58,6 +64,17 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   }, [searchParams.get('evento')]);
 
   async function handleSave() {
+    const etiquetaInEvento = modalModelo.modelo.etiquetas.find(
+      (e) => e.id === eventoId
+    );
+    if (!etiquetaInEvento && eventoId && eventoId !== '') {
+      useCrearModeloModal.setState({
+        modelo: {
+          ...modalModelo.modelo,
+          etiquetas: [...modalModelo.modelo.etiquetas, etiquetaEvento!],
+        },
+      });
+    }
     const res = await createModelo
       .mutateAsync({
         modelo: {
