@@ -73,7 +73,7 @@ export const CellComponent = ({
             className='px-1'
             onClick={() => {
               if (!row.original.id) {
-                toast.error('No se ha encontrado el modelo');
+                toast.error('No se ha encontrado el participante');
                 return;
               }
               addPresentismo(row.original);

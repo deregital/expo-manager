@@ -253,7 +253,7 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
                     ? quiereEliminar
                       ? '¿Estás seguro?'
                       : 'Eliminar'
-                    : 'No se puede eliminar, la etiqueta tiene modelos asociadas'}
+                    : 'No se puede eliminar, la etiqueta tiene participantes asociados'}
                 </Button>
                 {quiereEliminar && (
                   <Button

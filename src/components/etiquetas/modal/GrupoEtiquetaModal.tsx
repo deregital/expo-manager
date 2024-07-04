@@ -139,7 +139,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
         if (conflict && conflict.length > 0) {
           setOpen(true);
           toast.error(
-            'No se puede cambiar a exclusivo si hay modelos que tienen más de una etiqueta de este grupo'
+            'No se puede cambiar a exclusivo si hay participantes que tienen más de una etiqueta de este grupo'
           );
           setConflict(conflict);
           return;
