@@ -46,7 +46,11 @@ const SidebarLink = ({
         )}
       >
         <span className='w-6'>{isActive ? iconActive : icon}</span>
-        <span className={cn('ml-2 text-xl', textClassName)}>{children}</span>
+        <span
+          className={cn('ml-2 text-xl', textClassName, 'whitespace-nowrap')}
+        >
+          {children}
+        </span>
       </p>
     </Link>
   );

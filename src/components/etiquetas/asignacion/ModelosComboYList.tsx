@@ -101,8 +101,8 @@ const ModelosComboYList = ({}: ModelosComboYListProps) => {
         setOpen={setModelosOpen}
         isLoading={modelosLoading}
         triggerChildren={<p>Modelos</p>}
-        notFoundText='No hay modelos disponibles'
-        placeholder='Buscar modelos...'
+        notFoundText='No hay participantes disponibles'
+        placeholder='Buscar participantes...'
         data={modelosParaElegir ?? []}
         id='id'
         value='nombreCompleto'

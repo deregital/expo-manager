@@ -93,7 +93,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
 
   const editModelo = trpc.modelo.edit.useMutation({
     onSuccess: () => {
-      toast.success('Modelo editado con éxito');
+      toast.success('Participante editado con éxito');
       useModeloModalData.setState({
         genero: modelo.genero ?? 'N/A',
         fechaNacimiento: modelo.fechaNacimiento
@@ -108,7 +108,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     onError: (error) => {
       const errorCode = error.data?.code;
       if (errorCode === 'CONFLICT') {
-        setError('Ya existe un modelo con ese teléfono o DNI');
+        setError('Ya existe un participante con ese teléfono o DNI');
       } else if (errorCode === 'PARSE_ERROR') {
         setError(error.message);
       }
@@ -367,7 +367,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
         {editModelo.isError || error !== '' ? (
           <p className='text-sm font-semibold text-red-500'>
             {error ??
-              'Error al editar el modelo, asegúrese de ingresar todos los campos requeridos correctamente'}
+              'Error al editar el participante, asegúrese de ingresar todos los campos requeridos correctamente'}
           </p>
         ) : null}
         <div className='flex gap-x-4'>

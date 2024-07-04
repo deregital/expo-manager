@@ -33,7 +33,7 @@ const ConfiguracionPage = () => {
 
   const handleDownloadCSV = async (password: string) => {
     try {
-      toast.loading('Descargando CSV de modelos...');
+      toast.loading('Descargando CSV de participantes...');
       const csvData = await exportModelos
         .mutateAsync(
           { password },
@@ -138,7 +138,7 @@ const ConfiguracionPage = () => {
           handleOpenModal={() => handleOpenModal('csv')}
           isModalOpen={isModalOpen}
         >
-          Descargar Modelos
+          Descargar Participantes
         </ModalPassword>
         <ModalPassword
           onSubmit={handlePasswordSubmit}
@@ -146,7 +146,7 @@ const ConfiguracionPage = () => {
           handleOpenModal={() => handleOpenModal('zip')}
           isModalOpen={isModalOpen}
         >
-          Descargar Modelos
+          Descargar Tablas
         </ModalPassword>
       </div>
     </div>

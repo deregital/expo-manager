@@ -230,16 +230,16 @@ const PageClient = ({}: PageClientProps) => {
       </section>
       <section className='rounded-md grid-in-cardModelos sm:self-end sm:pb-2'>
         <SharedCard
-          popoverText='Cantidad de modelos que cuentan con la etiqueta seleccionada'
-          title='Modelos'
+          popoverText='Cantidad de participantes que cuentan con la etiqueta seleccionada'
+          title='Participantes'
           content={modelosQueCuentan.length.toString()}
           isLoading={modelosLoading}
         />
       </section>
       <section className='rounded-md grid-in-cardRetencion sm:self-end sm:pb-2'>
         <SharedCard
-          popoverText='Porcentaje de modelos que aceptaron ser contactados'
-          title='Retención de modelos'
+          popoverText='Porcentaje de participantes que aceptaron ser contactados'
+          title='Retención de participantes'
           content={
             isNaN(retencion)
               ? '0%'

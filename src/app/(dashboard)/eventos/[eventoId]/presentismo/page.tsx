@@ -114,7 +114,7 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
         <div>
           <h3 className='text-sm sm:text-lg'>
             Confirmaron: {countModelos}{' '}
-            {countModelos === 1 ? 'modelo' : 'modelos'}
+            {countModelos === 1 ? 'participante' : 'participantes'}
           </h3>
         </div>
       </div>

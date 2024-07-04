@@ -218,8 +218,8 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                     >
                       {similarityModelos.length}{' '}
                       {similarityModelos.length === 1
-                        ? 'modelo similar.'
-                        : 'modelos similares.'}
+                        ? 'participante similar.'
+                        : 'participantes similares.'}
                     </span>{' '}
                     ¿Quieres agregar a este participante?
                   </span>

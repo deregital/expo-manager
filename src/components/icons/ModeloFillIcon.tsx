@@ -1,6 +1,8 @@
 import * as React from 'react';
 
-const ModeloFillIcon = (props: React.SVGProps<SVGSVGElement>) => {
+const IconDatabase2Fill = (
+  props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>
+) => {
   return (
     <svg
       viewBox='0 0 24 24'
@@ -9,9 +11,10 @@ const ModeloFillIcon = (props: React.SVGProps<SVGSVGElement>) => {
       width='1em'
       {...props}
     >
-      <path d='M13.75 13a1.25 1.25 0 112.5 0 1.25 1.25 0 01-2.5 0M22 12v10H2V12C2 6.5 6.5 2 12 2s10 4.5 10 10M4 12c0 4.41 3.59 8 8 8s8-3.59 8-8c0-.79-.12-1.55-.33-2.26A9.974 9.974 0 019.26 5.77c-.98 2.39-2.85 4.32-5.21 5.37-.05.28-.05.57-.05.86m5 2.25a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5z' />
+      <path fill='none' d='M0 0h24v24H0z' />
+      <path d='M21 9.5v3c0 2.485-4.03 4.5-9 4.5s-9-2.015-9-4.5v-3c0 2.485 4.03 4.5 9 4.5s9-2.015 9-4.5zm-18 5c0 2.485 4.03 4.5 9 4.5s9-2.015 9-4.5v3c0 2.485-4.03 4.5-9 4.5s-9-2.015-9-4.5v-3zm9-2.5c-4.97 0-9-2.015-9-4.5S7.03 3 12 3s9 2.015 9 4.5-4.03 4.5-9 4.5z' />
     </svg>
   );
 };
 
-export default ModeloFillIcon;
+export default IconDatabase2Fill;
