@@ -9,7 +9,7 @@ const ModelosPage = () => {
   return (
     <Suspense>
       <p className='px-3 pt-3 text-xl font-bold md:px-5 md:pt-5 md:text-3xl'>
-        Gestor de Modelos
+        Base de Datos
       </p>
       <FiltroTabla />
       <ModelosTable />

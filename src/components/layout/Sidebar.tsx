@@ -1,12 +1,10 @@
 import SidebarLink from '@/components/layout/SidebarLink';
 import Image from 'next/image';
 import React from 'react';
-import ModeloIcon from '@/components/icons/ModeloIcon';
 import EtiquetaIcon from '@/components/icons/EtiquetasIcon';
 import ConfigIcon from '@/components/icons/ConfigIcon';
 import HomeIcon from '@/components/icons/HomeIcon';
 import HomeFillIcon from '@/components/icons/HomeFillIcon';
-import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import ConfigFillIcon from '@/components/icons/ConfigFillIcon';
 import TemplateIcon from '@/components/icons/TemplateIcon';
@@ -15,6 +13,8 @@ import EventIcon from '@/components/icons/EventIcon';
 import EventFillIcon from '@/components/icons/EventFillIcon';
 import ChatFillIcon from '@/components/icons/ChatFillIcon';
 import ChatIcon from '@/components/icons/ChatIcon';
+import ModeloFillIcon from '../icons/ModeloFillIcon';
+import ModeloIcon from '../icons/ModeloIcon';
 
 const Sidebar = () => {
   return (
@@ -47,7 +47,7 @@ const Sidebar = () => {
             icon={<ModeloIcon height={24} width={24} />}
             iconActive={<ModeloFillIcon height={24} width={24} />}
           >
-            Modelos
+            Base de Datos
           </SidebarLink>
           <SidebarLink
             to={['/etiquetas', '/asignacion']}
