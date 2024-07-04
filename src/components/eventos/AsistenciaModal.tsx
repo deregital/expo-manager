@@ -56,7 +56,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
 
   async function handleSubmit() {
     if (modalPresentismo.modeloId === '') {
-      toast.error('Debes seleccionar una modelo');
+      toast.error('Debes seleccionar un participante');
     }
 
     if (modalPresentismo.evento === null) {
@@ -68,7 +68,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
     );
 
     if (!modelo) {
-      toast.error('No se ha encontrado la modelo');
+      toast.error('No se ha encontrado el participante');
       return;
     }
 
@@ -99,7 +99,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
       id: modalPresentismo.modeloId,
       etiquetas: [...etiquetasModelo!, etiquetaAsistio],
     });
-    toast.success('Modelo añadida correctamente');
+    toast.success('Participante añadido correctamente');
     utils.modelo.getByEtiqueta.invalidate();
     usePresentismoModal.setState({ isOpen: false, modeloId: '' });
   }
@@ -118,7 +118,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
       </DialogTrigger>
       <DialogContent>
         <h3 className='text-lg font-semibold'>
-          Añadir asistencia de una modelo
+          Añadir asistencia de un participante
         </h3>
         <div className='flex items-center justify-between'>
           <div className='flex items-center justify-center gap-x-2'>
@@ -136,7 +136,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
                       ? modelos?.find(
                           (modelo) => modelo.id === modalPresentismo.modeloId
                         )?.nombreCompleto
-                      : 'Buscar modelo...'}
+                      : 'Buscar participante...'}
                   </span>
                   <ModeloIcon className='h-5 w-5' />
                 </>

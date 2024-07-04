@@ -56,7 +56,7 @@ const CrearModelo = () => {
           router.push(`${pathname}?${searchParams.toString()}`);
         }}
       >
-        Crear Modelo
+        Crear Participante
       </Button>
       <CrearModeloModal open={search === 'true' ? true : false} />
     </>

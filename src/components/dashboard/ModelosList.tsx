@@ -15,7 +15,7 @@ const ModelosList = ({ modelos, isLoading }: ModelosListProps) => {
   return (
     <Card className='flex h-full flex-col p-2 pr-0 sm:pr-2'>
       <CardTitle className='pb-2 text-2xl font-extrabold sm:text-3xl'>
-        Lista de modelos
+        Lista de participantes
       </CardTitle>
       <div className='flex max-w-full flex-1 flex-col gap-y-2 overflow-y-auto overflow-x-hidden'>
         {isLoading ? (
@@ -25,7 +25,7 @@ const ModelosList = ({ modelos, isLoading }: ModelosListProps) => {
         ) : (
           modelos.length === 0 && (
             <div className='flex h-full w-full items-center justify-center'>
-              <p className='text-gray-500'>No hay modelos</p>
+              <p className='text-gray-500'>No hay participantes</p>
             </div>
           )
         )}
