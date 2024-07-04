@@ -54,7 +54,7 @@ const ModelosChart = ({ data, className }: BarChartProps) => {
         <Tooltip
           content={({ active, payload, label }) => (
             <CustomTooltip
-              text={'Modelos creadas'}
+              text={'Participantes creados'}
               active={active}
               payload={payload}
               label={label}
@@ -62,7 +62,7 @@ const ModelosChart = ({ data, className }: BarChartProps) => {
           )}
         />
         <Bar
-          dataKey='modelos'
+          dataKey='participantes'
           className='fill-slate-700'
           activeBar={<Rectangle stroke='black' />}
         />
