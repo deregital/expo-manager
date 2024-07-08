@@ -42,6 +42,12 @@ const ModelosChart = ({ data, className }: BarChartProps) => {
     });
   }, [data]);
 
+  const error = console.error;
+  console.error = (...args: any) => {
+    if (/defaultProps/.test(args[0])) return;
+    error(...args);
+  };
+
   return (
     <ResponsiveContainer
       height={'100%'}
@@ -49,7 +55,7 @@ const ModelosChart = ({ data, className }: BarChartProps) => {
       className={cn(className)}
     >
       <RechartChart id='modelosChart' data={dataMostrar} className='h-full'>
-        <XAxis dataKey='fecha' />
+        <XAxis dataKey={'fecha'} />
         <YAxis />
         <Tooltip
           content={({ active, payload, label }) => (
@@ -62,7 +68,7 @@ const ModelosChart = ({ data, className }: BarChartProps) => {
           )}
         />
         <Bar
-          dataKey='participantes'
+          dataKey='modelos'
           className='fill-slate-700'
           activeBar={<Rectangle stroke='black' />}
         />
