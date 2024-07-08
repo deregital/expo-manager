@@ -120,10 +120,11 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
         <h3 className='text-lg font-semibold'>
           Añadir asistencia de una modelo
         </h3>
-        <div className='flex items-center justify-between'>
+        <div className='flex items-center justify-between gap-x-4'>
           <div className='flex w-full items-center justify-center'>
             <ComboBox
-              buttonClassName='w-[300px]'
+              buttonClassName='md:w-full'
+              contentClassName='sm:max-w-[--radix-popover-trigger-width]'
               data={modelosData}
               id={'id'}
               value='nombreCompleto'
