@@ -11,6 +11,7 @@ import { trpc } from '@/lib/trpc';
 import { searchNormalize } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ArrowLeftIcon } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 interface PresentismoPageProps {
@@ -24,6 +25,7 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
       id: params.eventoId,
     });
   const modalPresentismo = usePresentismoModal();
+  const searchParams = new URLSearchParams(useSearchParams());
   const { data: modelos, isLoading: modelosIsLoading } =
     trpc.modelo.getByEtiqueta.useQuery(
       evento ? [evento.etiquetaConfirmoId, evento.etiquetaAsistioId] : [],
@@ -60,6 +62,13 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
     if (!evento) return;
     usePresentismoModal.setState({ evento: evento });
   }, [evento]);
+
+  useEffect(() => {
+    if (searchParams.get('persona') === 'creada') {
+      usePresentismoModal.setState({ isOpen: false });
+      searchParams.delete('persona');
+    }
+  }, [searchParams.get('persona')]);
 
   const progress = useMemo(() => {
     if (!modelos) return 0;

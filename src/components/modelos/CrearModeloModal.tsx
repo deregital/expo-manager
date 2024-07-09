@@ -51,10 +51,18 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   const [similarityModelos, setSimilarityModelos] = useState<ModelosSimilarity>(
     []
   );
-  const { data: etiquetaEvento } = trpc.etiqueta.getById.useQuery(
-    eventoId ?? '',
+  const { data: etiquetaEvento } = trpc.evento.getById.useQuery(
+    {
+      id: eventoId ?? '',
+    },
     {
       enabled: !!eventoId,
+    }
+  );
+  const { data: etiquetaAsistio } = trpc.etiqueta.getById.useQuery(
+    etiquetaEvento?.etiquetaAsistioId ?? '',
+    {
+      enabled: !!etiquetaEvento,
     }
   );
   useEffect(() => {
@@ -71,7 +79,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       useCrearModeloModal.setState({
         modelo: {
           ...modalModelo.modelo,
-          etiquetas: [...modalModelo.modelo.etiquetas, etiquetaEvento!],
+          etiquetas: [...modalModelo.modelo.etiquetas, etiquetaAsistio!],
         },
       });
     }
@@ -128,8 +136,11 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       });
       searchParams.delete('modal');
       if (eventoId && eventoId !== '') {
-        router.push(`eventos/${eventoId}/presentismo`);
         searchParams.delete('evento');
+        searchParams.set('persona', 'creada');
+        router.push(
+          `eventos/${eventoId}/presentismo?${searchParams.toString()}`
+        );
       } else {
         router.push(`${pathname}?${searchParams.toString()}`);
       }
