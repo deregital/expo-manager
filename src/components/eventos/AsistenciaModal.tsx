@@ -120,9 +120,11 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
         <h3 className='text-lg font-semibold'>
           Añadir asistencia de un participante
         </h3>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center justify-center gap-x-2'>
+        <div className='flex items-center justify-between gap-x-4'>
+          <div className='flex w-full items-center justify-center'>
             <ComboBox
+              buttonClassName='md:w-full'
+              contentClassName='sm:max-w-[--radix-popover-trigger-width]'
               data={modelosData}
               id={'id'}
               value='nombreCompleto'
@@ -152,20 +154,21 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
               }}
               selectedIf={modalPresentismo.modeloId}
             />
-            <Button
-              onClick={() => {
-                searchParams.set('modal', 'true');
-                searchParams.set('evento', modalPresentismo.evento?.id ?? '');
-                router.push(`/modelos?${searchParams.toString()}`);
-              }}
-            >
-              Crear
-            </Button>
           </div>
           <Button disabled={editModelo.isLoading} onClick={handleSubmit}>
             Añadir
           </Button>
         </div>
+        <h3
+          className='cursor-pointer text-right text-lg underline underline-offset-4 hover:text-blue-500'
+          onClick={() => {
+            searchParams.set('modal', 'true');
+            searchParams.set('evento', modalPresentismo.evento?.id ?? '');
+            router.push(`/modelos?${searchParams.toString()}`);
+          }}
+        >
+          Crear nueva persona
+        </h3>
       </DialogContent>
     </Dialog>
   );

@@ -51,6 +51,20 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   const [similarityModelos, setSimilarityModelos] = useState<ModelosSimilarity>(
     []
   );
+  const { data: etiquetaEvento } = trpc.evento.getById.useQuery(
+    {
+      id: eventoId ?? '',
+    },
+    {
+      enabled: !!eventoId,
+    }
+  );
+  const { data: etiquetaAsistio } = trpc.etiqueta.getById.useQuery(
+    etiquetaEvento?.etiquetaAsistioId ?? '',
+    {
+      enabled: !!etiquetaEvento,
+    }
+  );
   useEffect(() => {
     setEventoId(
       searchParams.get('evento') !== '' ? searchParams.get('evento') : null
@@ -58,6 +72,16 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   }, [searchParams.get('evento')]);
 
   async function handleSave() {
+    const etiquetaInEvento = modalModelo.modelo.etiquetas.find(
+      (e) => e.id === eventoId
+    );
+
+    const agregarEtiquetaEvento =
+      !etiquetaInEvento && eventoId && eventoId !== '';
+    const etiquetasInsertar = agregarEtiquetaEvento
+      ? [...modalModelo.modelo.etiquetas, etiquetaAsistio!]
+      : modalModelo.modelo.etiquetas;
+
     const res = await createModelo
       .mutateAsync({
         modelo: {
@@ -69,7 +93,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
             ? modalModelo.modelo.fechaNacimiento.toISOString()
             : undefined,
           instagram: modalModelo.modelo.instagram,
-          etiquetas: modalModelo.modelo.etiquetas.map((e) => e.id),
+          etiquetas: etiquetasInsertar.map((e) => e.id),
           apodos: modalModelo.modelo.apodos.filter((e) => e !== ''),
         },
         similarity: similarity,
@@ -111,8 +135,11 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       });
       searchParams.delete('modal');
       if (eventoId && eventoId !== '') {
-        router.push(`eventos/${eventoId}/presentismo`);
         searchParams.delete('evento');
+        searchParams.set('persona', 'creada');
+        router.push(
+          `eventos/${eventoId}/presentismo?${searchParams.toString()}`
+        );
       } else {
         router.push(`${pathname}?${searchParams.toString()}`);
       }

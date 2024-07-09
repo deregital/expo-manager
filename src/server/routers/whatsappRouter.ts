@@ -245,7 +245,7 @@ export const whatsappRouter = router({
       await Promise.all(
         telefonos.map(async (telefono) => {
           const res = await fetch(
-            `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER}/messages`,
+            `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_API_PHONE_NUMBER_ID}/messages`,
             {
               method: 'POST',
               headers: {
@@ -354,7 +354,7 @@ export async function enviarMensajeUnaSolaVez(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+        Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
       },
       body: JSON.stringify({
         messaging_product: 'whatsapp',
