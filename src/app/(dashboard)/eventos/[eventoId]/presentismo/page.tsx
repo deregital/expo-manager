@@ -97,7 +97,7 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
         <ArrowLeftIcon
           className='h-10 w-10 pt-3 hover:cursor-pointer'
           onClick={() => {
-            window.history.back();
+            router.replace(`/eventos/${params.eventoId}`);
           }}
         />
       </div>
