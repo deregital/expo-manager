@@ -75,14 +75,13 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     const etiquetaInEvento = modalModelo.modelo.etiquetas.find(
       (e) => e.id === eventoId
     );
-    if (!etiquetaInEvento && eventoId && eventoId !== '') {
-      useCrearModeloModal.setState({
-        modelo: {
-          ...modalModelo.modelo,
-          etiquetas: [...modalModelo.modelo.etiquetas, etiquetaAsistio!],
-        },
-      });
-    }
+
+    const agregarEtiquetaEvento =
+      !etiquetaInEvento && eventoId && eventoId !== '';
+    const etiquetasInsertar = agregarEtiquetaEvento
+      ? [...modalModelo.modelo.etiquetas, etiquetaAsistio!]
+      : modalModelo.modelo.etiquetas;
+
     const res = await createModelo
       .mutateAsync({
         modelo: {
@@ -94,7 +93,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
             ? modalModelo.modelo.fechaNacimiento.toISOString()
             : undefined,
           instagram: modalModelo.modelo.instagram,
-          etiquetas: modalModelo.modelo.etiquetas.map((e) => e.id),
+          etiquetas: etiquetasInsertar.map((e) => e.id),
           apodos: modalModelo.modelo.apodos.filter((e) => e !== ''),
         },
         similarity: similarity,
