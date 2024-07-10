@@ -77,7 +77,7 @@ export const whatsappRouter = router({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+            Authorization: `Bearer ${process.env.META_TOKEN}`,
           },
           body: JSON.stringify(contenido),
         }
@@ -97,7 +97,7 @@ export const whatsappRouter = router({
       {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+          Authorization: `Bearer ${process.env.META_TOKEN}`,
         },
       }
     ).then((res) => res.json());
@@ -156,7 +156,7 @@ export const whatsappRouter = router({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+            Authorization: `Bearer ${process.env.META_TOKEN}`,
           },
           body: JSON.stringify(contenido),
         }
@@ -188,7 +188,7 @@ export const whatsappRouter = router({
         {
           method: 'DELETE',
           headers: {
-            Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+            Authorization: `Bearer ${process.env.META_TOKEN}`,
           },
         }
       ).then((res) => res.json());
@@ -250,7 +250,7 @@ export const whatsappRouter = router({
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+                Authorization: `Bearer ${process.env.META_TOKEN}`,
               },
               body: JSON.stringify({
                 messaging_product: 'whatsapp',
@@ -354,7 +354,7 @@ export async function enviarMensajeUnaSolaVez(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+        Authorization: `Bearer ${process.env.META_TOKEN}`,
       },
       body: JSON.stringify({
         messaging_product: 'whatsapp',
@@ -410,7 +410,7 @@ export async function getTemplateByName(plantillaName: string) {
     {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+        Authorization: `Bearer ${process.env.META_TOKEN}`,
       },
     }
   ).then((res) => res.json());
