@@ -41,6 +41,8 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     select: {
       esAdmin: true,
       etiquetas: true,
+      filtroBase: true,
+      filtroBaseActivo: true,
     },
   });
 
@@ -56,10 +58,12 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     },
   });
 
-  const etiquetasVisibles = esAdmin
-    ? etiquetasTotales.map((e) => e.id)
-    : etiquetasNoAdmin.map((e) => e.id);
-
+  const etiquetasVisibles =
+    user.filtroBase.length > 0 && user.filtroBaseActivo
+      ? user.filtroBase.map((e) => e.id)
+      : esAdmin
+        ? etiquetasTotales.map((e) => e.id)
+        : etiquetasNoAdmin.map((e) => e.id);
 
   return next({
     ctx: {
