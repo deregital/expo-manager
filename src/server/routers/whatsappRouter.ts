@@ -72,7 +72,7 @@ export const whatsappRouter = router({
       }
 
       const res: TemplateResponse = await fetch(
-        `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates`,
+        `https://graph.facebook.com/v19.0/${process.env.META_WHATSAPP_BUSINESS_ID}/message_templates`,
         {
           method: 'POST',
           headers: {
@@ -93,7 +93,7 @@ export const whatsappRouter = router({
     }),
   getTemplates: protectedProcedure.query(async ({ ctx }) => {
     const res: GetTemplatesResponse = await fetch(
-      `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?fields=name,status`,
+      `https://graph.facebook.com/v19.0/${process.env.META_WHATSAPP_BUSINESS_ID}/message_templates?fields=name,status`,
       {
         method: 'GET',
         headers: {
@@ -184,7 +184,7 @@ export const whatsappRouter = router({
         });
       }
       const res = await fetch(
-        `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?name=${input.titulo}`,
+        `https://graph.facebook.com/v18.0/${process.env.META_WHATSAPP_BUSINESS_ID}/message_templates?name=${input.titulo}`,
         {
           method: 'DELETE',
           headers: {
@@ -245,7 +245,7 @@ export const whatsappRouter = router({
       await Promise.all(
         telefonos.map(async (telefono) => {
           const res = await fetch(
-            `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_API_PHONE_NUMBER_ID}/messages`,
+            `https://graph.facebook.com/v19.0/${process.env.META_WHATSAPP_API_PHONE_NUMBER_ID}/messages`,
             {
               method: 'POST',
               headers: {
@@ -349,7 +349,7 @@ export async function enviarMensajeUnaSolaVez(
   db: PrismaClient
 ) {
   const res = await fetch(
-    `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_API_PHONE_NUMBER_ID}/messages`,
+    `https://graph.facebook.com/v19.0/${process.env.META_WHATSAPP_API_PHONE_NUMBER_ID}/messages`,
     {
       method: 'POST',
       headers: {
@@ -406,7 +406,7 @@ export async function enviarMensajeUnaSolaVez(
 
 export async function getTemplateByName(plantillaName: string) {
   const res: GetTemplateResponse = await fetch(
-    `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?name=${plantillaName}`,
+    `https://graph.facebook.com/v19.0/${process.env.META_WHATSAPP_BUSINESS_ID}/message_templates?name=${plantillaName}`,
     {
       method: 'GET',
       headers: {
