@@ -23,11 +23,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
   const currentFotoUrl = form.get('url') as string;
   if (currentFotoUrl !== '') {
     const options = {
-      hostname: process.env.HOSTNAME,
-      path: `/${process.env.STORAGE_ZONE_NAME}${new URL(currentFotoUrl).pathname}`,
+      hostname: process.env.BUNNY_HOSTNAME,
+      path: `/${process.env.BUNNY_STORAGE_ZONE_NAME}${new URL(currentFotoUrl).pathname}`,
       method: 'DELETE',
       headers: {
-        AccessKey: process.env.ACCESS_KEY2,
+        AccessKey: process.env.BUNNY_ACCESS_KEY_CRUD,
       },
     };
     const reqCDN = https.request(options, (response) => {
@@ -52,14 +52,14 @@ export async function POST(req: NextRequest, res: NextResponse) {
   if (!filepath)
     return new NextResponse('No se subió ningún archivo', { status: 400 });
   const fileBuffer = await filepath.arrayBuffer();
-  const path = `/${process.env.STORAGE_ZONE_NAME}/${id}.${extensions[filepath.type as keyof typeof extensions]}`;
-  const fotoUrl = `https://${process.env.CDN}/${id}.${extensions[filepath.type as keyof typeof extensions]}`;
+  const path = `/${process.env.BUNNY_STORAGE_ZONE_NAME}/${id}.${extensions[filepath.type as keyof typeof extensions]}`;
+  const fotoUrl = `https://${process.env.BUNNY_CDN}/${id}.${extensions[filepath.type as keyof typeof extensions]}`;
   const options = {
-    hostname: process.env.HOSTNAME,
+    hostname: process.env.BUNNY_HOSTNAME,
     path: path,
     method: 'PUT',
     headers: {
-      AccessKey: process.env.ACCESS_KEY2,
+      AccessKey: process.env.BUNNY_ACCESS_KEY_CRUD,
       'Content-Type': 'application/octet-stream',
     },
   };
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       const options = {
         method: 'POST',
         headers: {
-          AccessKey: process.env.ACCESS_KEY!,
+          AccessKey: process.env.BUNNY_ACCESS_KEY_PURGE!,
         },
       };
       const resPurge = await fetch(
@@ -115,11 +115,11 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
 
   if (currentFotoUrl !== '') {
     const options = {
-      hostname: process.env.HOSTNAME,
-      path: `/${process.env.STORAGE_ZONE_NAME}${new URL(currentFotoUrl).pathname}`,
+      hostname: process.env.BUNNY_HOSTNAME,
+      path: `/${process.env.BUNNY_STORAGE_ZONE_NAME}${new URL(currentFotoUrl).pathname}`,
       method: 'DELETE',
       headers: {
-        AccessKey: process.env.ACCESS_KEY2,
+        AccessKey: process.env.BUNNY_ACCESS_KEY_CRUD,
       },
     };
     const reqCDN = https.request(options, (response) => {

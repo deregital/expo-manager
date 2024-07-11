@@ -7,11 +7,11 @@ export function verifyWebhook(message: string, signature: string): boolean {
   }
   const sigWithoutPrefix = signature.slice(prefix.length);
 
-  if (!process.env.FACEBOOK_APP_SECRET) {
+  if (!process.env.META_APP_SECRET) {
     throw new Error('FACEBOOK_APP_SECRET is not set');
   }
 
-  const hmac = crypto.createHmac('sha256', process.env.FACEBOOK_APP_SECRET);
+  const hmac = crypto.createHmac('sha256', process.env.META_APP_SECRET);
   const messageHash = hmac.update(message).digest('hex');
   return sigWithoutPrefix === messageHash;
 }
