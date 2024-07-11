@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
 import { trpc } from '@/lib/trpc';
 import ComboBox from '../ui/ComboBox';
 import { useMemo, useState } from 'react';
-import ModeloIcon from '../icons/ModeloIcon';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { RouterOutputs } from '@/server';
@@ -140,7 +139,6 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
                         )?.nombreCompleto
                       : 'Buscar participante...'}
                   </span>
-                  <ModeloIcon className='h-5 w-5' />
                 </>
               }
               onSelect={(id) => {
