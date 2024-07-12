@@ -15,7 +15,7 @@ const GraficoCard = ({ modelos, isLoading }: GraficoCardProps) => {
   return (
     <Card className='flex h-full min-h-48 flex-col p-2 sm:min-h-max'>
       <CardTitle className='pb-2 text-2xl font-extrabold sm:text-3xl'>
-        Gráfico de modelos inscriptas
+        Gráfico de participantes inscriptos
       </CardTitle>
       {isLoading ? (
         <div className='flex flex-1 items-center justify-center'>

@@ -72,12 +72,12 @@ export const whatsappRouter = router({
       }
 
       const res: TemplateResponse = await fetch(
-        `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates`,
+        `https://graph.facebook.com/v19.0/${process.env.META_WHATSAPP_BUSINESS_ID}/message_templates`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+            Authorization: `Bearer ${process.env.META_TOKEN}`,
           },
           body: JSON.stringify(contenido),
         }
@@ -93,11 +93,11 @@ export const whatsappRouter = router({
     }),
   getTemplates: protectedProcedure.query(async ({ ctx }) => {
     const res: GetTemplatesResponse = await fetch(
-      `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?fields=name,status`,
+      `https://graph.facebook.com/v19.0/${process.env.META_WHATSAPP_BUSINESS_ID}/message_templates?fields=name,status`,
       {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+          Authorization: `Bearer ${process.env.META_TOKEN}`,
         },
       }
     ).then((res) => res.json());
@@ -156,7 +156,7 @@ export const whatsappRouter = router({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+            Authorization: `Bearer ${process.env.META_TOKEN}`,
           },
           body: JSON.stringify(contenido),
         }
@@ -184,11 +184,11 @@ export const whatsappRouter = router({
         });
       }
       const res = await fetch(
-        `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?name=${input.titulo}`,
+        `https://graph.facebook.com/v18.0/${process.env.META_WHATSAPP_BUSINESS_ID}/message_templates?name=${input.titulo}`,
         {
           method: 'DELETE',
           headers: {
-            Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+            Authorization: `Bearer ${process.env.META_TOKEN}`,
           },
         }
       ).then((res) => res.json());
@@ -245,12 +245,12 @@ export const whatsappRouter = router({
       await Promise.all(
         telefonos.map(async (telefono) => {
           const res = await fetch(
-            `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER}/messages`,
+            `https://graph.facebook.com/v19.0/${process.env.META_WHATSAPP_API_PHONE_NUMBER_ID}/messages`,
             {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+                Authorization: `Bearer ${process.env.META_TOKEN}`,
               },
               body: JSON.stringify({
                 messaging_product: 'whatsapp',
@@ -349,12 +349,12 @@ export async function enviarMensajeUnaSolaVez(
   db: PrismaClient
 ) {
   const res = await fetch(
-    `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_API_PHONE_NUMBER_ID}/messages`,
+    `https://graph.facebook.com/v19.0/${process.env.META_WHATSAPP_API_PHONE_NUMBER_ID}/messages`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+        Authorization: `Bearer ${process.env.META_TOKEN}`,
       },
       body: JSON.stringify({
         messaging_product: 'whatsapp',
@@ -406,11 +406,11 @@ export async function enviarMensajeUnaSolaVez(
 
 export async function getTemplateByName(plantillaName: string) {
   const res: GetTemplateResponse = await fetch(
-    `https://graph.facebook.com/v19.0/${process.env.WHATSAPP_BUSINESS_ID}/message_templates?name=${plantillaName}`,
+    `https://graph.facebook.com/v19.0/${process.env.META_WHATSAPP_BUSINESS_ID}/message_templates?name=${plantillaName}`,
     {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+        Authorization: `Bearer ${process.env.META_TOKEN}`,
       },
     }
   ).then((res) => res.json());

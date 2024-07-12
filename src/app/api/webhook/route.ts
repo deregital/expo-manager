@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   let token = urlParams.get('hub.verify_token');
   let challenge = urlParams.get('hub.challenge');
   if (mode && token && challenge && mode == 'subscribe') {
-    const isValid = token == process.env.WEBHOOK_VERIFY_TOKEN;
+    const isValid = token == process.env.META_WHATSAPP_WEBHOOK_VERIFY_TOKEN;
     if (isValid) {
       return new NextResponse(challenge);
     } else {

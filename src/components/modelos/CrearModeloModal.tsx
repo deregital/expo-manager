@@ -5,15 +5,17 @@ import { ModelosSimilarity } from '@/server/types/modelos';
 import clsx from 'clsx';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
+import { Dialog, DialogContent } from '../ui/dialog';
 import Loader from '../ui/loader';
 import { useCrearModeloModal } from './CrearModelo';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ModelosSimilares from '@/components/modelos/ModelosSimilares';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 const CrearModeloModal = ({ open }: { open: boolean }) => {
   const modalModelo = useCrearModeloModal();
   const utils = trpc.useUtils();
+  const router = useRouter();
   const createModelo = trpc.modelo.createManual.useMutation({
     onError: (error) => {
       if (
@@ -36,6 +38,11 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   });
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchParams = new URLSearchParams(useSearchParams());
+  const [eventoId, setEventoId] = useState<string | null>(
+    searchParams.get('evento') ?? null
+  );
+  const pathname = usePathname();
   const [video, setVideo] = useState<File | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
 
@@ -44,8 +51,37 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   const [similarityModelos, setSimilarityModelos] = useState<ModelosSimilarity>(
     []
   );
+  const { data: etiquetaEvento } = trpc.evento.getById.useQuery(
+    {
+      id: eventoId ?? '',
+    },
+    {
+      enabled: !!eventoId,
+    }
+  );
+  const { data: etiquetaAsistio } = trpc.etiqueta.getById.useQuery(
+    etiquetaEvento?.etiquetaAsistioId ?? '',
+    {
+      enabled: !!etiquetaEvento,
+    }
+  );
+  useEffect(() => {
+    setEventoId(
+      searchParams.get('evento') !== '' ? searchParams.get('evento') : null
+    );
+  }, [searchParams.get('evento')]);
 
   async function handleSave() {
+    const etiquetaInEvento = modalModelo.modelo.etiquetas.find(
+      (e) => e.id === eventoId
+    );
+
+    const agregarEtiquetaEvento =
+      !etiquetaInEvento && eventoId && eventoId !== '';
+    const etiquetasInsertar = agregarEtiquetaEvento
+      ? [...modalModelo.modelo.etiquetas, etiquetaAsistio!]
+      : modalModelo.modelo.etiquetas;
+
     const res = await createModelo
       .mutateAsync({
         modelo: {
@@ -57,7 +93,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
             ? modalModelo.modelo.fechaNacimiento.toISOString()
             : undefined,
           instagram: modalModelo.modelo.instagram,
-          etiquetas: modalModelo.modelo.etiquetas.map((e) => e.id),
+          etiquetas: etiquetasInsertar.map((e) => e.id),
           apodos: modalModelo.modelo.apodos.filter((e) => e !== ''),
         },
         similarity: similarity,
@@ -97,6 +133,16 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
           instagram: '',
         },
       });
+      searchParams.delete('modal');
+      if (eventoId && eventoId !== '') {
+        searchParams.delete('evento');
+        searchParams.set('persona', 'creada');
+        router.push(
+          `eventos/${eventoId}/presentismo?${searchParams.toString()}`
+        );
+      } else {
+        router.push(`${pathname}?${searchParams.toString()}`);
+      }
     }
   }
 
@@ -139,20 +185,30 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         instagram: '',
       },
     });
+    searchParams.delete('modal');
     setVideo(null);
     setFotoUrl(null);
     setSimilarity(false);
+
+    if (createModelo.isSuccess) return;
+    if (eventoId && eventoId !== '') {
+      router.push(`eventos/${eventoId}/presentismo`);
+      searchParams.delete('evento');
+    } else {
+      router.push(`${pathname}?${searchParams.toString()}`);
+      searchParams.delete('evento');
+    }
   }
 
   return (
     <>
       <Dialog
         open={open}
-        onOpenChange={() =>
-          useCrearModeloModal.setState({ open: !modalModelo.open })
-        }
+        onOpenChange={() => {
+          searchParams.delete('modal');
+          router.push(`${pathname}?${searchParams.toString()}`);
+        }}
       >
-        <DialogTrigger></DialogTrigger>
         <DialogContent onCloseAutoFocus={handleCancel}>
           <div className='flex flex-col gap-y-0.5'>
             <p className='text-xl font-semibold'>
@@ -189,8 +245,8 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                     >
                       {similarityModelos.length}{' '}
                       {similarityModelos.length === 1
-                        ? 'modelo similar.'
-                        : 'modelos similares.'}
+                        ? 'participante similar.'
+                        : 'participantes similares.'}
                     </span>{' '}
                     ¿Quieres agregar a este participante?
                   </span>

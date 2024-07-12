@@ -70,10 +70,10 @@ const FiltroTabla = () => {
         {!isLoadingModelos && (
           <p className='self-start text-sm text-black/80 md:self-end'>
             {cantidadDeModelos === 0
-              ? 'No se encontraron modelos'
+              ? 'No se encontraron participantes'
               : cantidadDeModelos === 1
-                ? '1 modelo encontrada'
-                : `${cantidadDeModelos} modelos encontradas`}
+                ? '1 participante encontrado'
+                : `${cantidadDeModelos} participantes encontrados`}
           </p>
         )}
       </div>

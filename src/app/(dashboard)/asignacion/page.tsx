@@ -55,7 +55,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
 
       if (etiquetasCoincidentes.filter((e) => e.grupo.esExclusivo).length > 0) {
         toast.error(
-          `La modelo ${modelo.nombreCompleto} ya tiene asignadas etiquetas exclusivas del mismo grupo: ` +
+          `El participante ${modelo.nombreCompleto} ya tiene asignadas etiquetas exclusivas del mismo grupo: ` +
             etiquetasCoincidentes
               .filter((e) => e.grupo.esExclusivo)
               .map((e) => e.nombre)
@@ -113,8 +113,8 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
           <ModelosComboYList />
           {modelosList.length === 0 && (
             <p className='mt-2'>
-              Seleccione las modelos a las que quiere asignarle o desasignarle
-              etiquetas
+              Seleccione los participantes a los que quiere asignarle o
+              desasignarle etiquetas
             </p>
           )}
         </div>
@@ -122,8 +122,8 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
           <EtiquetasComboYList />
           {etiquetasList.length === 0 && (
             <p className='mt-2'>
-              Seleccione las etiquetas que quiere asignar o desasignar de las
-              modelos
+              Seleccione las etiquetas que quiere asignar o desasignar de los
+              participantes
             </p>
           )}
         </div>
@@ -151,7 +151,11 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
             asignar.isLoading
           }
         >
-          {desasignar.isLoading || asignar.isLoading ? <Loader /> : 'Desasignar'}
+          {desasignar.isLoading || asignar.isLoading ? (
+            <Loader />
+          ) : (
+            'Desasignar'
+          )}
         </Button>
       </div>
     </div>

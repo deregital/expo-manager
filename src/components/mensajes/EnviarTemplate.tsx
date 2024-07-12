@@ -116,7 +116,9 @@ const EnviarTemplate = () => {
           <ComboBox
             data={
               currentEtiquetas
-                ? currentEtiquetas.sort((a, b) => a.nombre.localeCompare(b.nombre))
+                ? currentEtiquetas.sort((a, b) =>
+                    a.nombre.localeCompare(b.nombre)
+                  )
                 : []
             }
             id={'id'}
@@ -184,7 +186,7 @@ const EnviarTemplate = () => {
       </div>
       <div className='flex items-center justify-around'>
         <div className=''>
-          <span>{modelos?.length} modelos encontradas</span>
+          <span>{modelos?.length} participantes encontrados</span>
         </div>
         <div>
           <span>USD${currentPrecio.toFixed(3)} precio estimado</span>
