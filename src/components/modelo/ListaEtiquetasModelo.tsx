@@ -2,13 +2,13 @@ import AgregarEtiquetasAModelo from '@/components/modelo/AgregarEtiquetasAModelo
 import { useModeloData } from '@/components/modelo/ModeloPageContent';
 import ListaEtiquetas from '@/components/ui/ListaEtiquetas';
 import { trpc } from '@/lib/trpc';
-import { RouterOutputs } from '@/server';
+import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 interface ListaEtiquetasModeloProps {
   modeloId: string;
-  etiquetas: NonNullable<RouterOutputs['modelo']['getById']>['etiquetas'];
+  etiquetas: EtiquetaBaseConGrupoColor[];
 }
 
 const ListaEtiquetasModelo = ({

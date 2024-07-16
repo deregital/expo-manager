@@ -4,12 +4,13 @@ import ComboBox from '@/components/ui/ComboBox';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
+import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
 import { TipoEtiqueta } from '@prisma/client';
 import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 function availableGrupos(
-  etiquetas: NonNullable<RouterOutputs['modelo']['getById']>['etiquetas'],
+  etiquetas: EtiquetaBaseConGrupoColor[],
   gruposData: NonNullable<RouterOutputs['grupoEtiqueta']['getAll']>
 ) {
   return gruposData.filter((grupo) => {
@@ -38,7 +39,7 @@ function availableGrupos(
 }
 
 function availableEtiquetas(
-  etiquetas: NonNullable<RouterOutputs['modelo']['getById']>['etiquetas'],
+  etiquetas: EtiquetaBaseConGrupoColor[],
   etiquetasData: NonNullable<RouterOutputs['etiqueta']['getAll']>,
   grupos: ReturnType<typeof availableGrupos>
 ) {
@@ -54,7 +55,7 @@ function availableEtiquetas(
 }
 
 interface AddEtiquetaCombosProps {
-  etiquetas: NonNullable<RouterOutputs['modelo']['getById']>['etiquetas'];
+  etiquetas: EtiquetaBaseConGrupoColor[];
   handleAddEtiqueta: (
     addedEtiqueta: NonNullable<
       RouterOutputs['modelo']['getById']

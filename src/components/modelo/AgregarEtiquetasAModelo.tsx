@@ -2,7 +2,6 @@ import AddEtiquetaCombos from '@/components/ui/AddEtiquetaCombos';
 import { useModeloData } from '@/components/modelo/ModeloPageContent';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
-import { TipoEtiqueta } from '@prisma/client';
 import React from 'react';
 import { toast } from 'sonner';
 
@@ -28,18 +27,7 @@ const AgregarEtiquetasAModelo = ({
     >['etiquetas'][number]
   ) {
     useModeloData.setState({
-      etiquetas: [
-        ...etiquetas,
-        {
-          id: addedEtiqueta.id,
-          nombre: addedEtiqueta.nombre,
-          grupo: addedEtiqueta.grupo,
-          grupoId: addedEtiqueta.grupo.id,
-          tipo: TipoEtiqueta.PERSONAL,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ],
+      etiquetas: [...etiquetas, addedEtiqueta],
     });
 
     closeAddEtiqueta();

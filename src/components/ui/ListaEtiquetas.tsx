@@ -2,19 +2,15 @@ import CirclePlus from '@/components/icons/CirclePlus';
 import CircleXIcon from '@/components/icons/CircleX';
 import { Badge } from '@/components/ui/badge';
 import { getTextColorByBg } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
+import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
 import React from 'react';
 
 interface ListaEtiquetasProps {
-  etiquetas: NonNullable<RouterOutputs['modelo']['getById']>['etiquetas'];
+  etiquetas: EtiquetaBaseConGrupoColor[];
   children: React.ReactNode;
   open: boolean;
   setOpen: (open: boolean) => void;
-  handleDelete: (
-    etiqueta: NonNullable<
-      RouterOutputs['modelo']['getById']
-    >['etiquetas'][number]
-  ) => void;
+  handleDelete: (etiqueta: EtiquetaBaseConGrupoColor) => void;
 }
 
 const ListaEtiquetas = ({

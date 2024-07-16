@@ -20,6 +20,7 @@ import WhatsappIcon from '@/components/icons/WhatsappIcon';
 import InstagramIcon from '@/components/icons/InstagramIcon';
 import MailIcon from '@/components/icons/MailIcon';
 import DNIIcon from '@/components/icons/DNIIcon';
+import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
 
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
@@ -27,7 +28,7 @@ interface ModeloPageContentProps {
 
 type ModeloData = {
   id: string;
-  etiquetas: NonNullable<RouterOutputs['modelo']['getById']>['etiquetas'];
+  etiquetas: EtiquetaBaseConGrupoColor[];
   comentarios: RouterOutputs['comentario']['getByPerfilId'] | undefined;
 };
 
