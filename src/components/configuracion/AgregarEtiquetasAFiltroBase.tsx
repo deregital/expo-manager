@@ -33,6 +33,7 @@ const AgregarEtiquetasAFiltroBase = ({
       })
       .then(() => {
         toast.success(`Etiqueta ${addedEtiqueta.nombre} agregada con éxito`);
+        utils.modelo.invalidate();
         utils.cuenta.getFiltroBase.invalidate();
       })
       .catch(() => {

@@ -31,6 +31,7 @@ export const useEtiquetasFiltroBase = create<{
 }));
 
 const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
+  const utils = trpc.useUtils();
   const filtroBaseMutation = trpc.cuenta.updateFiltroBase.useMutation();
   const { data: filtroBaseData, isLoading: filtroBaseLoading } =
     trpc.cuenta.getFiltroBase.useQuery(undefined, {
@@ -56,6 +57,8 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
       })
       .then(() => {
         toast.success(`Etiqueta ${etiqueta.nombre} eliminada`);
+        utils.modelo.invalidate();
+        utils.cuenta.getFiltroBase.invalidate();
       })
       .catch(() => {
         agregarEtiqueta(etiqueta);
@@ -72,16 +75,18 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
             disabled={filtroBaseLoading}
             checked={activo}
             onCheckedChange={async (checked: boolean | 'indeterminate') => {
-              if (checked === 'indeterminate') return;
+              // if (checked === 'indeterminate') return;
               useEtiquetasFiltroBase.setState({
-                activo: checked,
+                activo: checked === 'indeterminate' ? activo : checked,
               });
               await filtroBaseMutation
                 .mutateAsync({
-                  activo: checked,
+                  activo: checked === 'indeterminate' ? false : checked,
                   etiquetas: etiquetas.map((e) => e.id),
                 })
                 .then(() => {
+                  utils.cuenta.getFiltroBase.invalidate();
+                  utils.modelo.invalidate();
                   toast.success(
                     checked ? 'Filtro activado' : 'Filtro desactivado'
                   );
