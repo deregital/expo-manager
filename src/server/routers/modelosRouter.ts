@@ -13,11 +13,22 @@ export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const modelos = await ctx.prisma.perfil.findMany({
       where: {
-        etiquetas: {
-          some: {
-            id: { in: ctx.etiquetasVisibles },
+        AND: [
+          {
+            etiquetas: {
+              some: {
+                id: { in: ctx.etiquetasVisibles },
+              },
+            },
           },
-        },
+          ...ctx.filtroBase.map((eId) => ({
+            etiquetas: {
+              some: {
+                id: eId,
+              },
+            },
+          })),
+        ],
       },
       include: {
         etiquetas: {
@@ -57,11 +68,22 @@ export const modeloRouter = router({
       })
       .perfil.findMany({
         where: {
-          etiquetas: {
-            some: {
-              id: { in: ctx.etiquetasVisibles },
+          AND: [
+            {
+              etiquetas: {
+                some: {
+                  id: { in: ctx.etiquetasVisibles },
+                },
+              },
             },
-          },
+            ...ctx.filtroBase.map((eId) => ({
+              etiquetas: {
+                some: {
+                  id: eId,
+                },
+              },
+            })),
+          ],
         },
         include: {
           mensajes: true,
@@ -75,11 +97,22 @@ export const modeloRouter = router({
       return await ctx.prisma.perfil.findUnique({
         where: {
           id: input,
-          etiquetas: {
-            some: {
-              id: { in: ctx.etiquetasVisibles },
+          AND: [
+            {
+              etiquetas: {
+                some: {
+                  id: { in: ctx.etiquetasVisibles },
+                },
+              },
             },
-          },
+            ...ctx.filtroBase.map((eId) => ({
+              etiquetas: {
+                some: {
+                  id: eId,
+                },
+              },
+            })),
+          ],
         },
         include: {
           etiquetas: {
@@ -116,6 +149,13 @@ export const modeloRouter = router({
                 },
               },
             },
+            ...ctx.filtroBase.map((eId) => ({
+              etiquetas: {
+                some: {
+                  id: eId,
+                },
+              },
+            })),
           ],
         },
         include: {
@@ -136,16 +176,27 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findMany({
         where: {
-          etiquetas: {
-            some: {
-              id: { in: ctx.etiquetasVisibles },
-              grupo: {
-                id: {
-                  in: input,
+          AND: [
+            {
+              etiquetas: {
+                some: {
+                  id: { in: ctx.etiquetasVisibles },
+                  grupo: {
+                    id: {
+                      in: input,
+                    },
+                  },
                 },
               },
+              ...ctx.filtroBase.map((eId) => ({
+                etiquetas: {
+                  some: {
+                    id: eId,
+                  },
+                },
+              })),
             },
-          },
+          ],
         },
         include: {
           etiquetas: true,
@@ -426,6 +477,13 @@ export const modeloRouter = router({
                 },
               },
             },
+            ...ctx.filtroBase.map((eId) => ({
+              etiquetas: {
+                some: {
+                  id: eId,
+                },
+              },
+            })),
           ],
         },
         include: {
@@ -474,6 +532,13 @@ export const modeloRouter = router({
                 },
               },
             },
+            ...ctx.filtroBase.map((eId) => ({
+              etiquetas: {
+                some: {
+                  id: eId,
+                },
+              },
+            })),
           ],
         },
         orderBy: {
@@ -513,11 +578,22 @@ export const modeloRouter = router({
       return await ctx.prisma.perfil.findUnique({
         where: {
           telefono: input,
-          etiquetas: {
-            some: {
-              id: { in: ctx.etiquetasVisibles },
+          AND: [
+            {
+              etiquetas: {
+                some: {
+                  id: { in: ctx.etiquetasVisibles },
+                },
+              },
+              ...ctx.filtroBase.map((eId) => ({
+                etiquetas: {
+                  some: {
+                    id: eId,
+                  },
+                },
+              })),
             },
-          },
+          ],
         },
       });
     }),

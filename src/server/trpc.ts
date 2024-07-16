@@ -58,17 +58,20 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     },
   });
 
-  const etiquetasVisibles =
+  const etiquetasVisibles = esAdmin
+    ? etiquetasTotales.map((e) => e.id)
+    : etiquetasNoAdmin.map((e) => e.id);
+
+  const filtroBase =
     user.filtroBase.length > 0 && user.filtroBaseActivo
       ? user.filtroBase.map((e) => e.id)
-      : esAdmin
-        ? etiquetasTotales.map((e) => e.id)
-        : etiquetasNoAdmin.map((e) => e.id);
+      : [];
 
   return next({
     ctx: {
       ...ctx,
       etiquetasVisibles,
+      filtroBase,
     },
   });
 });
