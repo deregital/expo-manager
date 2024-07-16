@@ -1,6 +1,6 @@
 import { RouterOutputs } from '@/server';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import ListaEtiquetas from '@/components/modelo/ListaEtiquetas';
+import ListaEtiquetasModelo from '@/components/modelo/ListaEtiquetasModelo';
 import { create } from 'zustand';
 import ComentariosSection from '@/components/modelo/ComentariosSection';
 import { Button } from '../ui/button';
@@ -262,7 +262,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
             </div>
           </div>
           <div className='hidden flex-wrap gap-2 md:flex'>
-            <ListaEtiquetas
+            <ListaEtiquetasModelo
               modeloId={modelo.id}
               etiquetas={etiquetasFiltradas}
             />
@@ -271,7 +271,10 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       </div>
 
       <div className='mt-4 flex flex-wrap gap-2 md:hidden'>
-        <ListaEtiquetas modeloId={modelo.id} etiquetas={etiquetasFiltradas} />
+        <ListaEtiquetasModelo
+          modeloId={modelo.id}
+          etiquetas={etiquetasFiltradas}
+        />
       </div>
 
       <div className='mt-5'>
