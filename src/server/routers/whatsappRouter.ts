@@ -209,7 +209,11 @@ export const whatsappRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await enviarMensajeUnaSolaVez(input.telefono, input.text, ctx.prisma);
+      await enviarMensajeUnaSolaVez(
+        input.telefono,
+        input.text,
+        ctx.prisma as PrismaClient
+      );
 
       return 'Message sent';
     }),

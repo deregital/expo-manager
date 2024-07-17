@@ -1,6 +1,6 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { MessageJson } from '@/server/types/whatsapp';
-import { Mensaje, Perfil, TipoEtiqueta } from '@prisma/client';
+import { Mensaje, Perfil, Prisma, TipoEtiqueta } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { subDays } from 'date-fns';
 import { z } from 'zod';
@@ -13,22 +13,11 @@ export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const modelos = await ctx.prisma.perfil.findMany({
       where: {
-        AND: [
-          {
-            etiquetas: {
-              some: {
-                id: { in: ctx.etiquetasVisibles },
-              },
-            },
+        etiquetas: {
+          some: {
+            id: { in: ctx.etiquetasVisibles },
           },
-          ...ctx.filtroBase.map((eId) => ({
-            etiquetas: {
-              some: {
-                id: eId,
-              },
-            },
-          })),
-        ],
+        },
       },
       include: {
         etiquetas: {
@@ -68,22 +57,11 @@ export const modeloRouter = router({
       })
       .perfil.findMany({
         where: {
-          AND: [
-            {
-              etiquetas: {
-                some: {
-                  id: { in: ctx.etiquetasVisibles },
-                },
-              },
+          etiquetas: {
+            some: {
+              id: { in: ctx.etiquetasVisibles },
             },
-            ...ctx.filtroBase.map((eId) => ({
-              etiquetas: {
-                some: {
-                  id: eId,
-                },
-              },
-            })),
-          ],
+          },
         },
         include: {
           mensajes: true,
@@ -97,22 +75,11 @@ export const modeloRouter = router({
       return await ctx.prisma.perfil.findUnique({
         where: {
           id: input,
-          AND: [
-            {
-              etiquetas: {
-                some: {
-                  id: { in: ctx.etiquetasVisibles },
-                },
-              },
+          etiquetas: {
+            some: {
+              id: { in: ctx.etiquetasVisibles },
             },
-            ...ctx.filtroBase.map((eId) => ({
-              etiquetas: {
-                some: {
-                  id: eId,
-                },
-              },
-            })),
-          ],
+          },
         },
         include: {
           etiquetas: {
@@ -149,13 +116,6 @@ export const modeloRouter = router({
                 },
               },
             },
-            ...ctx.filtroBase.map((eId) => ({
-              etiquetas: {
-                some: {
-                  id: eId,
-                },
-              },
-            })),
           ],
         },
         include: {
@@ -176,27 +136,16 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findMany({
         where: {
-          AND: [
-            {
-              etiquetas: {
-                some: {
-                  id: { in: ctx.etiquetasVisibles },
-                  grupo: {
-                    id: {
-                      in: input,
-                    },
-                  },
+          etiquetas: {
+            some: {
+              id: { in: ctx.etiquetasVisibles },
+              grupo: {
+                id: {
+                  in: input,
                 },
               },
-              ...ctx.filtroBase.map((eId) => ({
-                etiquetas: {
-                  some: {
-                    id: eId,
-                  },
-                },
-              })),
             },
-          ],
+          },
         },
         include: {
           etiquetas: true,
@@ -477,13 +426,6 @@ export const modeloRouter = router({
                 },
               },
             },
-            ...ctx.filtroBase.map((eId) => ({
-              etiquetas: {
-                some: {
-                  id: eId,
-                },
-              },
-            })),
           ],
         },
         include: {
@@ -507,6 +449,7 @@ export const modeloRouter = router({
         etiquetaId: z.string().optional(),
       })
     )
+    .output(z.custom<ReturnType<typeof modelosAgrupadas>>())
     .query(async ({ input, ctx }) => {
       const startDateTime = input.start ? new Date(input.start) : undefined;
       const endDateTime = input.end ? new Date(input.end) : undefined;
@@ -532,13 +475,6 @@ export const modeloRouter = router({
                 },
               },
             },
-            ...ctx.filtroBase.map((eId) => ({
-              etiquetas: {
-                some: {
-                  id: eId,
-                },
-              },
-            })),
           ],
         },
         orderBy: {
@@ -558,17 +494,7 @@ export const modeloRouter = router({
         },
       });
 
-      const groupedModelos = modelos.reduce(
-        (acc, modelo) => {
-          const date = modelo.created_at.toISOString().split('T')[0];
-          if (!acc[date]) {
-            acc[date] = [];
-          }
-          acc[date].push(modelo);
-          return acc;
-        },
-        {} as Record<string, typeof modelos>
-      );
+      const groupedModelos = modelosAgrupadas(modelos);
 
       return groupedModelos;
     }),
@@ -578,23 +504,41 @@ export const modeloRouter = router({
       return await ctx.prisma.perfil.findUnique({
         where: {
           telefono: input,
-          AND: [
-            {
-              etiquetas: {
-                some: {
-                  id: { in: ctx.etiquetasVisibles },
-                },
-              },
-              ...ctx.filtroBase.map((eId) => ({
-                etiquetas: {
-                  some: {
-                    id: eId,
-                  },
-                },
-              })),
+          etiquetas: {
+            some: {
+              id: { in: ctx.etiquetasVisibles },
             },
-          ],
+          },
         },
       });
     }),
 });
+
+function modelosAgrupadas(
+  modelos: Prisma.PerfilGetPayload<{
+    include: {
+      mensajes: true;
+      etiquetas: {
+        include: {
+          grupo: {
+            select: {
+              id: true;
+            };
+          };
+        };
+      };
+    };
+  }>[]
+) {
+  return modelos.reduce(
+    (acc, modelo) => {
+      const date = modelo.created_at.toISOString().split('T')[0];
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(modelo);
+      return acc;
+    },
+    {} as Record<string, typeof modelos>
+  );
+}

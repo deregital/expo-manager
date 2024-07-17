@@ -67,9 +67,43 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
       ? user.filtroBase.map((e) => e.id)
       : [];
 
+  const newPrisma = ctx.prisma.$extends({
+    query: {
+      perfil: {
+        async findMany({ args, query }) {
+          args.where = {
+            ...args.where,
+            AND: filtroBase.map((eId) => ({
+              etiquetas: {
+                some: {
+                  id: eId,
+                },
+              },
+            })),
+          };
+          return query(args);
+        },
+        async findUnique({ args, query }) {
+          args.where = {
+            ...args.where,
+            AND: filtroBase.map((eId) => ({
+              etiquetas: {
+                some: {
+                  id: eId,
+                },
+              },
+            })),
+          };
+          return query(args);
+        },
+      },
+    },
+  });
+
   return next({
     ctx: {
       ...ctx,
+      prisma: newPrisma,
       etiquetasVisibles,
       filtroBase,
     },
