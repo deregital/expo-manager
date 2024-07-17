@@ -17,8 +17,10 @@ model Cuenta {
   comentarios Comentario[]
   etiquetas   Etiqueta[]   @relation("CUENTA_X_ETIQUETA")
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at       DateTime   @default(now())
+  updated_at       DateTime   @updatedAt
+  filtroBase       Etiqueta[] @relation("FILTRO_BASE_X_ETIQUETA")
+  filtroBaseActivo Boolean    @default(false) @map("filtro_base_activo")
 
   @@map("CUENTA")
 }
@@ -73,6 +75,7 @@ model Etiqueta {
   eventosConfirmados Evento[] @relation("EVENTOCONFIRMADO_X_ETIQUETA")
   cuentas            Cuenta[] @relation("CUENTA_X_ETIQUETA")
   perfiles           Perfil[] @relation("PERFIL_X_ETIQUETA")
+  cuentasFiltroBase  Cuenta[] @relation("FILTRO_BASE_X_ETIQUETA")
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

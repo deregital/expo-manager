@@ -1,6 +1,6 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { MessageJson } from '@/server/types/whatsapp';
-import { Mensaje, Perfil, TipoEtiqueta } from '@prisma/client';
+import { Mensaje, Perfil, Prisma, TipoEtiqueta } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { subDays } from 'date-fns';
 import { z } from 'zod';
@@ -449,6 +449,7 @@ export const modeloRouter = router({
         etiquetaId: z.string().optional(),
       })
     )
+    .output(z.custom<ReturnType<typeof modelosAgrupadas>>())
     .query(async ({ input, ctx }) => {
       const startDateTime = input.start ? new Date(input.start) : undefined;
       const endDateTime = input.end ? new Date(input.end) : undefined;
@@ -493,17 +494,7 @@ export const modeloRouter = router({
         },
       });
 
-      const groupedModelos = modelos.reduce(
-        (acc, modelo) => {
-          const date = modelo.created_at.toISOString().split('T')[0];
-          if (!acc[date]) {
-            acc[date] = [];
-          }
-          acc[date].push(modelo);
-          return acc;
-        },
-        {} as Record<string, typeof modelos>
-      );
+      const groupedModelos = modelosAgrupadas(modelos);
 
       return groupedModelos;
     }),
@@ -522,3 +513,32 @@ export const modeloRouter = router({
       });
     }),
 });
+
+function modelosAgrupadas(
+  modelos: Prisma.PerfilGetPayload<{
+    include: {
+      mensajes: true;
+      etiquetas: {
+        include: {
+          grupo: {
+            select: {
+              id: true;
+            };
+          };
+        };
+      };
+    };
+  }>[]
+) {
+  return modelos.reduce(
+    (acc, modelo) => {
+      const date = modelo.created_at.toISOString().split('T')[0];
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(modelo);
+      return acc;
+    },
+    {} as Record<string, typeof modelos>
+  );
+}
