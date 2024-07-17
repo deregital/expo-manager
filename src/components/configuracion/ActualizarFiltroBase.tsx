@@ -1,10 +1,10 @@
 import AgregarEtiquetasAFiltroBase from '@/components/configuracion/AgregarEtiquetasAFiltroBase';
 import ListaEtiquetas from '@/components/ui/ListaEtiquetas';
-import { Checkbox } from '@/components/ui/checkbox';
 import Loader from '@/components/ui/loader';
+import { Switch } from '@/components/ui/switch';
 import { trpc } from '@/lib/trpc';
 import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 
@@ -71,7 +71,7 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
       <div className='flex flex-col'>
         <div className='flex items-center gap-x-3'>
           <h1 className='text-2xl font-bold'>Filtro base</h1>
-          <Checkbox
+          <Switch
             disabled={filtroBaseLoading}
             checked={activo}
             onCheckedChange={async (checked: boolean | 'indeterminate') => {

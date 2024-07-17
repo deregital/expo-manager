@@ -1,18 +1,18 @@
-import SidebarLink from '@/components/layout/SidebarLink';
-import Image from 'next/image';
-import React from 'react';
-import EtiquetaIcon from '@/components/icons/EtiquetasIcon';
-import ConfigIcon from '@/components/icons/ConfigIcon';
-import HomeIcon from '@/components/icons/HomeIcon';
-import HomeFillIcon from '@/components/icons/HomeFillIcon';
-import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
-import ConfigFillIcon from '@/components/icons/ConfigFillIcon';
-import TemplateIcon from '@/components/icons/TemplateIcon';
-import TemplateFillIcon from '@/components/icons/TemplateFillIcon';
-import EventIcon from '@/components/icons/EventIcon';
-import EventFillIcon from '@/components/icons/EventFillIcon';
 import ChatFillIcon from '@/components/icons/ChatFillIcon';
 import ChatIcon from '@/components/icons/ChatIcon';
+import ConfigFillIcon from '@/components/icons/ConfigFillIcon';
+import ConfigIcon from '@/components/icons/ConfigIcon';
+import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
+import EtiquetaIcon from '@/components/icons/EtiquetasIcon';
+import EventFillIcon from '@/components/icons/EventFillIcon';
+import EventIcon from '@/components/icons/EventIcon';
+import HomeFillIcon from '@/components/icons/HomeFillIcon';
+import HomeIcon from '@/components/icons/HomeIcon';
+import TemplateFillIcon from '@/components/icons/TemplateFillIcon';
+import TemplateIcon from '@/components/icons/TemplateIcon';
+import SidebarFiltroBase from '@/components/layout/SidebarFiltroBase';
+import SidebarLink from '@/components/layout/SidebarLink';
+import Image from 'next/image';
 import ModeloFillIcon from '../icons/ModeloFillIcon';
 import ModeloIcon from '../icons/ModeloIcon';
 
@@ -73,6 +73,8 @@ const Sidebar = () => {
         </ul>
       </div>
       <div className='justify-self-end'>
+        <SidebarFiltroBase />
+        <hr />
         <SidebarLink
           to='/configuracion'
           icon={<ConfigIcon height={24} width={24} />}
