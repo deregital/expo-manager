@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MensajeStatus } from '@prisma/client';
 import { join as pathJoin } from 'path';
 import { enviarMensajeUnaSolaVez } from '@/server/routers/whatsappRouter';
+import { getHighestIdLegible } from '@/lib/server';
 
 export const revalidate = 0;
 const FECHA_LIMITE_MENSAJE_AUTOMATICO = new Date(2024, 4, 10);
@@ -123,6 +124,8 @@ async function crearMensaje(value: ReceivedMessage) {
     };
   }
 
+  const idLegibleMasAlto = await getHighestIdLegible(prisma);
+
   const mensajeCreado = await prisma.mensaje.create({
     data: {
       wamId: message.id,
@@ -134,6 +137,7 @@ async function crearMensaje(value: ReceivedMessage) {
             telefono: message.from,
           },
           create: {
+            idLegible: idLegibleMasAlto + 1,
             nombreCompleto: contact.profile.name,
             nombrePila: contact.profile.name.split(' ')[0],
             telefono: contact.wa_id,
