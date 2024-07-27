@@ -13,7 +13,8 @@ import { format } from 'date-fns';
 import { ArrowLeftIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import jsPDF from 'jspdf';
+import { generate } from '@pdfme/generator';
+import { Template, BLANK_PDF } from '@pdfme/common';
 
 interface PresentismoPageProps {
   params: {
@@ -86,16 +87,7 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
     return porcentaje % 1 === 0 ? porcentaje : Number(porcentaje.toFixed(2));
   }, [evento?.etiquetaAsistioId, modelos]);
 
-  const handleGeneratePDF = () => {
-    const doc = new jsPDF();
-
-    doc.text('Información del Evento', 10, 10);
-    doc.text(`Nombre: ${evento?.nombre}`, 10, 20);
-    doc.text(`Fecha: ${format(evento!.fecha, 'yyyy-MM-dd')}`, 10, 30);
-    doc.text(`Ubicación: ${evento?.ubicacion}`, 10, 40);
-
-    doc.text('Modelos que Confirmaron Asistencia:', 10, 50);
-
+  const handleGeneratePDF = async () => {
     const modelosConfirmados = modelosData
       .filter((modelo) =>
         modelo.etiquetas.find(
@@ -104,12 +96,63 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
       )
       .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
 
-    modelosConfirmados.forEach((modelo, index) => {
-      const y = 60 + index * 10;
-      doc.text(`- ${modelo.nombreCompleto} (${modelo.dni})`, 10, y);
-    });
+    const participantes = modelosConfirmados
+      .map((modelo) => `- ${modelo.nombreCompleto} (${modelo.dni})`)
+      .join('\n\n');
 
-    doc.save(`Evento_${evento?.nombre}.pdf`);
+    const template: Template = {
+      basePdf: BLANK_PDF,
+      schemas: [
+        {
+          name: {
+            type: 'text',
+            position: { x: 10, y: 20 },
+            width: 200,
+            height: 10,
+            fontSize: 12,
+          },
+          date: {
+            type: 'text',
+            position: { x: 10, y: 30 },
+            width: 200,
+            height: 10,
+            fontSize: 12,
+          },
+          location: {
+            type: 'text',
+            position: { x: 10, y: 40 },
+            width: 200,
+            height: 10,
+            fontSize: 12,
+          },
+          participants: {
+            type: 'text',
+            position: { x: 10, y: 60 },
+            width: 500,
+            height: 500,
+            fontSize: 12,
+            lineHeight: 1.5,
+          },
+        },
+      ],
+    };
+
+    const inputs = [
+      {
+        name: `Nombre: ${evento?.nombre}`,
+        date: `Fecha: ${format(evento!.fecha, 'yyyy-MM-dd')}`,
+        location: `Ubicación: ${evento?.ubicacion}`,
+        participants: participantes,
+      },
+    ];
+
+    const pdf = await generate({ template, inputs });
+    const blob = new Blob([pdf.buffer], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Evento_${evento?.nombre}.pdf`;
+    link.click();
   };
 
   if (isLoadingEvento)
