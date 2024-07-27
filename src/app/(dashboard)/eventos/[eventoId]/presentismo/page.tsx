@@ -99,7 +99,7 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
     const modelosConfirmados = modelosData
       .filter((modelo) =>
         modelo.etiquetas.find(
-          (etiqueta) => etiqueta.id === evento?.etiquetaAsistioId
+          (etiqueta) => etiqueta.id === evento?.etiquetaConfirmoId
         )
       )
       .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
