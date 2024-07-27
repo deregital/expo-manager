@@ -104,6 +104,15 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
       basePdf: BLANK_PDF,
       schemas: [
         {
+          eventInfoTitle: {
+            type: 'text',
+            position: { x: 10, y: 10 },
+            width: 200,
+            height: 10,
+            fontSize: 14,
+            fontStyle: 'bold',
+            underline: true,
+          },
           name: {
             type: 'text',
             position: { x: 10, y: 20 },
@@ -125,6 +134,15 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
             height: 10,
             fontSize: 12,
           },
+          participantsTitle: {
+            type: 'text',
+            position: { x: 10, y: 50 },
+            width: 300,
+            height: 10,
+            fontSize: 14,
+            fontStyle: 'bold',
+            underline: true,
+          },
           participants: {
             type: 'text',
             position: { x: 10, y: 60 },
@@ -139,9 +157,11 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
 
     const inputs = [
       {
+        eventInfoTitle: 'Información del evento:',
         name: `Nombre: ${evento?.nombre}`,
         date: `Fecha: ${format(evento!.fecha, 'yyyy-MM-dd')}`,
         location: `Ubicación: ${evento?.ubicacion}`,
+        participantsTitle: 'Participantes que Confirmaron Asistencia:',
         participants: participantes,
       },
     ];
