@@ -2,6 +2,7 @@ import { TRPCError, initTRPC } from '@trpc/server';
 import { ZodError } from 'zod';
 import { getServerAuthSession } from '@/server/auth';
 import { prisma } from '@/server/db';
+import { Prisma } from '@prisma/client';
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getServerAuthSession();
@@ -71,29 +72,34 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     query: {
       perfil: {
         async findMany({ args, query }) {
-          args.where = {
-            ...args.where,
-            AND: filtroBase.map((eId) => ({
+          if (!args.where) {
+            args.where = {};
+          }
+          const { AND: whereAnd, ...restWhere } = args.where;
+          const filtroBaseWhere: Array<Prisma.PerfilWhereInput> =
+            filtroBase.map((eId) => ({
               etiquetas: {
                 some: {
                   id: eId,
                 },
               },
-            })),
+            }));
+
+          args.where = {
+            ...restWhere,
+            AND: [
+              ...(whereAnd
+                ? Array.isArray(whereAnd)
+                  ? whereAnd
+                  : [whereAnd]
+                : []),
+              ...filtroBaseWhere,
+            ],
           };
+
           return query(args);
         },
         async findUnique({ args, query }) {
-          args.where = {
-            ...args.where,
-            AND: filtroBase.map((eId) => ({
-              etiquetas: {
-                some: {
-                  id: eId,
-                },
-              },
-            })),
-          };
           return query(args);
         },
       },
