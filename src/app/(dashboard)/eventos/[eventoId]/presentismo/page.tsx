@@ -13,12 +13,14 @@ import { format } from 'date-fns';
 import { ArrowLeftIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import jsPDF from 'jspdf';
 
 interface PresentismoPageProps {
   params: {
     eventoId: string;
   };
 }
+
 const PresentismoPage = ({ params }: PresentismoPageProps) => {
   const { data: evento, isLoading: isLoadingEvento } =
     trpc.evento.getById.useQuery({
@@ -84,6 +86,32 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
     return porcentaje % 1 === 0 ? porcentaje : Number(porcentaje.toFixed(2));
   }, [evento?.etiquetaAsistioId, modelos]);
 
+  const handleGeneratePDF = () => {
+    const doc = new jsPDF();
+
+    doc.text('Información del Evento', 10, 10);
+    doc.text(`Nombre: ${evento?.nombre}`, 10, 20);
+    doc.text(`Fecha: ${format(evento!.fecha, 'yyyy-MM-dd')}`, 10, 30);
+    doc.text(`Ubicación: ${evento?.ubicacion}`, 10, 40);
+
+    doc.text('Modelos que Confirmaron Asistencia:', 10, 50);
+
+    const modelosConfirmados = modelosData
+      .filter((modelo) =>
+        modelo.etiquetas.find(
+          (etiqueta) => etiqueta.id === evento?.etiquetaAsistioId
+        )
+      )
+      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
+
+    modelosConfirmados.forEach((modelo, index) => {
+      const y = 60 + index * 10;
+      doc.text(`- ${modelo.nombreCompleto} (${modelo.dni})`, 10, y);
+    });
+
+    doc.save(`Evento_${evento?.nombre}.pdf`);
+  };
+
   if (isLoadingEvento)
     return (
       <div className='flex items-center justify-center pt-5'>
@@ -147,6 +175,14 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
       />
       <div className='m-5 flex items-center justify-end'>
         <AsistenciaModal open={modalPresentismo.isOpen} />
+      </div>
+      <div className='m-5 flex justify-end'>
+        <button
+          onClick={handleGeneratePDF}
+          className='rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500'
+        >
+          PDF
+        </button>
       </div>
     </div>
   );
