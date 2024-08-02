@@ -14,7 +14,7 @@ import { ArrowLeftIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { generate } from '@pdfme/generator';
-import { Template, BLANK_PDF } from '@pdfme/common';
+import { BLANK_PDF } from '@pdfme/common';
 
 interface PresentismoPageProps {
   params: {
@@ -91,16 +91,28 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
     const modelosConfirmados = modelosData
       .filter((modelo) =>
         modelo.etiquetas.find(
-          (etiqueta) => etiqueta.id === evento?.etiquetaConfirmoId
+          (etiqueta) =>
+            etiqueta.id === evento?.etiquetaConfirmoId ||
+            etiqueta.id === evento?.etiquetaAsistioId
         )
       )
       .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
 
-    const participantes = modelosConfirmados
-      .map((modelo) => `- ${modelo.nombreCompleto} (${modelo.dni})`)
-      .join('\n\n');
+    const tableContent = JSON.stringify(
+      modelosConfirmados.map((modelo) => [
+        modelo.nombreCompleto,
+        modelo.id,
+        modelo.telefono,
+        modelo.dni,
+        modelo.etiquetas.some(
+          (etiqueta) => etiqueta.id === evento?.etiquetaAsistioId
+        )
+          ? 'SI'
+          : '',
+      ])
+    );
 
-    const template: Template = {
+    const template = {
       basePdf: BLANK_PDF,
       schemas: [
         {
@@ -119,6 +131,7 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
             width: 200,
             height: 10,
             fontSize: 12,
+            fontName: 'NotoSansJP-Regular',
           },
           date: {
             type: 'text',
@@ -126,6 +139,7 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
             width: 200,
             height: 10,
             fontSize: 12,
+            fontName: 'NotoSansJP-Regular',
           },
           location: {
             type: 'text',
@@ -133,23 +147,70 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
             width: 200,
             height: 10,
             fontSize: 12,
+            fontName: 'NotoSansJP-Regular',
           },
-          participantsTitle: {
-            type: 'text',
+          line: {
+            type: 'line',
+            position: { x: 10, y: 45 },
+            width: 190,
+            height: 0.5,
+            color: '#000000',
+          },
+          separator: {
+            type: 'line',
             position: { x: 10, y: 50 },
-            width: 300,
-            height: 10,
-            fontSize: 14,
-            fontStyle: 'bold',
-            underline: true,
+            width: 190,
+            height: 0.5,
+            color: '#000000',
           },
-          participants: {
-            type: 'text',
-            position: { x: 10, y: 60 },
-            width: 500,
-            height: 500,
-            fontSize: 12,
-            lineHeight: 1.5,
+          participantsTable: {
+            type: 'table',
+            position: { x: 10, y: 55 },
+            width: 190,
+            height: 100,
+            content: tableContent,
+            showHead: true,
+            head: ['Nombre', 'ID', 'Teléfono', 'DNI', 'Asistió?'],
+            headWidthPercentages: [30, 15, 25, 15, 15],
+            tableStyles: {
+              borderWidth: 0.3,
+              borderColor: '#000000',
+            },
+            headStyles: {
+              fontName: 'NotoSansJP-Regular',
+              fontSize: 12,
+              fontColor: '#ffffff',
+              backgroundColor: '#000000',
+              borderWidth: {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+              },
+              padding: {
+                top: 5,
+                right: 5,
+                bottom: 5,
+                left: 5,
+              },
+            },
+            bodyStyles: {
+              fontName: 'NotoSansJP-Regular',
+              fontSize: 12,
+              fontColor: '#000000',
+              borderWidth: {
+                top: 0.1,
+                right: 0.1,
+                bottom: 0.1,
+                left: 0.1,
+              },
+              padding: {
+                top: 5,
+                right: 5,
+                bottom: 5,
+                left: 5,
+              },
+            },
           },
         },
       ],
@@ -161,8 +222,6 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
         name: `Nombre: ${evento?.nombre}`,
         date: `Fecha: ${format(evento!.fecha, 'yyyy-MM-dd')}`,
         location: `Ubicación: ${evento?.ubicacion}`,
-        participantsTitle: 'Participantes que Confirmaron Asistencia:',
-        participants: participantes,
       },
     ];
 
