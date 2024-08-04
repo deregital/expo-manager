@@ -15,6 +15,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { generate } from '@pdfme/generator';
 import { BLANK_PDF } from '@pdfme/common';
+import { barcodes } from '@pdfme/schemas';
 
 interface PresentismoPageProps {
   params: {
@@ -149,6 +150,13 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
             fontSize: 12,
             fontName: 'NotoSansJP-Regular',
           },
+          qrCode: {
+            type: 'qrcode',
+            position: { x: 220, y: 10 },
+            width: 50,
+            height: 50,
+            data: ``,
+          },
           line: {
             type: 'line',
             position: { x: 10, y: 45 },
@@ -215,7 +223,7 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
         },
       ],
     };
-
+    const plugins = { qrcode: barcodes.qrcode };
     const inputs = [
       {
         eventInfoTitle: 'Información del evento:',
@@ -225,7 +233,7 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
       },
     ];
 
-    const pdf = await generate({ template, inputs });
+    const pdf = await generate({ template, inputs, plugins });
     const blob = new Blob([pdf.buffer], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
