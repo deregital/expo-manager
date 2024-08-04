@@ -262,7 +262,9 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               id='fechaNacimiento'
               value={
                 fechaNacimiento
-                  ? fechaNacimiento.toISOString().split('T')[0]
+                  ? isNaN(fechaNacimiento?.getTime())
+                    ? ''
+                    : fechaNacimiento.toISOString().split('T')[0]
                   : ''
               }
               onChange={(e) => {
