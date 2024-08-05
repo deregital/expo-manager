@@ -71,28 +71,44 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     query: {
       perfil: {
         async findMany({ args, query }) {
+          const andArray = Array.isArray(args.where?.AND)
+            ? args.where.AND
+            : args.where?.AND
+              ? [args.where.AND]
+              : [];
           args.where = {
             ...args.where,
-            AND: filtroBase.map((eId) => ({
-              etiquetas: {
-                some: {
-                  id: eId,
+            AND: [
+              ...andArray,
+              ...filtroBase.map((eId) => ({
+                etiquetas: {
+                  some: {
+                    id: eId,
+                  },
                 },
-              },
-            })),
+              })),
+            ],
           };
           return query(args);
         },
         async findUnique({ args, query }) {
+          const andArray = Array.isArray(args.where?.AND)
+            ? args.where.AND
+            : args.where?.AND
+              ? [args.where.AND]
+              : [];
           args.where = {
             ...args.where,
-            AND: filtroBase.map((eId) => ({
-              etiquetas: {
-                some: {
-                  id: eId,
+            AND: [
+              ...andArray,
+              ...filtroBase.map((eId) => ({
+                etiquetas: {
+                  some: {
+                    id: eId,
+                  },
                 },
-              },
-            })),
+              })),
+            ],
           };
           return query(args);
         },
