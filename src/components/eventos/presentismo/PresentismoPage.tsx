@@ -18,6 +18,9 @@ import type { Plugin } from '@pdfme/common';
 import { barcodes, text, line, tableBeta, readOnlyText } from '@pdfme/schemas';
 import { PDFData, presentismoPDFSchema } from '@/lib/presentismoPDFSchema';
 import { useProgress } from '@/hooks/eventos/presentismo/useProgress';
+import PDFIcon from '@/components/icons/PDFIcon';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface PresentismoPageProps {
   eventoId: string;
@@ -109,8 +112,6 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
         ] as PDFData[0]['datos'][number]
     );
 
-    console.log(tableContent);
-
     const plugins: {
       [key: string]: Plugin<any>;
     } = {
@@ -142,6 +143,8 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
     const link = document.createElement('a');
     link.href = url;
     link.download = `Evento_${evento?.nombre}.pdf`;
+
+    toast.success('PDF generado con éxito');
     link.click();
   };
 
@@ -206,16 +209,16 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
           desc: false,
         }}
       />
-      <div className='m-5 flex items-center justify-end'>
+      <div className='mt-5 flex h-fit items-center justify-end'>
         <AsistenciaModal open={modalPresentismo.isOpen} />
-      </div>
-      <div className='m-5 flex justify-end'>
-        <button
-          onClick={handleGeneratePDF}
-          className='rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500'
-        >
-          PDF
-        </button>
+        <div className='m-5 flex justify-end'>
+          <Button
+            onClick={handleGeneratePDF}
+            className='rounded-lg bg-gray-400 text-2xl font-bold text-black hover:bg-gray-500'
+          >
+            <PDFIcon />
+          </Button>
+        </div>
       </div>
     </div>
   );
