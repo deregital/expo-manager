@@ -49,7 +49,7 @@ const PlantillasList = () => {
           <div className='mx-auto mt-2 w-fit'>
             <Loader />
           </div>
-        ) : data ? (
+        ) : data?.data ? (
           data.data.map((p) => {
             const plantilla = p;
             if (plantilla.status === 'APPROVED') {

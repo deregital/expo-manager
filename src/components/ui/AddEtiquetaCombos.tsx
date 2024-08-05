@@ -1,16 +1,16 @@
 import EtiquetaFillIcon from '@/components/icons/EtiquetaFillIcon';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
-import { useModeloData } from '@/components/modelo/ModeloPageContent';
 import ComboBox from '@/components/ui/ComboBox';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
+import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
 import { TipoEtiqueta } from '@prisma/client';
 import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 function availableGrupos(
-  etiquetas: NonNullable<RouterOutputs['modelo']['getById']>['etiquetas'],
+  etiquetas: EtiquetaBaseConGrupoColor[],
   gruposData: NonNullable<RouterOutputs['grupoEtiqueta']['getAll']>
 ) {
   return gruposData.filter((grupo) => {
@@ -39,7 +39,7 @@ function availableGrupos(
 }
 
 function availableEtiquetas(
-  etiquetas: NonNullable<RouterOutputs['modelo']['getById']>['etiquetas'],
+  etiquetas: EtiquetaBaseConGrupoColor[],
   etiquetasData: NonNullable<RouterOutputs['etiqueta']['getAll']>,
   grupos: ReturnType<typeof availableGrupos>
 ) {
@@ -55,13 +55,17 @@ function availableEtiquetas(
 }
 
 interface AddEtiquetaCombosProps {
-  closeAddEtiqueta: () => void;
-  openAddEtiqueta: () => void;
+  etiquetas: EtiquetaBaseConGrupoColor[];
+  handleAddEtiqueta: (
+    addedEtiqueta: NonNullable<
+      RouterOutputs['modelo']['getById']
+    >['etiquetas'][number]
+  ) => void;
 }
 
 const AddEtiquetaCombos = ({
-  closeAddEtiqueta,
-  openAddEtiqueta,
+  etiquetas,
+  handleAddEtiqueta,
 }: AddEtiquetaCombosProps) => {
   const [{ grupoId, etiquetaId }, setGrupoYEtiquetas] = useState({
     grupoId: '',
@@ -70,18 +74,12 @@ const AddEtiquetaCombos = ({
   const [openGrupo, setOpenGrupo] = useState(false);
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
 
-  const { etiquetas, modeloId } = useModeloData((state) => ({
-    etiquetas: state.etiquetas,
-    modeloId: state.id,
-  }));
-
-  const addEtiqueta = trpc.modelo.edit.useMutation();
   const { data: gruposData } = trpc.grupoEtiqueta.getAll.useQuery();
   const { data: etiquetasData, isLoading: isLoadingEtiquetas } =
     grupoId === ''
       ? trpc.etiqueta.getAll.useQuery()
       : trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoId);
-  const utils = trpc.useUtils();
+
   const currentGrupo = useMemo(() => {
     return gruposData?.find((grupo) => grupo.id === grupoId);
   }, [grupoId, gruposData]);
@@ -97,65 +95,9 @@ const AddEtiquetaCombos = ({
     [etiquetas, etiquetasData, availableGruposData]
   );
 
-  async function handleAddEtiqueta() {
-    if (etiquetaId === '') return;
-    const addedEtiqueta = etiquetasData?.find(
-      (etiqueta) => etiqueta.id === etiquetaId
-    );
-    if (!addedEtiqueta) return;
-
-    useModeloData.setState({
-      etiquetas: [
-        ...etiquetas,
-        {
-          id: etiquetaId,
-          nombre: addedEtiqueta.nombre,
-          grupo: addedEtiqueta.grupo,
-          grupoId: addedEtiqueta.grupo.id,
-          tipo: TipoEtiqueta.PERSONAL,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ],
-    });
-
-    closeAddEtiqueta();
-
-    await addEtiqueta
-      .mutateAsync({
-        id: modeloId,
-        etiquetas: [
-          ...etiquetas.map((e) => ({
-            id: e.id,
-            nombre: e.nombre,
-            grupo: {
-              id: e.grupo.id,
-              esExclusivo: e.grupo.esExclusivo,
-            },
-          })),
-          {
-            id: addedEtiqueta.id,
-            nombre: addedEtiqueta.nombre,
-            grupo: {
-              id: addedEtiqueta.grupo.id,
-              esExclusivo: addedEtiqueta.grupo.esExclusivo,
-            },
-          },
-        ],
-      })
-      .then(() => {
-        toast.success('Etiqueta agregada con éxito');
-        utils.modelo.getById.invalidate(modeloId);
-        utils.modelo.getByFiltro.invalidate();
-      })
-      .catch(() => {
-        useModeloData.setState({
-          etiquetas: etiquetas.filter((e) => e.id !== etiquetaId),
-        });
-        openAddEtiqueta();
-        toast.error('Error al agregar la etiqueta');
-      });
-  }
+  const selectedEtiqueta = useMemo(() => {
+    return etiquetasData?.find((etiqueta) => etiqueta.id === etiquetaId);
+  }, [etiquetaId]);
 
   return (
     <div className='mt-2 flex flex-col gap-2 md:flex-row'>
@@ -219,7 +161,17 @@ const AddEtiquetaCombos = ({
           </>
         }
       />
-      <Button onClick={handleAddEtiqueta}>Agregar</Button>
+      <Button
+        onClick={() => {
+          if (selectedEtiqueta) {
+            handleAddEtiqueta(selectedEtiqueta);
+          } else {
+            toast.error('Selecciona una etiqueta');
+          }
+        }}
+      >
+        Agregar
+      </Button>
     </div>
   );
 };

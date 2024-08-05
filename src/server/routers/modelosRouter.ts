@@ -1,13 +1,14 @@
-import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
-import { MessageJson } from '@/server/types/whatsapp';
-import { Mensaje, Perfil, TipoEtiqueta } from '@prisma/client';
-import { TRPCError } from '@trpc/server';
-import { subDays } from 'date-fns';
-import { z } from 'zod';
-import levenshtein from 'string-comparison';
-import { ModelosSimilarity } from '../types/modelos';
+import { getHighestIdLegible } from '@/lib/server';
 import { normalize } from '@/lib/utils';
 import { modeloSchemaCrearOEditar } from '@/server/schemas/modelo';
+import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
+import { MessageJson } from '@/server/types/whatsapp';
+import { Mensaje, Perfil, Prisma, TipoEtiqueta } from '@prisma/client';
+import { TRPCError } from '@trpc/server';
+import { subDays } from 'date-fns';
+import levenshtein from 'string-comparison';
+import { z } from 'zod';
+import { ModelosSimilarity } from '../types/modelos';
 
 export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -160,8 +161,12 @@ export const modeloRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      const idLegibleMasAlto = await getHighestIdLegible(ctx.prisma);
       return await ctx.prisma.perfil.create({
-        data: input,
+        data: {
+          ...input,
+          idLegible: idLegibleMasAlto + 1,
+        },
       });
     }),
   createManual: publicProcedure
@@ -246,8 +251,11 @@ export const modeloRouter = router({
         }
       }
 
+      const idLegibleMasAlto = await getHighestIdLegible(ctx.prisma);
+
       return await ctx.prisma.perfil.create({
         data: {
+          idLegible: idLegibleMasAlto + 1,
           nombreCompleto: input.modelo.nombreCompleto,
           nombrePila: input.modelo.nombreCompleto.split(' ')[0],
           telefono: telefono,
@@ -449,6 +457,7 @@ export const modeloRouter = router({
         etiquetaId: z.string().optional(),
       })
     )
+    .output(z.custom<ReturnType<typeof modelosAgrupadas>>())
     .query(async ({ input, ctx }) => {
       const startDateTime = input.start ? new Date(input.start) : undefined;
       const endDateTime = input.end ? new Date(input.end) : undefined;
@@ -493,17 +502,7 @@ export const modeloRouter = router({
         },
       });
 
-      const groupedModelos = modelos.reduce(
-        (acc, modelo) => {
-          const date = modelo.created_at.toISOString().split('T')[0];
-          if (!acc[date]) {
-            acc[date] = [];
-          }
-          acc[date].push(modelo);
-          return acc;
-        },
-        {} as Record<string, typeof modelos>
-      );
+      const groupedModelos = modelosAgrupadas(modelos);
 
       return groupedModelos;
     }),
@@ -522,3 +521,32 @@ export const modeloRouter = router({
       });
     }),
 });
+
+function modelosAgrupadas(
+  modelos: Prisma.PerfilGetPayload<{
+    include: {
+      mensajes: true;
+      etiquetas: {
+        include: {
+          grupo: {
+            select: {
+              id: true;
+            };
+          };
+        };
+      };
+    };
+  }>[]
+) {
+  return modelos.reduce(
+    (acc, modelo) => {
+      const date = modelo.created_at.toISOString().split('T')[0];
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(modelo);
+      return acc;
+    },
+    {} as Record<string, typeof modelos>
+  );
+}
