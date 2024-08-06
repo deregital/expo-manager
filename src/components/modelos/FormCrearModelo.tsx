@@ -160,7 +160,13 @@ const FormCrearModelo = ({
         type='date'
         placeholder='Fecha de nacimiento'
         className='py-4'
-        value={modalModelo.modelo.fechaNacimiento?.toISOString().split('T')[0]}
+        value={
+          modalModelo.modelo.fechaNacimiento
+            ? isNaN(modalModelo.modelo.fechaNacimiento?.getTime())
+              ? ''
+              : modalModelo.modelo.fechaNacimiento.toISOString().split('T')[0]
+            : ''
+        }
         onChange={(e) =>
           useCrearModeloModal.setState({
             modelo: {
