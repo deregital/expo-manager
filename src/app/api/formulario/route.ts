@@ -68,6 +68,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
       update: {
         nombreCompleto: data.nombreCompleto,
         nombrePila: nombrePila,
+        dni: data.dni,
+        genero: data.genero,
+        mail: data.mail,
+        instagram: data.instagram,
         etiquetas: {
           disconnect: {
             id: etiquetaTentativaId.id,
@@ -82,6 +86,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
         nombreCompleto: data.nombreCompleto,
         nombrePila: nombrePila,
         telefono: telefonoSinSeparaciones,
+        dni: data.dni,
+        genero: data.genero,
+        mail: data.mail,
+        instagram: data.instagram,
         etiquetas: {
           connect: {
             id: modeloEtiquetaId.id,
