@@ -12,7 +12,7 @@ const schema = z.object({
   dni: z.string().min(1, 'El DNI es requerido'),
   genero: z.string().min(1, 'El género es requerido'),
   mail: z.string().email('El correo electrónico no es válido'),
-  instagram: z.string().optional(),
+  instagram: z.string().min(1, 'El Instagram es requerido'),
 });
 
 export async function POST(req: NextRequest, res: NextResponse) {
