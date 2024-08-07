@@ -2,23 +2,50 @@ import { getHighestIdLegible } from '@/lib/server';
 import { prisma } from '@/server/db';
 import { TipoEtiqueta } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+const schema = z.object({
+  username: z.string().min(1, 'El nombre de usuario es requerido'),
+  password: z.string().min(1, 'La contraseña es requerida'),
+  nombreCompleto: z.string().min(1, 'El nombre completo es requerido'),
+  telefono: z.string().min(1, 'El teléfono es requerido'),
+  dni: z.string().min(1, 'El DNI es requerido'),
+  genero: z.string().min(1, 'El género es requerido'),
+  mail: z.string().email('El correo electrónico no es válido'),
+  instagram: z.string().optional(),
+});
 
 export async function POST(req: NextRequest, res: NextResponse) {
   try {
     const data = await req.json();
-    if (!data.username || !data.password) {
+    const parsedData = schema.parse(data);
+    const {
+      username,
+      password,
+      nombreCompleto,
+      telefono,
+      dni,
+      genero,
+      mail,
+      instagram,
+    } = parsedData;
+
+    if (!username || !password) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
     const usuario = await prisma.cuenta.findFirst({
       where: {
-        nombreUsuario: data.username,
-        contrasena: data.password,
+        nombreUsuario: username,
+        contrasena: password,
       },
     });
+
     if (!usuario || usuario.nombreUsuario !== 'FORMULARIO') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const telefonoSinSeparaciones = data.telefono
+
+    const telefonoSinSeparaciones = telefono
       .replace(/\s+/g, '')
       .replace(/\+/g, '');
     const telefonoExistente = await prisma?.perfil.findFirst({
@@ -26,13 +53,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
         telefono: telefonoSinSeparaciones,
       },
     });
+
     if (telefonoExistente) {
       return NextResponse.json(
         { error: 'El teléfono ya está registrado' },
         { status: 400 }
       );
     }
-    const nombrePila = data.nombreCompleto.split(' ')[0];
+
+    const nombrePila = nombreCompleto.split(' ')[0];
 
     const modeloEtiquetaId = await prisma?.etiqueta.findFirst({
       where: {
@@ -66,12 +95,12 @@ export async function POST(req: NextRequest, res: NextResponse) {
         telefono: telefonoSinSeparaciones,
       },
       update: {
-        nombreCompleto: data.nombreCompleto,
-        nombrePila: nombrePila,
-        dni: data.dni,
-        genero: data.genero,
-        mail: data.mail,
-        instagram: data.instagram,
+        nombreCompleto,
+        nombrePila,
+        dni,
+        genero,
+        mail,
+        instagram,
         etiquetas: {
           disconnect: {
             id: etiquetaTentativaId.id,
@@ -83,13 +112,13 @@ export async function POST(req: NextRequest, res: NextResponse) {
       },
       create: {
         idLegible: idLegibleMasAlto + 1,
-        nombreCompleto: data.nombreCompleto,
-        nombrePila: nombrePila,
+        nombreCompleto,
+        nombrePila,
         telefono: telefonoSinSeparaciones,
-        dni: data.dni,
-        genero: data.genero,
-        mail: data.mail,
-        instagram: data.instagram,
+        dni,
+        genero,
+        mail,
+        instagram,
         etiquetas: {
           connect: {
             id: modeloEtiquetaId.id,
@@ -100,6 +129,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: error.errors }, { status: 400 });
+    }
     console.error('Error creating new profile:', error);
     return NextResponse.json(
       { error: 'Error creating new profile' },
