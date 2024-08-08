@@ -118,6 +118,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     } else {
       await handleUpload(res.id);
       toast.success('Participante creado correctamente');
+      setSimilarity(false);
       utils.modelo.getAll.invalidate();
       useCrearModeloModal.setState({
         open: false,
