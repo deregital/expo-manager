@@ -124,7 +124,7 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
 
     const inputs: PDFData = [
       {
-        nombre: `Nombre: ${evento?.nombre}`,
+        nombre: `${evento?.nombre}`,
         fecha: `${format(evento!.fecha, 'dd/MM/yyyy')}`,
         ubicacion: `${evento?.ubicacion}`,
         datos: tableContent,
