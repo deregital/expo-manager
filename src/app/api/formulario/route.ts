@@ -7,12 +7,20 @@ import { z } from 'zod';
 const schema = z.object({
   username: z.string().min(1, 'El nombre de usuario es requerido'),
   password: z.string().min(1, 'La contraseña es requerida'),
-  nombreCompleto: z.string().min(1, 'El nombre completo es requerido'),
-  telefono: z.string().min(1, 'El teléfono es requerido'),
-  dni: z.string().min(1, 'El DNI es requerido'),
-  genero: z.string().min(1, 'El género es requerido'),
-  mail: z.string().email('El correo electrónico no es válido'),
-  instagram: z.string().min(1, 'El Instagram es requerido'),
+  nombreCompleto: z
+    .string({
+      required_error: 'El nombre completo es requerido',
+    })
+    .min(1, 'El nombre completo es requerido'),
+  telefono: z
+    .string({
+      required_error: 'El teléfono es requerido',
+    })
+    .min(1, 'El teléfono es requerido'),
+  dni: z.string().min(1, 'El DNI es requerido').optional(),
+  genero: z.string().min(1, 'El género es requerido').optional(),
+  mail: z.string().email('El correo electrónico no es válido').optional(),
+  instagram: z.string().min(1, 'El Instagram es requerido').optional(),
 });
 
 export async function POST(req: NextRequest, res: NextResponse) {
