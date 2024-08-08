@@ -1,3 +1,4 @@
+import { getHighestIdLegible } from '@/lib/server';
 import { prisma } from '@/server/db';
 import { TipoEtiqueta } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
@@ -58,6 +59,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
       );
     }
 
+    const idLegibleMasAlto = await getHighestIdLegible(prisma);
+
     const response = await prisma?.perfil.upsert({
       where: {
         telefono: telefonoSinSeparaciones,
@@ -75,6 +78,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
         },
       },
       create: {
+        idLegible: idLegibleMasAlto + 1,
         nombreCompleto: data.nombreCompleto,
         nombrePila: nombrePila,
         telefono: telefonoSinSeparaciones,

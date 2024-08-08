@@ -27,7 +27,7 @@ model Cuenta {
 
 model Perfil {
   id        String @id @default(uuid())
-  idLegible Int?   @default(autoincrement()) @map("id_legible")
+  idLegible Int    @map("id_legible")
 
   telefono            String    @unique
   nombreCompleto      String    @map("nombre_completo")

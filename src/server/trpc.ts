@@ -72,34 +72,46 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     query: {
       perfil: {
         async findMany({ args, query }) {
-          if (!args.where) {
-            args.where = {};
-          }
-          const { AND: whereAnd, ...restWhere } = args.where;
-          const filtroBaseWhere: Array<Prisma.PerfilWhereInput> =
-            filtroBase.map((eId) => ({
-              etiquetas: {
-                some: {
-                  id: eId,
-                },
-              },
-            }));
-
+          const andArray = Array.isArray(args.where?.AND)
+            ? args.where.AND
+            : args.where?.AND
+              ? [args.where.AND]
+              : [];
           args.where = {
-            ...restWhere,
+            ...args.where,
             AND: [
-              ...(whereAnd
-                ? Array.isArray(whereAnd)
-                  ? whereAnd
-                  : [whereAnd]
-                : []),
-              ...filtroBaseWhere,
+              ...andArray,
+              ...filtroBase.map((eId) => ({
+                etiquetas: {
+                  some: {
+                    id: eId,
+                  },
+                },
+              })),
             ],
           };
 
           return query(args);
         },
         async findUnique({ args, query }) {
+          const andArray = Array.isArray(args.where?.AND)
+            ? args.where.AND
+            : args.where?.AND
+              ? [args.where.AND]
+              : [];
+          args.where = {
+            ...args.where,
+            AND: [
+              ...andArray,
+              ...filtroBase.map((eId) => ({
+                etiquetas: {
+                  some: {
+                    id: eId,
+                  },
+                },
+              })),
+            ],
+          };
           return query(args);
         },
       },

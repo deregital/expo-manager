@@ -1,13 +1,14 @@
+import { getHighestIdLegible } from '@/lib/server';
+import { normalize } from '@/lib/utils';
+import { modeloSchemaCrearOEditar } from '@/server/schemas/modelo';
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { MessageJson } from '@/server/types/whatsapp';
 import { Mensaje, Perfil, Prisma, TipoEtiqueta } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { subDays } from 'date-fns';
-import { z } from 'zod';
 import levenshtein from 'string-comparison';
+import { z } from 'zod';
 import { ModelosSimilarity } from '../types/modelos';
-import { normalize } from '@/lib/utils';
-import { modeloSchemaCrearOEditar } from '@/server/schemas/modelo';
 
 export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -160,8 +161,12 @@ export const modeloRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      const idLegibleMasAlto = await getHighestIdLegible(ctx.prisma);
       return await ctx.prisma.perfil.create({
-        data: input,
+        data: {
+          ...input,
+          idLegible: idLegibleMasAlto + 1,
+        },
       });
     }),
   createManual: publicProcedure
@@ -246,8 +251,11 @@ export const modeloRouter = router({
         }
       }
 
+      const idLegibleMasAlto = await getHighestIdLegible(ctx.prisma);
+
       return await ctx.prisma.perfil.create({
         data: {
+          idLegible: idLegibleMasAlto + 1,
           nombreCompleto: input.modelo.nombreCompleto,
           nombrePila: input.modelo.nombreCompleto.split(' ')[0],
           telefono: telefono,
