@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { getTextColorByBg } from '@/lib/utils';
 import { TrashIcon } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
@@ -75,7 +74,8 @@ const FormCrearModelo = ({
       },
     });
   }
-  async function handleAddEtiqueta() {
+  async function handleAddEtiqueta(etiquetaSelected: string) {
+    setEtiquetaSelected(etiquetaSelected);
     if (etiquetaSelected === '') return;
     const etiqueta = etiquetasGrupo?.find((e) => e.id === etiquetaSelected);
     if (
@@ -108,6 +108,7 @@ const FormCrearModelo = ({
     });
     setEtiquetaSelected('');
     setGrupoEtiquetaSelected('');
+    setComboBoxEtiquetaOpen(false);
     setAddEtiquetaOpen(false);
   }
 
@@ -159,7 +160,13 @@ const FormCrearModelo = ({
         type='date'
         placeholder='Fecha de nacimiento'
         className='py-4'
-        value={modalModelo.modelo.fechaNacimiento?.toISOString().split('T')[0]}
+        value={
+          modalModelo.modelo.fechaNacimiento
+            ? isNaN(modalModelo.modelo.fechaNacimiento?.getTime())
+              ? ''
+              : modalModelo.modelo.fechaNacimiento.toISOString().split('T')[0]
+            : ''
+        }
         onChange={(e) =>
           useCrearModeloModal.setState({
             modelo: {
@@ -318,13 +325,7 @@ const FormCrearModelo = ({
             open={comboBoxEtiquetaOpen}
             setOpen={setComboBoxEtiquetaOpen}
             onSelect={(selectedItem) => {
-              if (selectedItem === etiquetaSelected) {
-                setEtiquetaSelected('');
-                setComboBoxEtiquetaOpen(false);
-              } else {
-                setEtiquetaSelected(selectedItem);
-                setComboBoxEtiquetaOpen(false);
-              }
+              handleAddEtiqueta(selectedItem);
             }}
             selectedIf={etiquetaSelected}
             triggerChildren={
@@ -340,7 +341,6 @@ const FormCrearModelo = ({
               </>
             }
           />
-          <Button onClick={handleAddEtiqueta}>Agregar</Button>
         </div>
       )}
       <Label className='pt-2 text-sm'>Nombres alternativos:</Label>
