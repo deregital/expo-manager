@@ -2,6 +2,7 @@ import { TRPCError, initTRPC } from '@trpc/server';
 import { ZodError } from 'zod';
 import { getServerAuthSession } from '@/server/auth';
 import { prisma } from '@/server/db';
+import { Prisma } from '@prisma/client';
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getServerAuthSession();
@@ -89,6 +90,7 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
               })),
             ],
           };
+
           return query(args);
         },
         async findUnique({ args, query }) {
