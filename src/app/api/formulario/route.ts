@@ -16,7 +16,8 @@ const schema = z.object({
     .string({
       required_error: 'El teléfono es requerido',
     })
-    .min(1, 'El teléfono es requerido'),
+    .min(1, 'El teléfono es requerido')
+    .regex(/^\+?549(11|[2368]\d)\d{8}$/, 'El teléfono no es válido.'),
   dni: z.string().min(1, 'El DNI es requerido').optional(),
   genero: z.string().min(1, 'El género es requerido').optional(),
   mail: z.string().email('El correo electrónico no es válido').optional(),

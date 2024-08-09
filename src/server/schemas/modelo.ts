@@ -8,7 +8,7 @@ export const modeloSchemaCrearOEditar = z.object({
       message: 'El teléfono es un campo obligatorio',
     })
     .regex(
-      /^(549\d{10}|\d{10})$/,
+      /^\+?549(11|[2368]\d)\d{8}$/,
       'El número de teléfono debe tener 10 dígitos. Puede empezar con 549'
     ),
   genero: z.string().optional(),

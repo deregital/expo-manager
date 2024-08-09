@@ -155,9 +155,9 @@ export const modeloRouter = router({
     }),
   create: publicProcedure
     .input(
-      z.object({
-        nombreCompleto: z.string(),
-        telefono: z.string(),
+      modeloSchemaCrearOEditar.pick({
+        nombreCompleto: true,
+        telefono: true,
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -304,7 +304,13 @@ export const modeloRouter = router({
         idLegible: z.number().optional(),
         nombreCompleto: z.string().optional(),
         nombrePila: z.string().optional(),
-        telefono: z.string().optional(),
+        telefono: z
+          .string()
+          .regex(
+            /^\+?549(11|[2368]\d)\d{8}$/,
+            'El teléfono no es válido, debe empezar con 549 y tener 10 dígitos. Ejemplo: 5491123456789'
+          )
+          .optional(),
         fotoUrl: z.string().optional().nullable(),
         genero: z.string().optional(),
         fechaNacimiento: z.string().optional(),
