@@ -50,7 +50,7 @@ const CrearModelo = () => {
   return (
     <>
       <Button
-        className='mx-3 my-2 md:mx-5'
+        className='mx-3 mb-0 mt-3 md:mx-5'
         onClick={() => {
           searchParams.set('modal', 'true');
           router.push(`${pathname}?${searchParams.toString()}`);

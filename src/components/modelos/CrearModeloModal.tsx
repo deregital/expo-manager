@@ -82,11 +82,15 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       ? [...modalModelo.modelo.etiquetas, etiquetaAsistio!]
       : modalModelo.modelo.etiquetas;
 
+    const telefonoParseado = modalModelo.modelo.telefono.startsWith('549')
+      ? modalModelo.modelo.telefono
+      : `549${modalModelo.modelo.telefono}`;
+
     const res = await createModelo
       .mutateAsync({
         modelo: {
           nombreCompleto: modalModelo.modelo.nombreCompleto,
-          telefono: modalModelo.modelo.telefono,
+          telefono: telefonoParseado,
           dni: modalModelo.modelo.dni ?? undefined,
           mail: modalModelo.modelo.mail ?? undefined,
           fechaNacimiento: modalModelo.modelo.fechaNacimiento
