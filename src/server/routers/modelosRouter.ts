@@ -389,6 +389,19 @@ export const modeloRouter = router({
         ? input.nombreCompleto.split(' ')[0]
         : input.nombrePila;
 
+      const etiquetaModelo = await ctx.prisma.etiqueta.findFirst({
+        where: {
+          tipo: TipoEtiqueta.MODELO,
+        },
+      });
+
+      if (!etiquetaModelo) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'No se encontró la etiqueta de modelo',
+        });
+      }
+
       return await ctx.prisma.perfil.update({
         where: {
           id: input.id,
@@ -409,11 +422,13 @@ export const modeloRouter = router({
           nombresAlternativos: input.nombresAlternativos ?? undefined,
           etiquetas: input.etiquetas
             ? {
-                set: (input.etiquetas ?? []).map((etiqueta) => {
-                  return {
-                    id: etiqueta.id,
-                  };
-                }),
+                set: [etiquetaModelo, ...(input.etiquetas ?? [])].map(
+                  (etiqueta) => {
+                    return {
+                      id: etiqueta.id,
+                    };
+                  }
+                ),
               }
             : undefined,
         },
