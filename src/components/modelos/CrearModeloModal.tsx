@@ -69,6 +69,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     setEventoId(
       searchParams.get('evento') !== '' ? searchParams.get('evento') : null
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.get('evento')]);
 
   async function handleSave() {

@@ -45,6 +45,7 @@ const CrearModelo = () => {
 
   useEffect(() => {
     setSearch(searchParams.get('modal') ?? '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.get('modal')]);
 
   return (
