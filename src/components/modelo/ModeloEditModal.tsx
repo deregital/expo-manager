@@ -107,8 +107,18 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     },
     onError: (error) => {
       const errorCode = error.data?.code;
+
+      const isZodError = error.data?.zodError !== null;
+      if (isZodError) {
+        const zodError = error.data?.zodError;
+        if (!zodError) return;
+        const message = Object.values(zodError.fieldErrors)[0]?.[0];
+        setError(message ?? 'Error al editar el participante');
+        return;
+      }
+
       if (errorCode === 'CONFLICT') {
-        setError('Ya existe un participante con ese teléfono o DNI');
+        setError(error.message);
       } else if (errorCode === 'PARSE_ERROR') {
         setError(error.message);
       }

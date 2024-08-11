@@ -315,7 +315,11 @@ export const modeloRouter = router({
         genero: z.string().optional(),
         fechaNacimiento: z.string().optional(),
         instagram: z.string().optional().nullable(),
-        mail: z.string().optional().nullable(),
+        mail: z
+          .string()
+          .email('El mail no es válido, debe tener el formato mail@mail.com')
+          .optional()
+          .nullable(),
         dni: z.string().optional().nullable(),
         nombresAlternativos: z.array(z.string()).optional().nullable(),
         etiquetas: z
@@ -347,28 +351,38 @@ export const modeloRouter = router({
         }
       });
 
-      const perfilConMismoTelefono = await ctx.prisma.perfil.findMany({
-        where: {
-          OR: [
-            {
-              telefono: input.telefono,
-            },
-            {
-              dni: input.dni ?? undefined,
-            },
-          ],
-        },
-      });
-
-      if (
-        perfilConMismoTelefono &&
-        perfilConMismoTelefono.length > 0 &&
-        perfilConMismoTelefono.find((p) => p.id !== input.id)
-      ) {
-        throw new TRPCError({
-          code: 'CONFLICT',
-          message: `Ya existe un perfil con el teléfono ${input.telefono}`,
+      const perfilConMismoTelefono = await ctx.prisma.perfil
+        .findMany({
+          where: {
+            OR: [
+              {
+                telefono: input.telefono,
+              },
+              {
+                dni: input.dni ?? undefined,
+              },
+            ],
+          },
+        })
+        .then((res) => {
+          return res.filter((p) => p.id !== input.id);
         });
+
+      if (perfilConMismoTelefono && perfilConMismoTelefono.length > 0) {
+        if (perfilConMismoTelefono.some((p) => p.telefono === input.telefono)) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: `Ya existe un perfil con el teléfono ${input.telefono}`,
+          });
+        } else if (
+          perfilConMismoTelefono.some((p) => p.dni === input.dni) &&
+          input.dni
+        ) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: `Ya existe un perfil con el DNI ${input.dni}`,
+          });
+        }
       }
 
       const nombrePila = input.nombreCompleto
