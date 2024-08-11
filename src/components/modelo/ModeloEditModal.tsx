@@ -17,7 +17,7 @@ import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
 import { differenceInYears } from 'date-fns';
 import { TrashIcon } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 
@@ -136,16 +136,18 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
   };
 
   async function edit() {
-    if (!genero || !fechaNacimiento || !nombreCompleto) {
-      setError('Debe ingresar un género, una fecha de nacimiento y un nombre');
-      return;
-    }
+    // if (!genero || !fechaNacimiento || !nombreCompleto) {
+    //   setError('Debe ingresar un género, una fecha de nacimiento y un nombre');
+    //   return;
+    // }
 
     try {
       return await editModelo.mutateAsync({
         id: modelo.id,
         genero,
-        fechaNacimiento: fechaNacimiento.toString(),
+        fechaNacimiento: fechaNacimiento
+          ? fechaNacimiento.toString()
+          : undefined,
         nombresAlternativos: nombresAlternativos.filter(
           (apodo) => apodo !== ''
         ),
