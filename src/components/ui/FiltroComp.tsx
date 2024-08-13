@@ -55,21 +55,18 @@ const FiltroComp = ({
   }, [filtro]);
   return (
     <div className='fles items-center justify-between'>
-      <div className='flex items-center justify-center gap-x-4'>
-        {mostrarEtiq && (
-          <CompEtiq
-            editarEtiq={editarEtiq}
-            dataGrupos={GrupoEtiquetas}
-            grupoEtiqueta={grupoEtiqueta}
-            setGrupoEtiqueta={setGrupoEtiqueta}
-            dataEtiquetas={etiquetas}
-          />
-        )}
-        {mostrarInput && (
-          <CompInput editarInput={editarInput} inputFiltro={filtro.input} />
-        )}
-      </div>
-      <Input placeholder='Buscar' value={''} onChange={() => {}} />
+      {mostrarEtiq && (
+        <CompEtiq
+          editarEtiq={editarEtiq}
+          dataGrupos={GrupoEtiquetas}
+          grupoEtiqueta={grupoEtiqueta}
+          setGrupoEtiqueta={setGrupoEtiqueta}
+          dataEtiquetas={etiquetas}
+        />
+      )}
+      {mostrarInput && (
+        <CompInput editarInput={editarInput} inputFiltro={filtro.input} />
+      )}
     </div>
   );
 };
@@ -93,7 +90,7 @@ const CompEtiq = ({
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
   const [etiquetaId, setEtiquetaId] = useState<string | undefined>(undefined);
   return (
-    <>
+    <div className='flex items-center justify-center gap-x-4'>
       <ComboBox
         data={dataGrupos ?? []}
         id='id'
@@ -139,7 +136,7 @@ const CompEtiq = ({
           </>
         }
       />
-    </>
+    </div>
   );
 };
 
