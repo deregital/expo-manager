@@ -3,8 +3,10 @@ import { useEffect, useState } from 'react';
 import ComboBox from './ComboBox';
 import { Input } from './input';
 import { Perfil } from '@prisma/client';
-import { EtiquetaGrupo, Etiqueta } from '@prisma/client';
 import { trpc } from '@/lib/trpc';
+import { RouterOutputs } from '@/server';
+import EtiquetaFillIcon from '../icons/EtiquetaFillIcon';
+import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
 
 type Filtrar = ({
   input,
@@ -58,11 +60,14 @@ const FiltroComp = ({
           <CompEtiq
             editarEtiq={editarEtiq}
             dataGrupos={GrupoEtiquetas}
+            grupoEtiqueta={grupoEtiqueta}
             setGrupoEtiqueta={setGrupoEtiqueta}
             dataEtiquetas={etiquetas}
           />
         )}
-        {mostrarInput && <CompInput editarInput={editarInput} />}
+        {mostrarInput && (
+          <CompInput editarInput={editarInput} inputFiltro={filtro.input} />
+        )}
       </div>
       <Input placeholder='Buscar' value={''} onChange={() => {}} />
     </div>
@@ -71,27 +76,68 @@ const FiltroComp = ({
 const CompEtiq = ({
   editarEtiq,
   dataGrupos,
+  grupoEtiqueta,
   setGrupoEtiqueta,
   dataEtiquetas,
 }: {
   editarEtiq: (etiq: string) => void;
-  dataGrupos: EtiquetaGrupo;
+  dataGrupos: RouterOutputs['grupoEtiqueta']['getAll'] | undefined;
+  grupoEtiqueta: string | undefined;
   setGrupoEtiqueta: (grupo: string) => void;
-  dataEtiquetas: Etiqueta[];
+  dataEtiquetas:
+    | RouterOutputs['etiqueta']['getAll']
+    | RouterOutputs['etiqueta']['getByGrupoEtiqueta']
+    | undefined;
 }) => {
+  const [openGrupo, setOpenGrupo] = useState(false);
+  const [openEtiqueta, setOpenEtiqueta] = useState(false);
+  const [etiquetaId, setEtiquetaId] = useState<string | undefined>(undefined);
   return (
     <>
       <ComboBox
-        data={dataGrupos}
+        data={dataGrupos ?? []}
         id='id'
         value='nombre'
         onSelect={(value) => {
           setGrupoEtiqueta(value);
         }}
-        open={}
-        setOpen={}
-        selectedIf={}
-        triggerChildren={}
+        open={openGrupo}
+        setOpen={setOpenGrupo}
+        selectedIf={grupoEtiqueta !== undefined ? grupoEtiqueta : ''}
+        triggerChildren={
+          <>
+            <span className='truncate'>
+              {grupoEtiqueta
+                ? dataGrupos?.find((grupo) => grupo.id === grupoEtiqueta)
+                    ?.nombre ?? 'Buscar grupo...'
+                : 'Buscar grupo...'}
+            </span>
+            <EtiquetasFillIcon className='h-5 w-5' />
+          </>
+        }
+      />
+      <ComboBox
+        data={dataEtiquetas ?? []}
+        id='id'
+        value='nombre'
+        onSelect={(value) => {
+          setEtiquetaId(value);
+          editarEtiq(value);
+        }}
+        open={openEtiqueta}
+        setOpen={setOpenEtiqueta}
+        selectedIf={etiquetaId !== undefined ? etiquetaId : ''}
+        triggerChildren={
+          <>
+            <span className='truncate'>
+              {etiquetaId
+                ? dataEtiquetas?.find((etiqueta) => etiqueta.id === etiquetaId)
+                    ?.nombre ?? 'Buscar etiqueta...'
+                : 'Buscar etiqueta...'}
+            </span>
+            <EtiquetaFillIcon className='h-5 w-5' />
+          </>
+        }
       />
     </>
   );
@@ -99,9 +145,19 @@ const CompEtiq = ({
 
 const CompInput = ({
   editarInput,
+  inputFiltro,
 }: {
   editarInput: (input: string) => void;
+  inputFiltro: string;
 }) => {
-  return <Input placeholder='Buscar' value={''} onChange={() => {}} />;
+  return (
+    <Input
+      placeholder='Buscar'
+      value={inputFiltro}
+      onChange={(e) => {
+        editarInput(e.target.value);
+      }}
+    />
+  );
 };
 export default FiltroComp;
