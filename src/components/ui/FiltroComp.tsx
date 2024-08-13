@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import ComboBox from './ComboBox';
 import { Input } from './input';
 import { Perfil } from '@prisma/client';
-import { EtiquetaGrupo } from '@prisma/client';
+import { EtiquetaGrupo, Etiqueta } from '@prisma/client';
 import { trpc } from '@/lib/trpc';
 
 type Filtrar = ({
@@ -55,7 +55,12 @@ const FiltroComp = ({
     <div className='fles items-center justify-between'>
       <div className='flex items-center justify-center gap-x-4'>
         {mostrarEtiq && (
-          <CompEtiq editarEtiq={editarEtiq} dataGrupos={GrupoEtiquetas} />
+          <CompEtiq
+            editarEtiq={editarEtiq}
+            dataGrupos={GrupoEtiquetas}
+            setGrupoEtiqueta={setGrupoEtiqueta}
+            dataEtiquetas={etiquetas}
+          />
         )}
         {mostrarInput && <CompInput editarInput={editarInput} />}
       </div>
@@ -66,9 +71,13 @@ const FiltroComp = ({
 const CompEtiq = ({
   editarEtiq,
   dataGrupos,
+  setGrupoEtiqueta,
+  dataEtiquetas,
 }: {
   editarEtiq: (etiq: string) => void;
   dataGrupos: EtiquetaGrupo;
+  setGrupoEtiqueta: (grupo: string) => void;
+  dataEtiquetas: Etiqueta[];
 }) => {
   return (
     <>
@@ -77,7 +86,7 @@ const CompEtiq = ({
         id='id'
         value='nombre'
         onSelect={(value) => {
-          editarEtiq(value);
+          setGrupoEtiqueta(value);
         }}
         open={}
         setOpen={}
