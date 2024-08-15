@@ -314,7 +314,14 @@ export const modeloRouter = router({
         fotoUrl: z.string().optional().nullable(),
         genero: z.string().optional(),
         fechaNacimiento: z.string().optional(),
-        instagram: z.string().optional().nullable(),
+        instagram: z
+          .string()
+          .regex(
+            /^[\w](?!.*?\.{2})[\w.]{1,28}[\w]$/,
+            'El instagram no es válido. No debe comenzar con @'
+          )
+          .optional()
+          .nullable(),
         mail: z
           .string()
           .email('El mail no es válido, debe tener el formato mail@mail.com')
