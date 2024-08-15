@@ -17,7 +17,7 @@ import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
 import { differenceInYears } from 'date-fns';
 import { TrashIcon } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 
@@ -107,8 +107,18 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     },
     onError: (error) => {
       const errorCode = error.data?.code;
+
+      const isZodError = error.data?.zodError !== null;
+      if (isZodError) {
+        const zodError = error.data?.zodError;
+        if (!zodError) return;
+        const message = Object.values(zodError.fieldErrors)[0]?.[0];
+        setError(message ?? 'Error al editar el participante');
+        return;
+      }
+
       if (errorCode === 'CONFLICT') {
-        setError('Ya existe un participante con ese teléfono o DNI');
+        setError(error.message);
       } else if (errorCode === 'PARSE_ERROR') {
         setError(error.message);
       }
@@ -136,16 +146,18 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
   };
 
   async function edit() {
-    if (!genero || !fechaNacimiento || !nombreCompleto) {
-      setError('Debe ingresar un género, una fecha de nacimiento y un nombre');
-      return;
-    }
+    // if (!genero || !fechaNacimiento || !nombreCompleto) {
+    //   setError('Debe ingresar un género, una fecha de nacimiento y un nombre');
+    //   return;
+    // }
 
     try {
       return await editModelo.mutateAsync({
         id: modelo.id,
         genero,
-        fechaNacimiento: fechaNacimiento.toString(),
+        fechaNacimiento: fechaNacimiento
+          ? fechaNacimiento.toString()
+          : undefined,
         nombresAlternativos: nombresAlternativos.filter(
           (apodo) => apodo !== ''
         ),
