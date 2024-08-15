@@ -8,7 +8,7 @@ const schema = z.object({
   username: z.string().min(1, 'El nombre de usuario es requerido'),
   password: z.string().min(1, 'La contraseña es requerida'),
   nombreCompleto: z
-  .string({
+    .string({
       required_error: 'El nombre completo es requerido',
     })
     .min(1, 'El nombre completo es requerido'),
@@ -22,7 +22,11 @@ const schema = z.object({
   genero: z.string().min(1, 'El género es requerido').optional(),
   mail: z.string().email('El correo electrónico no es válido').optional(),
   instagram: z.string().min(1, 'El Instagram es requerido').optional(),
-  fechaNacimiento: z.string().min(1, 'La fecha de nacimiento es requerida').optional(),
+  fechaNacimiento: z
+    .string()
+    .datetime()
+    .min(1, 'La fecha de nacimiento es requerida')
+    .optional(),
 });
 
 export async function POST(req: NextRequest, res: NextResponse) {
