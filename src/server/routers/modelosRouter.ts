@@ -307,7 +307,7 @@ export const modeloRouter = router({
         telefono: z
           .string()
           .regex(
-            /^\+?549(11|[2368]\d)\d{8}$/,
+            /^549(11|[2368]\d)\d{8}$/,
             'El teléfono no es válido, debe empezar con 549 y tener 10 dígitos. Ejemplo: 5491123456789'
           )
           .optional(),
