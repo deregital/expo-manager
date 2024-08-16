@@ -124,6 +124,7 @@ model Mensaje {
   perfil         Perfil        @relation("PERFIL_X_MENSAJE", fields: [perfilTelefono], references: [telefono], onDelete: Cascade)
   status         MensajeStatus @default(ENVIADO)
   statusAt       DateTime?     @map("status_at")
+  visto          Boolean       @default(false)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

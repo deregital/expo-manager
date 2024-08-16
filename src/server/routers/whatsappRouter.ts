@@ -345,6 +345,30 @@ export const whatsappRouter = router({
 
       return myEntry.timestamp as number;
     }),
+  readMensajes: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.mensaje.updateMany({
+        where: {
+          perfilTelefono: input,
+          visto: false,
+        },
+        data: {
+          visto: true,
+        },
+      });
+    }),
+  mensajesNoLeidos: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.prisma.mensaje.groupBy({
+      by: ['perfilTelefono'],
+      where: {
+        visto: false,
+      },
+      _count: {
+        id: true,
+      },
+    });
+  }),
 });
 
 export async function enviarMensajeUnaSolaVez(

@@ -5,7 +5,7 @@ import EnviarMensajeUI from '@/components/chat/privateChat/EnviarMensajeUI';
 import MensajesList from '@/components/chat/privateChat/MensajesList';
 import { trpc } from '@/lib/trpc';
 import { useParams } from 'next/navigation';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface ChatPageProps {}
 
@@ -15,6 +15,13 @@ const ChatPage = ({}: ChatPageProps) => {
     enabled: !!telefono,
     refetchInterval: 5000,
   });
+
+  const { mutateAsync: leerMensajes } =
+    trpc.whatsapp.readMensajes.useMutation();
+
+  useEffect(() => {
+    leerMensajes(telefono);
+  }, [leerMensajes, telefono]);
 
   return (
     <div className='relative w-full bg-[url(/img/whatsapp_background.png)]'>
