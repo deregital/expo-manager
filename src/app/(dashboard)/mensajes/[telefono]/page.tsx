@@ -18,10 +18,17 @@ const ChatPage = ({}: ChatPageProps) => {
 
   const { mutateAsync: leerMensajes } =
     trpc.whatsapp.readMensajes.useMutation();
+  const utils = trpc.useUtils();
 
   useEffect(() => {
-    leerMensajes(telefono);
-  }, [leerMensajes, telefono]);
+    async function leerMensajitos() {
+      await leerMensajes(telefono);
+      utils.whatsapp.mensajesNoLeidos.invalidate();
+      utils.modelo.getAllWithInChat.invalidate();
+    }
+    leerMensajitos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [telefono]);
 
   return (
     <div className='relative w-full bg-[url(/img/whatsapp_background.png)]'>
