@@ -286,6 +286,7 @@ export const whatsappRouter = router({
         data: mensajesParaCrear.map((mensaje) => ({
           message: mensaje,
           wamId: mensaje.id,
+          visto: true,
           perfilTelefono: mensaje.to!,
         })),
       });
@@ -420,6 +421,7 @@ export async function enviarMensajeUnaSolaVez(
         to: telefono,
         timestamp: new Date().getTime(),
       },
+      visto: true,
       wamId: messageId,
       perfil: {
         connect: {

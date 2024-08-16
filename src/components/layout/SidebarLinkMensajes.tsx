@@ -12,8 +12,6 @@ interface SidebarLinkMensajesProps {}
 const SidebarLinkMensajes = ({}: SidebarLinkMensajesProps) => {
   const { data } = trpc.whatsapp.mensajesNoLeidos.useQuery();
 
-  console.log(data);
-
   const { mensajesNoLeidos } = useMemo(() => {
     if (!data) return { mensajesNoLeidos: 0 };
     const totalUnreadMessages = data.reduce(
@@ -33,7 +31,7 @@ const SidebarLinkMensajes = ({}: SidebarLinkMensajesProps) => {
       iconActive={<ChatFillIcon height={24} width={24} />}
       endDecorator={
         mensajesNoLeidos > 0 ? (
-          <Badge className='aspect-square h-fit bg-red-500 text-xs hover:bg-red-500'>
+          <Badge className='flex aspect-square h-6 w-6 items-center justify-center bg-red-500 text-xs hover:bg-red-500'>
             {mensajesNoLeidos}
           </Badge>
         ) : (
