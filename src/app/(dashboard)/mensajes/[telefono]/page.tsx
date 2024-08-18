@@ -11,21 +11,24 @@ interface ChatPageProps {}
 
 const ChatPage = ({}: ChatPageProps) => {
   const { telefono } = useParams<{ telefono: string }>();
-  const { data } = trpc.whatsapp.getMessagesByTelefono.useQuery(telefono, {
-    enabled: !!telefono,
-    refetchInterval: 5000,
-  });
 
   const { mutateAsync: leerMensajes } =
     trpc.whatsapp.readMensajes.useMutation();
+  const { data } = trpc.whatsapp.getMessagesByTelefono.useQuery(telefono, {
+    enabled: !!telefono,
+    refetchInterval: 5000,
+    onSuccess: () => {
+      leerMensajitos();
+    },
+  });
   const utils = trpc.useUtils();
+  async function leerMensajitos() {
+    await leerMensajes(telefono);
+    utils.whatsapp.mensajesNoLeidos.invalidate();
+    utils.modelo.getAllWithInChat.invalidate();
+  }
 
   useEffect(() => {
-    async function leerMensajitos() {
-      await leerMensajes(telefono);
-      utils.whatsapp.mensajesNoLeidos.invalidate();
-      utils.modelo.getAllWithInChat.invalidate();
-    }
     leerMensajitos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [telefono]);
