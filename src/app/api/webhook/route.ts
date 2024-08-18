@@ -54,7 +54,28 @@ export async function POST(request: NextRequest) {
           if ('messages' in value) {
             const { mensajeCreado, perfil } = await crearMensaje(value);
 
-            // console.log('mensajeCreado', mensajeCreado, 'perfil', perfil);
+            // TODO: Conseguir el token personal de cada usuario
+            const token =
+              'cOTAFVF6iM6vRx8N-pL5pB:APA91bEkpyexciU04bHrN4x5mUu3O5GdR36iyg3qwnBNE1hSwOYJncjj96o212G4SHg3ApnrmJ__G0NvZ51ZISt7w7kJXDBHIzgvhjrN7xBKtir0ZrMLiZanLnIOHrL5aBITWBPK33XA';
+
+            if (value.messages[0].type === 'text') {
+              await fetch(
+                'https://outgoing-typically-beagle.ngrok-free.app/api/send-notification',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    token: token,
+                    title: 'Nuevo mensaje de ExpoManager',
+                    message: `Nuevo mensaje de ${perfil?.nombreCompleto}: ${value.messages[0].text.body}`,
+                    // TODO: Cambiar el link a la página de mensajes
+                    link: `https://outgoing-typically-beagle.ngrok-free.app/mensajes/${value.messages[0].from}`,
+                  }),
+                }
+              );
+            }
 
             if (
               (!perfil ||
@@ -62,8 +83,6 @@ export async function POST(request: NextRequest) {
               mensajeCreado &&
               mensajeCreado.perfil._count.mensajes === 1
             ) {
-              // console.log('enviando mensaje');
-
               await enviarRespuestaAutomatica(
                 value.contacts[0].wa_id,
                 mensajeCreado.perfil.nombrePila ??
@@ -125,6 +144,8 @@ async function crearMensaje(value: ReceivedMessage) {
   }
 
   const idLegibleMasAlto = await getHighestIdLegible(prisma);
+
+  // console.log('creando mensaje', message);
 
   const mensajeCreado = await prisma.mensaje.create({
     data: {
