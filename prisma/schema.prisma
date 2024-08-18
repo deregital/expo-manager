@@ -22,6 +22,8 @@ model Cuenta {
   filtroBase       Etiqueta[] @relation("FILTRO_BASE_X_ETIQUETA")
   filtroBaseActivo Boolean    @default(false) @map("filtro_base_activo")
 
+  fcmToken String[] @map("fcm_token")
+
   @@map("CUENTA")
 }
 

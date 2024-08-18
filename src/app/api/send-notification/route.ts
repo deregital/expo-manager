@@ -1,5 +1,5 @@
 import admin from 'firebase-admin';
-import { Message } from 'firebase-admin/messaging';
+import { MulticastMessage } from 'firebase-admin/messaging';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Initialize Firebase Admin SDK
@@ -14,10 +14,10 @@ if (!admin.apps.length) {
 }
 
 export async function POST(request: NextRequest) {
-  const { token, title, message, link } = await request.json();
+  const { tokens, title, message, link } = await request.json();
 
-  const payload: Message = {
-    token,
+  const payload: MulticastMessage = {
+    tokens,
     notification: {
       title: title,
       body: message,
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
   };
 
   try {
-    await admin.messaging().send(payload);
+    await admin.messaging().sendEachForMulticast(payload);
 
     return NextResponse.json({ success: true, message: 'Notification sent!' });
   } catch (error) {

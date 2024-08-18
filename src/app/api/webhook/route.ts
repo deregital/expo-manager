@@ -12,6 +12,7 @@ import { MensajeStatus } from '@prisma/client';
 import { join as pathJoin } from 'path';
 import { enviarMensajeUnaSolaVez } from '@/server/routers/whatsappRouter';
 import { getHighestIdLegible } from '@/lib/server';
+import { getAdminNotificationTokens } from '@/lib/notifications';
 
 export const revalidate = 0;
 const FECHA_LIMITE_MENSAJE_AUTOMATICO = new Date(2024, 4, 10);
@@ -56,8 +57,9 @@ export async function POST(request: NextRequest) {
             const { mensajeCreado, perfil } = await crearMensaje(value);
 
             // TODO: Conseguir el token personal de cada usuario
-            const token =
-              'cOTAFVF6iM6vRx8N-pL5pB:APA91bFBPG3TraWS8Oj9aI6tDVPAAcK4uk2UBmE0T5067N0Rat6zlZUpI2Las4E14slqtPC7P0KyeoYrO64lx_aF7M6AQ7bJbTScuJmAxKgp5Zl9P1B8-urrVNk712mQVO6Hf63Ni8UM';
+            const tokens = await getAdminNotificationTokens();
+
+            // 'cOTAFVF6iM6vRx8N-pL5pB:APA91bFBPG3TraWS8Oj9aI6tDVPAAcK4uk2UBmE0T5067N0Rat6zlZUpI2Las4E14slqtPC7P0KyeoYrO64lx_aF7M6AQ7bJbTScuJmAxKgp5Zl9P1B8-urrVNk712mQVO6Hf63Ni8UM';
 
             const ownURL = new URL(request.url);
             const urlFetch = ownURL.origin.includes('localhost')
@@ -73,7 +75,7 @@ export async function POST(request: NextRequest) {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  token: token,
+                  tokens,
                   title: 'Nuevo mensaje de ExpoManager',
                   message: `Nuevo mensaje de ${perfil?.nombreCompleto}: ${value.messages[0].text.body}`,
                   // TODO: Cambiar el link a la página de mensajes
