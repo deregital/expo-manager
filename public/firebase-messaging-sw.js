@@ -12,10 +12,10 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  console.log(
-    '[firebase-messaging-sw.js] Received background message ',
-    payload
-  );
+  // console.log(
+  //   '[firebase-messaging-sw.js] Received background message ',
+  //   payload
+  // );
 
   // payload.fcmOptions?.link comes from our backend API route handle
   // payload.data.link comes from the Firebase Console where link is the 'key'
@@ -31,7 +31,7 @@ messaging.onBackgroundMessage((payload) => {
 });
 
 self.addEventListener('notificationclick', function (event) {
-  console.log('[firebase-messaging-sw.js] Notificación click recivida.');
+  // console.log('[firebase-messaging-sw.js] Notificación click recivida.');
 
   event.notification.close();
 
@@ -53,7 +53,7 @@ self.addEventListener('notificationclick', function (event) {
         }
 
         if (clients.openWindow) {
-          console.log('OPENWINDOW ON CLIENT');
+          // console.log('OPENWINDOW ON CLIENT');
           return clients.openWindow(url);
         }
       })
