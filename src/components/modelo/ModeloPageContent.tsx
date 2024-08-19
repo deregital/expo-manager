@@ -277,7 +277,9 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           etiquetas={etiquetasFiltradas}
         />
       </div>
-
+      <Button className='mt-2 bg-red-600 px-2 py-1 text-sm hover:bg-red-800'>
+        Enviar a la Papelera
+      </Button>
       <div className='mt-5'>
         <h2 className='text-xl font-bold md:text-2xl'>Comentarios</h2>
         <ComentariosSection modeloId={modelo.id} />
