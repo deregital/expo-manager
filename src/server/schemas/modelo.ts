@@ -21,5 +21,11 @@ export const modeloSchemaCrearOEditar = z.object({
     z.literal(''),
     z.string().email('El mail debe tener un formato válido'),
   ]),
-  instagram: z.string().optional(),
+  instagram: z
+    .string()
+    .regex(
+      /^[\w](?!.*?\.{2})[\w.]{1,28}[\w]$/,
+      'El instagram no es válido. No debe comenzar con @'
+    )
+    .optional(),
 });
