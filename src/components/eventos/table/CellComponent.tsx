@@ -9,9 +9,11 @@ import { toast } from 'sonner';
 export const CellComponent = ({
   row,
   confirmoAsistenciaId,
+  asistioId,
 }: {
   row: Row<RouterOutputs['modelo']['getAll'][number]>;
   confirmoAsistenciaId: string;
+  asistioId: string;
 }) => {
   const etiquetasId = row.original.etiquetas.map(
     (etiqueta: any) => etiqueta.id
@@ -61,7 +63,8 @@ export const CellComponent = ({
 
   return (
     <div className='flex flex-wrap items-center justify-center gap-1'>
-      {etiquetasId.includes(confirmoAsistenciaId) ? (
+      {etiquetasId.includes(confirmoAsistenciaId) ||
+      etiquetasId.includes(asistioId) ? (
         <div className='flex items-center justify-center gap-x-2'>
           <p>En presentismo</p>
           <CheckIcon className='h-6 w-6' />

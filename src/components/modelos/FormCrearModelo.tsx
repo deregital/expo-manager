@@ -138,7 +138,7 @@ const FormCrearModelo = ({
           useCrearModeloModal.setState({
             modelo: {
               ...modalModelo.modelo,
-              telefono: e.target.value,
+              telefono: e.target.value.trim(),
             },
           })
         }
@@ -151,7 +151,7 @@ const FormCrearModelo = ({
         value={modalModelo.modelo.dni}
         onChange={(e) =>
           useCrearModeloModal.setState({
-            modelo: { ...modalModelo.modelo, dni: e.target.value },
+            modelo: { ...modalModelo.modelo, dni: e.target.value.trim() },
           })
         }
       />
@@ -209,7 +209,7 @@ const FormCrearModelo = ({
         value={modalModelo.modelo.mail}
         onChange={(e) =>
           useCrearModeloModal.setState({
-            modelo: { ...modalModelo.modelo, mail: e.target.value },
+            modelo: { ...modalModelo.modelo, mail: e.target.value.trim() },
           })
         }
       />
@@ -224,7 +224,7 @@ const FormCrearModelo = ({
             useCrearModeloModal.setState({
               modelo: {
                 ...modalModelo.modelo,
-                instagram: e.target.value,
+                instagram: e.target.value.trim(),
               },
             })
           }

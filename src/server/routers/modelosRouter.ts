@@ -307,15 +307,26 @@ export const modeloRouter = router({
         telefono: z
           .string()
           .regex(
-            /^\+?549(11|[2368]\d)\d{8}$/,
+            /^549(11|[2368]\d)\d{8}$/,
             'El teléfono no es válido, debe empezar con 549 y tener 10 dígitos. Ejemplo: 5491123456789'
           )
           .optional(),
         fotoUrl: z.string().optional().nullable(),
         genero: z.string().optional(),
         fechaNacimiento: z.string().optional(),
-        instagram: z.string().optional().nullable(),
-        mail: z.string().optional().nullable(),
+        instagram: z
+          .string()
+          .regex(
+            /^[\w](?!.*?\.{2})[\w.]{1,28}[\w]$/,
+            'El instagram no es válido. No debe comenzar con @'
+          )
+          .optional()
+          .nullable(),
+        mail: z
+          .string()
+          .email('El mail no es válido, debe tener el formato mail@mail.com')
+          .optional()
+          .nullable(),
         dni: z.string().optional().nullable(),
         nombresAlternativos: z.array(z.string()).optional().nullable(),
         etiquetas: z
@@ -347,33 +358,56 @@ export const modeloRouter = router({
         }
       });
 
-      const perfilConMismoTelefono = await ctx.prisma.perfil.findMany({
-        where: {
-          OR: [
-            {
-              telefono: input.telefono,
-            },
-            {
-              dni: input.dni ?? undefined,
-            },
-          ],
-        },
-      });
-
-      if (
-        perfilConMismoTelefono &&
-        perfilConMismoTelefono.length > 0 &&
-        perfilConMismoTelefono.find((p) => p.id !== input.id)
-      ) {
-        throw new TRPCError({
-          code: 'CONFLICT',
-          message: `Ya existe un perfil con el teléfono ${input.telefono}`,
+      const perfilConMismoTelefono = await ctx.prisma.perfil
+        .findMany({
+          where: {
+            OR: [
+              {
+                telefono: input.telefono,
+              },
+              {
+                dni: input.dni ?? undefined,
+              },
+            ],
+          },
+        })
+        .then((res) => {
+          return res.filter((p) => p.id !== input.id);
         });
+
+      if (perfilConMismoTelefono && perfilConMismoTelefono.length > 0) {
+        if (perfilConMismoTelefono.some((p) => p.telefono === input.telefono)) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: `Ya existe un perfil con el teléfono ${input.telefono}`,
+          });
+        } else if (
+          perfilConMismoTelefono.some((p) => p.dni === input.dni) &&
+          input.dni
+        ) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: `Ya existe un perfil con el DNI ${input.dni}`,
+          });
+        }
       }
 
       const nombrePila = input.nombreCompleto
         ? input.nombreCompleto.split(' ')[0]
         : input.nombrePila;
+
+      const etiquetaModelo = await ctx.prisma.etiqueta.findFirst({
+        where: {
+          tipo: TipoEtiqueta.MODELO,
+        },
+      });
+
+      if (!etiquetaModelo) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'No se encontró la etiqueta de modelo',
+        });
+      }
 
       return await ctx.prisma.perfil.update({
         where: {
@@ -395,11 +429,13 @@ export const modeloRouter = router({
           nombresAlternativos: input.nombresAlternativos ?? undefined,
           etiquetas: input.etiquetas
             ? {
-                set: (input.etiquetas ?? []).map((etiqueta) => {
-                  return {
-                    id: etiqueta.id,
-                  };
-                }),
+                set: [etiquetaModelo, ...(input.etiquetas ?? [])].map(
+                  (etiqueta) => {
+                    return {
+                      id: etiqueta.id,
+                    };
+                  }
+                ),
               }
             : undefined,
         },

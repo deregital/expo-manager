@@ -6,7 +6,7 @@ import { ColumnDef, SortDirection } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import CellComponent from './CellComponent';
 
-export function generateColumns(id: string) {
+export function generateColumns(idConfirmo: string, idAsistio: string) {
   const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
     {
       accessorKey: 'idLegible',
@@ -87,7 +87,13 @@ export function generateColumns(id: string) {
     },
     {
       accessorKey: 'Confirmó asistencia',
-      cell: ({ row }) => <CellComponent row={row} confirmoAsistenciaId={id} />,
+      cell: ({ row }) => (
+        <CellComponent
+          row={row}
+          asistioId={idAsistio}
+          confirmoAsistenciaId={idConfirmo}
+        />
+      ),
       size: 100,
       maxSize: 100,
       minSize: 100,
@@ -96,8 +102,8 @@ export function generateColumns(id: string) {
         const a = rowA.original.etiquetas.map((etiqueta) => etiqueta.id);
         const b = rowB.original.etiquetas.map((etiqueta) => etiqueta.id);
 
-        const hasEtiquetaA = a.includes(id);
-        const hasEtiquetaB = b.includes(id);
+        const hasEtiquetaA = a.includes(idConfirmo) || a.includes(idAsistio);
+        const hasEtiquetaB = b.includes(idConfirmo) || b.includes(idAsistio);
 
         if (hasEtiquetaA && !hasEtiquetaB) return -1;
         if (!hasEtiquetaA && hasEtiquetaB) return 1;

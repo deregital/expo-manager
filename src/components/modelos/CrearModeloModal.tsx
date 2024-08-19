@@ -69,6 +69,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     setEventoId(
       searchParams.get('evento') !== '' ? searchParams.get('evento') : null
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.get('evento')]);
 
   async function handleSave() {
@@ -82,11 +83,15 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       ? [...modalModelo.modelo.etiquetas, etiquetaAsistio!]
       : modalModelo.modelo.etiquetas;
 
+    const telefonoParseado = modalModelo.modelo.telefono.startsWith('549')
+      ? modalModelo.modelo.telefono
+      : `549${modalModelo.modelo.telefono}`;
+
     const res = await createModelo
       .mutateAsync({
         modelo: {
           nombreCompleto: modalModelo.modelo.nombreCompleto,
-          telefono: modalModelo.modelo.telefono,
+          telefono: telefonoParseado,
           dni: modalModelo.modelo.dni ?? undefined,
           mail: modalModelo.modelo.mail ?? undefined,
           fechaNacimiento: modalModelo.modelo.fechaNacimiento
@@ -118,6 +123,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
     } else {
       await handleUpload(res.id);
       toast.success('Participante creado correctamente');
+      setSimilarity(false);
       utils.modelo.getAll.invalidate();
       useCrearModeloModal.setState({
         open: false,

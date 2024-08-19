@@ -22,6 +22,11 @@ const schema = z.object({
   genero: z.string().min(1, 'El género es requerido').optional(),
   mail: z.string().email('El correo electrónico no es válido').optional(),
   instagram: z.string().min(1, 'El Instagram es requerido').optional(),
+  fechaNacimiento: z
+    .string()
+    .datetime()
+    .min(1, 'La fecha de nacimiento es requerida')
+    .optional(),
 });
 
 export async function POST(req: NextRequest, res: NextResponse) {
@@ -37,6 +42,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       genero,
       mail,
       instagram,
+      fechaNacimiento,
     } = parsedData;
 
     if (!username || !password) {
@@ -110,6 +116,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
         genero,
         mail,
         instagram,
+        fechaNacimiento,
         etiquetas: {
           disconnect: {
             id: etiquetaTentativaId.id,
@@ -128,6 +135,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
         genero,
         mail,
         instagram,
+        fechaNacimiento,
         etiquetas: {
           connect: {
             id: modeloEtiquetaId.id,
