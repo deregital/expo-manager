@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import ComboBox from './ComboBox';
 import { Input } from './input';
 import { Perfil } from '@prisma/client';
@@ -80,7 +80,7 @@ const CompEtiq = ({
   editarEtiq: (etiq: string) => void;
   dataGrupos: RouterOutputs['grupoEtiqueta']['getAll'] | undefined;
   grupoEtiqueta: string | undefined;
-  setGrupoEtiqueta: (grupo: string) => void;
+  setGrupoEtiqueta: Dispatch<SetStateAction<string | undefined>>;
   dataEtiquetas:
     | RouterOutputs['etiqueta']['getAll']
     | RouterOutputs['etiqueta']['getByGrupoEtiqueta']
