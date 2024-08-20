@@ -45,8 +45,8 @@ model Perfil {
   comentarios         Comentario[]
   mensajes            Mensaje[]    @relation("PERFIL_X_MENSAJE")
   etiquetas           Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
+  esPapelera      Boolean   @default(false) 
   
-  EsPapelera      Boolean   @default(false) 
   created_at          DateTime  @default(now())
   updated_at          DateTime  @updatedAt
 

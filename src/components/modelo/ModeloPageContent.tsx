@@ -133,6 +133,25 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     setEdit(false);
   }
 
+  const mutation = trpc.modelo.update.useMutation({
+    onSuccess: () => {
+      toast.success('Participante enviado a la papelera');
+      utils.modelo.getById.invalidate();
+    },
+    onError: () => {
+      toast.error('Error al enviar el participante a la papelera');
+    },
+  });
+
+  async function handleSendToTrash() {
+    try {
+      await mutation.mutateAsync({
+        id: modelo.id,
+        data: { esPapelera: true },
+      });
+    } catch (error) {}
+  }
+
   return (
     <>
       <div className='mt-4 flex flex-col gap-x-4 sm:flex-row'>
@@ -277,7 +296,10 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           etiquetas={etiquetasFiltradas}
         />
       </div>
-      <Button className='mt-2 bg-red-600 px-2 py-1 text-sm hover:bg-red-800'>
+      <Button
+        className='mt-2 bg-red-600 px-2 py-1 text-sm hover:bg-red-800'
+        onClick={handleSendToTrash}
+      >
         Enviar a la Papelera
       </Button>
       <div className='mt-5'>

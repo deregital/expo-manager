@@ -341,6 +341,7 @@ export const modeloRouter = router({
             })
           )
           .optional(),
+        esPapelera: z.boolean().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -438,6 +439,7 @@ export const modeloRouter = router({
                 ),
               }
             : undefined,
+          esPapelera: input.esPapelera ?? undefined,
         },
       });
     }),
