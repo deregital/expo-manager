@@ -133,7 +133,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     setEdit(false);
   }
 
-  const mutation = trpc.modelo.update.useMutation({
+  const mutation = trpc.modelo.edit.useMutation({
     onSuccess: () => {
       toast.success('Participante enviado a la papelera');
       utils.modelo.getById.invalidate();
@@ -147,7 +147,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     try {
       await mutation.mutateAsync({
         id: modelo.id,
-        data: { esPapelera: true },
+        esPapelera: true,
       });
     } catch (error) {}
   }
