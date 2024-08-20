@@ -96,7 +96,12 @@ const CompEtiq = ({
         id='id'
         value='nombre'
         onSelect={(value) => {
-          setGrupoEtiqueta(value);
+          if (grupoEtiqueta === value) {
+            setGrupoEtiqueta(undefined);
+            return;
+          } else {
+            setGrupoEtiqueta(value);
+          }
         }}
         open={openGrupo}
         setOpen={setOpenGrupo}
@@ -118,6 +123,11 @@ const CompEtiq = ({
         id='id'
         value='nombre'
         onSelect={(value) => {
+          if (etiquetaId === value) {
+            setEtiquetaId(undefined);
+            editarEtiq('');
+            return;
+          }
           setEtiquetaId(value);
           editarEtiq(value);
         }}
