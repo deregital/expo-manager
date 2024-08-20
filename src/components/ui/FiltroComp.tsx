@@ -7,6 +7,7 @@ import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
 import EtiquetaFillIcon from '../icons/EtiquetaFillIcon';
 import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
+import { XIcon } from 'lucide-react';
 
 type Filtrar = ({
   input,
@@ -31,22 +32,30 @@ const FiltroComp = ({
   const [grupoEtiqueta, setGrupoEtiqueta] = useState<string | undefined>(
     undefined
   );
-  const { data: GrupoEtiquetas } = trpc.grupoEtiqueta.getAll.useQuery();
-  const { data: etiquetas } = grupoEtiqueta
+  const [etiquetaId, setEtiquetaId] = useState<string | undefined>(undefined);
+  const { data: GrupoEtiquetas, isLoading: isLoadingGrupo } =
+    trpc.grupoEtiqueta.getAll.useQuery();
+  const { data: etiquetas, isLoading: isLoadingEtiquetas } = grupoEtiqueta
     ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoEtiqueta)
     : trpc.etiqueta.getAll.useQuery();
   const editarEtiq = (etiq: string) => {
     if (filtro.etiquetasId === etiq) {
       setFiltro({ ...filtro, etiquetasId: undefined });
+      setEtiquetaId(undefined);
       return;
     }
     setFiltro({ ...filtro, etiquetasId: etiq });
+    setEtiquetaId(etiq);
   };
 
   const editarInput = (input: string) => {
     setFiltro({ ...filtro, input: input });
   };
-
+  const resetFilters = () => {
+    setFiltro({ input: '', etiquetasId: undefined });
+    setGrupoEtiqueta(undefined);
+    setEtiquetaId(undefined);
+  };
   useEffect(() => {
     const filtrar = () => {
       funcionFiltrado(filtro);
@@ -54,41 +63,52 @@ const FiltroComp = ({
     filtrar();
   }, [filtro]);
   return (
-    <div className='fles items-center justify-between'>
+    <div className='flex items-center justify-between'>
       {mostrarEtiq && (
         <CompEtiq
           editarEtiq={editarEtiq}
           dataGrupos={GrupoEtiquetas}
+          isLoadingGrupos={isLoadingGrupo}
           grupoEtiqueta={grupoEtiqueta}
+          etiquetaId={etiquetaId}
           setGrupoEtiqueta={setGrupoEtiqueta}
           dataEtiquetas={etiquetas}
+          isLoadingEtiquetas={isLoadingEtiquetas}
         />
       )}
-      {mostrarInput && (
-        <CompInput editarInput={editarInput} inputFiltro={filtro.input} />
-      )}
+      <div className='flex items-center justify-center gap-x-2'>
+        {mostrarInput && (
+          <CompInput editarInput={editarInput} inputFiltro={filtro.input} />
+        )}
+        <XIcon className='h-4 w-4 cursor-pointer' onClick={resetFilters} />
+      </div>
     </div>
   );
 };
 const CompEtiq = ({
   editarEtiq,
   dataGrupos,
+  isLoadingGrupos,
   grupoEtiqueta,
+  etiquetaId,
   setGrupoEtiqueta,
   dataEtiquetas,
+  isLoadingEtiquetas,
 }: {
   editarEtiq: (etiq: string) => void;
   dataGrupos: RouterOutputs['grupoEtiqueta']['getAll'] | undefined;
+  isLoadingGrupos: boolean;
   grupoEtiqueta: string | undefined;
+  etiquetaId: string | undefined;
   setGrupoEtiqueta: Dispatch<SetStateAction<string | undefined>>;
   dataEtiquetas:
     | RouterOutputs['etiqueta']['getAll']
     | RouterOutputs['etiqueta']['getByGrupoEtiqueta']
     | undefined;
+  isLoadingEtiquetas: boolean;
 }) => {
   const [openGrupo, setOpenGrupo] = useState(false);
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
-  const [etiquetaId, setEtiquetaId] = useState<string | undefined>(undefined);
   return (
     <div className='flex items-center justify-center gap-x-4'>
       <ComboBox
@@ -105,6 +125,7 @@ const CompEtiq = ({
           }
         }}
         open={openGrupo}
+        isLoading={isLoadingGrupos}
         setOpen={setOpenGrupo}
         selectedIf={grupoEtiqueta !== undefined ? grupoEtiqueta : ''}
         triggerChildren={
@@ -126,14 +147,13 @@ const CompEtiq = ({
         onSelect={(value) => {
           setOpenEtiqueta(false);
           if (etiquetaId === value) {
-            setEtiquetaId(undefined);
             editarEtiq('');
             return;
           }
-          setEtiquetaId(value);
           editarEtiq(value);
         }}
         open={openEtiqueta}
+        isLoading={isLoadingEtiquetas}
         setOpen={setOpenEtiqueta}
         selectedIf={etiquetaId !== undefined ? etiquetaId : ''}
         triggerChildren={
@@ -166,6 +186,7 @@ const CompInput = ({
       onChange={(e) => {
         editarInput(e.target.value);
       }}
+      className='w-full md:max-w-md'
     />
   );
 };
