@@ -5,9 +5,9 @@ importScripts(
 
 let firebaseConfig;
 
-try {
-  firebaseConfig = JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_CONFIG);
-} catch {
+// check if url contains localhost, if it does, use local firebase config
+
+if (location.hostname.includes('localhost')) {
   firebaseConfig = {
     apiKey: 'AIzaSyBavib8ewQwONd7_PuQgSoJ1Yc7LBx7xWQ',
     authDomain: 'expo-manager-demo-notification.firebaseapp.com',
@@ -17,7 +17,31 @@ try {
     appId: '1:682417176673:web:017069a78c6b96f24bea20',
     measurementId: 'G-MZMT9H3M22',
   };
+} else {
+  firebaseConfig = {
+    apiKey: 'AIzaSyDiG5bpAJDQZLSBstilyMR8lNDpe9gm3bk',
+    authDomain: 'expo-manager-notifications.firebaseapp.com',
+    projectId: 'expo-manager-notifications',
+    storageBucket: 'expo-manager-notifications.appspot.com',
+    messagingSenderId: '262951829137',
+    appId: '1:262951829137:web:7395591213fa12b15f4930',
+    measurementId: 'G-56MHRQT1J9',
+  };
 }
+
+// try {
+//   firebaseConfig = JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_CONFIG);
+// } catch {
+//   firebaseConfig = {
+//     apiKey: 'AIzaSyBavib8ewQwONd7_PuQgSoJ1Yc7LBx7xWQ',
+//     authDomain: 'expo-manager-demo-notification.firebaseapp.com',
+//     projectId: 'expo-manager-demo-notification',
+//     storageBucket: 'expo-manager-demo-notification.appspot.com',
+//     messagingSenderId: '682417176673',
+//     appId: '1:682417176673:web:017069a78c6b96f24bea20',
+//     measurementId: 'G-MZMT9H3M22',
+//   };
+// }
 
 //Insert to firebase-messaging-sw.js
 
