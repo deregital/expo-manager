@@ -68,6 +68,8 @@ export const modeloRouter = router({
           mensajes: {
             select: {
               visto: true,
+              message: true,
+              created_at: true,
             },
           },
         },

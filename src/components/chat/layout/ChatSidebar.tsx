@@ -70,7 +70,11 @@ const ChatSidebar = ({}: ChatSidebarProps) => {
                 inPage={telefonoSelected === contacto.telefono}
                 key={contacto.id}
                 contacto={contacto}
-                noLeidos={contacto.mensajes.filter((m) => !m.visto).length}
+                noLeidos={
+                  (contacto.mensajes as { visto: boolean }[]).filter(
+                    (m) => !m.visto
+                  ).length
+                }
               />
             </Link>
           ))}
