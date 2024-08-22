@@ -34,6 +34,18 @@ const ChatSidebar = ({}: ChatSidebarProps) => {
       : contactos;
   }, [contactos, contactosNoLeidos]);
 
+  const contactosActivos = useMemo(() => {
+    return contactosLeidos
+      .filter((c) => c.inChat)
+      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
+  }, [contactosLeidos]);
+
+  const contactosInactivos = useMemo(() => {
+    return contactosLeidos
+      .filter((c) => !c.inChat)
+      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
+  }, [contactosLeidos]);
+
   if (contactosLoading) {
     return (
       <div className='flex h-full items-center justify-center'>
@@ -63,14 +75,19 @@ const ChatSidebar = ({}: ChatSidebarProps) => {
             </Link>
           ))}
         </div>
-        <div className='max-h-full overflow-y-auto'>
-          <ContactosNoChat
-            telefonoSelected={telefonoSelected}
-            contactos={contactosLeidos.sort((a, b) =>
-              a.nombreCompleto.localeCompare(b.nombreCompleto)
-            )}
-          />
-        </div>
+        <ContactosNoChat
+          telefonoSelected={telefonoSelected}
+          items={[
+            {
+              title: 'Contactos activos',
+              contactos: contactosActivos,
+            },
+            {
+              title: 'Contactos inactivos',
+              contactos: contactosInactivos,
+            },
+          ]}
+        />
       </aside>
     )
   );
