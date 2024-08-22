@@ -19,23 +19,69 @@ try {
   };
 }
 
+//Insert to firebase-messaging-sw.js
+
 firebase.initializeApp(firebaseConfig);
+
+class CustomPushEvent extends Event {
+  constructor(data) {
+    super('push');
+
+    Object.assign(this, data);
+    this.custom = true;
+  }
+}
+
+/*
+ * Overrides push notification data, to avoid having 'notification' key and firebase blocking
+ * the message handler from being called
+ */
+self.addEventListener('push', (e) => {
+  // Skip if event is our own custom event
+  if (e.custom) return;
+
+  // Kep old event data to override
+  const oldData = e.data;
+
+  // Create a new event to dispatch, pull values from notification key and put it in data key,
+  // and then remove notification key
+  const newEvent = new CustomPushEvent({
+    data: {
+      ehheh: oldData.json(),
+      json() {
+        const newData = oldData.json();
+        newData.data = {
+          ...newData.data,
+          ...newData.notification,
+        };
+        delete newData.notification;
+        return newData;
+      },
+    },
+    waitUntil: e.waitUntil.bind(e),
+  });
+
+  // Stop event propagation
+  e.stopImmediatePropagation();
+
+  // Dispatch the new wrapped event
+  dispatchEvent(newEvent);
+});
 
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  // console.log(
-  //   '[firebase-messaging-sw.js] Received background message ',
-  //   payload
-  // );
-
   // payload.fcmOptions?.link comes from our backend API route handle
   // payload.data.link comes from the Firebase Console where link is the 'key'
-  const link = payload.fcmOptions?.link || payload.data?.link;
+  const link =
+    payload.fcmOptions?.link ||
+    payload.data?.link ||
+    payload.data?.click_action ||
+    '/';
 
-  const notificationTitle = payload.notification.title;
+  const notificationTitle = payload.data.title;
   const notificationOptions = {
-    body: payload.notification.body,
+    body: payload.data.body,
     icon: './vercel.svg',
     data: { url: link },
   };

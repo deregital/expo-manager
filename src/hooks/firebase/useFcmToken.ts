@@ -102,39 +102,34 @@ const useFcmToken = () => {
       const unsubscribe = onMessage(m, (payload) => {
         if (Notification.permission !== 'granted') return;
 
-        // console.log('Foreground push notification received:', payload);
-        const link = payload.fcmOptions?.link || payload.data?.link;
+        console.log('Foreground push notification received:', payload);
+        const link =
+          payload.fcmOptions?.link ||
+          payload.data?.link ||
+          payload.data?.click_action;
 
         if (link) {
-          toast.info(
-            `${payload.notification?.title}: ${payload.notification?.body}`,
-            {
-              action: {
-                label: 'Visit',
-                onClick: () => {
-                  const link = payload.fcmOptions?.link || payload.data?.link;
-                  if (link) {
-                    router.push(link);
-                  }
-                },
+          toast.info(`${payload.data?.title}: ${payload.data?.body}`, {
+            action: {
+              label: 'Visit',
+              onClick: () => {
+                const link = payload.fcmOptions?.link || payload.data?.link;
+                if (link) {
+                  router.push(link);
+                }
               },
-            }
-          );
+            },
+          });
         } else {
-          toast.info(
-            `${payload.notification?.title}: ${payload.notification?.body}`
-          );
+          toast.info(`${payload.data?.title}: ${payload.data?.body}`);
         }
 
         // --------------------------------------------
         // Disable this if you only want toast notifications.
-        const n = new Notification(
-          payload.notification?.title || 'New message',
-          {
-            body: payload.notification?.body || 'This is a new message',
-            data: link ? { url: link } : undefined,
-          }
-        );
+        const n = new Notification(payload.data?.title || 'New message', {
+          body: payload.data?.body || 'This is a new message',
+          data: link ? { url: link } : undefined,
+        });
 
         // Step 10: Handle notification click event to navigate to a link if present.
         n.onclick = (event) => {

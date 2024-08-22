@@ -14,7 +14,12 @@ if (!admin.apps.length) {
 }
 
 export async function POST(request: NextRequest) {
-  const { tokens, title, message, link } = await request.json();
+  const { tokens, title, message, link } = (await request.json()) as {
+    tokens: string[];
+    title: string;
+    message: string;
+    link?: string;
+  };
 
   const payload: MulticastMessage = {
     tokens,
@@ -22,11 +27,13 @@ export async function POST(request: NextRequest) {
       title: title,
       body: message,
     },
-    webpush: link && {
-      fcmOptions: {
-        link,
-      },
-    },
+    webpush: link
+      ? {
+          fcmOptions: {
+            link,
+          },
+        }
+      : undefined,
   };
 
   try {
