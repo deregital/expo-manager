@@ -143,7 +143,7 @@ async function crearMensaje(value: ReceivedMessage) {
     throw new Error('No se encontró la etiqueta TENTATIVA');
   }
 
-  if (!message || message.type !== 'text') {
+  if (!message || !['text', 'button', 'template'].includes(message.type)) {
     return {
       perfil,
       mensajeCreado: null,
@@ -157,18 +157,34 @@ async function crearMensaje(value: ReceivedMessage) {
       wamId: message.id,
     },
   });
+
   if (doesMessageExist) {
     return {
       perfil,
       mensajeCreado: null,
     };
   }
+  let mensaje: string | null = null;
+
+  if (message.type === 'text') {
+    mensaje = message.text.body;
+  } else if (message.type === 'button') {
+    mensaje = message.button.text;
+  } else {
+    mensaje = 'Mensaje no soportado';
+  }
 
   const mensajeCreado = await prisma.mensaje.create({
     data: {
       wamId: message.id,
       statusAt: new Date(Number.parseInt(message.timestamp) * 1000),
-      message: message,
+      message: {
+        ...message,
+        type: 'text',
+        text: {
+          body: mensaje,
+        },
+      },
       perfil: {
         connectOrCreate: {
           where: {

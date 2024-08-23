@@ -26,6 +26,17 @@ export type WebhookMessage = {
       type: 'image';
       image: WebhookImage;
     }
+  | {
+      type: 'button';
+      button: {
+        payload: string;
+        text: string;
+      };
+      context: {
+        from: string;
+        id: string;
+      };
+    }
 );
 
 export type WebHookRequest = {
