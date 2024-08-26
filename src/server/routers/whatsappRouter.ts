@@ -286,6 +286,7 @@ export const whatsappRouter = router({
         data: mensajesParaCrear.map((mensaje) => ({
           message: mensaje,
           wamId: mensaje.id,
+          visto: true,
           perfilTelefono: mensaje.to!,
         })),
       });
@@ -345,6 +346,30 @@ export const whatsappRouter = router({
 
       return myEntry.timestamp as number;
     }),
+  readMensajes: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.mensaje.updateMany({
+        where: {
+          perfilTelefono: input,
+          visto: false,
+        },
+        data: {
+          visto: true,
+        },
+      });
+    }),
+  mensajesNoLeidos: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.prisma.mensaje.groupBy({
+      by: ['perfilTelefono'],
+      where: {
+        visto: false,
+      },
+      _count: {
+        id: true,
+      },
+    });
+  }),
 });
 
 export async function enviarMensajeUnaSolaVez(
@@ -396,6 +421,7 @@ export async function enviarMensajeUnaSolaVez(
         to: telefono,
         timestamp: new Date().getTime(),
       },
+      visto: true,
       wamId: messageId,
       perfil: {
         connect: {

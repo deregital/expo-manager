@@ -12,12 +12,14 @@ import { MensajeStatus } from '@prisma/client';
 import { join as pathJoin } from 'path';
 import { enviarMensajeUnaSolaVez } from '@/server/routers/whatsappRouter';
 import { getHighestIdLegible } from '@/lib/server';
+import { getAdminNotificationTokens } from '@/lib/notifications';
 
 export const revalidate = 0;
 const FECHA_LIMITE_MENSAJE_AUTOMATICO = new Date(2024, 4, 10);
 
 export async function GET(request: Request) {
   const urlDecoded = new URL(request.url);
+
   const urlParams = urlDecoded.searchParams;
   let mode = urlParams.get('hub.mode');
   let token = urlParams.get('hub.verify_token');
@@ -54,7 +56,33 @@ export async function POST(request: NextRequest) {
           if ('messages' in value) {
             const { mensajeCreado, perfil } = await crearMensaje(value);
 
-            // console.log('mensajeCreado', mensajeCreado, 'perfil', perfil);
+            // TODO: Conseguir el token personal de cada usuario
+            const tokens = await getAdminNotificationTokens();
+
+            // 'cOTAFVF6iM6vRx8N-pL5pB:APA91bFBPG3TraWS8Oj9aI6tDVPAAcK4uk2UBmE0T5067N0Rat6zlZUpI2Las4E14slqtPC7P0KyeoYrO64lx_aF7M6AQ7bJbTScuJmAxKgp5Zl9P1B8-urrVNk712mQVO6Hf63Ni8UM';
+
+            const ownURL = new URL(request.url);
+            const urlFetch = ownURL.origin.includes('localhost')
+              ? ownURL.origin
+                  .replace('localhost', '127.0.0.1')
+                  .replace('https', 'http')
+              : ownURL.origin;
+
+            if (value.messages[0].type === 'text') {
+              await fetch(`${urlFetch}/api/send-notification`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  tokens,
+                  title: 'Nuevo mensaje de ExpoManager',
+                  message: `Nuevo mensaje de ${perfil?.nombreCompleto}: ${value.messages[0].text.body}`,
+                  // TODO: Cambiar el link a la página de mensajes
+                  link: `${urlFetch}/mensajes/${value.messages[0].from}`,
+                }),
+              });
+            }
 
             if (
               (!perfil ||
@@ -62,8 +90,6 @@ export async function POST(request: NextRequest) {
               mensajeCreado &&
               mensajeCreado.perfil._count.mensajes === 1
             ) {
-              // console.log('enviando mensaje');
-
               await enviarRespuestaAutomatica(
                 value.contacts[0].wa_id,
                 mensajeCreado.perfil.nombrePila ??
@@ -117,7 +143,7 @@ async function crearMensaje(value: ReceivedMessage) {
     throw new Error('No se encontró la etiqueta TENTATIVA');
   }
 
-  if (!message || message.type !== 'text') {
+  if (!message || !['text', 'button', 'template'].includes(message.type)) {
     return {
       perfil,
       mensajeCreado: null,
@@ -126,11 +152,39 @@ async function crearMensaje(value: ReceivedMessage) {
 
   const idLegibleMasAlto = await getHighestIdLegible(prisma);
 
+  const doesMessageExist = await prisma.mensaje.findFirst({
+    where: {
+      wamId: message.id,
+    },
+  });
+
+  if (doesMessageExist) {
+    return {
+      perfil,
+      mensajeCreado: null,
+    };
+  }
+  let mensaje: string | null = null;
+
+  if (message.type === 'text') {
+    mensaje = message.text.body;
+  } else if (message.type === 'button') {
+    mensaje = message.button.text;
+  } else {
+    mensaje = 'Mensaje no soportado';
+  }
+
   const mensajeCreado = await prisma.mensaje.create({
     data: {
       wamId: message.id,
       statusAt: new Date(Number.parseInt(message.timestamp) * 1000),
-      message: message,
+      message: {
+        ...message,
+        type: 'text',
+        text: {
+          body: mensaje,
+        },
+      },
       perfil: {
         connectOrCreate: {
           where: {
