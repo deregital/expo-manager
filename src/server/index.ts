@@ -8,6 +8,7 @@ import { inferRouterOutputs } from '@trpc/server';
 import { csvRouter } from '@/server/routers/csvRouter';
 import { eventoRouter } from '@/server/routers/eventoRouter';
 import { cuentaRouter } from '@/server/routers/cuentaRouter';
+import { notificacionRouter } from '@/server/routers/notificacionRouter';
 
 export const appRouter = router({
   modelo: modeloRouter,
@@ -18,6 +19,7 @@ export const appRouter = router({
   csv: csvRouter,
   evento: eventoRouter,
   cuenta: cuentaRouter,
+  notificacion: notificacionRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;

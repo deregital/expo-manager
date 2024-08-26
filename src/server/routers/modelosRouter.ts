@@ -65,7 +65,13 @@ export const modeloRouter = router({
           },
         },
         include: {
-          mensajes: true,
+          mensajes: {
+            select: {
+              visto: true,
+              message: true,
+              created_at: true,
+            },
+          },
         },
       });
     return modelos;
