@@ -1,9 +1,10 @@
 import ComboBox from '@/components/ui/ComboBox';
+import FiltroComp from '@/components/ui/FiltroComp';
 import { trpc } from '@/lib/trpc';
-import { cn } from '@/lib/utils';
+import { cn, searchNormalize } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { Trash } from 'lucide-react';
-import React, { useMemo } from 'react';
+import React, { ComponentProps, useState } from 'react';
 import { create } from 'zustand';
 
 interface ModelosComboYListProps {}
@@ -87,15 +88,49 @@ const ModelosComboYList = ({}: ModelosComboYListProps) => {
 
   const { modelos: modelosOpen, setModelosOpen } = asignacionComboBoxOpens();
   const { modelos: modelosList, setModelos } = asignacionSelectedData();
+  const [modelosParaElegir, setModelosParaElegir] = useState<
+    RouterOutputs['modelo']['getAll']
+  >(modelos ?? []);
 
-  const modelosParaElegir = useMemo(() => {
-    return modelos
-      ?.filter((modelo) => !modelosList.find((m) => m.id === modelo.id))
-      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
-  }, [modelos, modelosList]);
-
+  // const modelosParaElegir = useMemo(() => {
+  //   return modelos
+  //     ?.filter((modelo) => !modelosList.find((m) => m.id === modelo.id))
+  //     .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
+  // }, [modelos, modelosList]);
+  const filtrar: ComponentProps<typeof FiltroComp>['funcionFiltrado'] = ({
+    input,
+    etiquetasId,
+    grupoId,
+  }) => {
+    if (!modelos) return;
+    setModelosParaElegir(
+      modelos
+        .filter((modelo) => {
+          if (modelo.idLegible !== null) {
+            return (
+              searchNormalize(modelo.idLegible.toString(), input) ||
+              searchNormalize(modelo.nombreCompleto, input)
+            );
+          }
+          return searchNormalize(modelo.nombreCompleto, input);
+        })
+        .filter((modelo) => {
+          if (!grupoId) return true;
+          return modelo.etiquetas.some((etiqueta) => {
+            return etiqueta.grupoId === grupoId;
+          });
+        })
+        .filter((modelo) => {
+          if (!etiquetasId) return true;
+          return modelo.etiquetas.some((etiqueta) => {
+            return etiqueta.id === etiquetasId;
+          });
+        })
+    );
+  };
   return (
     <>
+      <FiltroComp mostrarEtiq mostrarInput funcionFiltrado={filtrar} />
       <ComboBox
         open={modelosOpen}
         setOpen={setModelosOpen}
