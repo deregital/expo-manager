@@ -21,22 +21,18 @@ import InstagramIcon from '@/components/icons/InstagramIcon';
 import MailIcon from '@/components/icons/MailIcon';
 import DNIIcon from '@/components/icons/DNIIcon';
 import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
-
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
 }
-
 type ModeloData = {
   id: string;
   etiquetas: EtiquetaBaseConGrupoColor[];
   comentarios: RouterOutputs['comentario']['getByPerfilId'] | undefined;
 };
-
 type ModeloFoto = {
   id: string;
   fotoUrl: string | undefined;
 };
-
 export const useModeloData = create<ModeloData>(() => ({
   id: '',
   etiquetas: [],
@@ -46,7 +42,6 @@ export const useModeloFoto = create<ModeloFoto>(() => ({
   id: '',
   fotoUrl: undefined,
 }));
-
 const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const { etiquetas } = useModeloData((state) => ({
     etiquetas: state.etiquetas,
@@ -56,7 +51,6 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const [video, setVideo] = useState<File | null>(null);
   const [edit, setEdit] = useState(false);
   const utils = trpc.useUtils();
-
   const etiquetasFiltradas = useMemo(
     () =>
       etiquetas.filter(
@@ -65,16 +59,13 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       ),
     [etiquetas]
   );
-
   useEffect(() => {
     setFotoUrl(modelo.fotoUrl);
   }, [modelo]);
-
   async function handleDelete() {
     const form = new FormData();
     form.append('id', modelo.id);
     form.append('url', fotoUrl ?? '');
-
     await fetch('/api/image', {
       method: 'DELETE',
       body: form,
@@ -88,7 +79,6 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     setEdit(false);
     inputRef.current!.value = '';
   }
-
   async function handleUpload() {
     if (!video) {
       toast.error('No se ha seleccionado una imagen');
@@ -98,17 +88,14 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     form.append('imagen', video);
     form.append('id', modelo.id);
     form.append('url', modelo.fotoUrl ?? '');
-
     toast.loading('Subiendo foto...');
     setEdit(false);
-
     await fetch('/api/image', {
       method: 'POST',
       body: form,
     })
       .then(() => {
         toast.dismiss();
-
         if (inputRef.current) {
           inputRef.current!.value = '';
         }
@@ -125,14 +112,12 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
         setFotoUrl(modelo.fotoUrl);
       });
   }
-
   function handleCancel() {
     setFotoUrl(modelo.fotoUrl);
     setVideo(null);
     inputRef.current!.value = '';
     setEdit(false);
   }
-
   const sendToTrashMutation = trpc.modelo.edit.useMutation({
     onSuccess: () => {
       toast.success('Participante enviado a la papelera');
@@ -142,7 +127,6 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       toast.error('Error al enviar el participante a la papelera');
     },
   });
-
   const deleteMutation = trpc.modelo.delete.useMutation({
     onSuccess: () => {
       toast.success('Participante eliminado definitivamente');
@@ -153,21 +137,18 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       toast.error('Error al eliminar el participante definitivamente');
     },
   });
-
   async function handleSendToTrash() {
     try {
       if (modelo.esPapelera) {
         toast.info('Este Participante ya fue agregado a la papelera');
         return;
       }
-
       await sendToTrashMutation.mutateAsync({
         id: modelo.id,
         esPapelera: true,
       });
     } catch (error) {}
   }
-
   async function handleDeletePermanently() {
     try {
       if (!modelo.esPapelera) {
@@ -176,8 +157,31 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
         );
         return;
       }
-
       await deleteMutation.mutateAsync(modelo.id);
+    } catch (error) {}
+  }
+
+  const removeFromTrashMutation = trpc.modelo.edit.useMutation({
+    onSuccess: () => {
+      toast.success('Participante borrado de la papelera');
+      utils.modelo.getById.invalidate();
+    },
+    onError: () => {
+      toast.error('Error al borrar el participante de la papelera');
+    },
+  });
+
+  async function handleRemoveFromTrash() {
+    try {
+      if (!modelo.esPapelera) {
+        toast.info('Este Participante no está en la papelera');
+        return;
+      }
+
+      await removeFromTrashMutation.mutateAsync({
+        id: modelo.id,
+        esPapelera: false,
+      });
     } catch (error) {}
   }
 
@@ -318,7 +322,6 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           </div>
         </div>
       </div>
-
       <div className='mt-4 flex flex-wrap gap-2 md:hidden'>
         <ListaEtiquetasModelo
           modeloId={modelo.id}
@@ -331,13 +334,22 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       >
         Enviar a la Papelera
       </Button>
+
       {modelo.esPapelera && (
-        <Button
-          className='mt-2 bg-red-800 px-2 py-1 text-sm hover:bg-red-900'
-          onClick={handleDeletePermanently}
-        >
-          Eliminar Definitivamente
-        </Button>
+        <>
+          <Button
+            className='mr-2 mt-2 bg-red-800 px-2 py-1 text-sm hover:bg-red-900'
+            onClick={handleRemoveFromTrash}
+          >
+            Borrar de la Papelera
+          </Button>
+          <Button
+            className='mt-2 bg-red-800 px-2 py-1 text-sm hover:bg-red-900'
+            onClick={handleDeletePermanently}
+          >
+            Eliminar Definitivamente
+          </Button>
+        </>
       )}
       <div className='mt-5'>
         <h2 className='text-xl font-bold md:text-2xl'>Comentarios</h2>
@@ -346,5 +358,4 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     </>
   );
 };
-
 export default ModeloPageContent;
