@@ -305,7 +305,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
         className='mt-2 bg-red-600 px-2 py-1 text-sm hover:bg-red-800'
         onClick={handleSendToTrash}
       >
-        Enviar a la Papelera
+        {modelo.esPapelera ? 'Eliminar Participante' : 'Enviar a la Papelera'}
       </Button>
       <div className='mt-5'>
         <h2 className='text-xl font-bold md:text-2xl'>Comentarios</h2>
