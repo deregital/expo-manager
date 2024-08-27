@@ -145,6 +145,11 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
 
   async function handleSendToTrash() {
     try {
+      if (modelo.esPapelera) {
+        toast.info('Este Participante ya fue agregado a la papelera');
+        return;
+      }
+
       await mutation.mutateAsync({
         id: modelo.id,
         esPapelera: true,
