@@ -11,9 +11,11 @@ import { XIcon } from 'lucide-react';
 type Filtrar = ({
   input,
   etiquetasId,
+  grupoId,
 }: {
   input: string;
   etiquetasId: string | undefined;
+  grupoId: string | undefined;
 }) => void;
 
 const FiltroComp = ({
@@ -28,7 +30,8 @@ const FiltroComp = ({
   const [filtro, setFiltro] = useState<{
     input: string;
     etiquetasId: string | undefined;
-  }>({ input: '', etiquetasId: undefined });
+    grupoId: string | undefined;
+  }>({ input: '', etiquetasId: undefined, grupoId: undefined });
   const [grupoEtiqueta, setGrupoEtiqueta] = useState<string | undefined>(
     undefined
   );
@@ -47,12 +50,20 @@ const FiltroComp = ({
     setFiltro({ ...filtro, etiquetasId: etiq });
     setEtiquetaId(etiq);
   };
-
+  const editarGrupoEtiq = (grupoEtiq: string) => {
+    if (filtro.grupoId === grupoEtiq) {
+      setFiltro({ ...filtro, grupoId: undefined });
+      setGrupoEtiqueta(undefined);
+      return;
+    }
+    setFiltro({ ...filtro, grupoId: grupoEtiq });
+    setGrupoEtiqueta(grupoEtiq);
+  };
   const editarInput = (input: string) => {
     setFiltro({ ...filtro, input: input });
   };
   const resetFilters = () => {
-    setFiltro({ input: '', etiquetasId: undefined });
+    setFiltro({ input: '', etiquetasId: undefined, grupoId: undefined });
     setGrupoEtiqueta(undefined);
     setEtiquetaId(undefined);
   };
@@ -67,6 +78,7 @@ const FiltroComp = ({
       {mostrarEtiq && (
         <CompEtiq
           editarEtiq={editarEtiq}
+          editarGrupoEtiq={editarGrupoEtiq}
           dataGrupos={GrupoEtiquetas}
           isLoadingGrupos={isLoadingGrupo}
           grupoEtiqueta={grupoEtiqueta}
@@ -87,6 +99,7 @@ const FiltroComp = ({
 };
 const CompEtiq = ({
   editarEtiq,
+  editarGrupoEtiq,
   dataGrupos,
   isLoadingGrupos,
   grupoEtiqueta,
@@ -96,6 +109,7 @@ const CompEtiq = ({
   isLoadingEtiquetas,
 }: {
   editarEtiq: (etiq: string) => void;
+  editarGrupoEtiq: (grupoEtiq: string) => void;
   dataGrupos: RouterOutputs['grupoEtiqueta']['getAll'] | undefined;
   isLoadingGrupos: boolean;
   grupoEtiqueta: string | undefined;
@@ -118,11 +132,10 @@ const CompEtiq = ({
         onSelect={(value) => {
           setOpenGrupo(false);
           if (grupoEtiqueta === value) {
-            setGrupoEtiqueta(undefined);
+            editarGrupoEtiq('');
             return;
-          } else {
-            setGrupoEtiqueta(value);
           }
+          editarGrupoEtiq(value);
         }}
         open={openGrupo}
         isLoading={isLoadingGrupos}
@@ -132,8 +145,8 @@ const CompEtiq = ({
           <>
             <span className='truncate'>
               {grupoEtiqueta
-                ? (dataGrupos?.find((grupo) => grupo.id === grupoEtiqueta)
-                    ?.nombre ?? 'Buscar grupo...')
+                ? dataGrupos?.find((grupo) => grupo.id === grupoEtiqueta)
+                    ?.nombre ?? 'Buscar grupo...'
                 : 'Buscar grupo...'}
             </span>
             <EtiquetasFillIcon className='h-5 w-5' />
@@ -160,8 +173,8 @@ const CompEtiq = ({
           <>
             <span className='truncate'>
               {etiquetaId
-                ? (dataEtiquetas?.find((etiqueta) => etiqueta.id === etiquetaId)
-                    ?.nombre ?? 'Buscar etiqueta...')
+                ? dataEtiquetas?.find((etiqueta) => etiqueta.id === etiquetaId)
+                    ?.nombre ?? 'Buscar etiqueta...'
                 : 'Buscar etiqueta...'}
             </span>
             <EtiquetaFillIcon className='h-5 w-5' />
