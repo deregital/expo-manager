@@ -133,13 +133,24 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     setEdit(false);
   }
 
-  const mutation = trpc.modelo.edit.useMutation({
+  const sendToTrashMutation = trpc.modelo.edit.useMutation({
     onSuccess: () => {
       toast.success('Participante enviado a la papelera');
       utils.modelo.getById.invalidate();
     },
     onError: () => {
       toast.error('Error al enviar el participante a la papelera');
+    },
+  });
+
+  const deleteMutation = trpc.modelo.delete.useMutation({
+    onSuccess: () => {
+      toast.success('Participante eliminado definitivamente');
+      utils.modelo.getModelosPapelera.invalidate();
+      utils.modelo.getById.invalidate();
+    },
+    onError: () => {
+      toast.error('Error al eliminar el participante definitivamente');
     },
   });
 
@@ -150,10 +161,23 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
         return;
       }
 
-      await mutation.mutateAsync({
+      await sendToTrashMutation.mutateAsync({
         id: modelo.id,
         esPapelera: true,
       });
+    } catch (error) {}
+  }
+
+  async function handleDeletePermanently() {
+    try {
+      if (!modelo.esPapelera) {
+        toast.info(
+          'El participante debe estar en la papelera para eliminarlo definitivamente'
+        );
+        return;
+      }
+
+      await deleteMutation.mutateAsync(modelo.id);
     } catch (error) {}
   }
 
@@ -304,9 +328,19 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       <Button
         className='mt-2 bg-red-600 px-2 py-1 text-sm hover:bg-red-800'
         onClick={handleSendToTrash}
+        style={{ display: modelo.esPapelera ? 'none' : 'block' }}
       >
-        {modelo.esPapelera ? 'Eliminar Participante' : 'Enviar a la Papelera'}
+        Enviar a la Papelera
       </Button>
+
+      {modelo.esPapelera && (
+        <Button
+          className='mt-2 bg-red-800 px-2 py-1 text-sm hover:bg-red-900'
+          onClick={handleDeletePermanently}
+        >
+          Eliminar Definitivamente
+        </Button>
+      )}
       <div className='mt-5'>
         <h2 className='text-xl font-bold md:text-2xl'>Comentarios</h2>
         <ComentariosSection modeloId={modelo.id} />
