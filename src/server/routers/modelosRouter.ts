@@ -564,6 +564,18 @@ export const modeloRouter = router({
         },
       });
     }),
+  getModelosPapelera: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.perfil.findMany({
+      where: {
+        esPapelera: true,
+        etiquetas: {
+          some: {
+            id: { in: ctx.etiquetasVisibles },
+          },
+        },
+      },
+    });
+  }),
 });
 
 function modelosAgrupadas(
