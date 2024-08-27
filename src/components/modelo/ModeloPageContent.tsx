@@ -326,13 +326,11 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
         />
       </div>
       <Button
-        className='mt-2 bg-red-600 px-2 py-1 text-sm hover:bg-red-800'
+        className={`mt-2 bg-red-600 px-2 py-1 text-sm hover:bg-red-800 ${modelo.esPapelera ? 'hidden' : ''}`}
         onClick={handleSendToTrash}
-        style={{ display: modelo.esPapelera ? 'none' : 'block' }}
       >
         Enviar a la Papelera
       </Button>
-
       {modelo.esPapelera && (
         <Button
           className='mt-2 bg-red-800 px-2 py-1 text-sm hover:bg-red-900'
