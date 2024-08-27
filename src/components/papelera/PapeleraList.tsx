@@ -8,8 +8,8 @@ import React from 'react';
 interface Modelo {
   id: string;
   nombreCompleto: string;
-  fotoUrl: string;
-  created_at: Date;
+  fotoUrl: string | null;
+  created_at: string;
   esPapelera: boolean;
 }
 
@@ -52,7 +52,7 @@ const PapeleraList = ({ modelos, isLoading }: PapeleraListProps) => {
             className='flex items-center justify-between gap-x-4 px-0.5 py-1.5 hover:bg-gray-200'
           >
             <div className='flex w-full items-center gap-x-1 truncate'>
-              <FotoModelo url={modelo.fotoUrl} />
+              <FotoModelo url={modelo.fotoUrl ?? ''} /> {}
               <p className='w-full truncate py-1'>{modelo.nombreCompleto}</p>
             </div>
             <span className='w-fit'>
