@@ -4,15 +4,16 @@ import AsistenciaModal, {
 } from '@/components/eventos/AsistenciaModal';
 import { generateColumnsPresentismo } from '@/components/eventos/table/columnsPresentismo';
 import { DataTable } from '@/components/modelos/table/dataTable';
-import SearchInput from '@/components/ui/SearchInput';
+import FiltroComp from '@/components/ui/FiltroComp';
 import Loader from '@/components/ui/loader';
 import { Progress } from '@/components/ui/progress';
 import { trpc } from '@/lib/trpc';
 import { searchNormalize } from '@/lib/utils';
+import { RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import { ArrowLeftIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { ComponentProps, useEffect, useMemo, useState } from 'react';
 
 interface PresentismoPageProps {
   params: {
@@ -34,21 +35,26 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
         enabled: !!evento,
       }
     );
+  const [modelosData, setModelosData] = useState<
+    RouterOutputs['modelo']['getByEtiqueta']
+  >(modelos ?? []);
 
-  const [search, setSearch] = useState('');
-
-  const modelosData = useMemo(() => {
-    if (!modelos) return [];
-    return modelos.filter((modelo) => {
-      if (modelo.idLegible !== null) {
-        return (
-          searchNormalize(modelo.idLegible.toString(), search) ||
-          searchNormalize(modelo.nombreCompleto, search)
-        );
-      }
-      return searchNormalize(modelo.nombreCompleto, search);
-    });
-  }, [search, modelos]);
+  const filtrar: ComponentProps<typeof FiltroComp>['funcionFiltrado'] = ({
+    input,
+  }) => {
+    if (!modelos) return;
+    setModelosData(
+      modelos.filter((modelo) => {
+        if (modelo.idLegible !== null) {
+          return (
+            searchNormalize(modelo.idLegible.toString(), input) ||
+            searchNormalize(modelo.nombreCompleto, input)
+          );
+        }
+        return searchNormalize(modelo.nombreCompleto, input);
+      })
+    );
+  };
 
   const countModelos = useMemo(() => {
     if (!modelos || !evento) return 0;
@@ -128,10 +134,7 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
         </div>
       </div>
       <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
-        <SearchInput
-          onChange={setSearch}
-          placeholder='Buscar por nombre o ID legible'
-        />
+        <FiltroComp mostrarInput funcionFiltrado={filtrar} />
       </div>
       <DataTable
         columns={generateColumnsPresentismo({
