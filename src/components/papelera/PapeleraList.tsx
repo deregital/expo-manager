@@ -11,7 +11,7 @@ interface Modelo {
   fotoUrl: string | null;
   created_at: string;
   esPapelera: boolean;
-  telefono: string; // Añade el campo telefono
+  telefono: string;
 }
 
 interface PapeleraListProps {
