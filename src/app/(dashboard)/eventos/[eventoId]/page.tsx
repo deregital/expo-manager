@@ -6,12 +6,12 @@ import { RouterOutputs } from '@/server';
 import { ArrowLeftIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import SearchInput from '@/components/ui/SearchInput';
-import { useEffect, useState } from 'react';
+import { ComponentProps, useState } from 'react';
 import { searchNormalize } from '@/lib/utils';
 import { DataTable } from '@/components/modelos/table/dataTable';
 import { generateColumns } from '@/components/eventos/table/columnsEvento';
 import RaiseHand from '@/components/icons/RaiseHand';
+import FiltroComp from '@/components/ui/FiltroComp';
 
 interface EventoPageProps {
   params: {
@@ -32,20 +32,45 @@ const EventoPage = ({ params }: EventoPageProps) => {
     RouterOutputs['modelo']['getAll']
   >(modelos ?? []);
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   if (!modelos) return;
+  //   setModelosData(
+  //     modelos.filter((modelo) => {
+  //       if (modelo.idLegible !== null) {
+  //         return (
+  //           searchNormalize(modelo.idLegible.toString(), search) ||
+  //           searchNormalize(modelo.nombreCompleto, search)
+  //         );
+  //       }
+  //       return searchNormalize(modelo.nombreCompleto, search);
+  //     })
+  //   );
+  // }, [search, modelos]);
+
+  const filtrar: ComponentProps<typeof FiltroComp>['funcionFiltrado'] = ({
+    etiquetasId,
+    input,
+  }) => {
     if (!modelos) return;
     setModelosData(
-      modelos.filter((modelo) => {
-        if (modelo.idLegible !== null) {
-          return (
-            searchNormalize(modelo.idLegible.toString(), search) ||
-            searchNormalize(modelo.nombreCompleto, search)
-          );
-        }
-        return searchNormalize(modelo.nombreCompleto, search);
-      })
+      modelos
+        .filter((modelo) => {
+          if (modelo.idLegible !== null) {
+            return (
+              searchNormalize(modelo.idLegible.toString(), input) ||
+              searchNormalize(modelo.nombreCompleto, input)
+            );
+          }
+          return searchNormalize(modelo.nombreCompleto, input);
+        })
+        .filter((modelo) => {
+          if (!etiquetasId) return true;
+          return modelo.etiquetas.some((etiqueta) => {
+            return etiqueta.id === etiquetasId;
+          });
+        })
     );
-  }, [search, modelos]);
+  };
 
   if (isLoadingEvento)
     return (
@@ -76,10 +101,11 @@ const EventoPage = ({ params }: EventoPageProps) => {
         </h3>
       </div>
       <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
-        <SearchInput
+        {/* <SearchInput
           onChange={setSearch}
           placeholder='Buscar por nombre o ID legible'
-        />
+        /> */}
+        <FiltroComp mostrarInput mostrarEtiq funcionFiltrado={filtrar} />
         <Button
           className='rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500'
           onClick={() => router.push(`/eventos/${evento?.id}/presentismo`)}

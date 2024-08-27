@@ -2,7 +2,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import ComboBox from './ComboBox';
 import { Input } from './input';
-import { Perfil } from '@prisma/client';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
 import EtiquetaFillIcon from '../icons/EtiquetaFillIcon';
@@ -13,17 +12,18 @@ type Filtrar = ({
   input,
   etiquetasId,
 }: {
-  input: string | undefined;
+  input: string;
   etiquetasId: string | undefined;
-}) => Perfil[];
+}) => void;
+
 const FiltroComp = ({
-  mostrarEtiq,
-  mostrarInput,
   funcionFiltrado,
+  mostrarEtiq = false,
+  mostrarInput = false,
 }: {
-  mostrarEtiq: boolean;
-  mostrarInput: boolean;
   funcionFiltrado: Filtrar;
+  mostrarEtiq?: boolean;
+  mostrarInput?: boolean;
 }) => {
   const [filtro, setFiltro] = useState<{
     input: string;
@@ -132,8 +132,8 @@ const CompEtiq = ({
           <>
             <span className='truncate'>
               {grupoEtiqueta
-                ? dataGrupos?.find((grupo) => grupo.id === grupoEtiqueta)
-                    ?.nombre ?? 'Buscar grupo...'
+                ? (dataGrupos?.find((grupo) => grupo.id === grupoEtiqueta)
+                    ?.nombre ?? 'Buscar grupo...')
                 : 'Buscar grupo...'}
             </span>
             <EtiquetasFillIcon className='h-5 w-5' />
@@ -160,8 +160,8 @@ const CompEtiq = ({
           <>
             <span className='truncate'>
               {etiquetaId
-                ? dataEtiquetas?.find((etiqueta) => etiqueta.id === etiquetaId)
-                    ?.nombre ?? 'Buscar etiqueta...'
+                ? (dataEtiquetas?.find((etiqueta) => etiqueta.id === etiquetaId)
+                    ?.nombre ?? 'Buscar etiqueta...')
                 : 'Buscar etiqueta...'}
             </span>
             <EtiquetaFillIcon className='h-5 w-5' />
