@@ -574,6 +574,15 @@ export const modeloRouter = router({
           },
         },
       },
+      select: {
+        id: true,
+        nombreCompleto: true,
+        fotoUrl: true,
+        created_at: true,
+        esPapelera: true,
+        telefono: true,
+        fechaPapelera: true,
+      },
     });
   }),
 });
