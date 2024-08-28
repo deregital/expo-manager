@@ -46,6 +46,7 @@ model Perfil {
   mensajes            Mensaje[]    @relation("PERFIL_X_MENSAJE")
   etiquetas           Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
   esPapelera      Boolean   @default(false) 
+  fechaPapelera       DateTime?    @map("fecha_papelera")
   
   created_at          DateTime  @default(now())
   updated_at          DateTime  @updatedAt
