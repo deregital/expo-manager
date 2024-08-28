@@ -50,6 +50,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
   const filtrar: ComponentProps<typeof FiltroComp>['funcionFiltrado'] = ({
     etiquetasId,
     input,
+    grupoId,
   }) => {
     if (!modelos) return;
     setModelosData(
@@ -62,6 +63,12 @@ const EventoPage = ({ params }: EventoPageProps) => {
             );
           }
           return searchNormalize(modelo.nombreCompleto, input);
+        })
+        .filter((modelo) => {
+          if (!grupoId) return true;
+          return modelo.etiquetas.some((etiqueta) => {
+            return etiqueta.grupoId === grupoId;
+          });
         })
         .filter((modelo) => {
           if (!etiquetasId) return true;
