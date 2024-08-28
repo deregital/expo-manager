@@ -59,6 +59,10 @@ const PapeleraList = ({ modelos, isLoading }: PapeleraListProps) => {
             </div>
             <div className='flex w-fit flex-col items-end'>
               <span>{format(new Date(modelo.created_at), 'dd/MM/yyyy')}</span>
+              <span className='text-sm text-gray-500'>
+                {modelo.telefono}
+              </span>{' '}
+              {}
               <span className='text-sm text-gray-500'>{modelo.telefono}</span>
               {modelo.fechaPapelera && (
                 <span className='text-sm text-gray-500'>
