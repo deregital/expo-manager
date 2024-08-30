@@ -111,23 +111,25 @@ const FiltroTabla = () => {
     //     <XIcon className='h-4 w-4 cursor-pointer' onClick={resetFilters} />
     //   </div>
     // </div>
-    <div className='flex items-center justify-center gap-x-4'>
+    <div className='flex items-center justify-between gap-x-4'>
       <FiltroComp mostrarInput mostrarEtiq funcionFiltrado={filtrar} />
-      <SwitchEventos
-        setShowEventos={(value) => {
-          useModelosFiltro.setState({ showEventos: value });
-        }}
-        showEventos={showEventos}
-      />
-      {!isLoadingModelos && (
-        <p className='self-start text-sm text-black/80 md:self-end'>
-          {cantidadDeModelos === 0
-            ? 'No se encontraron participantes'
-            : cantidadDeModelos === 1
-              ? '1 participante encontrado'
-              : `${cantidadDeModelos} participantes encontrados`}
-        </p>
-      )}
+      <div className='mr-5 flex items-center justify-center gap-x-4'>
+        <SwitchEventos
+          setShowEventos={(value) => {
+            useModelosFiltro.setState({ showEventos: value });
+          }}
+          showEventos={showEventos}
+        />
+        {!isLoadingModelos && (
+          <p className='self-start text-sm text-black/80 md:self-end'>
+            {cantidadDeModelos === 0
+              ? 'No se encontraron participantes'
+              : cantidadDeModelos === 1
+                ? '1 participante encontrado'
+                : `${cantidadDeModelos} participantes encontrados`}
+          </p>
+        )}
+      </div>
     </div>
   );
 };
