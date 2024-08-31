@@ -8,9 +8,13 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React from 'react';
 
-interface ChatSidebarProps {}
+interface ChatSidebarProps {
+  grupoId: string;
+  etiquetasId: string;
+  input: string;
+}
 
-const ChatSidebar = ({}: ChatSidebarProps) => {
+const ChatSidebar = ({ grupoId, etiquetasId, input }: ChatSidebarProps) => {
   const { data: contactos, isLoading: contactosLoading } =
     trpc.modelo.getAllWithInChat.useQuery();
 
