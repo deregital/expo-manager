@@ -35,10 +35,10 @@ const PapeleraList = ({ modelos, isLoading }: PapeleraListProps) => {
             <p className='w-full truncate py-1'>{modelo.nombreCompleto}</p>
           </div>
           <div className='flex w-fit flex-col items-end'>
-            <span>{format(new Date(modelo.created_at), 'dd/MM/yyyy')}</span>
+            {/* <span>{format(new Date(modelo.created_at), 'dd/MM/yyyy')}</span> */}
             <span className='text-sm text-gray-500'>{modelo.telefono}</span>
             {modelo.fechaPapelera && (
-              <span className='text-sm text-gray-500'>
+              <span className='whitespace-nowrap text-sm text-gray-500'>
                 En papelera desde:{' '}
                 {format(new Date(modelo.fechaPapelera), 'dd/MM/yyyy')}
               </span>

@@ -342,6 +342,7 @@ export const modeloRouter = router({
           )
           .optional(),
         esPapelera: z.boolean().optional(),
+        fechaPapelera: z.string().datetime().nullable().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -440,6 +441,12 @@ export const modeloRouter = router({
               }
             : undefined,
           esPapelera: input.esPapelera ?? undefined,
+          fechaPapelera:
+            input.fechaPapelera === null
+              ? null
+              : input.fechaPapelera
+                ? new Date(input.fechaPapelera)
+                : undefined,
         },
       });
     }),

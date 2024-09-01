@@ -21,6 +21,8 @@ import InstagramIcon from '@/components/icons/InstagramIcon';
 import MailIcon from '@/components/icons/MailIcon';
 import DNIIcon from '@/components/icons/DNIIcon';
 import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
+import BotonesPapelera from '@/components/modelo/BotonesPapelera';
+
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
 }
@@ -59,9 +61,11 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       ),
     [etiquetas]
   );
+
   useEffect(() => {
     setFotoUrl(modelo.fotoUrl);
   }, [modelo]);
+
   async function handleDelete() {
     const form = new FormData();
     form.append('id', modelo.id);
@@ -112,77 +116,12 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
         setFotoUrl(modelo.fotoUrl);
       });
   }
+
   function handleCancel() {
     setFotoUrl(modelo.fotoUrl);
     setVideo(null);
     inputRef.current!.value = '';
     setEdit(false);
-  }
-  const sendToTrashMutation = trpc.modelo.edit.useMutation({
-    onSuccess: () => {
-      toast.success('Participante enviado a la papelera');
-      utils.modelo.getById.invalidate();
-    },
-    onError: () => {
-      toast.error('Error al enviar el participante a la papelera');
-    },
-  });
-  const deleteMutation = trpc.modelo.delete.useMutation({
-    onSuccess: () => {
-      toast.success('Participante eliminado definitivamente');
-      utils.modelo.getModelosPapelera.invalidate();
-      utils.modelo.getById.invalidate();
-    },
-    onError: () => {
-      toast.error('Error al eliminar el participante definitivamente');
-    },
-  });
-  async function handleSendToTrash() {
-    try {
-      if (modelo.esPapelera) {
-        toast.info('Este Participante ya fue agregado a la papelera');
-        return;
-      }
-      await sendToTrashMutation.mutateAsync({
-        id: modelo.id,
-        esPapelera: true,
-      });
-    } catch (error) {}
-  }
-  async function handleDeletePermanently() {
-    try {
-      if (!modelo.esPapelera) {
-        toast.info(
-          'El participante debe estar en la papelera para eliminarlo definitivamente'
-        );
-        return;
-      }
-      await deleteMutation.mutateAsync(modelo.id);
-    } catch (error) {}
-  }
-
-  const removeFromTrashMutation = trpc.modelo.edit.useMutation({
-    onSuccess: () => {
-      toast.success('Participante borrado de la papelera');
-      utils.modelo.getById.invalidate();
-    },
-    onError: () => {
-      toast.error('Error al borrar el participante de la papelera');
-    },
-  });
-
-  async function handleRemoveFromTrash() {
-    try {
-      if (!modelo.esPapelera) {
-        toast.info('Este Participante no está en la papelera');
-        return;
-      }
-
-      await removeFromTrashMutation.mutateAsync({
-        id: modelo.id,
-        esPapelera: false,
-      });
-    } catch (error) {}
   }
 
   return (
@@ -328,29 +267,8 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           etiquetas={etiquetasFiltradas}
         />
       </div>
-      <Button
-        className={`mt-2 bg-red-600 px-2 py-1 text-sm hover:bg-red-800 ${modelo.esPapelera ? 'hidden' : ''}`}
-        onClick={handleSendToTrash}
-      >
-        Enviar a la Papelera
-      </Button>
 
-      {modelo.esPapelera && (
-        <>
-          <Button
-            className='mr-2 mt-2 bg-red-800 px-2 py-1 text-sm hover:bg-red-900'
-            onClick={handleRemoveFromTrash}
-          >
-            Borrar de la Papelera
-          </Button>
-          <Button
-            className='mt-2 bg-red-800 px-2 py-1 text-sm hover:bg-red-900'
-            onClick={handleDeletePermanently}
-          >
-            Eliminar Definitivamente
-          </Button>
-        </>
-      )}
+      <BotonesPapelera id={modelo.id} esPapelera={modelo.esPapelera} />
       <div className='mt-5'>
         <h2 className='text-xl font-bold md:text-2xl'>Comentarios</h2>
         <ComentariosSection modeloId={modelo.id} />
