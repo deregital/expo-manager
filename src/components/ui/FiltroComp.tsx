@@ -74,7 +74,7 @@ const FiltroComp = ({
     filtrar();
   }, [filtro]);
   return (
-    <div className='flex items-center justify-between'>
+    <div className='flex w-full flex-col items-center justify-between gap-4 p-3 md:flex-row'>
       {mostrarEtiq && (
         <CompEtiq
           editarEtiq={editarEtiq}
@@ -88,7 +88,7 @@ const FiltroComp = ({
           isLoadingEtiquetas={isLoadingEtiquetas}
         />
       )}
-      <div className='flex items-center justify-center gap-x-2'>
+      <div className='flex w-full items-center justify-end gap-x-2'>
         {mostrarInput && (
           <CompInput editarInput={editarInput} inputFiltro={filtro.input} />
         )}
@@ -124,7 +124,7 @@ const CompEtiq = ({
   const [openGrupo, setOpenGrupo] = useState(false);
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
   return (
-    <div className='flex items-center justify-center gap-x-4'>
+    <div className='flex w-full flex-col items-center gap-4 md:flex-row'>
       <ComboBox
         data={dataGrupos ?? []}
         id='id'
@@ -140,13 +140,14 @@ const CompEtiq = ({
         open={openGrupo}
         isLoading={isLoadingGrupos}
         setOpen={setOpenGrupo}
+        wFullMobile
         selectedIf={grupoEtiqueta !== undefined ? grupoEtiqueta : ''}
         triggerChildren={
           <>
             <span className='truncate'>
               {grupoEtiqueta
-                ? dataGrupos?.find((grupo) => grupo.id === grupoEtiqueta)
-                    ?.nombre ?? 'Buscar grupo...'
+                ? (dataGrupos?.find((grupo) => grupo.id === grupoEtiqueta)
+                    ?.nombre ?? 'Buscar grupo...')
                 : 'Buscar grupo...'}
             </span>
             <EtiquetasFillIcon className='h-5 w-5' />
@@ -166,6 +167,7 @@ const CompEtiq = ({
           editarEtiq(value);
         }}
         open={openEtiqueta}
+        wFullMobile
         isLoading={isLoadingEtiquetas}
         setOpen={setOpenEtiqueta}
         selectedIf={etiquetaId !== undefined ? etiquetaId : ''}
@@ -173,8 +175,8 @@ const CompEtiq = ({
           <>
             <span className='truncate'>
               {etiquetaId
-                ? dataEtiquetas?.find((etiqueta) => etiqueta.id === etiquetaId)
-                    ?.nombre ?? 'Buscar etiqueta...'
+                ? (dataEtiquetas?.find((etiqueta) => etiqueta.id === etiquetaId)
+                    ?.nombre ?? 'Buscar etiqueta...')
                 : 'Buscar etiqueta...'}
             </span>
             <EtiquetaFillIcon className='h-5 w-5' />

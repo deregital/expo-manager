@@ -6,13 +6,13 @@ import Loader from '@/components/ui/loader';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import React from 'react';
+import React, { useMemo } from 'react';
 
-interface ChatSidebarProps {
-  grupoId: string;
-  etiquetasId: string;
+type ChatSidebarProps = {
   input: string;
-}
+  etiquetasId: string | undefined;
+  grupoId: string | undefined;
+};
 
 const ChatSidebar = ({ grupoId, etiquetasId, input }: ChatSidebarProps) => {
   const { data: contactos, isLoading: contactosLoading } =
@@ -20,6 +20,34 @@ const ChatSidebar = ({ grupoId, etiquetasId, input }: ChatSidebarProps) => {
 
   const params = useParams();
   const telefonoSelected = params.telefono as string;
+
+  // VER SI SE EXTRAE A UNA FUNCIÓN
+  const contactosFiltrados = useMemo(() => {
+    if (!contactos) {
+      return [];
+    }
+    return contactos
+      .filter((contacto) => {
+        if (grupoId) {
+          return contacto.etiquetas.some((e) => e.grupoId === grupoId);
+        }
+        return true;
+      })
+      .filter((contacto) => {
+        if (etiquetasId) {
+          return contacto.etiquetas.map((e) => e.id).includes(etiquetasId);
+        }
+        return true;
+      })
+      .filter((contacto) => {
+        if (input) {
+          return contacto.nombreCompleto
+            .toLowerCase()
+            .includes(input.toLowerCase());
+        }
+        return true;
+      });
+  }, [contactos, grupoId, etiquetasId, input]);
 
   if (contactosLoading) {
     return (
@@ -33,7 +61,7 @@ const ChatSidebar = ({ grupoId, etiquetasId, input }: ChatSidebarProps) => {
     contactos && (
       <aside className='grid h-full grid-cols-1 grid-rows-[auto,1fr]'>
         <div>
-          {contactos
+          {contactosFiltrados
             .filter((contacto) => contacto.inChat)
             .map((contacto) => (
               <Link
@@ -54,7 +82,7 @@ const ChatSidebar = ({ grupoId, etiquetasId, input }: ChatSidebarProps) => {
         <div className='max-h-full overflow-y-auto'>
           <ContactosNoChat
             telefonoSelected={telefonoSelected}
-            contactos={contactos
+            contactos={contactosFiltrados
               .filter((contacto) => !contacto.inChat)
               .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto))}
           />

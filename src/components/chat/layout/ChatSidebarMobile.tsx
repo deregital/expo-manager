@@ -4,13 +4,21 @@ import { HamburgerMenuIcon } from '@radix-ui/react-icons';
 import React from 'react';
 import { create } from 'zustand';
 
-interface ChatSidebarMobileProps {}
+type ChatSidebarMobileProps = {
+  input: string;
+  etiquetasId: string | undefined;
+  grupoId: string | undefined;
+};
 
 export const useChatSidebar = create<{ isOpen: boolean }>((set) => ({
   isOpen: false,
 }));
 
-const ChatSidebarMobile = ({}: ChatSidebarMobileProps) => {
+const ChatSidebarMobile = ({
+  etiquetasId,
+  grupoId,
+  input,
+}: ChatSidebarMobileProps) => {
   const { isOpen } = useChatSidebar();
   return (
     <Sheet
@@ -24,7 +32,11 @@ const ChatSidebarMobile = ({}: ChatSidebarMobileProps) => {
         <HamburgerMenuIcon />
       </SheetTrigger>
       <SheetContent className='px-0' side={'left'}>
-        <ChatSidebar />
+        <ChatSidebar
+          etiquetasId={etiquetasId}
+          grupoId={grupoId}
+          input={input}
+        />
       </SheetContent>
     </Sheet>
   );
