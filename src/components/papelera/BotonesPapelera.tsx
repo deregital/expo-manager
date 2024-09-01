@@ -1,3 +1,5 @@
+import PapeleraIcon from '@/components/icons/PapeleraIcon';
+import RestoreIcon from '@/components/icons/RestoreIcon';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import React from 'react';
@@ -11,13 +13,14 @@ interface BotonesPapeleraProps {
 const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
   const utils = trpc.useUtils();
 
-  const removeFromTrashMutation = trpc.modelo.edit.useMutation({
+  const restoreMutation = trpc.modelo.edit.useMutation({
     onSuccess: () => {
       toast.success('Participante restaurado');
       utils.modelo.getById.invalidate();
+      utils.modelo.getModelosPapelera.invalidate();
     },
     onError: () => {
-      toast.error('Error al borrar el participante de la papelera');
+      toast.error('Error al restaurar el participante de la papelera');
     },
   });
 
@@ -25,6 +28,7 @@ const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
     onSuccess: () => {
       toast.success('Participante enviado a la papelera');
       utils.modelo.getById.invalidate();
+      utils.modelo.getModelosPapelera.invalidate();
     },
     onError: () => {
       toast.error('Error al enviar el participante a la papelera');
@@ -68,14 +72,14 @@ const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
     } catch (error) {}
   }
 
-  async function handleRemoveFromTrash() {
+  async function handleRestoreFromTrash() {
     try {
       if (!esPapelera) {
         toast.info('Este Participante no está en la papelera');
         return;
       }
 
-      await removeFromTrashMutation.mutateAsync({
+      await restoreMutation.mutateAsync({
         id: id,
         esPapelera: false,
         fechaPapelera: null,
@@ -86,24 +90,38 @@ const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
   return (
     <>
       {esPapelera ? (
-        <>
+        <div className='flex gap-x-4'>
           <Button
-            className='mr-2 mt-2 bg-red-800 px-2 py-1 text-sm hover:bg-red-900'
-            onClick={handleRemoveFromTrash}
+            disabled={restoreMutation.isLoading || deleteMutation.isLoading}
+            title='Restaurar'
+            onClick={async (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              await handleRestoreFromTrash();
+            }}
+            className='aspect-square bg-green-900 p-1.5 hover:bg-green-800'
           >
-            Restaurar
+            <RestoreIcon className='size-full' />
           </Button>
           <Button
-            className='mt-2 bg-red-800 px-2 py-1 text-sm hover:bg-red-900'
-            onClick={handleDeletePermanently}
+            title='Eliminar definitivamente'
+            disabled={restoreMutation.isLoading || deleteMutation.isLoading}
+            variant={'destructive'}
+            onClick={async (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              await handleDeletePermanently();
+            }}
+            className='aspect-square p-1.5'
           >
-            Eliminar Definitivamente
+            <PapeleraIcon className='size-full' />
           </Button>
-        </>
+        </div>
       ) : (
         <Button
-          className={`mt-2 bg-red-600 px-2 py-1 text-sm hover:bg-red-800`}
+          className={'mt-2 bg-red-600 px-2 py-1 text-sm hover:bg-red-800'}
           onClick={handleSendToTrash}
+          disabled={sendToTrashMutation.isLoading}
         >
           Enviar a la Papelera
         </Button>

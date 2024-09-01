@@ -21,7 +21,7 @@ import InstagramIcon from '@/components/icons/InstagramIcon';
 import MailIcon from '@/components/icons/MailIcon';
 import DNIIcon from '@/components/icons/DNIIcon';
 import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
-import BotonesPapelera from '@/components/modelo/BotonesPapelera';
+import BotonesPapelera from '@/components/papelera/BotonesPapelera';
 
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
@@ -267,8 +267,16 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           etiquetas={etiquetasFiltradas}
         />
       </div>
-
-      <BotonesPapelera id={modelo.id} esPapelera={modelo.esPapelera} />
+      <div className='mt-3 flex flex-col gap-x-2 sm:flex-row sm:items-center'>
+        {modelo.esPapelera && (
+          <span className='order-2 font-bold text-red-500 sm:order-1'>
+            La modelo está en la papelera
+          </span>
+        )}
+        <div className='order-1 sm:order-2'>
+          <BotonesPapelera id={modelo.id} esPapelera={modelo.esPapelera} />
+        </div>
+      </div>
       <div className='mt-5'>
         <h2 className='text-xl font-bold md:text-2xl'>Comentarios</h2>
         <ComentariosSection modeloId={modelo.id} />
