@@ -39,22 +39,6 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
     RouterOutputs['modelo']['getByEtiqueta']
   >(modelos ?? []);
 
-  const filtrar: ComponentProps<typeof FiltroComp>['funcionFiltrado'] = ({
-    input,
-  }) => {
-    setModelosData(
-      modelos!.filter((modelo) => {
-        if (modelo.idLegible !== null) {
-          return (
-            searchNormalize(modelo.idLegible.toString(), input) ||
-            searchNormalize(modelo.nombreCompleto, input)
-          );
-        }
-        return searchNormalize(modelo.nombreCompleto, input);
-      })
-    );
-  };
-
   const countModelos = useMemo(() => {
     if (!modelos || !evento) return 0;
     return modelos.filter((modelo) =>
@@ -89,12 +73,28 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
     return porcentaje % 1 === 0 ? porcentaje : Number(porcentaje.toFixed(2));
   }, [evento?.etiquetaAsistioId, modelos]);
 
-  if (isLoadingEvento)
+  if (isLoadingEvento || modelosIsLoading)
     return (
       <div className='flex items-center justify-center pt-5'>
         <Loader />
       </div>
     );
+
+  const filtrar: ComponentProps<typeof FiltroComp>['funcionFiltrado'] = ({
+    input,
+  }) => {
+    setModelosData(
+      modelos!.filter((modelo) => {
+        if (modelo.idLegible !== null) {
+          return (
+            searchNormalize(modelo.idLegible.toString(), input) ||
+            searchNormalize(modelo.nombreCompleto, input)
+          );
+        }
+        return searchNormalize(modelo.nombreCompleto, input);
+      })
+    );
+  };
 
   return (
     <div>
