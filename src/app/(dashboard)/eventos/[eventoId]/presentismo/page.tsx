@@ -42,9 +42,8 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
   const filtrar: ComponentProps<typeof FiltroComp>['funcionFiltrado'] = ({
     input,
   }) => {
-    if (!modelos) return;
     setModelosData(
-      modelos.filter((modelo) => {
+      modelos!.filter((modelo) => {
         if (modelo.idLegible !== null) {
           return (
             searchNormalize(modelo.idLegible.toString(), input) ||
