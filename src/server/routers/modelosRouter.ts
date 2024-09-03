@@ -14,6 +14,7 @@ export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const modelos = await ctx.prisma.perfil.findMany({
       where: {
+        esPapelera: false,
         etiquetas: {
           some: {
             id: { in: ctx.etiquetasVisibles },
@@ -58,6 +59,7 @@ export const modeloRouter = router({
       })
       .perfil.findMany({
         where: {
+          esPapelera: false,
           etiquetas: {
             some: {
               id: { in: ctx.etiquetasVisibles },
@@ -76,6 +78,7 @@ export const modeloRouter = router({
       return await ctx.prisma.perfil.findUnique({
         where: {
           id: input,
+          esPapelera: false,
           etiquetas: {
             some: {
               id: { in: ctx.etiquetasVisibles },
@@ -102,6 +105,7 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findMany({
         where: {
+          esPapelera: false,
           AND: [
             {
               etiquetas: {
@@ -137,6 +141,7 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findMany({
         where: {
+          esPapelera: false,
           etiquetas: {
             some: {
               id: { in: ctx.etiquetasVisibles },
@@ -196,6 +201,7 @@ export const modeloRouter = router({
 
       const perfilConMismoTelefonoDNI = await ctx.prisma.perfil.findMany({
         where: {
+          esPapelera: false,
           OR: [
             {
               telefono: telefono,
@@ -213,6 +219,9 @@ export const modeloRouter = router({
         });
       }
       const modelos = await ctx.prisma.perfil.findMany({
+        where: {
+          esPapelera: false,
+        },
         select: {
           id: true,
           nombreCompleto: true,
@@ -363,6 +372,7 @@ export const modeloRouter = router({
       const perfilConMismoTelefono = await ctx.prisma.perfil
         .findMany({
           where: {
+            esPapelera: false,
             OR: [
               {
                 telefono: input.telefono,
@@ -461,6 +471,7 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findMany({
         where: {
+          esPapelera: false,
           AND: [
             {
               nombreCompleto: {
@@ -515,6 +526,7 @@ export const modeloRouter = router({
 
       const modelos = await ctx.prisma.perfil.findMany({
         where: {
+          esPapelera: false,
           created_at: {
             gte: startDateTime,
             lte: endDateTime,
@@ -562,6 +574,7 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findUnique({
         where: {
+          esPapelera: false,
           telefono: input,
           etiquetas: {
             some: {
