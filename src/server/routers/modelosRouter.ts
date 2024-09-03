@@ -78,7 +78,6 @@ export const modeloRouter = router({
       return await ctx.prisma.perfil.findUnique({
         where: {
           id: input,
-          esPapelera: false,
           etiquetas: {
             some: {
               id: { in: ctx.etiquetasVisibles },
