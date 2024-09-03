@@ -200,7 +200,6 @@ export const modeloRouter = router({
 
       const perfilConMismoTelefonoDNI = await ctx.prisma.perfil.findMany({
         where: {
-          esPapelera: false,
           OR: [
             {
               telefono: telefono,
@@ -218,9 +217,7 @@ export const modeloRouter = router({
         });
       }
       const modelos = await ctx.prisma.perfil.findMany({
-        where: {
-          esPapelera: false,
-        },
+        where: {},
         select: {
           id: true,
           nombreCompleto: true,
@@ -371,7 +368,6 @@ export const modeloRouter = router({
       const perfilConMismoTelefono = await ctx.prisma.perfil
         .findMany({
           where: {
-            esPapelera: false,
             OR: [
               {
                 telefono: input.telefono,
