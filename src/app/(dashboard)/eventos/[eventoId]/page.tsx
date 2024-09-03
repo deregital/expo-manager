@@ -6,12 +6,12 @@ import { RouterOutputs } from '@/server';
 import { ArrowLeftIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import { ComponentProps, useState } from 'react';
-import { searchNormalize } from '@/lib/utils';
+import { useState } from 'react';
 import { DataTable } from '@/components/modelos/table/dataTable';
 import { generateColumns } from '@/components/eventos/table/columnsEvento';
 import RaiseHand from '@/components/icons/RaiseHand';
 import FiltroComp from '@/components/ui/FiltroComp';
+import { FuncionFiltrar, filterModelos } from '@/lib/filter';
 
 interface EventoPageProps {
   params: {
@@ -27,56 +27,13 @@ const EventoPage = ({ params }: EventoPageProps) => {
   const { data: modelos } = trpc.modelo.getAll.useQuery();
 
   const router = useRouter();
-  const [search, setSearch] = useState('');
   const [modelosData, setModelosData] = useState<
     RouterOutputs['modelo']['getAll']
   >(modelos ?? []);
 
-  // useEffect(() => {
-  //   if (!modelos) return;
-  //   setModelosData(
-  //     modelos.filter((modelo) => {
-  //       if (modelo.idLegible !== null) {
-  //         return (
-  //           searchNormalize(modelo.idLegible.toString(), search) ||
-  //           searchNormalize(modelo.nombreCompleto, search)
-  //         );
-  //       }
-  //       return searchNormalize(modelo.nombreCompleto, search);
-  //     })
-  //   );
-  // }, [search, modelos]);
-
-  const filtrar: ComponentProps<typeof FiltroComp>['funcionFiltrado'] = ({
-    etiquetasId,
-    input,
-    grupoId,
-  }) => {
+  const filtrar: FuncionFiltrar = (filter) => {
     if (!modelos) return;
-    setModelosData(
-      modelos
-        .filter((modelo) => {
-          if (modelo.idLegible !== null) {
-            return (
-              searchNormalize(modelo.idLegible.toString(), input) ||
-              searchNormalize(modelo.nombreCompleto, input)
-            );
-          }
-          return searchNormalize(modelo.nombreCompleto, input);
-        })
-        .filter((modelo) => {
-          if (!grupoId) return true;
-          return modelo.etiquetas.some((etiqueta) => {
-            return etiqueta.grupoId === grupoId;
-          });
-        })
-        .filter((modelo) => {
-          if (!etiquetasId) return true;
-          return modelo.etiquetas.some((etiqueta) => {
-            return etiqueta.id === etiquetasId;
-          });
-        })
-    );
+    setModelosData(filterModelos(modelos, filter));
   };
 
   if (isLoadingEvento)

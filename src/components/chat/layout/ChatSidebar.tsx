@@ -3,6 +3,7 @@ import { useChatSidebar } from '@/components/chat/layout/ChatSidebarMobile';
 import ContactoCard from '@/components/chat/layout/ContactoCard';
 import ContactosNoChat from '@/components/chat/layout/ContactosNoChat';
 import Loader from '@/components/ui/loader';
+import { filterModelos } from '@/lib/filter';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -10,44 +11,28 @@ import React, { useMemo } from 'react';
 
 type ChatSidebarProps = {
   input: string;
-  etiquetasId: string | undefined;
+  etiquetaId: string | undefined;
   grupoId: string | undefined;
 };
 
-const ChatSidebar = ({ grupoId, etiquetasId, input }: ChatSidebarProps) => {
+const ChatSidebar = ({ grupoId, etiquetaId, input }: ChatSidebarProps) => {
   const { data: contactos, isLoading: contactosLoading } =
     trpc.modelo.getAllWithInChat.useQuery();
 
   const params = useParams();
   const telefonoSelected = params.telefono as string;
 
-  // VER SI SE EXTRAE A UNA FUNCIÓN
   const contactosFiltrados = useMemo(() => {
     if (!contactos) {
       return [];
     }
-    return contactos
-      .filter((contacto) => {
-        if (grupoId) {
-          return contacto.etiquetas.some((e) => e.grupoId === grupoId);
-        }
-        return true;
-      })
-      .filter((contacto) => {
-        if (etiquetasId) {
-          return contacto.etiquetas.map((e) => e.id).includes(etiquetasId);
-        }
-        return true;
-      })
-      .filter((contacto) => {
-        if (input) {
-          return contacto.nombreCompleto
-            .toLowerCase()
-            .includes(input.toLowerCase());
-        }
-        return true;
-      });
-  }, [contactos, grupoId, etiquetasId, input]);
+
+    return filterModelos(contactos, {
+      input,
+      etiquetaId,
+      grupoId,
+    });
+  }, [contactos, grupoId, etiquetaId, input]);
 
   if (contactosLoading) {
     return (

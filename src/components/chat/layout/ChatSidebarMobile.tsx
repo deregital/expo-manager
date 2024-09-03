@@ -6,7 +6,7 @@ import { create } from 'zustand';
 
 type ChatSidebarMobileProps = {
   input: string;
-  etiquetasId: string | undefined;
+  etiquetaId: string | undefined;
   grupoId: string | undefined;
 };
 
@@ -15,7 +15,7 @@ export const useChatSidebar = create<{ isOpen: boolean }>((set) => ({
 }));
 
 const ChatSidebarMobile = ({
-  etiquetasId,
+  etiquetaId,
   grupoId,
   input,
 }: ChatSidebarMobileProps) => {
@@ -32,11 +32,7 @@ const ChatSidebarMobile = ({
         <HamburgerMenuIcon />
       </SheetTrigger>
       <SheetContent className='px-0' side={'left'}>
-        <ChatSidebar
-          etiquetasId={etiquetasId}
-          grupoId={grupoId}
-          input={input}
-        />
+        <ChatSidebar etiquetaId={etiquetaId} grupoId={grupoId} input={input} />
       </SheetContent>
     </Sheet>
   );

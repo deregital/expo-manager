@@ -2,7 +2,8 @@
 import ChatSidebar from '@/components/chat/layout/ChatSidebar';
 import ChatSidebarMobile from '@/components/chat/layout/ChatSidebarMobile';
 import FiltroComp from '@/components/ui/FiltroComp';
-import React, { ComponentProps, useState } from 'react';
+import { FuncionFiltrar } from '@/lib/filter';
+import React, { useState } from 'react';
 
 interface ChatLayoutProps {
   children: React.ReactNode;
@@ -11,27 +12,24 @@ interface ChatLayoutProps {
 const ChatLayout = ({ children }: ChatLayoutProps) => {
   const [state, setState] = useState<{
     grupoId: string | undefined;
-    etiquetasId: string | undefined;
+    etiquetaId: string | undefined;
     input: string;
   }>({
     grupoId: undefined,
-    etiquetasId: undefined,
+    etiquetaId: undefined,
     input: '',
   });
 
-  const filtrar: ComponentProps<typeof FiltroComp>['funcionFiltrado'] = ({
-    grupoId,
-    etiquetasId,
-    input,
-  }) => {
-    return setState({ grupoId, etiquetasId, input });
+  const filtrar: FuncionFiltrar = (filter) => {
+    return setState(filter);
   };
+
   return (
     <div className='relative flex h-full'>
       <div className='absolute left-5 top-5 z-20 sm:hidden'>
         <ChatSidebarMobile
           grupoId={state.grupoId}
-          etiquetasId={state.etiquetasId}
+          etiquetaId={state.etiquetaId}
           input={state.input}
         />
       </div>
@@ -40,7 +38,7 @@ const ChatLayout = ({ children }: ChatLayoutProps) => {
         <div className='hidden h-full w-80 border-r-[3px] border-black/20 bg-sidebar-background sm:block'>
           <ChatSidebar
             grupoId={state.grupoId}
-            etiquetasId={state.etiquetasId}
+            etiquetaId={state.etiquetaId}
             input={state.input}
           />
         </div>
@@ -48,7 +46,9 @@ const ChatLayout = ({ children }: ChatLayoutProps) => {
           <div className='border-b-[3px] border-b-black/20'>
             <FiltroComp mostrarEtiq mostrarInput funcionFiltrado={filtrar} />
           </div>
-          <div className='flex flex-grow'>{children}</div>
+          <div className='flex max-h-full flex-grow overflow-y-auto'>
+            {children}
+          </div>
         </div>
       </div>
     </div>

@@ -7,13 +7,13 @@ import { DataTable } from '@/components/modelos/table/dataTable';
 import FiltroComp from '@/components/ui/FiltroComp';
 import Loader from '@/components/ui/loader';
 import { Progress } from '@/components/ui/progress';
+import { FuncionFiltrar, filterModelos } from '@/lib/filter';
 import { trpc } from '@/lib/trpc';
-import { searchNormalize } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import { ArrowLeftIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ComponentProps, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface PresentismoPageProps {
   params: {
@@ -57,6 +57,7 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
     usePresentismoModal.setState({ isOpen: false });
     searchParams.delete('persona');
     router.push(`/eventos/${params.eventoId}/presentismo`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.get('persona') === 'creada']);
 
   const progress = useMemo(() => {
@@ -80,18 +81,13 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
       </div>
     );
 
-  const filtrar: ComponentProps<typeof FiltroComp>['funcionFiltrado'] = ({
-    input,
-  }) => {
+  const filtrar: FuncionFiltrar = ({ input }) => {
+    if (!modelos) return;
     setModelosData(
-      modelos!.filter((modelo) => {
-        if (modelo.idLegible !== null) {
-          return (
-            searchNormalize(modelo.idLegible.toString(), input) ||
-            searchNormalize(modelo.nombreCompleto, input)
-          );
-        }
-        return searchNormalize(modelo.nombreCompleto, input);
+      filterModelos(modelos, {
+        input: input,
+        etiquetaId: undefined,
+        grupoId: undefined,
       })
     );
   };

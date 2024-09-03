@@ -1,5 +1,5 @@
 'use client';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import ComboBox from './ComboBox';
 import { Input } from './input';
 import { trpc } from '@/lib/trpc';
@@ -7,50 +7,49 @@ import { RouterOutputs } from '@/server';
 import EtiquetaFillIcon from '../icons/EtiquetaFillIcon';
 import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
 import { XIcon } from 'lucide-react';
-
-type Filtrar = ({
-  input,
-  etiquetasId,
-  grupoId,
-}: {
-  input: string;
-  etiquetasId: string | undefined;
-  grupoId: string | undefined;
-}) => void;
+import { FuncionFiltrar } from '@/lib/filter';
+import { cn } from '@/lib/utils';
 
 const FiltroComp = ({
   funcionFiltrado,
+  className,
   mostrarEtiq = false,
   mostrarInput = false,
 }: {
-  funcionFiltrado: Filtrar;
+  funcionFiltrado: FuncionFiltrar;
   mostrarEtiq?: boolean;
   mostrarInput?: boolean;
+  className?: string;
 }) => {
   const [filtro, setFiltro] = useState<{
     input: string;
-    etiquetasId: string | undefined;
+    etiquetaId: string | undefined;
     grupoId: string | undefined;
-  }>({ input: '', etiquetasId: undefined, grupoId: undefined });
+  }>({ input: '', etiquetaId: undefined, grupoId: undefined });
+
   const [grupoEtiqueta, setGrupoEtiqueta] = useState<string | undefined>(
     undefined
   );
+
   const [etiquetaId, setEtiquetaId] = useState<string | undefined>(undefined);
-  const { data: GrupoEtiquetas, isLoading: isLoadingGrupo } =
+  const { data: dataGrupoEtiquetas, isLoading: isLoadingGrupo } =
     trpc.grupoEtiqueta.getAll.useQuery();
-  const { data: etiquetas, isLoading: isLoadingEtiquetas } = grupoEtiqueta
+
+  const { data: dataEtiquetas, isLoading: isLoadingEtiquetas } = grupoEtiqueta
     ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoEtiqueta)
     : trpc.etiqueta.getAll.useQuery();
-  const editarEtiq = (etiq: string) => {
-    if (filtro.etiquetasId === etiq) {
-      setFiltro({ ...filtro, etiquetasId: undefined });
+
+  function editarEtiq(etiq: string) {
+    if (filtro.etiquetaId === etiq) {
+      setFiltro({ ...filtro, etiquetaId: undefined });
       setEtiquetaId(undefined);
       return;
     }
-    setFiltro({ ...filtro, etiquetasId: etiq });
+    setFiltro({ ...filtro, etiquetaId: etiq });
     setEtiquetaId(etiq);
-  };
-  const editarGrupoEtiq = (grupoEtiq: string) => {
+  }
+
+  function editarGrupoEtiq(grupoEtiq: string) {
     if (filtro.grupoId === grupoEtiq) {
       setFiltro({ ...filtro, grupoId: undefined });
       setGrupoEtiqueta(undefined);
@@ -58,33 +57,42 @@ const FiltroComp = ({
     }
     setFiltro({ ...filtro, grupoId: grupoEtiq });
     setGrupoEtiqueta(grupoEtiq);
-  };
-  const editarInput = (input: string) => {
+  }
+
+  function editarInput(input: string) {
     setFiltro({ ...filtro, input: input });
-  };
-  const resetFilters = () => {
-    setFiltro({ input: '', etiquetasId: undefined, grupoId: undefined });
+  }
+
+  function resetFilters() {
+    setFiltro({ input: '', etiquetaId: undefined, grupoId: undefined });
     setGrupoEtiqueta(undefined);
     setEtiquetaId(undefined);
-  };
+  }
+
   useEffect(() => {
     const filtrar = () => {
       funcionFiltrado(filtro);
     };
     filtrar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtro]);
+
   return (
-    <div className='flex w-full flex-col items-center justify-between gap-4 p-3 md:flex-row'>
+    <div
+      className={cn(
+        'flex w-full flex-col items-center justify-between gap-4 p-3 md:flex-row',
+        className
+      )}
+    >
       {mostrarEtiq && (
         <CompEtiq
           editarEtiq={editarEtiq}
           editarGrupoEtiq={editarGrupoEtiq}
-          dataGrupos={GrupoEtiquetas}
+          dataGrupos={dataGrupoEtiquetas}
           isLoadingGrupos={isLoadingGrupo}
           grupoEtiqueta={grupoEtiqueta}
           etiquetaId={etiquetaId}
-          setGrupoEtiqueta={setGrupoEtiqueta}
-          dataEtiquetas={etiquetas}
+          dataEtiquetas={dataEtiquetas}
           isLoadingEtiquetas={isLoadingEtiquetas}
         />
       )}
@@ -104,7 +112,6 @@ const CompEtiq = ({
   isLoadingGrupos,
   grupoEtiqueta,
   etiquetaId,
-  setGrupoEtiqueta,
   dataEtiquetas,
   isLoadingEtiquetas,
 }: {
@@ -114,7 +121,6 @@ const CompEtiq = ({
   isLoadingGrupos: boolean;
   grupoEtiqueta: string | undefined;
   etiquetaId: string | undefined;
-  setGrupoEtiqueta: Dispatch<SetStateAction<string | undefined>>;
   dataEtiquetas:
     | RouterOutputs['etiqueta']['getAll']
     | RouterOutputs['etiqueta']['getByGrupoEtiqueta']
@@ -131,10 +137,6 @@ const CompEtiq = ({
         value='nombre'
         onSelect={(value) => {
           setOpenGrupo(false);
-          if (grupoEtiqueta === value) {
-            editarGrupoEtiq('');
-            return;
-          }
           editarGrupoEtiq(value);
         }}
         open={openGrupo}
@@ -160,10 +162,6 @@ const CompEtiq = ({
         value='nombre'
         onSelect={(value) => {
           setOpenEtiqueta(false);
-          if (etiquetaId === value) {
-            editarEtiq('');
-            return;
-          }
           editarEtiq(value);
         }}
         open={openEtiqueta}

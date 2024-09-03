@@ -1,13 +1,12 @@
 import { useModelosFiltro } from '@/components/modelos/FiltroTabla';
 import { DataTable } from '@/components/modelos/table/dataTable';
 import { trpc } from '@/lib/trpc';
-import { searchNormalize } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
 import { TipoEtiqueta } from '@prisma/client';
 import { useSearchParams, useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { create } from 'zustand';
 import { generateColumns } from '@/components/modelos/table/columns';
+import { Filtro, filterModelos } from '@/lib/filter';
 
 export const useModelosTabla = create<{ cantidad: number; isLoading: boolean }>(
   () => ({
@@ -16,36 +15,6 @@ export const useModelosTabla = create<{ cantidad: number; isLoading: boolean }>(
   })
 );
 
-function filterModelos(
-  modelos: RouterOutputs['modelo']['getAll'],
-  search: { nombre?: string; etiquetaId?: string; grupoId?: string }
-) {
-  if (
-    search.nombre === undefined &&
-    search.etiquetaId === undefined &&
-    search.grupoId === undefined
-  )
-    return modelos;
-
-  const mod = modelos?.filter((modelo) => {
-    return (
-      (search.nombre === undefined ||
-        searchNormalize(modelo.nombreCompleto, search.nombre) ||
-        (modelo.idLegible &&
-          searchNormalize(modelo.idLegible.toString(), search.nombre))) &&
-      (search.etiquetaId === undefined ||
-        modelo.etiquetas.some(
-          (etiqueta) => etiqueta.id === search.etiquetaId
-        )) &&
-      (search.grupoId === undefined ||
-        modelo.etiquetas.some(
-          (etiqueta) => etiqueta.grupoId === search.grupoId
-        ))
-    );
-  });
-  return mod;
-}
-
 const ModelosTable = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const searchParams = useSearchParams();
@@ -53,12 +22,8 @@ const ModelosTable = () => {
   const { showEventos } = useModelosFiltro((s) => ({
     showEventos: s.showEventos,
   }));
-  const [search, setSearch] = useState<{
-    nombre?: string;
-    etiquetaId?: string;
-    grupoId?: string;
-  }>({
-    nombre: searchParams.get('nombre') ?? undefined,
+  const [search, setSearch] = useState<Filtro>({
+    input: searchParams.get('nombre') ?? '',
     etiquetaId: searchParams.get('etiqueta') ?? undefined,
     grupoId: searchParams.get('grupoId') ?? undefined,
   });
@@ -75,7 +40,7 @@ const ModelosTable = () => {
 
   useEffect(() => {
     setSearch({
-      nombre: searchParams.get('nombre') ?? undefined,
+      input: searchParams.get('nombre') ?? '',
       etiquetaId: searchParams.get('etiqueta') ?? undefined,
       grupoId: searchParams.get('grupoId') ?? undefined,
     });

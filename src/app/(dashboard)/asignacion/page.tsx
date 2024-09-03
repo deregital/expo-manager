@@ -4,12 +4,15 @@ import EtiquetasComboYList from '@/components/etiquetas/asignacion/EtiquetasComb
 import ModelosComboYList, {
   asignacionSelectedData,
 } from '@/components/etiquetas/asignacion/ModelosComboYList';
+import FiltroComp from '@/components/ui/FiltroComp';
 import { Button } from '@/components/ui/button';
 import Loader from '@/components/ui/loader';
+import { FuncionFiltrar, filterModelos } from '@/lib/filter';
 import { trpc } from '@/lib/trpc';
+import { RouterOutputs } from '@/server';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
 
 interface AsignacionPageProps {}
@@ -20,6 +23,13 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
   const desasignar = trpc.etiqueta.unsetMasivo.useMutation();
   const router = useRouter();
 
+  const { data: modelos, isLoading: modelosLoading } =
+    trpc.modelo.getAll.useQuery();
+
+  const [modelosFiltradas, setModelosFiltradas] = useState<
+    RouterOutputs['modelo']['getAll']
+  >(modelos ?? []);
+
   const {
     etiquetas: etiquetasList,
     modelos: modelosList,
@@ -27,6 +37,11 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
     clearModelos,
     clearGrupo,
   } = asignacionSelectedData();
+
+  const filtrarModelos: FuncionFiltrar = (filter) => {
+    if (!modelos) return;
+    setModelosFiltradas(filterModelos(modelos, filter));
+  };
 
   async function asignarEtiquetas() {
     const etiquetaIds = etiquetasList.map((e) => e.id);
@@ -98,7 +113,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
   }
 
   return (
-    <div className='p-3 md:p-5'>
+    <div className='flex flex-col gap-y-3 p-3 md:p-5'>
       <div className='flex items-center gap-x-4 pb-3'>
         <ArrowLeft
           className='cursor-pointer md:h-8 md:w-8'
@@ -108,9 +123,18 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
           Asignación masiva de etiquetas
         </h1>
       </div>
+      <FiltroComp
+        className='p-0'
+        funcionFiltrado={filtrarModelos}
+        mostrarEtiq
+        mostrarInput
+      />
       <div className='flex h-auto gap-x-2'>
         <div className='flex-1'>
-          <ModelosComboYList />
+          <ModelosComboYList
+            modelos={modelosFiltradas}
+            modelosLoading={modelosLoading}
+          />
           {modelosList.length === 0 && (
             <p className='mt-2'>
               Seleccione los participantes a los que quiere asignarle o
