@@ -13,11 +13,22 @@ interface BotonesPapeleraProps {
 const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
   const utils = trpc.useUtils();
 
+  const agregarComentarioMutation = trpc.comentario.create.useMutation({
+    onError: () => {
+      toast.error('Error al agregar comentario');
+    },
+  });
+
   const restoreMutation = trpc.modelo.edit.useMutation({
-    onSuccess: () => {
-      toast.success('Participante restaurado');
+    onSuccess: async () => {
+      await agregarComentarioMutation.mutateAsync({
+        perfilId: id,
+        contenido: 'Participante restaurada de la papelera',
+      });
+      toast.success('Participante restaurada en la Base de Datos');
       utils.modelo.getById.invalidate();
       utils.modelo.getModelosPapelera.invalidate();
+      utils.comentario.getByPerfilId.invalidate({ perfilId: id });
     },
     onError: () => {
       toast.error('Error al restaurar el participante de la papelera');
@@ -25,10 +36,15 @@ const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
   });
 
   const sendToTrashMutation = trpc.modelo.edit.useMutation({
-    onSuccess: () => {
-      toast.success('Participante enviado a la papelera');
+    onSuccess: async () => {
+      await agregarComentarioMutation.mutateAsync({
+        perfilId: id,
+        contenido: 'Participante enviada a la papelera',
+      });
+      toast.success('Participante enviada a la papelera');
       utils.modelo.getById.invalidate();
       utils.modelo.getModelosPapelera.invalidate();
+      utils.comentario.getByPerfilId.invalidate({ perfilId: id });
     },
     onError: () => {
       toast.error('Error al enviar el participante a la papelera');
