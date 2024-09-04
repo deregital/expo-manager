@@ -25,7 +25,7 @@ const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
         perfilId: id,
         contenido: 'Participante restaurada de la papelera',
       });
-      toast.success('Participante restaurada en la Base de Datos');
+      toast.success('Participante restaurada de la papelera');
       utils.modelo.getById.invalidate();
       utils.modelo.getModelosPapelera.invalidate();
       utils.comentario.getByPerfilId.invalidate({ perfilId: id });
@@ -41,7 +41,7 @@ const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
         perfilId: id,
         contenido: 'Participante enviada a la papelera',
       });
-      toast.success('Participante enviada a la papelera');
+      toast.success('Participante enviada la papelera');
       utils.modelo.getById.invalidate();
       utils.modelo.getModelosPapelera.invalidate();
       utils.comentario.getByPerfilId.invalidate({ perfilId: id });
