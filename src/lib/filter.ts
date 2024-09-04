@@ -1,4 +1,5 @@
 import { searchNormalize } from '@/lib/utils';
+import { Perfil } from '@prisma/client';
 
 export type Filtro = {
   input: string;
@@ -12,10 +13,11 @@ export type Filtro = {
   }[];
   condicionalEtiq: 'AND' | 'OR';
   condicionalGrupo: 'AND' | 'OR';
-  instagram: string | undefined;
-  mail: string | undefined;
-  dni: string | undefined;
-  telefono: string | undefined;
+  instagram: Perfil['instagram'];
+  mail: Perfil['mail'];
+  dni: Perfil['dni'];
+  telefono: Perfil['telefono'];
+  genero: Perfil['genero'];
 };
 
 export type FuncionFiltrar = ({
@@ -28,6 +30,7 @@ export type FuncionFiltrar = ({
   mail,
   dni,
   telefono,
+  genero,
 }: Filtro) => void;
 
 export function filterModelos<
@@ -38,6 +41,7 @@ export function filterModelos<
     mail: string;
     dni: string;
     telefono: string;
+    genero: string;
     etiquetas: { id: string; grupoId: string }[];
   },
 >(modelos: M[], search: Filtro): M[] {
@@ -48,7 +52,8 @@ export function filterModelos<
     search.instagram === undefined &&
     search.mail === undefined &&
     search.dni === undefined &&
-    search.telefono === undefined
+    search.telefono === undefined &&
+    search.genero === undefined
   )
     return modelos;
 
@@ -59,12 +64,19 @@ export function filterModelos<
         (modelo.idLegible &&
           searchNormalize(modelo.idLegible.toString(), search.input))) &&
       (search.instagram === undefined ||
+        search.instagram === null ||
         searchNormalize(modelo.instagram, search.instagram)) &&
       (search.mail === undefined ||
+        search.mail === null ||
         searchNormalize(modelo.mail, search.mail)) &&
-      (search.dni === undefined || searchNormalize(modelo.dni, search.dni)) &&
+      (search.dni === undefined ||
+        search.dni === null ||
+        searchNormalize(modelo.dni, search.dni)) &&
       (search.telefono === undefined ||
         searchNormalize(modelo.telefono, search.telefono)) &&
+      (search.genero === undefined ||
+        search.genero === null ||
+        searchNormalize(modelo.genero, search.genero)) &&
       (search.etiquetasId === undefined ||
         search.etiquetasId.length === 0 ||
         (search.condicionalEtiq === 'AND'
