@@ -38,3 +38,5 @@ next-env.d.ts
 .env
 
 **/**/storeLastMessage.json
+certificates
+**/**firebase_*.json

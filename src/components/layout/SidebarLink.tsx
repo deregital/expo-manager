@@ -11,6 +11,7 @@ interface SidebarLinkProps {
   iconActive?: React.ReactNode;
   textClassName?: string;
   children: React.ReactNode;
+  endDecorator?: React.ReactNode;
 }
 
 const SidebarLink = ({
@@ -19,6 +20,7 @@ const SidebarLink = ({
   to,
   children,
   textClassName,
+  endDecorator,
 }: SidebarLinkProps) => {
   const pathname = usePathname();
   const href = Array.isArray(to) ? to[0] : to;
@@ -35,15 +37,14 @@ const SidebarLink = ({
       onClick={() => {
         useSidebar.setState({ isOpen: false });
       }}
-      className={cn('w-full text-sidebar-foreground')}
+      className={cn(
+        'flex w-full items-center justify-between px-3 py-2 text-sidebar-foreground transition-colors hover:bg-black/5'
+      )}
     >
       <p
-        className={cn(
-          'flex w-full items-center px-3 py-2 font-medium transition-colors hover:bg-black/5',
-          {
-            'font-bold': isActive,
-          }
-        )}
+        className={cn('flex w-full items-center font-medium', {
+          'font-bold': isActive,
+        })}
       >
         <span className='w-6'>{isActive ? iconActive : icon}</span>
         <span
@@ -52,6 +53,7 @@ const SidebarLink = ({
           {children}
         </span>
       </p>
+      {endDecorator ?? <></>}
     </Link>
   );
 };
