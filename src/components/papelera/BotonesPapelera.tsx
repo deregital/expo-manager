@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import React from 'react';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface BotonesPapeleraProps {
   esPapelera: boolean;
@@ -14,6 +14,7 @@ interface BotonesPapeleraProps {
 const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
   const utils = trpc.useUtils();
   const router = useRouter();
+  const pathname = usePathname();
 
   const agregarComentarioMutation = trpc.comentario.create.useMutation({
     onError: () => {
@@ -58,7 +59,10 @@ const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
       toast.success('Participante eliminado definitivamente');
       utils.modelo.getModelosPapelera.invalidate();
       utils.modelo.getById.invalidate();
-      router.replace('/modelos');
+
+      if (pathname !== '/papelera') {
+        router.replace('/modelos');
+      }
     },
     onError: () => {
       toast.error('Error al eliminar el participante definitivamente');
