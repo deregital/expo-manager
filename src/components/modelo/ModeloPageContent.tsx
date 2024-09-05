@@ -259,6 +259,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
                   : 'N/A'}
               </p>
               <p>Género: {modelo?.genero ?? 'N/A'}</p>
+              <p>ID: {modelo?.idLegible}</p>
               <ModeloEditModal modelo={modelo} />
             </div>
           </div>
