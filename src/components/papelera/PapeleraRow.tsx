@@ -15,12 +15,12 @@ const PapeleraRow = ({ modelo }: PapeleraRowProps) => {
       key={modelo.id}
       className='flex items-center justify-between gap-x-4 px-3 py-2 hover:bg-gray-200'
     >
-      <div className='flex w-full items-center gap-x-1 truncate'>
+      <div className='flex w-full items-center gap-x-2.5 truncate'>
         <FotoModelo url={modelo.fotoUrl ?? ''} />
         <p className='w-full truncate py-1'>{modelo.nombreCompleto}</p>
       </div>
       <div className='flex gap-x-4'>
-        <div className='flex w-fit flex-col items-end'>
+        <div className='hidden w-fit flex-col items-end sm:flex'>
           <span className='text-sm text-gray-500'>{modelo.telefono}</span>
           {modelo.fechaPapelera && (
             <span className='whitespace-nowrap text-sm text-gray-500'>
