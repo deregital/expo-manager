@@ -21,22 +21,20 @@ import InstagramIcon from '@/components/icons/InstagramIcon';
 import MailIcon from '@/components/icons/MailIcon';
 import DNIIcon from '@/components/icons/DNIIcon';
 import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
+import BotonesPapelera from '@/components/papelera/BotonesPapelera';
 
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
 }
-
 type ModeloData = {
   id: string;
   etiquetas: EtiquetaBaseConGrupoColor[];
   comentarios: RouterOutputs['comentario']['getByPerfilId'] | undefined;
 };
-
 type ModeloFoto = {
   id: string;
   fotoUrl: string | undefined;
 };
-
 export const useModeloData = create<ModeloData>(() => ({
   id: '',
   etiquetas: [],
@@ -46,7 +44,6 @@ export const useModeloFoto = create<ModeloFoto>(() => ({
   id: '',
   fotoUrl: undefined,
 }));
-
 const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const { etiquetas } = useModeloData((state) => ({
     etiquetas: state.etiquetas,
@@ -56,7 +53,6 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
   const [video, setVideo] = useState<File | null>(null);
   const [edit, setEdit] = useState(false);
   const utils = trpc.useUtils();
-
   const etiquetasFiltradas = useMemo(
     () =>
       etiquetas.filter(
@@ -74,7 +70,6 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     const form = new FormData();
     form.append('id', modelo.id);
     form.append('url', fotoUrl ?? '');
-
     await fetch('/api/image', {
       method: 'DELETE',
       body: form,
@@ -88,7 +83,6 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     setEdit(false);
     inputRef.current!.value = '';
   }
-
   async function handleUpload() {
     if (!video) {
       toast.error('No se ha seleccionado una imagen');
@@ -98,17 +92,14 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     form.append('imagen', video);
     form.append('id', modelo.id);
     form.append('url', modelo.fotoUrl ?? '');
-
     toast.loading('Subiendo foto...');
     setEdit(false);
-
     await fetch('/api/image', {
       method: 'POST',
       body: form,
     })
       .then(() => {
         toast.dismiss();
-
         if (inputRef.current) {
           inputRef.current!.value = '';
         }
@@ -270,14 +261,22 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           </div>
         </div>
       </div>
-
       <div className='mt-4 flex flex-wrap gap-2 md:hidden'>
         <ListaEtiquetasModelo
           modeloId={modelo.id}
           etiquetas={etiquetasFiltradas}
         />
       </div>
-
+      <div className='mt-3 flex flex-col gap-x-2 sm:flex-row sm:items-center'>
+        {modelo.esPapelera && (
+          <span className='order-2 font-bold text-red-500 sm:order-1'>
+            La modelo está en la papelera
+          </span>
+        )}
+        <div className='order-1 sm:order-2'>
+          <BotonesPapelera id={modelo.id} esPapelera={modelo.esPapelera} />
+        </div>
+      </div>
       <div className='mt-5'>
         <h2 className='text-xl font-bold md:text-2xl'>Comentarios</h2>
         <ComentariosSection modeloId={modelo.id} />
@@ -285,5 +284,4 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     </>
   );
 };
-
 export default ModeloPageContent;

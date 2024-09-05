@@ -13,6 +13,8 @@ import SidebarLink from '@/components/layout/SidebarLink';
 import Image from 'next/image';
 import ModeloFillIcon from '../icons/ModeloFillIcon';
 import ModeloIcon from '../icons/ModeloIcon';
+import PapeleraIcon from '../icons/PapeleraIcon';
+import PapeleraFillIcon from '../icons/PapeleraFillIcon';
 import SidebarLinkMensajes from '@/components/layout/SidebarLinkMensajes';
 
 const Sidebar = () => {
@@ -62,6 +64,13 @@ const Sidebar = () => {
             iconActive={<TemplateFillIcon height={24} width={24} />}
           >
             Plantillas
+          </SidebarLink>
+          <SidebarLink
+            to='/papelera'
+            icon={<PapeleraIcon height={24} width={24} />}
+            iconActive={<PapeleraFillIcon height={24} width={24} />}
+          >
+            Papelera
           </SidebarLink>
         </ul>
       </div>
