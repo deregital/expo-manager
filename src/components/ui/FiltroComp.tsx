@@ -9,7 +9,6 @@ import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
 import { XIcon } from 'lucide-react';
 import { Filtro, FuncionFiltrar } from '@/lib/filter';
 import { cn } from '@/lib/utils';
-import { Button } from './button';
 import ModalFiltro from './ModalFiltro';
 import { create } from 'zustand';
 
@@ -26,7 +25,14 @@ export const useFiltro = create<Filtro>(() => ({
   telefono: '',
   genero: null,
 }));
-export const useOpenModal = create<boolean>(() => false);
+export const useOpenModal = create<{ isOpen: boolean; toggle: () => void }>(
+  (set) => ({
+    isOpen: false,
+    toggle: () => {
+      set((state) => ({ isOpen: !state.isOpen }));
+    },
+  })
+);
 const FiltroComp = ({
   funcionFiltrado,
   className,
@@ -116,7 +122,7 @@ const FiltroComp = ({
     setGrupoEtiqueta(undefined);
     setEtiquetaId(undefined);
   }
-  const openModal = useOpenModal.setState((state) => state);
+  const toggle = useOpenModal().toggle;
 
   useEffect(() => {
     const filtrar = () => {
@@ -129,7 +135,8 @@ const FiltroComp = ({
   return (
     <div className='block'>
       <div className='w-full p-3'>
-        <Button onClick={() => {}}>Buscador avanzado</Button>
+        {/* <Button onClick={toggle}>Buscador avanzado</Button> */}
+        <ModalFiltro modelos={[]} onFilter={() => {}} />
       </div>
       <div
         className={cn(
@@ -156,7 +163,6 @@ const FiltroComp = ({
           <XIcon className='h-4 w-4 cursor-pointer' onClick={resetFilters} />
         </div>
       </div>
-      <ModalFiltro modelos={[]} onFilter={() => {}} isOpen={openModal} />
     </div>
   );
 };

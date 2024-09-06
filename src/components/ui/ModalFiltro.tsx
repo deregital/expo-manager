@@ -1,27 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Input } from './input';
 import { Button } from './button';
 import { Checkbox } from './checkbox';
 import { Label } from './label';
 import { filterModelos, Filtro } from '@/lib/filter';
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from './alert-dialog';
-import { AlertDialogFooter, AlertDialogHeader } from './alert-dialog';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './dialog';
+import { DialogFooter, DialogHeader } from './dialog';
+import { useOpenModal } from './FiltroComp';
 
 const ModalFiltro = ({
   modelos,
   onFilter,
-  isOpen,
 }: {
   modelos: any[];
   onFilter: (filteredModelos: any[]) => void;
-  isOpen: boolean;
 }) => {
   const [input, setInput] = useState('');
   const [instagram, setInstagram] = useState('');
@@ -37,8 +31,13 @@ const ModalFiltro = ({
   );
   const [condicionalEtiq, setCondicionalEtiq] = useState<'AND' | 'OR'>('AND');
   const [condicionalGrupo, setCondicionalGrupo] = useState<'AND' | 'OR'>('AND');
+  const openModal = useOpenModal();
 
-  const handleFilter = () => {
+  useEffect(() => {
+    console.log(openModal);
+  }, [openModal]);
+
+  const handleFilter = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     const filtro: Filtro = {
       input,
       etiquetasId,
@@ -53,25 +52,33 @@ const ModalFiltro = ({
     };
     const filteredModelos = filterModelos(modelos, filtro);
     onFilter(filteredModelos);
-    setOpen(false);
+    openModal.toggle();
+    // e.stopPropagation();
+    // e.preventDefault();
   };
 
   const handleCancel = () => {
-    setOpen(false);
+    if (openModal.isOpen) openModal.toggle();
   };
-
-  const [open, setOpen] = useState(isOpen);
 
   return (
     <>
-      <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogTrigger></AlertDialogTrigger>
-        <AlertDialogContent onCloseAutoFocus={handleCancel}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Filtrar Modelos</AlertDialogTitle>
-          </AlertDialogHeader>
+      <Dialog
+        open={openModal.isOpen}
+        onOpenChange={(open) => useOpenModal.setState({ isOpen: open })}
+      >
+        <DialogTrigger asChild>
+          <Button onClick={openModal.toggle}>Buscador avanzado</Button>
+        </DialogTrigger>
+        <DialogContent
+          className='max-h-[70%] overflow-y-auto'
+          onCloseAutoFocus={handleCancel}
+        >
+          <DialogHeader>
+            <DialogTitle>Filtrar Modelos</DialogTitle>
+          </DialogHeader>
 
-          <div className='space-y-4 overflow-y-auto'>
+          <div className='space-y-4'>
             {/* Input */}
             <div>
               <Label htmlFor='input'>Buscar por nombre o ID</Label>
@@ -190,13 +197,13 @@ const ModalFiltro = ({
             </div>
           </div>
 
-          <AlertDialogFooter>
-            <Button variant='default' onClick={handleFilter}>
+          <DialogFooter>
+            <Button variant='default' onClick={(e) => handleFilter(e)}>
               Filtrar
             </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
