@@ -7,11 +7,26 @@ import { RouterOutputs } from '@/server';
 import EtiquetaFillIcon from '../icons/EtiquetaFillIcon';
 import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
 import { XIcon } from 'lucide-react';
-import { FuncionFiltrar } from '@/lib/filter';
+import { Filtro, FuncionFiltrar } from '@/lib/filter';
 import { cn } from '@/lib/utils';
 import { Button } from './button';
 import ModalFiltro from './ModalFiltro';
+import { create } from 'zustand';
 
+// Crear variable de zustand
+export const useFiltro = create<Filtro>(() => ({
+  input: '',
+  etiquetasId: [],
+  gruposId: [],
+  condicionalEtiq: 'AND',
+  condicionalGrupo: 'AND',
+  instagram: null,
+  mail: null,
+  dni: null,
+  telefono: '',
+  genero: null,
+}));
+export const useOpenModal = create<boolean>(() => false);
 const FiltroComp = ({
   funcionFiltrado,
   className,
@@ -59,7 +74,7 @@ const FiltroComp = ({
     ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoEtiqueta)
     : trpc.etiqueta.getAll.useQuery();
 
-  const [modalOpen, setModalOpen] = useState(false);
+  // const [modalOpen, setModalOpen] = useState(false);
 
   function editarEtiq(etiq: string) {
     if (filtro.etiquetaId === etiq) {
@@ -101,6 +116,7 @@ const FiltroComp = ({
     setGrupoEtiqueta(undefined);
     setEtiquetaId(undefined);
   }
+  const openModal = useOpenModal.setState((state) => state);
 
   useEffect(() => {
     const filtrar = () => {
@@ -113,13 +129,7 @@ const FiltroComp = ({
   return (
     <div className='block'>
       <div className='w-full p-3'>
-        <Button
-          onClick={() => {
-            setModalOpen(true);
-          }}
-        >
-          Buscador avanzado
-        </Button>
+        <Button onClick={() => {}}>Buscador avanzado</Button>
       </div>
       <div
         className={cn(
@@ -146,7 +156,7 @@ const FiltroComp = ({
           <XIcon className='h-4 w-4 cursor-pointer' onClick={resetFilters} />
         </div>
       </div>
-      <ModalFiltro modelos={[]} onFilter={() => {}} isOpen={modalOpen} />
+      <ModalFiltro modelos={[]} onFilter={() => {}} isOpen={openModal} />
     </div>
   );
 };

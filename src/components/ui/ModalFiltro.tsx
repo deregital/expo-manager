@@ -71,7 +71,7 @@ const ModalFiltro = ({
             <AlertDialogTitle>Filtrar Modelos</AlertDialogTitle>
           </AlertDialogHeader>
 
-          <div className='space-y-4'>
+          <div className='space-y-4 overflow-y-auto'>
             {/* Input */}
             <div>
               <Label htmlFor='input'>Buscar por nombre o ID</Label>
