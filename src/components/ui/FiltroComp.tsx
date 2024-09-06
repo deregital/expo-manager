@@ -9,6 +9,8 @@ import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
 import { XIcon } from 'lucide-react';
 import { FuncionFiltrar } from '@/lib/filter';
 import { cn } from '@/lib/utils';
+import { Button } from './button';
+import ModalFiltro from './ModalFiltro';
 
 const FiltroComp = ({
   funcionFiltrado,
@@ -25,7 +27,25 @@ const FiltroComp = ({
     input: string;
     etiquetaId: string | undefined;
     grupoId: string | undefined;
-  }>({ input: '', etiquetaId: undefined, grupoId: undefined });
+    condicionalEtiq: 'AND' | 'OR';
+    condicionalGrupo: 'AND' | 'OR';
+    instagram: string | undefined;
+    mail: string | undefined;
+    dni: string | undefined;
+    telefono: string | undefined;
+    genero: string | undefined;
+  }>({
+    input: '',
+    etiquetaId: undefined,
+    grupoId: undefined,
+    condicionalEtiq: 'AND',
+    condicionalGrupo: 'AND',
+    instagram: undefined,
+    mail: undefined,
+    dni: undefined,
+    telefono: undefined,
+    genero: undefined,
+  });
 
   const [grupoEtiqueta, setGrupoEtiqueta] = useState<string | undefined>(
     undefined
@@ -38,6 +58,8 @@ const FiltroComp = ({
   const { data: dataEtiquetas, isLoading: isLoadingEtiquetas } = grupoEtiqueta
     ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoEtiqueta)
     : trpc.etiqueta.getAll.useQuery();
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   function editarEtiq(etiq: string) {
     if (filtro.etiquetaId === etiq) {
@@ -64,7 +86,18 @@ const FiltroComp = ({
   }
 
   function resetFilters() {
-    setFiltro({ input: '', etiquetaId: undefined, grupoId: undefined });
+    setFiltro({
+      input: '',
+      etiquetaId: undefined,
+      grupoId: undefined,
+      condicionalEtiq: 'AND',
+      condicionalGrupo: 'AND',
+      instagram: undefined,
+      mail: undefined,
+      dni: undefined,
+      telefono: undefined,
+      genero: undefined,
+    });
     setGrupoEtiqueta(undefined);
     setEtiquetaId(undefined);
   }
@@ -78,30 +111,42 @@ const FiltroComp = ({
   }, [filtro]);
 
   return (
-    <div
-      className={cn(
-        'flex w-full flex-col items-center justify-between gap-4 p-3 md:flex-row',
-        className
-      )}
-    >
-      {mostrarEtiq && (
-        <CompEtiq
-          editarEtiq={editarEtiq}
-          editarGrupoEtiq={editarGrupoEtiq}
-          dataGrupos={dataGrupoEtiquetas}
-          isLoadingGrupos={isLoadingGrupo}
-          grupoEtiqueta={grupoEtiqueta}
-          etiquetaId={etiquetaId}
-          dataEtiquetas={dataEtiquetas}
-          isLoadingEtiquetas={isLoadingEtiquetas}
-        />
-      )}
-      <div className='flex w-full items-center justify-end gap-x-2'>
-        {mostrarInput && (
-          <CompInput editarInput={editarInput} inputFiltro={filtro.input} />
-        )}
-        <XIcon className='h-4 w-4 cursor-pointer' onClick={resetFilters} />
+    <div className='block'>
+      <div className='w-full p-3'>
+        <Button
+          onClick={() => {
+            setModalOpen(true);
+          }}
+        >
+          Buscador avanzado
+        </Button>
       </div>
+      <div
+        className={cn(
+          'flex w-full flex-col items-center justify-between gap-4 p-3 md:flex-row',
+          className
+        )}
+      >
+        {mostrarEtiq && (
+          <CompEtiq
+            editarEtiq={editarEtiq}
+            editarGrupoEtiq={editarGrupoEtiq}
+            dataGrupos={dataGrupoEtiquetas}
+            isLoadingGrupos={isLoadingGrupo}
+            grupoEtiqueta={grupoEtiqueta}
+            etiquetaId={etiquetaId}
+            dataEtiquetas={dataEtiquetas}
+            isLoadingEtiquetas={isLoadingEtiquetas}
+          />
+        )}
+        <div className='flex w-full items-center justify-end gap-x-2'>
+          {mostrarInput && (
+            <CompInput editarInput={editarInput} inputFiltro={filtro.input} />
+          )}
+          <XIcon className='h-4 w-4 cursor-pointer' onClick={resetFilters} />
+        </div>
+      </div>
+      <ModalFiltro modelos={[]} onFilter={() => {}} isOpen={modalOpen} />
     </div>
   );
 };
@@ -148,8 +193,8 @@ const CompEtiq = ({
           <>
             <span className='truncate'>
               {grupoEtiqueta
-                ? (dataGrupos?.find((grupo) => grupo.id === grupoEtiqueta)
-                    ?.nombre ?? 'Buscar grupo...')
+                ? dataGrupos?.find((grupo) => grupo.id === grupoEtiqueta)
+                    ?.nombre ?? 'Buscar grupo...'
                 : 'Buscar grupo...'}
             </span>
             <EtiquetasFillIcon className='h-5 w-5' />
@@ -173,8 +218,8 @@ const CompEtiq = ({
           <>
             <span className='truncate'>
               {etiquetaId
-                ? (dataEtiquetas?.find((etiqueta) => etiqueta.id === etiquetaId)
-                    ?.nombre ?? 'Buscar etiqueta...')
+                ? dataEtiquetas?.find((etiqueta) => etiqueta.id === etiquetaId)
+                    ?.nombre ?? 'Buscar etiqueta...'
                 : 'Buscar etiqueta...'}
             </span>
             <EtiquetaFillIcon className='h-5 w-5' />
