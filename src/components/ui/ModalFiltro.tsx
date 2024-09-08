@@ -5,24 +5,18 @@ import { Input } from './input';
 import { Button } from './button';
 import { Checkbox } from './checkbox';
 import { Label } from './label';
-import { filterModelos, Filtro } from '@/lib/filter';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './dialog';
 import { DialogFooter, DialogHeader } from './dialog';
-import { useOpenModal } from './FiltroComp';
+import { useFiltro, useOpenModal } from './FiltroComp';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './select';
 
-const ModalFiltro = ({
-  modelos,
-  onFilter,
-}: {
-  modelos: any[];
-  onFilter: (filteredModelos: any[]) => void;
-}) => {
-  const [input, setInput] = useState('');
-  const [instagram, setInstagram] = useState('');
-  const [mail, setMail] = useState('');
-  const [dni, setDni] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [genero, setGenero] = useState('');
+const ModalFiltro = () => {
   const [etiquetasId, setEtiquetasId] = useState<
     { id: string; include: boolean }[]
   >([]);
@@ -32,26 +26,25 @@ const ModalFiltro = ({
   const [condicionalEtiq, setCondicionalEtiq] = useState<'AND' | 'OR'>('AND');
   const [condicionalGrupo, setCondicionalGrupo] = useState<'AND' | 'OR'>('AND');
   const openModal = useOpenModal();
+  const filtro = useFiltro();
 
   useEffect(() => {
     console.log(openModal);
   }, [openModal]);
 
   const handleFilter = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    const filtro: Filtro = {
-      input,
-      etiquetasId,
-      gruposId,
-      condicionalEtiq,
-      condicionalGrupo,
-      instagram: instagram || null,
-      mail: mail || null,
-      dni: dni || null,
-      telefono: telefono,
-      genero: genero || null,
-    };
-    const filteredModelos = filterModelos(modelos, filtro);
-    onFilter(filteredModelos);
+    // const filtro: Filtro = {
+    //   input,
+    //   etiquetasId,
+    //   gruposId,
+    //   condicionalEtiq,
+    //   condicionalGrupo,
+    //   instagram: instagram || null,
+    //   mail: mail || null,
+    //   dni: dni || null,
+    //   telefono: telefono,
+    //   genero: genero || null,
+    // };
     openModal.toggle();
     // e.stopPropagation();
     // e.preventDefault();
@@ -59,6 +52,21 @@ const ModalFiltro = ({
 
   const handleCancel = () => {
     if (openModal.isOpen) openModal.toggle();
+  };
+
+  const handleLimpiar = () => {
+    useFiltro.setState({
+      input: '',
+      etiquetasId: [],
+      gruposId: [],
+      condicionalEtiq: 'AND',
+      condicionalGrupo: 'AND',
+      instagram: null,
+      mail: null,
+      dni: null,
+      telefono: '',
+      genero: null,
+    });
   };
 
   return (
@@ -84,8 +92,8 @@ const ModalFiltro = ({
               <Label htmlFor='input'>Buscar por nombre o ID</Label>
               <Input
                 id='input'
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
+                value={filtro.input}
+                onChange={(e) => useFiltro.setState({ input: e.target.value })}
                 placeholder='Ingresa nombre o ID'
               />
             </div>
@@ -95,8 +103,10 @@ const ModalFiltro = ({
               <Label htmlFor='instagram'>Instagram</Label>
               <Input
                 id='instagram'
-                value={instagram}
-                onChange={(e) => setInstagram(e.target.value)}
+                value={filtro.instagram !== null ? filtro.instagram : ''}
+                onChange={(e) =>
+                  useFiltro.setState({ instagram: e.target.value })
+                }
                 placeholder='Instagram'
               />
             </div>
@@ -106,8 +116,8 @@ const ModalFiltro = ({
               <Label htmlFor='mail'>Email</Label>
               <Input
                 id='mail'
-                value={mail}
-                onChange={(e) => setMail(e.target.value)}
+                value={filtro.mail !== null ? filtro.mail : ''}
+                onChange={(e) => useFiltro.setState({ mail: e.target.value })}
                 placeholder='Email'
               />
             </div>
@@ -117,8 +127,8 @@ const ModalFiltro = ({
               <Label htmlFor='dni'>DNI</Label>
               <Input
                 id='dni'
-                value={dni}
-                onChange={(e) => setDni(e.target.value)}
+                value={filtro.dni !== null ? filtro.dni : ''}
+                onChange={(e) => useFiltro.setState({ dni: e.target.value })}
                 placeholder='DNI'
               />
             </div>
@@ -128,32 +138,76 @@ const ModalFiltro = ({
               <Label htmlFor='telefono'>Teléfono</Label>
               <Input
                 id='telefono'
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
+                value={filtro.telefono}
+                onChange={(e) =>
+                  useFiltro.setState({ telefono: e.target.value })
+                }
                 placeholder='Teléfono'
               />
             </div>
 
+            {/* Género */}
+            <div>
+              <Label>Género</Label>
+              <Select
+                value={filtro.genero !== null ? filtro.genero : undefined}
+                onValueChange={(value) =>
+                  useFiltro.setState({
+                    genero: value as
+                      | 'Masculino'
+                      | 'Femenino'
+                      | 'Otro'
+                      | undefined,
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Selecciona un género' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='Masculino'>Masculino</SelectItem>
+                  <SelectItem value='Femenino'>Femenino</SelectItem>
+                  <SelectItem value='Otro'>Otro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Etiquetas y Condicional */}
             <div className='flex items-center space-x-2'>
-              <Checkbox
-                checked={condicionalEtiq === 'AND'}
-                onCheckedChange={(checked: boolean) =>
-                  setCondicionalEtiq(checked ? 'AND' : 'OR')
-                }
-              />
               <Label>Condición Etiquetas (AND/OR)</Label>
+              <Select
+                value={condicionalEtiq}
+                onValueChange={(value) =>
+                  setCondicionalEtiq(value as 'AND' | 'OR')
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Selecciona una condición' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='AND'>AND</SelectItem>
+                  <SelectItem value='OR'>OR</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Grupos y Condicional */}
             <div className='flex items-center space-x-2'>
-              <Checkbox
-                checked={condicionalGrupo === 'AND'}
-                onCheckedChange={(checked: boolean) =>
-                  setCondicionalGrupo(checked ? 'AND' : 'OR')
-                }
-              />
               <Label>Condición Grupos (AND/OR)</Label>
+              <Select
+                value={condicionalGrupo}
+                onValueChange={(value) =>
+                  setCondicionalGrupo(value as 'AND' | 'OR')
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Selecciona una condición' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='AND'>AND</SelectItem>
+                  <SelectItem value='OR'>OR</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Etiquetas dinámicas */}
@@ -198,9 +252,14 @@ const ModalFiltro = ({
           </div>
 
           <DialogFooter>
-            <Button variant='default' onClick={(e) => handleFilter(e)}>
-              Filtrar
-            </Button>
+            <div className='flex items-center justify-between'>
+              <Button variant='default' onClick={handleLimpiar}>
+                Limpiar filtros
+              </Button>
+              <Button variant='default' onClick={(e) => handleFilter(e)}>
+                Filtrar
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

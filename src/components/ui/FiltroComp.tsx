@@ -136,7 +136,7 @@ const FiltroComp = ({
     <div className='block'>
       <div className='w-full p-3'>
         {/* <Button onClick={toggle}>Buscador avanzado</Button> */}
-        <ModalFiltro modelos={[]} onFilter={() => {}} />
+        <ModalFiltro />
       </div>
       <div
         className={cn(
