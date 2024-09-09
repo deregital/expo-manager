@@ -1,3 +1,4 @@
+import { useRouter } from 'next/navigation';
 import { type Table } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import {
@@ -6,11 +7,23 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from 'lucide-react';
+import { useEffect } from 'react';
+
 interface PaginationProps<TData> {
   table: Table<TData>;
 }
 
 const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
+  const router = useRouter();
+
+  useEffect(() => {
+    const pageIndex = table.getState().pagination.pageIndex + 1;
+    const params = new URLSearchParams(window.location.search);
+    params.set('page', pageIndex.toString());
+
+    router.push(`?${params.toString()}`);
+  }, [table.getState().pagination.pageIndex]);
+
   return (
     <>
       <div className='border-t border-black/10 bg-transparent px-3 py-3 text-black sm:px-6'>
