@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { Input } from './input';
 import { Button } from './button';
-import { Checkbox } from './checkbox';
 import { Label } from './label';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './dialog';
 import { DialogFooter, DialogHeader } from './dialog';
@@ -15,6 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from './select';
+import ComboBox from './ComboBox';
+import { trpc } from '@/lib/trpc';
 
 const ModalFiltro = () => {
   const [etiquetasId, setEtiquetasId] = useState<
@@ -25,6 +26,10 @@ const ModalFiltro = () => {
   );
   const [condicionalEtiq, setCondicionalEtiq] = useState<'AND' | 'OR'>('AND');
   const [condicionalGrupo, setCondicionalGrupo] = useState<'AND' | 'OR'>('AND');
+  const { data: grupoEtiquetas } = trpc.grupoEtiqueta.getAll.useQuery();
+  const [openGrupo, setOpenGrupo] = useState(false);
+  const [openEtiqueta, setOpenEtiqueta] = useState(false);
+  const [grupoEtiquetaSelected, setGrupoEtiquetaSelected] = useState('');
   const openModal = useOpenModal();
   const filtro = useFiltro();
 
@@ -213,19 +218,40 @@ const ModalFiltro = () => {
             {/* Etiquetas dinámicas */}
             <div>
               <Label>Etiquetas</Label>
-              {etiquetasId.map((etiqueta, index) => (
+              {filtro.etiquetasId.map((etiqueta, index) => (
                 <div key={index} className='flex items-center space-x-2'>
-                  <Checkbox
-                    checked={etiqueta.include}
-                    onCheckedChange={(checked: boolean) =>
-                      setEtiquetasId((prev) =>
-                        prev.map((et, i) =>
-                          i === index ? { ...et, include: checked } : et
-                        )
-                      )
-                    }
+                  <ComboBox
+                    data={grupoEtiquetas || []}
+                    id='id'
+                    value='nombre'
+                    onSelect={(id) => {
+                      setOpenEtiqueta(false);
+                      useFiltro.setState({
+                        etiquetasId: [...etiquetasId, { id, include: true }],
+                      });
+                    }}
+                    open={openGrupo}
+                    setOpen={setOpenGrupo}
+                    selectedIf=''
+                    wFullMobile
+                    triggerChildren={}
                   />
-                  <Label>{etiqueta.id}</Label>
+                  <ComboBox
+                    data={grupoEtiquetas || []}
+                    id='id'
+                    value='nombre'
+                    onSelect={(id) => {
+                      setOpenEtiqueta(false);
+                      useFiltro.setState({
+                        gruposId: [...gruposId, { id, include: true }],
+                      });
+                    }}
+                    open={openEtiqueta}
+                    setOpen={setOpenEtiqueta}
+                    selectedIf=''
+                    wFullMobile
+                    triggerChildren={<p>{grupoEtiquetaSelected || 'Grupos'}</p>}
+                  />
                 </div>
               ))}
             </div>
@@ -233,19 +259,24 @@ const ModalFiltro = () => {
             {/* Grupos dinámicos */}
             <div>
               <Label>Grupos</Label>
-              {gruposId.map((grupo, index) => (
+              {filtro.gruposId.map((grupo, index) => (
                 <div key={index} className='flex items-center space-x-2'>
-                  <Checkbox
-                    checked={grupo.include}
-                    onCheckedChange={(checked: boolean) =>
-                      setGruposId((prev) =>
-                        prev.map((gr, i) =>
-                          i === index ? { ...gr, include: checked } : gr
-                        )
-                      )
-                    }
+                  <ComboBox
+                    data={grupoEtiquetas || []}
+                    id='id'
+                    value='nombre'
+                    onSelect={(id) => {
+                      setOpenEtiqueta(false);
+                      useFiltro.setState({
+                        etiquetasId: [...etiquetasId, { id, include: true }],
+                      });
+                    }}
+                    open={openGrupo}
+                    setOpen={setOpenGrupo}
+                    selectedIf=''
+                    wFullMobile
+                    triggerChildren={}
                   />
-                  <Label>{grupo.id}</Label>
                 </div>
               ))}
             </div>
