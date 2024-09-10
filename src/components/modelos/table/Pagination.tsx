@@ -6,11 +6,42 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
 interface PaginationProps<TData> {
   table: Table<TData>;
 }
 
 const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
+  const [firstRender, setFirstRender] = useState(true);
+
+  useEffect(() => {
+    const pageIndex = table.getState().pagination.pageIndex + 1;
+    const params = new URLSearchParams(window.location.search);
+    if (firstRender) {
+      setFirstRender(false);
+
+      if (params.has('page')) {
+        const page = Number(params.get('page'));
+        if (page !== pageIndex) {
+          table.setPageIndex(page - 1);
+        }
+      }
+      return;
+    }
+
+    params.set('page', pageIndex.toString());
+
+    window.history.pushState(
+      {
+        page: pageIndex,
+      },
+      '',
+      `?${params.toString()}`
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [table.getState().pagination.pageIndex]);
+
   return (
     <>
       <div className='border-t border-black/10 bg-transparent px-3 py-3 text-black sm:px-6'>
