@@ -289,7 +289,7 @@ async function enviarRespuestaAutomatica(
   telefono: string,
   nombreDePila: string
 ) {
-  const mensaje = `¡Hola ${nombreDePila}! Muchas gracias por participar de Expo Desfiles. ¡Ya estás dentro! En los próximos días vas a recibir más información acerca de los próximos desfiles. Podés seguirnos en nuestro Instagram @expodesfiles para enterarte de todas las novedades. ¡Saludos!  `;
+  const mensaje = `¡Hola ${nombreDePila}! Muchas gracias por participar de Expo Desfiles. ¡Ya estás dentro! En los próximos días vas a recibir más información acerca de los próximos desfiles. Podés seguirnos en nuestra web https://expodesfiles.com/ para enterarte de todas las novedades. ¡Saludos!`;
 
   const res = enviarMensajeUnaSolaVez(telefono, mensaje, prisma);
 
