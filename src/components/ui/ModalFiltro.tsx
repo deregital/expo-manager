@@ -261,7 +261,7 @@ const ModalFiltro = () => {
 
             {/* Etiquetas dinámicas */}
             <div>
-              <Label>Etiquetas</Label>
+              <Label>Etiquetas y grupos</Label>
               {filtro.etiquetasId.map((etiqueta, index) => (
                 <div key={index} className='flex items-center space-x-2 pb-2'>
                   <p>{etiqueta.include ? 'SI' : 'NO'}</p>
