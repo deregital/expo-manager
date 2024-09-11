@@ -44,30 +44,30 @@ const FiltroComp = ({
   mostrarInput?: boolean;
   className?: string;
 }) => {
-  const [filtro, setFiltro] = useState<{
-    input: string;
-    etiquetaId: string | undefined;
-    grupoId: string | undefined;
-    condicionalEtiq: 'AND' | 'OR';
-    condicionalGrupo: 'AND' | 'OR';
-    instagram: string | undefined;
-    mail: string | undefined;
-    dni: string | undefined;
-    telefono: string | undefined;
-    genero: string | undefined;
-  }>({
-    input: '',
-    etiquetaId: undefined,
-    grupoId: undefined,
-    condicionalEtiq: 'AND',
-    condicionalGrupo: 'AND',
-    instagram: undefined,
-    mail: undefined,
-    dni: undefined,
-    telefono: undefined,
-    genero: undefined,
-  });
-
+  // const [filtro, setFiltro] = useState<{
+  //   input: string;
+  //   etiquetaId: [string, boolean] | [];
+  //   grupoId: [string, boolean] | [];
+  //   condicionalEtiq: 'AND' | 'OR';
+  //   condicionalGrupo: 'AND' | 'OR';
+  //   instagram: string | undefined;
+  //   mail: string | undefined;
+  //   dni: string | undefined;
+  //   telefono: string | undefined;
+  //   genero: string | undefined;
+  // }>({
+  //   input: '',
+  //   etiquetaId: [],
+  //   grupoId: [],
+  //   condicionalEtiq: 'AND',
+  //   condicionalGrupo: 'AND',
+  //   instagram: undefined,
+  //   mail: undefined,
+  //   dni: undefined,
+  //   telefono: undefined,
+  //   genero: undefined,
+  // });
+  const filtro = useFiltro();
   const [grupoEtiqueta, setGrupoEtiqueta] = useState<string | undefined>(
     undefined
   );
@@ -80,37 +80,53 @@ const FiltroComp = ({
     ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoEtiqueta)
     : trpc.etiqueta.getAll.useQuery();
 
+  const { data: etiqueta } =
+    etiquetaId !== undefined
+      ? trpc.etiqueta.getById.useQuery(etiquetaId)
+      : { data: undefined };
+
   // const [modalOpen, setModalOpen] = useState(false);
 
   function editarEtiq(etiq: string) {
-    if (filtro.etiquetaId === etiq) {
-      setFiltro({ ...filtro, etiquetaId: undefined });
+    if (etiquetaId === etiq) {
+      useFiltro.setState({ ...filtro, etiquetasId: [] });
       setEtiquetaId(undefined);
       return;
     }
-    setFiltro({ ...filtro, etiquetaId: etiq });
     setEtiquetaId(etiq);
+    if (!etiqueta) return;
+    useFiltro.setState({
+      ...filtro,
+      etiquetasId: [{ etiqueta: etiqueta, include: true }],
+    });
+    setEtiquetaId(undefined);
+    return;
   }
 
   function editarGrupoEtiq(grupoEtiq: string) {
-    if (filtro.grupoId === grupoEtiq) {
-      setFiltro({ ...filtro, grupoId: undefined });
+    if (grupoEtiqueta === grupoEtiq) {
+      useFiltro.setState({ ...filtro, gruposId: [] });
       setGrupoEtiqueta(undefined);
       return;
     }
-    setFiltro({ ...filtro, grupoId: grupoEtiq });
+    const grupo = dataGrupoEtiquetas?.find((grupo) => grupo.id === grupoEtiq);
+    if (!grupo) return;
+    useFiltro.setState({
+      ...filtro,
+      gruposId: [{ grupo: grupo, include: true }],
+    });
     setGrupoEtiqueta(grupoEtiq);
   }
 
   function editarInput(input: string) {
-    setFiltro({ ...filtro, input: input });
+    useFiltro.setState({ ...filtro, input: input });
   }
 
   function resetFilters() {
-    setFiltro({
+    useFiltro.setState({
       input: '',
-      etiquetaId: undefined,
-      grupoId: undefined,
+      etiquetasId: [],
+      gruposId: [],
       condicionalEtiq: 'AND',
       condicionalGrupo: 'AND',
       instagram: undefined,

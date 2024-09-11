@@ -1,14 +1,15 @@
 import { searchNormalize } from '@/lib/utils';
+import { RouterOutputs } from '@/server';
 import { Perfil } from '@prisma/client';
 
 export type Filtro = {
   input: string;
   etiquetasId: {
-    id: string;
+    etiqueta: NonNullable<RouterOutputs['etiqueta']['getById']>;
     include: boolean;
   }[];
   gruposId: {
-    id: string;
+    grupo: NonNullable<RouterOutputs['grupoEtiqueta']['getAll'][0]>;
     include: boolean;
   }[];
   condicionalEtiq: 'AND' | 'OR';
@@ -83,15 +84,21 @@ export function filterModelos<
           ? search.etiquetasId.every((etiqueta) =>
               modelo.etiquetas.some(
                 (et) =>
-                  et.id === etiqueta.id &&
-                  (etiqueta.include ? et.grupoId === etiqueta.id : true)
+                  etiqueta.etiqueta &&
+                  et.id === etiqueta.etiqueta.id &&
+                  (etiqueta.include
+                    ? et.grupoId === etiqueta.etiqueta.id
+                    : true)
               )
             )
           : search.etiquetasId.some((etiqueta) =>
               modelo.etiquetas.some(
                 (et) =>
-                  et.id === etiqueta.id &&
-                  (etiqueta.include ? et.grupoId === etiqueta.id : true)
+                  etiqueta.etiqueta &&
+                  et.id === etiqueta.etiqueta.id &&
+                  (etiqueta.include
+                    ? et.grupoId === etiqueta.etiqueta.id
+                    : true)
               )
             ))) &&
       (search.gruposId === undefined ||
@@ -100,15 +107,15 @@ export function filterModelos<
           ? search.gruposId.every((grupo) =>
               modelo.etiquetas.some(
                 (et) =>
-                  et.grupoId === grupo.id &&
-                  (grupo.include ? et.id === grupo.id : true)
+                  et.grupoId === grupo.grupo.id &&
+                  (grupo.include ? et.id === grupo.grupo.id : true)
               )
             )
           : search.gruposId.some((grupo) =>
               modelo.etiquetas.some(
                 (et) =>
-                  et.grupoId === grupo.id &&
-                  (grupo.include ? et.id === grupo.id : true)
+                  et.grupoId === grupo.grupo.id &&
+                  (grupo.include ? et.id === grupo.grupo.id : true)
               )
             )))
     );
