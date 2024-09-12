@@ -200,6 +200,12 @@ export const modeloRouter = router({
         ? input.modelo.telefono
         : `549${input.modelo.telefono}`;
 
+      const telefonoSecundario = input.modelo.telefonoSecundario
+        ? input.modelo.telefonoSecundario.startsWith('549')
+          ? input.modelo.telefonoSecundario
+          : `549${input.modelo.telefonoSecundario}`
+        : undefined;
+
       const perfilConMismoTelefonoDNI = await ctx.prisma.perfil.findMany({
         where: {
           OR: [
@@ -265,6 +271,7 @@ export const modeloRouter = router({
           nombreCompleto: input.modelo.nombreCompleto,
           nombrePila: input.modelo.nombreCompleto.split(' ')[0],
           telefono: telefono,
+          telefonoSecundario: telefonoSecundario,
           genero:
             input.modelo.genero !== 'N/A' ? input.modelo.genero : undefined,
           fechaNacimiento: input.modelo.fechaNacimiento
