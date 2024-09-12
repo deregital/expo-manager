@@ -72,6 +72,13 @@ export function filterModelos<
   )
     return modelos;
 
+  const etiquetasInclude = search.etiquetas?.filter((et) => et.include) ?? [];
+  const etiquetasNotInclude =
+    search.etiquetas?.filter((et) => !et.include) ?? [];
+
+  const gruposInclude = search.grupos?.filter((gr) => gr.include) ?? [];
+  const gruposNotInclude = search.grupos?.filter((gr) => !gr.include) ?? [];
+
   const mod = modelos?.filter((modelo) => {
     return (
       (search.input === undefined ||
@@ -94,40 +101,34 @@ export function filterModelos<
         searchNormalize(modelo.genero ?? '', search.genero)) &&
       (search.etiquetas === undefined ||
         search.etiquetas.length === 0 ||
-        (search.condicionalEtiq === 'AND'
-          ? search.etiquetas.every(({ etiqueta, include }) =>
-              modelo.etiquetas.some(
-                (et) =>
-                  etiqueta &&
-                  et.id === etiqueta.id &&
-                  (include ? et.id === etiqueta.id : false)
-              )
+        ((search.condicionalEtiq === 'AND'
+          ? etiquetasInclude.every(({ etiqueta }) =>
+              modelo.etiquetas.some((et) => et.id === etiqueta.id)
+            ) &&
+            etiquetasNotInclude.every(({ etiqueta }) =>
+              modelo.etiquetas.every((et) => et.id !== etiqueta.id)
             )
-          : search.etiquetas.some(({ etiqueta, include }) =>
-              modelo.etiquetas.some(
-                (et) =>
-                  etiqueta &&
-                  et.id === etiqueta.id &&
-                  (include ? et.id === etiqueta.id : false)
-              )
-            ))) &&
-      (search.grupos === undefined ||
-        search.grupos.length === 0 ||
-        (search.condicionalGrupo === 'AND'
-          ? search.grupos.every(({ grupo, include }) =>
-              modelo.etiquetas.some(
-                (et) =>
-                  et.grupoId === grupo.id &&
-                  (include ? et.grupoId === grupo.id : false)
-              )
-            )
-          : search.grupos.some(({ grupo, include }) =>
-              modelo.etiquetas.some(
-                (et) =>
-                  et.grupoId === grupo.id &&
-                  (include ? et.grupoId === grupo.id : false)
-              )
-            )))
+          : etiquetasInclude.some(({ etiqueta }) =>
+              modelo.etiquetas.some((et) => et.id === etiqueta.id)
+            ) &&
+            etiquetasNotInclude.some(({ etiqueta }) =>
+              modelo.etiquetas.every((et) => et.id !== etiqueta.id)
+            )) &&
+          (search.grupos === undefined ||
+            search.grupos.length === 0 ||
+            (search.condicionalGrupo === 'AND'
+              ? gruposInclude.every(({ grupo }) =>
+                  modelo.etiquetas.some((et) => et.grupoId === grupo.id)
+                ) &&
+                gruposNotInclude.every(({ grupo }) =>
+                  modelo.etiquetas.every((et) => et.grupoId !== grupo.id)
+                )
+              : gruposInclude.some(({ grupo }) =>
+                  modelo.etiquetas.some((et) => et.grupoId === grupo.id)
+                ) &&
+                gruposNotInclude.some(({ grupo }) =>
+                  modelo.etiquetas.every((et) => et.grupoId !== grupo.id)
+                )))))
     );
   });
   return mod;
