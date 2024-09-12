@@ -53,16 +53,23 @@ const EventoPage = ({ params }: EventoPageProps) => {
           }}
         />
       </div>
-      <div className='grid auto-rows-auto grid-cols-2 items-center justify-center gap-x-3 pb-3 sm:flex'>
-        <h3 className='col-span-2 p-2 text-center text-2xl font-bold'>
-          {evento?.nombre}
-        </h3>
+      <div className='grid auto-rows-auto grid-cols-3 items-center justify-center gap-x-3 pb-3 sm:flex'>
+        <div className='col-span-3 p-2'>
+          <h3 className='text-center text-2xl font-bold'>{evento?.nombre}</h3>
+        </div>
         <h3 className='p-2 text-center text-sm sm:text-base'>
           {format(evento!.fecha, 'yyyy-MM-dd')}
         </h3>
         <h3 className='p-2 text-center text-sm sm:text-base'>
           {evento?.ubicacion}
         </h3>
+
+        <Button
+          className='aspect-square justify-self-center rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500'
+          onClick={() => router.push(`/eventos/${evento?.id}/presentismo`)}
+        >
+          <RaiseHand />
+        </Button>
       </div>
       <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
         {/* <SearchInput
@@ -70,12 +77,6 @@ const EventoPage = ({ params }: EventoPageProps) => {
           placeholder='Buscar por nombre o ID legible'
         /> */}
         <Filtro mostrarInput mostrarEtiq funcionFiltrado={filtrar} />
-        <Button
-          className='rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500'
-          onClick={() => router.push(`/eventos/${evento?.id}/presentismo`)}
-        >
-          <RaiseHand />
-        </Button>
       </div>
       <DataTable
         columns={generateColumns(evento!.etiquetaConfirmoId)}

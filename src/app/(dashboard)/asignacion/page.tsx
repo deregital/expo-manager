@@ -113,7 +113,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
   }
 
   return (
-    <div className='flex flex-col gap-y-3 p-3 md:p-5'>
+    <div className='flex flex-col gap-y-3'>
       <div className='flex items-center gap-x-4 pb-3'>
         <ArrowLeft
           className='cursor-pointer md:h-8 md:w-8'
@@ -129,7 +129,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
         mostrarEtiq
         mostrarInput
       />
-      <div className='flex h-auto gap-x-2'>
+      <div className='flex h-auto gap-x-2 p-3 md:p-5'>
         <div className='flex-1'>
           <ModelosComboYList
             modelos={modelosFiltradas}
