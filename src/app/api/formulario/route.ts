@@ -27,6 +27,7 @@ const schema = z.object({
     .datetime()
     .min(1, 'La fecha de nacimiento es requerida')
     .optional(),
+  telefonoSecundario: z.string().optional(),
 });
 
 export async function POST(req: NextRequest, res: NextResponse) {
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       password,
       nombreCompleto,
       telefono,
+      telefonoSecundario,
       dni,
       genero,
       mail,
@@ -63,6 +65,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const telefonoSinSeparaciones = telefono
       .replace(/\s+/g, '')
       .replace(/\+/g, '');
+    const telefonoSecundarioSinSeparaciones = telefonoSecundario
+      ? telefonoSecundario.replace(/\s+/g, '').replace(/\+/g, '')
+      : undefined;
+
     const telefonoExistente = await prisma?.perfil.findFirst({
       where: {
         telefono: telefonoSinSeparaciones,
@@ -105,9 +111,33 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const idLegibleMasAlto = await getHighestIdLegible(prisma);
 
+    const dataToCreate: any = {
+      idLegible: idLegibleMasAlto + 1,
+      nombreCompleto,
+      nombrePila,
+      telefono: telefonoSinSeparaciones,
+      dni,
+      genero,
+      mail,
+      instagram,
+      fechaNacimiento,
+      etiquetas: {
+        connect: {
+          id: modeloEtiquetaId.id,
+        },
+      },
+    };
+
+    if (telefonoSecundarioSinSeparaciones) {
+      dataToCreate.telefonoSecundario = telefonoSecundarioSinSeparaciones;
+    }
+
     const response = await prisma?.perfil.upsert({
       where: {
         telefono: telefonoSinSeparaciones,
+        ...(telefonoSecundarioSinSeparaciones && {
+          telefonoSecundario: telefonoSecundarioSinSeparaciones,
+        }),
       },
       update: {
         nombreCompleto,
@@ -125,23 +155,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
             id: modeloEtiquetaId.id,
           },
         },
+        ...(telefonoSecundarioSinSeparaciones && {
+          telefonoSecundario: telefonoSecundarioSinSeparaciones,
+        }),
       },
-      create: {
-        idLegible: idLegibleMasAlto + 1,
-        nombreCompleto,
-        nombrePila,
-        telefono: telefonoSinSeparaciones,
-        dni,
-        genero,
-        mail,
-        instagram,
-        fechaNacimiento,
-        etiquetas: {
-          connect: {
-            id: modeloEtiquetaId.id,
-          },
-        },
-      },
+      create: dataToCreate,
     });
 
     return NextResponse.json(response, { status: 201 });
