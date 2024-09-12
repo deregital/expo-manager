@@ -1,15 +1,14 @@
 import { searchNormalize } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
-import { Perfil } from '@prisma/client';
+import { Etiqueta, EtiquetaGrupo, Perfil } from '@prisma/client';
 
 export type Filtro = {
   input: string;
-  etiquetasId: {
-    etiqueta: NonNullable<RouterOutputs['etiqueta']['getById']>;
+  etiquetas: {
+    etiqueta: Pick<Etiqueta, 'id' | 'nombre'>;
     include: boolean;
   }[];
-  gruposId: {
-    grupo: NonNullable<RouterOutputs['grupoEtiqueta']['getAll'][0]>;
+  grupos: {
+    grupo: Pick<EtiquetaGrupo, 'id' | 'color' | 'nombre'>;
     include: boolean;
   }[];
   condicionalEtiq: 'AND' | 'OR';
@@ -23,8 +22,8 @@ export type Filtro = {
 
 export type FuncionFiltrar = ({
   input,
-  etiquetasId,
-  gruposId,
+  etiquetas,
+  grupos,
   condicionalEtiq,
   condicionalGrupo,
   instagram,
@@ -34,22 +33,37 @@ export type FuncionFiltrar = ({
   genero,
 }: Filtro) => void;
 
+export const defaultFilter: Filtro = {
+  input: '',
+  etiquetas: [],
+  grupos: [],
+  condicionalEtiq: 'AND',
+  condicionalGrupo: 'AND',
+  instagram: '',
+  mail: '',
+  dni: '',
+  telefono: '',
+  genero: '',
+};
+
 export function filterModelos<
   M extends {
     nombreCompleto: string;
     idLegible?: number;
-    instagram: string;
-    mail: string;
-    dni: string;
-    telefono: string;
-    genero: string;
+    instagram: Perfil['instagram'];
+    mail: Perfil['mail'];
+    dni: Perfil['dni'];
+    telefono: Perfil['telefono'];
+    genero: Perfil['genero'];
     etiquetas: { id: string; grupoId: string }[];
   },
->(modelos: M[], search: Filtro): M[] {
+>(modelos: M[], search: Partial<Filtro>): M[] {
   if (
     search.input === undefined &&
-    search.etiquetasId === undefined &&
-    search.gruposId === undefined &&
+    search.etiquetas &&
+    search.etiquetas.length === 0 &&
+    search.grupos &&
+    search.grupos.length === 0 &&
     search.instagram === undefined &&
     search.mail === undefined &&
     search.dni === undefined &&
@@ -66,56 +80,52 @@ export function filterModelos<
           searchNormalize(modelo.idLegible.toString(), search.input))) &&
       (search.instagram === undefined ||
         search.instagram === null ||
-        searchNormalize(modelo.instagram, search.instagram)) &&
+        searchNormalize(modelo.instagram ?? '', search.instagram)) &&
       (search.mail === undefined ||
         search.mail === null ||
-        searchNormalize(modelo.mail, search.mail)) &&
+        searchNormalize(modelo.mail ?? '', search.mail)) &&
       (search.dni === undefined ||
         search.dni === null ||
-        searchNormalize(modelo.dni, search.dni)) &&
+        searchNormalize(modelo.dni ?? '', search.dni)) &&
       (search.telefono === undefined ||
         searchNormalize(modelo.telefono, search.telefono)) &&
       (search.genero === undefined ||
         search.genero === null ||
-        searchNormalize(modelo.genero, search.genero)) &&
-      (search.etiquetasId === undefined ||
-        search.etiquetasId.length === 0 ||
+        searchNormalize(modelo.genero ?? '', search.genero)) &&
+      (search.etiquetas === undefined ||
+        search.etiquetas.length === 0 ||
         (search.condicionalEtiq === 'AND'
-          ? search.etiquetasId.every((etiqueta) =>
+          ? search.etiquetas.every(({ etiqueta, include }) =>
               modelo.etiquetas.some(
                 (et) =>
-                  etiqueta.etiqueta &&
-                  et.id === etiqueta.etiqueta.id &&
-                  (etiqueta.include
-                    ? et.grupoId === etiqueta.etiqueta.id
-                    : true)
+                  etiqueta &&
+                  et.id === etiqueta.id &&
+                  (include ? et.id === etiqueta.id : false)
               )
             )
-          : search.etiquetasId.some((etiqueta) =>
+          : search.etiquetas.some(({ etiqueta, include }) =>
               modelo.etiquetas.some(
                 (et) =>
-                  etiqueta.etiqueta &&
-                  et.id === etiqueta.etiqueta.id &&
-                  (etiqueta.include
-                    ? et.grupoId === etiqueta.etiqueta.id
-                    : true)
+                  etiqueta &&
+                  et.id === etiqueta.id &&
+                  (include ? et.id === etiqueta.id : false)
               )
             ))) &&
-      (search.gruposId === undefined ||
-        search.gruposId.length === 0 ||
+      (search.grupos === undefined ||
+        search.grupos.length === 0 ||
         (search.condicionalGrupo === 'AND'
-          ? search.gruposId.every((grupo) =>
+          ? search.grupos.every(({ grupo, include }) =>
               modelo.etiquetas.some(
                 (et) =>
-                  et.grupoId === grupo.grupo.id &&
-                  (grupo.include ? et.id === grupo.grupo.id : true)
+                  et.grupoId === grupo.id &&
+                  (include ? et.grupoId === grupo.id : false)
               )
             )
-          : search.gruposId.some((grupo) =>
+          : search.grupos.some(({ grupo, include }) =>
               modelo.etiquetas.some(
                 (et) =>
-                  et.grupoId === grupo.grupo.id &&
-                  (grupo.include ? et.id === grupo.grupo.id : true)
+                  et.grupoId === grupo.id &&
+                  (include ? et.grupoId === grupo.id : false)
               )
             )))
     );

@@ -86,8 +86,8 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
     setModelosData(
       filterModelos(modelos, {
         input: input,
-        etiquetaId: undefined,
-        grupoId: undefined,
+        etiquetas: [],
+        grupos: [],
       })
     );
   };

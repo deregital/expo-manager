@@ -19,24 +19,17 @@ import { trpc } from '@/lib/trpc';
 import ShowEtiqueta from './ShowEtiqueta';
 
 const ModalFiltro = () => {
-  const [condicionalEtiq, setCondicionalEtiq] = useState<'AND' | 'OR'>('AND');
-  const [condicionalGrupo, setCondicionalGrupo] = useState<'AND' | 'OR'>('AND');
   // Filtrado de etiquetas
   const [openGrupo, setOpenGrupo] = useState(false);
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
   const [grupoEtiquetaSelected, setGrupoEtiquetaSelected] = useState('');
   const [etiquetaSelected, setEtiquetaSelected] = useState('');
   // Filtrado de grupos
-  const [grupoSelected, setGrupoSelected] = useState('');
   const [etiquetaInclude, setEtiquetaInclude] = useState(true);
-  const [grupoInclude, setGrupoInclude] = useState(true);
-  const [open, setOpen] = useState(false);
 
-  // const { data: etiqueta } = trpc.etiqueta.getById.useQuery(etiquetaSelected, {
-  //   enabled: !!etiquetaSelected,
-  // });
-  const { data: grupoEtiquetas } = trpc.grupoEtiqueta.getAll.useQuery();
-  const { data: etiquetas } =
+  const { data: grupoEtiquetas, isLoading: grupoIsLoading } =
+    trpc.grupoEtiqueta.getAll.useQuery();
+  const { data: etiquetas, isLoading: etiquetasLoading } =
     grupoEtiquetaSelected === ''
       ? trpc.etiqueta.getAll.useQuery()
       : trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoEtiquetaSelected);
@@ -55,8 +48,8 @@ const ModalFiltro = () => {
   const handleLimpiar = () => {
     useFiltro.setState({
       input: '',
-      etiquetasId: [],
-      gruposId: [],
+      etiquetas: [],
+      grupos: [],
       condicionalEtiq: 'AND',
       condicionalGrupo: 'AND',
       instagram: null,
@@ -71,8 +64,8 @@ const ModalFiltro = () => {
     if (etiquetaSelected === '' && grupoEtiquetaSelected === '') return;
     if (etiquetaSelected === '') {
       useFiltro.setState({
-        gruposId: [
-          ...filtro.gruposId,
+        grupos: [
+          ...filtro.grupos,
           {
             grupo: grupoEtiquetas?.find(
               (g) => g.id === grupoEtiquetaSelected
@@ -96,10 +89,7 @@ const ModalFiltro = () => {
     const etiqueta = etiquetas?.find((et) => et.id === etiquetaSelected);
     if (!etiqueta) return;
     useFiltro.setState({
-      etiquetasId: [
-        ...filtro.etiquetasId,
-        { etiqueta: etiqueta, include: true },
-      ],
+      etiquetas: [...filtro.etiquetas, { etiqueta: etiqueta, include: true }],
     });
     setGrupoEtiquetaSelected('');
     setEtiquetaSelected('');
@@ -108,13 +98,13 @@ const ModalFiltro = () => {
 
   const handleDeleteEtiq = (index: number) => () => {
     useFiltro.setState({
-      etiquetasId: filtro.etiquetasId.filter((_, i) => i !== index),
+      etiquetas: filtro.etiquetas.filter((_, i) => i !== index),
     });
   };
 
   const handleDeleteGrupo = (index: number) => () => {
     useFiltro.setState({
-      gruposId: filtro.gruposId.filter((_, i) => i !== index),
+      grupos: filtro.grupos.filter((_, i) => i !== index),
     });
   };
 
@@ -153,9 +143,11 @@ const ModalFiltro = () => {
               <Input
                 id='instagram'
                 value={filtro.instagram !== null ? filtro.instagram : ''}
-                onChange={(e) =>
-                  useFiltro.setState({ instagram: e.target.value })
-                }
+                onChange={(e) => {
+                  console.log(e.target.value);
+
+                  useFiltro.setState({ instagram: e.target.value });
+                }}
                 placeholder='Instagram'
               />
             </div>
@@ -225,10 +217,12 @@ const ModalFiltro = () => {
             <div className='flex items-center space-x-2'>
               <Label>Condición Etiquetas (AND/OR)</Label>
               <Select
-                value={condicionalEtiq}
-                onValueChange={(value) =>
-                  setCondicionalEtiq(value as 'AND' | 'OR')
-                }
+                value={filtro.condicionalEtiq}
+                onValueChange={(value) => {
+                  useFiltro.setState({
+                    condicionalEtiq: value as 'AND' | 'OR',
+                  });
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder='Selecciona una condición' />
@@ -244,9 +238,11 @@ const ModalFiltro = () => {
             <div className='flex items-center space-x-2'>
               <Label>Condición Grupos (AND/OR)</Label>
               <Select
-                value={condicionalGrupo}
+                value={filtro.condicionalGrupo}
                 onValueChange={(value) =>
-                  setCondicionalGrupo(value as 'AND' | 'OR')
+                  useFiltro.setState({
+                    condicionalGrupo: value as 'AND' | 'OR',
+                  })
                 }
               >
                 <SelectTrigger>
@@ -262,14 +258,14 @@ const ModalFiltro = () => {
             {/* Etiquetas dinámicas */}
             <div>
               <Label>Etiquetas y grupos</Label>
-              {filtro.etiquetasId.map((etiqueta, index) => (
+              {filtro.etiquetas.map((etiqueta, index) => (
                 <div key={index} className='flex items-center space-x-2 pb-2'>
                   <p>{etiqueta.include ? 'SI' : 'NO'}</p>
                   <ShowEtiqueta etiqueta={etiqueta.etiqueta} />
                   <Button onClick={handleDeleteEtiq(index)}>Eliminar</Button>
                 </div>
               ))}
-              {filtro.gruposId.map((grupo, index) => (
+              {filtro.grupos.map((grupo, index) => (
                 <div key={index} className='flex items-center space-x-2 pb-2'>
                   <p>{grupo.include ? 'SI' : 'NO'}</p>
                   <ShowEtiqueta etiqueta={grupo.grupo} />
@@ -293,6 +289,7 @@ const ModalFiltro = () => {
                 </Select>
                 <ComboBox
                   data={grupoEtiquetas || []}
+                  isLoading={grupoIsLoading}
                   id='id'
                   value='nombre'
                   onSelect={(id) => {
@@ -315,6 +312,7 @@ const ModalFiltro = () => {
                 />
                 <ComboBox
                   data={etiquetas || []}
+                  isLoading={etiquetasLoading}
                   id='id'
                   value='nombre'
                   onSelect={(id) => {
@@ -337,44 +335,6 @@ const ModalFiltro = () => {
                 <Button onClick={handleUploadEtiq}>Add</Button>
               </div>
             </div>
-
-            {/* Grupos dinámicos
-            <div>
-              <Label>Grupos</Label>
-              {filtro.gruposId.map((grupo, index) => (
-                <div key={index} className='flex items-center space-x-2'>
-                  <p>{grupo.include ? 'SI' : 'NO'}</p>
-                  <ShowEtiqueta etiqueta={grupo.grupo} />
-                  <Button onClick={handleDeleteGrupo(index)}>Eliminar</Button>
-                </div>
-              ))}
-              <div className='flex justify-start items-center gap-x-2'>
-              <Select>
-                <SelectTrigger className='w-24'>
-                  <SelectValue placeholder='¿Está?' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='true'>SI</SelectItem>
-                  <SelectItem value='false'>NO</SelectItem>
-                </SelectContent>
-              </Select>
-                <ComboBox 
-                  data={grupoEtiquetas || []}
-                  id='id'
-                  value='nombre'
-                  onSelect={(id) => {
-                    setOpen(false);
-                    setGrupoSelected(id);
-                  }}
-                  open={open}
-                  setOpen={setOpen}
-                  selectedIf={grupoSelected || ''}
-                  wFullMobile
-                  triggerChildren={<p>{grupoSelected ? grupoEtiquetas?.find((g) => g.id === grupoSelected)?.nombre : 'Grupos'}</p>}
-                />
-                <Button onClick={handleUploadGrupo}>Add</Button>
-              </div>
-            </div> */}
           </div>
 
           <DialogFooter>

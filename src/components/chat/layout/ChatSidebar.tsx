@@ -3,7 +3,7 @@ import { useChatSidebar } from '@/components/chat/layout/ChatSidebarMobile';
 import ContactoCard from '@/components/chat/layout/ContactoCard';
 import ContactosNoChat from '@/components/chat/layout/ContactosNoChat';
 import Loader from '@/components/ui/loader';
-import { filterModelos } from '@/lib/filter';
+import { Filtro, filterModelos } from '@/lib/filter';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -11,11 +11,11 @@ import React, { useMemo } from 'react';
 
 type ChatSidebarProps = {
   input: string;
-  etiquetaId: string | undefined;
-  grupoId: string | undefined;
+  etiquetas: Filtro['etiquetas'];
+  grupos: Filtro['grupos'];
 };
 
-const ChatSidebar = ({ grupoId, etiquetaId, input }: ChatSidebarProps) => {
+const ChatSidebar = ({ grupos, etiquetas, input }: ChatSidebarProps) => {
   const { data: contactos, isLoading: contactosLoading } =
     trpc.modelo.getAllWithInChat.useQuery();
 
@@ -29,10 +29,10 @@ const ChatSidebar = ({ grupoId, etiquetaId, input }: ChatSidebarProps) => {
 
     return filterModelos(contactos, {
       input,
-      etiquetaId,
-      grupoId,
+      etiquetas,
+      grupos,
     });
-  }, [contactos, grupoId, etiquetaId, input]);
+  }, [contactos, etiquetas, grupos, input]);
 
   if (contactosLoading) {
     return (

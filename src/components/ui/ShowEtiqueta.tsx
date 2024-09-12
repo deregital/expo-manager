@@ -2,7 +2,7 @@ import { cn, getTextColorByBg } from '@/lib/utils';
 import { Button } from './button';
 import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
 import EtiquetaFillIcon from '../icons/EtiquetaFillIcon';
-import { RouterOutputs } from '@/server';
+import { Filtro } from '@/lib/filter';
 
 const ShowEtiqueta = ({
   etiqueta,
@@ -11,8 +11,7 @@ const ShowEtiqueta = ({
   buttonStyle,
 }: {
   etiqueta: NonNullable<
-    | RouterOutputs['etiqueta']['getById']
-    | RouterOutputs['grupoEtiqueta']['getAll'][0]
+    Filtro['etiquetas'][0]['etiqueta'] | Filtro['grupos'][0]['grupo']
   >;
   wFullMobile?: boolean;
   buttonClassName?: string;

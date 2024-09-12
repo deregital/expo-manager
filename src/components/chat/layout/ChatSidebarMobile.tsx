@@ -1,13 +1,14 @@
 import ChatSidebar from '@/components/chat/layout/ChatSidebar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Filtro } from '@/lib/filter';
 import { HamburgerMenuIcon } from '@radix-ui/react-icons';
 import React from 'react';
 import { create } from 'zustand';
 
 type ChatSidebarMobileProps = {
   input: string;
-  etiquetaId: string | undefined;
-  grupoId: string | undefined;
+  etiquetas: Filtro['etiquetas'];
+  grupos: Filtro['grupos'];
 };
 
 export const useChatSidebar = create<{ isOpen: boolean }>((set) => ({
@@ -15,8 +16,8 @@ export const useChatSidebar = create<{ isOpen: boolean }>((set) => ({
 }));
 
 const ChatSidebarMobile = ({
-  etiquetaId,
-  grupoId,
+  etiquetas,
+  grupos,
   input,
 }: ChatSidebarMobileProps) => {
   const { isOpen } = useChatSidebar();
@@ -32,7 +33,7 @@ const ChatSidebarMobile = ({
         <HamburgerMenuIcon />
       </SheetTrigger>
       <SheetContent className='px-0' side={'left'}>
-        <ChatSidebar etiquetaId={etiquetaId} grupoId={grupoId} input={input} />
+        <ChatSidebar etiquetas={etiquetas} grupos={grupos} input={input} />
       </SheetContent>
     </Sheet>
   );

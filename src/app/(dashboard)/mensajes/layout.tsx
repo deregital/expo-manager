@@ -2,7 +2,7 @@
 import ChatSidebar from '@/components/chat/layout/ChatSidebar';
 import ChatSidebarMobile from '@/components/chat/layout/ChatSidebarMobile';
 import FiltroComp from '@/components/ui/FiltroComp';
-import { FuncionFiltrar } from '@/lib/filter';
+import { Filtro, FuncionFiltrar, defaultFilter } from '@/lib/filter';
 import React, { useState } from 'react';
 
 interface ChatLayoutProps {
@@ -10,15 +10,7 @@ interface ChatLayoutProps {
 }
 
 const ChatLayout = ({ children }: ChatLayoutProps) => {
-  const [state, setState] = useState<{
-    grupoId: string | undefined;
-    etiquetaId: string | undefined;
-    input: string;
-  }>({
-    grupoId: undefined,
-    etiquetaId: undefined,
-    input: '',
-  });
+  const [state, setState] = useState<Filtro>(defaultFilter);
 
   const filtrar: FuncionFiltrar = (filter) => {
     return setState(filter);
@@ -28,8 +20,8 @@ const ChatLayout = ({ children }: ChatLayoutProps) => {
     <div className='relative flex h-full'>
       <div className='absolute left-5 top-5 z-20 sm:hidden'>
         <ChatSidebarMobile
-          grupoId={state.grupoId}
-          etiquetaId={state.etiquetaId}
+          grupos={state.grupos}
+          etiquetas={state.etiquetas}
           input={state.input}
         />
       </div>
@@ -37,8 +29,8 @@ const ChatLayout = ({ children }: ChatLayoutProps) => {
       <div className='grid w-full grid-cols-1 grid-rows-1 sm:grid-cols-[auto,1fr]'>
         <div className='hidden h-full w-80 border-r-[3px] border-black/20 bg-sidebar-background sm:block'>
           <ChatSidebar
-            grupoId={state.grupoId}
-            etiquetaId={state.etiquetaId}
+            grupos={state.grupos}
+            etiquetas={state.etiquetas}
             input={state.input}
           />
         </div>
