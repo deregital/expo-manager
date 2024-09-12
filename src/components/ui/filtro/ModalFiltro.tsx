@@ -1,22 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { Input } from './input';
-import { Button } from './button';
-import { Label } from './label';
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from './dialog';
-import { DialogFooter, DialogHeader } from './dialog';
-import { useFiltro, useOpenModal } from './FiltroComp';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { DialogFooter, DialogHeader } from '@/components/ui/dialog';
+import { useFiltro, useOpenModal } from '@/components/ui/filtro/Filtro';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './select';
-import ComboBox from './ComboBox';
+} from '../select';
+import ComboBox from '../ComboBox';
 import { trpc } from '@/lib/trpc';
-import ShowEtiqueta from './ShowEtiqueta';
+import ShowEtiqueta from '../ShowEtiqueta';
 
 const ModalFiltro = () => {
   // Filtrado de etiquetas

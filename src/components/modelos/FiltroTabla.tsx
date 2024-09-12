@@ -3,8 +3,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useModelosTabla } from '@/components/modelos/table/ModelosTable';
 import SwitchEventos from '@/components/ui/SwitchEventos';
 import { create } from 'zustand';
-import FiltroComp from '../ui/FiltroComp';
-import { Filtro, FuncionFiltrar } from '@/lib/filter';
+import Filtro from '@/components/ui/filtro/Filtro';
+import { type Filtro as FiltroType, FuncionFiltrar } from '@/lib/filter';
 
 export const useModelosFiltro = create(() => ({
   showEventos: false,
@@ -21,9 +21,9 @@ const FiltroTabla = () => {
     cantidadDeModelos: s.cantidad,
   }));
 
-  function setAndDeleteSearch<T extends keyof Filtro>(
+  function setAndDeleteSearch<T extends keyof FiltroType>(
     queryString: T,
-    value: Filtro[T]
+    value: FiltroType[T]
   ) {
     if (!value || (Array.isArray(value) && value.length === 0)) {
       searchParams.delete(queryString);
@@ -62,7 +62,7 @@ const FiltroTabla = () => {
 
   return (
     <div className='flex items-center justify-between gap-x-4'>
-      <FiltroComp mostrarInput mostrarEtiq funcionFiltrado={filtrar} />
+      <Filtro mostrarInput mostrarEtiq funcionFiltrado={filtrar} />
       <div className='mr-5 flex items-center justify-center gap-x-4'>
         <SwitchEventos
           setShowEventos={(value) => {

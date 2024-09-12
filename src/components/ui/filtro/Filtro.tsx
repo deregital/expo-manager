@@ -1,15 +1,15 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import ComboBox from './ComboBox';
-import { Input } from './input';
+import ComboBox from '@/components/ui/ComboBox';
+import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
-import EtiquetaFillIcon from '../icons/EtiquetaFillIcon';
-import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
+import EtiquetaFillIcon from '@/components/icons/EtiquetaFillIcon';
+import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import { XIcon } from 'lucide-react';
 import { Filtro, FuncionFiltrar, defaultFilter } from '@/lib/filter';
 import { cn } from '@/lib/utils';
-import ModalFiltro from './ModalFiltro';
+import ModalFiltro from '@/components/ui/filtro/ModalFiltro';
 import { create } from 'zustand';
 
 // Crear variable de zustand

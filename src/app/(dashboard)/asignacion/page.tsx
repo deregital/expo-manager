@@ -4,7 +4,7 @@ import EtiquetasComboYList from '@/components/etiquetas/asignacion/EtiquetasComb
 import ModelosComboYList, {
   asignacionSelectedData,
 } from '@/components/etiquetas/asignacion/ModelosComboYList';
-import FiltroComp from '@/components/ui/FiltroComp';
+import Filtro from '@/components/ui/filtro/Filtro';
 import { Button } from '@/components/ui/button';
 import Loader from '@/components/ui/loader';
 import { FuncionFiltrar, filterModelos } from '@/lib/filter';
@@ -123,7 +123,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
           Asignación masiva de etiquetas
         </h1>
       </div>
-      <FiltroComp
+      <Filtro
         className='p-0'
         funcionFiltrado={filtrarModelos}
         mostrarEtiq

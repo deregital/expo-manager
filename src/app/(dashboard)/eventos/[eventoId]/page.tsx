@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { DataTable } from '@/components/modelos/table/dataTable';
 import { generateColumns } from '@/components/eventos/table/columnsEvento';
 import RaiseHand from '@/components/icons/RaiseHand';
-import FiltroComp from '@/components/ui/FiltroComp';
+import Filtro from '@/components/ui/filtro/Filtro';
 import { FuncionFiltrar, filterModelos } from '@/lib/filter';
 
 interface EventoPageProps {
@@ -69,7 +69,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
           onChange={setSearch}
           placeholder='Buscar por nombre o ID legible'
         /> */}
-        <FiltroComp mostrarInput mostrarEtiq funcionFiltrado={filtrar} />
+        <Filtro mostrarInput mostrarEtiq funcionFiltrado={filtrar} />
         <Button
           className='rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500'
           onClick={() => router.push(`/eventos/${evento?.id}/presentismo`)}

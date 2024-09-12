@@ -4,7 +4,7 @@ import AsistenciaModal, {
 } from '@/components/eventos/AsistenciaModal';
 import { generateColumnsPresentismo } from '@/components/eventos/table/columnsPresentismo';
 import { DataTable } from '@/components/modelos/table/dataTable';
-import FiltroComp from '@/components/ui/FiltroComp';
+import Filtro from '@/components/ui/filtro/Filtro';
 import Loader from '@/components/ui/loader';
 import { Progress } from '@/components/ui/progress';
 import { FuncionFiltrar, filterModelos } from '@/lib/filter';
@@ -129,7 +129,7 @@ const PresentismoPage = ({ params }: PresentismoPageProps) => {
         </div>
       </div>
       <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
-        <FiltroComp mostrarInput funcionFiltrado={filtrar} />
+        <Filtro mostrarInput funcionFiltrado={filtrar} />
       </div>
       <DataTable
         columns={generateColumnsPresentismo({
