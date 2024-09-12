@@ -10,12 +10,10 @@ import { useParams } from 'next/navigation';
 import React, { useMemo } from 'react';
 
 type ChatSidebarProps = {
-  input: string;
-  etiquetas: Filtro['etiquetas'];
-  grupos: Filtro['grupos'];
+  filtro: Filtro;
 };
 
-const ChatSidebar = ({ grupos, etiquetas, input }: ChatSidebarProps) => {
+const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
   const { data: contactos, isLoading: contactosLoading } =
     trpc.modelo.getAllWithInChat.useQuery();
 
@@ -27,12 +25,8 @@ const ChatSidebar = ({ grupos, etiquetas, input }: ChatSidebarProps) => {
       return [];
     }
 
-    return filterModelos(contactos, {
-      input,
-      etiquetas,
-      grupos,
-    });
-  }, [contactos, etiquetas, grupos, input]);
+    return filterModelos(contactos, filtro);
+  }, [contactos, filtro]);
 
   if (contactosLoading) {
     return (
