@@ -1,55 +1,64 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import { XIcon } from 'lucide-react';
-import { Filtro, FuncionFiltrar, defaultFilter } from '@/lib/filter';
+import {
+  type Filtro as FiltroType,
+  FuncionFiltrar,
+  defaultFilter,
+} from '@/lib/filter';
 import { cn } from '@/lib/utils';
-import ModalFiltro from '@/components/ui/filtro/ModalFiltro';
 import { create } from 'zustand';
 import FiltroBasicoEtiqueta from '@/components/ui/filtro/FiltroBasicoEtiqueta';
 import FiltroBasicoInput from '@/components/ui/filtro/FiltroBasicoInput';
+import FiltroAvanzado from '@/components/ui/filtro/FiltroAvanzado';
 
 // Crear variable de zustand
-export const useFiltro = create<Filtro>(() => defaultFilter);
-export const useOpenModal = create<{ isOpen: boolean; toggle: () => void }>(
-  (set) => ({
-    isOpen: false,
-    toggle: () => {
-      set((state) => ({ isOpen: !state.isOpen }));
-    },
-  })
-);
-const FiltroComp = ({
-  funcionFiltrado,
-  className,
-  mostrarEtiq = false,
-  mostrarInput = false,
-}: {
+export const useFiltro = create<FiltroType>(() => defaultFilter);
+export const useFiltroAvanzado = create<{
+  isOpen: boolean;
+  toggle: () => void;
+}>((set) => ({
+  isOpen: true,
+  toggle: () => {
+    set((state) => ({ isOpen: !state.isOpen }));
+  },
+}));
+
+type FiltroProps = PropsWithChildren<{
   funcionFiltrado: FuncionFiltrar;
   mostrarEtiq?: boolean;
   mostrarInput?: boolean;
   className?: string;
-}) => {
+}>;
+
+const Filtro = ({
+  funcionFiltrado,
+  className,
+  mostrarEtiq = false,
+  mostrarInput = false,
+  children,
+}: FiltroProps) => {
   const filtro = useFiltro();
-  const [grupoEtiqueta, setGrupoEtiqueta] = useState<string | undefined>(
-    undefined
-  );
-
+  const [grupoId, setGrupoId] = useState<string | undefined>(undefined);
   const [etiquetaId, setEtiquetaId] = useState<string | undefined>(undefined);
-  const { data: dataGrupoEtiquetas, isLoading: isLoadingGrupo } =
-    trpc.grupoEtiqueta.getAll.useQuery();
 
-  const { data: dataEtiquetas, isLoading: isLoadingEtiquetas } = grupoEtiqueta
-    ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoEtiqueta)
+  const { data: dataGrupoEtiquetas } = trpc.grupoEtiqueta.getAll.useQuery();
+
+  const { data: dataEtiquetas } = grupoId
+    ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoId)
     : trpc.etiqueta.getAll.useQuery();
 
-  // const [modalOpen, setModalOpen] = useState(false);
+  const { toggle: toggleAvanzado, isOpen: isOpenAvanzado } =
+    useFiltroAvanzado();
 
   function editarEtiq(etiqId: string) {
     const etiquetaSeleccionada = dataEtiquetas?.find((et) => et.id === etiqId)!;
 
     if (etiquetaId === etiqId) {
-      useFiltro.setState({ etiquetas: [] });
+      useFiltro.setState({
+        etiquetas: filtro.etiquetas.slice(1, filtro.etiquetas.length),
+      });
       setEtiquetaId(undefined);
       return;
     }
@@ -70,9 +79,11 @@ const FiltroComp = ({
   }
 
   function editarGrupoEtiq(grupoEtiq: string) {
-    if (grupoEtiqueta === grupoEtiq) {
-      useFiltro.setState({ grupos: [] });
-      setGrupoEtiqueta(undefined);
+    if (grupoId === grupoEtiq) {
+      useFiltro.setState({
+        grupos: filtro.grupos.slice(1, filtro.grupos.length),
+      });
+      setGrupoId(undefined);
       return;
     }
     const grupo = dataGrupoEtiquetas?.find((grupo) => grupo.id === grupoEtiq);
@@ -91,7 +102,7 @@ const FiltroComp = ({
         },
       ],
     });
-    setGrupoEtiqueta(grupoEtiq);
+    setGrupoId(grupoEtiq);
   }
 
   function editarInput(input: string) {
@@ -100,9 +111,19 @@ const FiltroComp = ({
 
   function resetFilters() {
     useFiltro.setState(defaultFilter);
-    setGrupoEtiqueta(undefined);
+    setGrupoId(undefined);
     setEtiquetaId(undefined);
   }
+
+  const etiquetaBasico = useMemo(() => {
+    return filtro.etiquetas.length > 0
+      ? filtro.etiquetas[0].etiqueta.id
+      : undefined;
+  }, [filtro.etiquetas]);
+
+  const grupoBasico = useMemo(() => {
+    return filtro.grupos.length > 0 ? filtro.grupos[0].grupo.id : undefined;
+  }, [filtro.grupos]);
 
   useEffect(() => {
     const filtrar = () => {
@@ -111,16 +132,22 @@ const FiltroComp = ({
     filtrar();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtro]);
-
   return (
-    <div className='block'>
-      <div className='w-full p-3'>
-        {/* <Button onClick={toggle}>Buscador avanzado</Button> */}
-        <ModalFiltro />
-      </div>
+    <div className='w-full [&>*]:px-3'>
+      <span
+        onClick={toggleAvanzado}
+        className={cn(
+          'flex w-full cursor-pointer text-sm text-gray-700 underline',
+          !mostrarEtiq && 'justify-end'
+        )}
+      >
+        {isOpenAvanzado
+          ? 'Ocultar buscador avanzado'
+          : 'Mostrar buscador avanzado'}
+      </span>
       <div
         className={cn(
-          'flex w-full flex-col items-center justify-between gap-4 p-3 md:flex-row',
+          'flex w-full flex-col items-center justify-between gap-4 py-1 md:flex-row',
           className
         )}
       >
@@ -128,26 +155,29 @@ const FiltroComp = ({
           <FiltroBasicoEtiqueta
             editarEtiq={editarEtiq}
             editarGrupoEtiq={editarGrupoEtiq}
-            dataGrupos={dataGrupoEtiquetas}
-            isLoadingGrupos={isLoadingGrupo}
-            grupoEtiqueta={grupoEtiqueta}
-            etiquetaId={etiquetaId}
-            dataEtiquetas={dataEtiquetas}
-            isLoadingEtiquetas={isLoadingEtiquetas}
+            grupoId={grupoBasico}
+            etiquetaId={etiquetaBasico}
           />
         )}
-        <div className='flex w-full items-center justify-end gap-x-2'>
+        <div className='order-10 flex w-full flex-1 md:order-2'>{children}</div>
+        <div className='order-3 flex w-full items-center justify-end gap-x-2 md:w-fit'>
           {mostrarInput && (
             <FiltroBasicoInput
               editarInput={editarInput}
               inputFiltro={filtro.input}
             />
           )}
-          <XIcon className='h-4 w-4 cursor-pointer' onClick={resetFilters} />
+          <XIcon
+            className='h-4 w-4 cursor-pointer justify-self-end'
+            onClick={resetFilters}
+          />
         </div>
       </div>
+      {isOpenAvanzado && (
+        <FiltroAvanzado mostrarInput={mostrarInput} mostrarEtiq={mostrarEtiq} />
+      )}
     </div>
   );
 };
 
-export default FiltroComp;
+export default Filtro;

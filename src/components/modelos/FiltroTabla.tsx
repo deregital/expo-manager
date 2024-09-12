@@ -62,24 +62,25 @@ const FiltroTabla = () => {
 
   return (
     <div className='flex items-center justify-between gap-x-4'>
-      <Filtro mostrarInput mostrarEtiq funcionFiltrado={filtrar} />
-      <div className='mr-5 flex items-center justify-center gap-x-4'>
-        <SwitchEventos
-          setShowEventos={(value) => {
-            useModelosFiltro.setState({ showEventos: value });
-          }}
-          showEventos={showEventos}
-        />
-        {!isLoadingModelos && (
-          <p className='self-start text-sm text-black/80 md:self-end'>
-            {cantidadDeModelos === 0
-              ? 'No se encontraron participantes'
-              : cantidadDeModelos === 1
-                ? '1 participante encontrado'
-                : `${cantidadDeModelos} participantes encontrados`}
-          </p>
-        )}
-      </div>
+      <Filtro mostrarInput mostrarEtiq funcionFiltrado={filtrar}>
+        <div className='flex w-full items-center justify-between gap-x-4'>
+          {!isLoadingModelos && (
+            <p className='self-start text-nowrap text-sm text-black/80 md:self-end'>
+              {cantidadDeModelos === 0
+                ? 'No se encontraron participantes'
+                : cantidadDeModelos === 1
+                  ? '1 participante encontrado'
+                  : `${cantidadDeModelos} participantes encontrados`}
+            </p>
+          )}
+          <SwitchEventos
+            setShowEventos={(value) => {
+              useModelosFiltro.setState({ showEventos: value });
+            }}
+            showEventos={showEventos}
+          />
+        </div>
+      </Filtro>
     </div>
   );
 };

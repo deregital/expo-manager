@@ -1,4 +1,4 @@
-import { Input } from '@/components/ui/input';
+import SearchInput from '@/components/ui/SearchInput';
 import React from 'react';
 
 type FiltroBasicoInputProps = {
@@ -11,13 +11,11 @@ const FiltroBasicoInput = ({
   inputFiltro,
 }: FiltroBasicoInputProps) => {
   return (
-    <Input
-      placeholder='Buscar'
+    <SearchInput
+      placeholder='Buscar por nombre o ID legible'
       value={inputFiltro}
-      onChange={(e) => {
-        editarInput(e.target.value);
-      }}
-      className='w-full md:max-w-md'
+      onChange={editarInput}
+      className='w-full md:min-w-[20rem]'
     />
   );
 };

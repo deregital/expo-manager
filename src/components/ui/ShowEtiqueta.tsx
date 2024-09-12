@@ -37,7 +37,7 @@ const ShowEtiqueta = ({
       }
     >
       <>
-        <span className='max-w-[calc(100%-30px)] truncate'>
+        <span className='max-w-[calc(100%-30px)] flex-1 truncate'>
           {etiqueta.nombre}
         </span>
         {isGrupo ? (
