@@ -87,11 +87,18 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       ? modalModelo.modelo.telefono
       : `549${modalModelo.modelo.telefono}`;
 
+    const telefonosecParseado = modalModelo.modelo.telefonoSecundario
+      ? modalModelo.modelo.telefonoSecundario.startsWith('549')
+        ? modalModelo.modelo.telefonoSecundario
+        : `549${modalModelo.modelo.telefonoSecundario}`
+      : undefined;
+
     const res = await createModelo
       .mutateAsync({
         modelo: {
           nombreCompleto: modalModelo.modelo.nombreCompleto,
           telefono: telefonoParseado,
+          telefonoSecundario: telefonosecParseado,
           dni: modalModelo.modelo.dni ?? undefined,
           mail: modalModelo.modelo.mail ?? undefined,
           fechaNacimiento: modalModelo.modelo.fechaNacimiento
@@ -130,6 +137,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         modelo: {
           nombreCompleto: '',
           telefono: '',
+          telefonoSecundario: '',
           fechaNacimiento: undefined,
           genero: 'N/A',
           etiquetas: [],
@@ -182,6 +190,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       modelo: {
         nombreCompleto: '',
         telefono: '',
+        telefonoSecundario: '',
         fechaNacimiento: undefined,
         genero: 'N/A',
         etiquetas: [],

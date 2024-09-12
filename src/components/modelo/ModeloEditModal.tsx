@@ -34,6 +34,7 @@ interface ModeloModalData {
   mail: string | undefined;
   dni: string | undefined;
   telefono: string | undefined;
+  telefonoSecundario: string | undefined;
   nombreCompleto: string | undefined;
 }
 
@@ -50,6 +51,7 @@ const useModeloModalData = create<ModeloModalData>(() => ({
   mail: undefined,
   dni: undefined,
   telefono: undefined,
+  telefonoSecundario: undefined,
   nombreCompleto: undefined,
 }));
 
@@ -63,6 +65,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     mail,
     dni,
     telefono,
+    telefonoSecundario,
     nombreCompleto,
   } = useModeloModalData();
   const [openSelect, setOpenSelect] = useState(false);
@@ -79,6 +82,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       mail: modelo.mail ?? undefined,
       dni: modelo.dni ?? undefined,
       telefono: modelo.telefono ?? undefined,
+      telefonoSecundario: modelo.telefonoSecundario ?? undefined,
       nombreCompleto: modelo.nombreCompleto ?? undefined,
     });
   }, [
@@ -88,6 +92,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     modelo.mail,
     modelo.dni,
     modelo.telefono,
+    modelo.telefonoSecundario,
     modelo.nombreCompleto,
   ]);
 
@@ -145,6 +150,13 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     });
   };
 
+  const intercambiarNumeros = () => {
+    useModeloModalData.setState((state) => ({
+      telefono: state.telefonoSecundario,
+      telefonoSecundario: state.telefono,
+    }));
+  };
+
   async function edit() {
     // if (!genero || !fechaNacimiento || !nombreCompleto) {
     //   setError('Debe ingresar un género, una fecha de nacimiento y un nombre');
@@ -165,6 +177,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
         mail: mail ?? null,
         dni: dni ?? null,
         telefono: telefono ?? undefined,
+        telefonoSecundario: telefonoSecundario ?? undefined,
         nombreCompleto: nombreCompleto ?? undefined,
       });
     } catch (error) {}
@@ -206,6 +219,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               mail: modelo.mail ?? undefined,
               dni: modelo.dni ?? undefined,
               telefono: modelo.telefono ?? undefined,
+              telefonoSecundario: modelo.telefonoSecundario ?? undefined,
               nombreCompleto: modelo.nombreCompleto ?? undefined,
             });
           }}
@@ -346,6 +360,31 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               }}
             />
           </div>
+          {telefonoSecundario && (
+            <div className='w-full'>
+              <Label htmlFor='telefonoSecundario'>Teléfono Secundario</Label>
+              <Input
+                type='text'
+                name='telefonoSecundario'
+                id='telefonoSecundario'
+                value={telefonoSecundario ?? ''}
+                onChange={(e) => {
+                  useModeloModalData.setState({
+                    telefonoSecundario: e.currentTarget.value || undefined,
+                  });
+                }}
+              />
+              {telefonoSecundario && (
+                <Button
+                  variant='secondary'
+                  className='mt-2 bg-blue-800 p-2 text-white hover:bg-blue-900'
+                  onClick={intercambiarNumeros}
+                >
+                  Intercambiar Telefonos
+                </Button>
+              )}
+            </div>
+          )}
         </div>
         <div className='flex flex-col gap-y-2'>
           <Label htmlFor='nombresAlternativos'>Nombres Alternativos</Label>

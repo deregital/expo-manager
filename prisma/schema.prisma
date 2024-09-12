@@ -28,10 +28,11 @@ model Cuenta {
 }
 
 model Perfil {
-  id        String @id @default(uuid())
-  idLegible Int    @map("id_legible")
+  id                  String    @id @default(uuid())
+  idLegible           Int       @map("id_legible")
 
   telefono            String    @unique
+  telefonoSecundario  String?   @unique
   nombreCompleto      String    @map("nombre_completo")
   nombrePila          String?   @map("nombre_pila")
   genero              String?
@@ -42,11 +43,14 @@ model Perfil {
   dni                 String?
   nombresAlternativos String[]  @map("nombres_alternativos")
 
-  comentarios Comentario[]
-  mensajes    Mensaje[]    @relation("PERFIL_X_MENSAJE")
-  etiquetas   Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
-  created_at  DateTime     @default(now())
-  updated_at  DateTime     @updatedAt
+  comentarios         Comentario[]
+  mensajes            Mensaje[]    @relation("PERFIL_X_MENSAJE")
+  etiquetas           Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
+  esPapelera      Boolean   @default(false) 
+  fechaPapelera       DateTime?    @map("fecha_papelera")
+  
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
 
   @@map("PERFIL")
 }

@@ -28,4 +28,11 @@ export const modeloSchemaCrearOEditar = z.object({
       'El instagram no es válido. No debe comenzar con @'
     )
     .optional(),
+  telefonoSecundario: z
+    .string()
+    .regex(
+      /^\+?549(11|[2368]\d)\d{8}$/,
+      'El número de teléfono secundario debe tener 10 dígitos. Puede empezar con 549'
+    )
+    .optional(),
 });

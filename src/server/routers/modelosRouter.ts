@@ -200,6 +200,12 @@ export const modeloRouter = router({
         ? input.modelo.telefono
         : `549${input.modelo.telefono}`;
 
+      const telefonoSecundario = input.modelo.telefonoSecundario
+        ? input.modelo.telefonoSecundario.startsWith('549')
+          ? input.modelo.telefonoSecundario
+          : `549${input.modelo.telefonoSecundario}`
+        : undefined;
+
       const perfilConMismoTelefonoDNI = await ctx.prisma.perfil.findMany({
         where: {
           OR: [
@@ -265,6 +271,7 @@ export const modeloRouter = router({
           nombreCompleto: input.modelo.nombreCompleto,
           nombrePila: input.modelo.nombreCompleto.split(' ')[0],
           telefono: telefono,
+          telefonoSecundario: telefonoSecundario,
           genero:
             input.modelo.genero !== 'N/A' ? input.modelo.genero : undefined,
           fechaNacimiento: input.modelo.fechaNacimiento
@@ -311,6 +318,13 @@ export const modeloRouter = router({
         nombreCompleto: z.string().optional(),
         nombrePila: z.string().optional(),
         telefono: z
+          .string()
+          .regex(
+            /^549(11|[2368]\d)\d{8}$/,
+            'El teléfono no es válido, debe empezar con 549 y tener 10 dígitos. Ejemplo: 5491123456789'
+          )
+          .optional(),
+        telefonoSecundario: z
           .string()
           .regex(
             /^549(11|[2368]\d)\d{8}$/,
@@ -424,6 +438,7 @@ export const modeloRouter = router({
           idLegible: input.idLegible,
           nombrePila: nombrePila,
           telefono: input.telefono,
+          telefonoSecundario: input.telefonoSecundario,
           genero: input.genero,
           fotoUrl: input.fotoUrl,
           fechaNacimiento: input.fechaNacimiento

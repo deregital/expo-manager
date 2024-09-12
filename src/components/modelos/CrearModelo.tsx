@@ -11,6 +11,7 @@ type ModeloModal = {
   modelo: {
     nombreCompleto: string;
     telefono: string;
+    telefonoSecundario?: string;
     fechaNacimiento: Date | undefined;
     genero: string;
     etiquetas: NonNullable<RouterOutputs['etiqueta']['getById']>[];
@@ -26,6 +27,7 @@ export const useCrearModeloModal = create<ModeloModal>(() => ({
   modelo: {
     nombreCompleto: '',
     telefono: '',
+    telefonoSecundario: '',
     fechaNacimiento: undefined,
     genero: 'N/A',
     etiquetas: [],
