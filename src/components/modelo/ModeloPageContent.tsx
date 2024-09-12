@@ -200,6 +200,9 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
             <div className='flex flex-wrap items-center gap-x-4'>
               <h2 className='text-xl font-bold md:text-3xl'>
                 {modelo?.nombreCompleto}
+                <span className='ml-2 text-2xl font-bold text-gray-600'>
+                  ID: {modelo?.idLegible}
+                </span>
               </h2>
               <Link
                 href={`/mensajes/${modelo.telefono}`}
@@ -259,7 +262,6 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
                   : 'N/A'}
               </p>
               <p>Género: {modelo?.genero ?? 'N/A'}</p>
-              <p>ID: {modelo?.idLegible}</p>
               <ModeloEditModal modelo={modelo} />
             </div>
           </div>
