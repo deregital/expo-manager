@@ -32,7 +32,7 @@ model Perfil {
   idLegible Int    @map("id_legible")
 
   telefono            String    @unique
-  telefonoSecundario  String    @unique
+  telefonoSecundario  String?    @unique
   nombreCompleto      String    @map("nombre_completo")
   nombrePila          String?   @map("nombre_pila")
   genero              String?
