@@ -4,7 +4,7 @@ import { useModelosTabla } from '@/components/modelos/table/ModelosTable';
 import SwitchEventos from '@/components/ui/SwitchEventos';
 import { create } from 'zustand';
 import FiltroComp from '../ui/FiltroComp';
-import { FuncionFiltrar } from '@/lib/filter';
+import { Filtro, FuncionFiltrar } from '@/lib/filter';
 
 export const useModelosFiltro = create(() => ({
   showEventos: false,
@@ -21,22 +21,42 @@ const FiltroTabla = () => {
     cantidadDeModelos: s.cantidad,
   }));
 
-  const filtrar: FuncionFiltrar = ({ etiquetaId, input, grupoId }) => {
-    if (!grupoId) {
-      searchParams.delete('grupoId');
+  function setAndDeleteSearch<T extends keyof Filtro>(
+    queryString: T,
+    value: Filtro[T]
+  ) {
+    if (!value || (Array.isArray(value) && value.length === 0)) {
+      searchParams.delete(queryString);
     } else {
-      searchParams.set('grupoId', grupoId);
+      const valueString =
+        typeof value === 'string' ? value : JSON.stringify(value);
+      searchParams.set(queryString, valueString);
     }
-    if (!etiquetaId) {
-      searchParams.delete('etiqueta');
-    } else {
-      searchParams.set('etiqueta', etiquetaId);
-    }
-    if (!input) {
-      searchParams.delete('nombre');
-    } else {
-      searchParams.set('nombre', input);
-    }
+  }
+
+  const filtrar: FuncionFiltrar = ({
+    etiquetas,
+    input,
+    grupos,
+    condicionalEtiq,
+    condicionalGrupo,
+    dni,
+    genero,
+    instagram,
+    mail,
+    telefono,
+  }) => {
+    setAndDeleteSearch('grupos', grupos);
+    setAndDeleteSearch('condicionalGrupo', condicionalGrupo);
+    setAndDeleteSearch('condicionalEtiq', condicionalEtiq);
+    setAndDeleteSearch('dni', dni);
+    setAndDeleteSearch('genero', genero);
+    setAndDeleteSearch('instagram', instagram);
+    setAndDeleteSearch('mail', mail);
+    setAndDeleteSearch('telefono', telefono);
+    setAndDeleteSearch('etiquetas', etiquetas);
+    setAndDeleteSearch('input', input);
+
     router.push(`${pathname}?${searchParams.toString()}`);
   };
 

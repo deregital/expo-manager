@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ComboBox from './ComboBox';
 import { Input } from './input';
 import { trpc } from '@/lib/trpc';
@@ -7,24 +7,13 @@ import { RouterOutputs } from '@/server';
 import EtiquetaFillIcon from '../icons/EtiquetaFillIcon';
 import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
 import { XIcon } from 'lucide-react';
-import { Filtro, FuncionFiltrar } from '@/lib/filter';
+import { Filtro, FuncionFiltrar, defaultFilter } from '@/lib/filter';
 import { cn } from '@/lib/utils';
 import ModalFiltro from './ModalFiltro';
 import { create } from 'zustand';
 
 // Crear variable de zustand
-export const useFiltro = create<Filtro>(() => ({
-  input: '',
-  etiquetasId: [],
-  gruposId: [],
-  condicionalEtiq: 'AND',
-  condicionalGrupo: 'AND',
-  instagram: null,
-  mail: null,
-  dni: null,
-  telefono: '',
-  genero: null,
-}));
+export const useFiltro = create<Filtro>(() => defaultFilter);
 export const useOpenModal = create<{ isOpen: boolean; toggle: () => void }>(
   (set) => ({
     isOpen: false,
@@ -44,29 +33,6 @@ const FiltroComp = ({
   mostrarInput?: boolean;
   className?: string;
 }) => {
-  // const [filtro, setFiltro] = useState<{
-  //   input: string;
-  //   etiquetaId: [string, boolean] | [];
-  //   grupoId: [string, boolean] | [];
-  //   condicionalEtiq: 'AND' | 'OR';
-  //   condicionalGrupo: 'AND' | 'OR';
-  //   instagram: string | undefined;
-  //   mail: string | undefined;
-  //   dni: string | undefined;
-  //   telefono: string | undefined;
-  //   genero: string | undefined;
-  // }>({
-  //   input: '',
-  //   etiquetaId: [],
-  //   grupoId: [],
-  //   condicionalEtiq: 'AND',
-  //   condicionalGrupo: 'AND',
-  //   instagram: undefined,
-  //   mail: undefined,
-  //   dni: undefined,
-  //   telefono: undefined,
-  //   genero: undefined,
-  // });
   const filtro = useFiltro();
   const [grupoEtiqueta, setGrupoEtiqueta] = useState<string | undefined>(
     undefined
@@ -80,65 +46,66 @@ const FiltroComp = ({
     ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoEtiqueta)
     : trpc.etiqueta.getAll.useQuery();
 
-  const { data: etiqueta } =
-    etiquetaId !== undefined
-      ? trpc.etiqueta.getById.useQuery(etiquetaId)
-      : { data: undefined };
-
   // const [modalOpen, setModalOpen] = useState(false);
 
-  function editarEtiq(etiq: string) {
-    if (etiquetaId === etiq) {
-      useFiltro.setState({ ...filtro, etiquetasId: [] });
+  function editarEtiq(etiqId: string) {
+    const etiquetaSeleccionada = dataEtiquetas?.find((et) => et.id === etiqId)!;
+
+    if (etiquetaId === etiqId) {
+      useFiltro.setState({ etiquetas: [] });
       setEtiquetaId(undefined);
       return;
     }
-    setEtiquetaId(etiq);
-    if (!etiqueta) return;
+    setEtiquetaId(etiqId);
     useFiltro.setState({
       ...filtro,
-      etiquetasId: [{ etiqueta: etiqueta, include: true }],
+      etiquetas: [
+        {
+          etiqueta: {
+            id: etiquetaSeleccionada.id,
+            nombre: etiquetaSeleccionada.nombre,
+          },
+          include: true,
+        },
+      ],
     });
-    setEtiquetaId(undefined);
     return;
   }
 
   function editarGrupoEtiq(grupoEtiq: string) {
     if (grupoEtiqueta === grupoEtiq) {
-      useFiltro.setState({ ...filtro, gruposId: [] });
+      useFiltro.setState({ grupos: [] });
       setGrupoEtiqueta(undefined);
       return;
     }
     const grupo = dataGrupoEtiquetas?.find((grupo) => grupo.id === grupoEtiq);
     if (!grupo) return;
+
     useFiltro.setState({
       ...filtro,
-      gruposId: [{ grupo: grupo, include: true }],
+      grupos: [
+        {
+          grupo: {
+            id: grupo.id,
+            nombre: grupo.nombre,
+            color: grupo.color,
+          },
+          include: true,
+        },
+      ],
     });
     setGrupoEtiqueta(grupoEtiq);
   }
 
   function editarInput(input: string) {
-    useFiltro.setState({ ...filtro, input: input });
+    useFiltro.setState({ input });
   }
 
   function resetFilters() {
-    useFiltro.setState({
-      input: '',
-      etiquetasId: [],
-      gruposId: [],
-      condicionalEtiq: 'AND',
-      condicionalGrupo: 'AND',
-      instagram: undefined,
-      mail: undefined,
-      dni: undefined,
-      telefono: undefined,
-      genero: undefined,
-    });
+    useFiltro.setState(defaultFilter);
     setGrupoEtiqueta(undefined);
     setEtiquetaId(undefined);
   }
-  const toggle = useOpenModal().toggle;
 
   useEffect(() => {
     const filtrar = () => {
@@ -182,13 +149,13 @@ const FiltroComp = ({
     </div>
   );
 };
+
 const CompEtiq = ({
   editarEtiq,
   editarGrupoEtiq,
   dataGrupos,
   isLoadingGrupos,
   grupoEtiqueta,
-  etiquetaId,
   dataEtiquetas,
   isLoadingEtiquetas,
 }: {
@@ -206,6 +173,13 @@ const CompEtiq = ({
 }) => {
   const [openGrupo, setOpenGrupo] = useState(false);
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
+
+  const { etiquetas, grupos } = useFiltro();
+
+  const etiquetaId = useMemo(() => {
+    return etiquetas.length > 0 ? etiquetas[0].etiqueta.id : undefined;
+  }, [etiquetas]);
+
   return (
     <div className='flex w-full flex-col items-center gap-4 md:flex-row'>
       <ComboBox
@@ -220,13 +194,13 @@ const CompEtiq = ({
         isLoading={isLoadingGrupos}
         setOpen={setOpenGrupo}
         wFullMobile
-        selectedIf={grupoEtiqueta !== undefined ? grupoEtiqueta : ''}
+        selectedIf={grupos.length > 0 ? grupos[0].grupo.id : ''}
         triggerChildren={
           <>
             <span className='truncate'>
               {grupoEtiqueta
-                ? dataGrupos?.find((grupo) => grupo.id === grupoEtiqueta)
-                    ?.nombre ?? 'Buscar grupo...'
+                ? (dataGrupos?.find((grupo) => grupo.id === grupoEtiqueta)
+                    ?.nombre ?? 'Buscar grupo...')
                 : 'Buscar grupo...'}
             </span>
             <EtiquetasFillIcon className='h-5 w-5' />
@@ -245,13 +219,13 @@ const CompEtiq = ({
         wFullMobile
         isLoading={isLoadingEtiquetas}
         setOpen={setOpenEtiqueta}
-        selectedIf={etiquetaId !== undefined ? etiquetaId : ''}
+        selectedIf={etiquetas.length > 0 ? etiquetas[0].etiqueta.id : ''}
         triggerChildren={
           <>
             <span className='truncate'>
               {etiquetaId
-                ? dataEtiquetas?.find((etiqueta) => etiqueta.id === etiquetaId)
-                    ?.nombre ?? 'Buscar etiqueta...'
+                ? (dataEtiquetas?.find((etiqueta) => etiqueta.id === etiquetaId)
+                    ?.nombre ?? 'Buscar etiqueta...')
                 : 'Buscar etiqueta...'}
             </span>
             <EtiquetaFillIcon className='h-5 w-5' />

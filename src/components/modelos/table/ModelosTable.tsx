@@ -7,6 +7,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { create } from 'zustand';
 import { generateColumns } from '@/components/modelos/table/columns';
 import { Filtro, filterModelos } from '@/lib/filter';
+import { useSearchQuery } from '@/lib/useSearchQuery';
 
 export const useModelosTabla = create<{ cantidad: number; isLoading: boolean }>(
   () => ({
@@ -16,16 +17,32 @@ export const useModelosTabla = create<{ cantidad: number; isLoading: boolean }>(
 );
 
 const ModelosTable = () => {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const searchParams = useSearchParams();
   const router = useRouter();
   const { showEventos } = useModelosFiltro((s) => ({
     showEventos: s.showEventos,
   }));
+
+  const inputQuery = useSearchQuery(searchParams, 'input');
+  const etiquetaQuery = useSearchQuery(searchParams, 'etiquetas');
+  const grupoEtiquetaQuery = useSearchQuery(searchParams, 'grupos');
+  const instagramQuery = useSearchQuery(searchParams, 'instagram');
+  const mailQuery = useSearchQuery(searchParams, 'mail');
+  const dniQuery = useSearchQuery(searchParams, 'dni');
+  const generoQuery = useSearchQuery(searchParams, 'genero');
+  const telefonoQuery = useSearchQuery(searchParams, 'telefono');
+
   const [search, setSearch] = useState<Filtro>({
-    input: searchParams.get('nombre') ?? '',
-    etiquetaId: searchParams.get('etiqueta') ?? undefined,
-    grupoId: searchParams.get('grupoId') ?? undefined,
+    input: inputQuery ?? '',
+    etiquetas: etiquetaQuery ?? [],
+    grupos: grupoEtiquetaQuery ?? [],
+    condicionalEtiq: 'AND',
+    condicionalGrupo: 'AND',
+    instagram: instagramQuery,
+    mail: mailQuery,
+    dni: dniQuery,
+    genero: generoQuery,
+    telefono: telefonoQuery ?? '',
   });
 
   function goToModel(id: string) {
@@ -40,11 +57,28 @@ const ModelosTable = () => {
 
   useEffect(() => {
     setSearch({
-      input: searchParams.get('nombre') ?? '',
-      etiquetaId: searchParams.get('etiqueta') ?? undefined,
-      grupoId: searchParams.get('grupoId') ?? undefined,
+      input: inputQuery ?? '',
+      etiquetas: etiquetaQuery ?? [],
+      grupos: grupoEtiquetaQuery ?? [],
+      condicionalEtiq: 'AND',
+      condicionalGrupo: 'AND',
+      instagram: instagramQuery,
+      mail: mailQuery,
+      dni: dniQuery,
+      genero: generoQuery,
+      telefono: telefonoQuery ?? '',
     });
-  }, [searchParams]);
+  }, [
+    dniQuery,
+    etiquetaQuery,
+    generoQuery,
+    grupoEtiquetaQuery,
+    inputQuery,
+    instagramQuery,
+    mailQuery,
+    searchParams,
+    telefonoQuery,
+  ]);
 
   const data = useMemo(() => {
     const filtradas = filterModelos(modelos ?? [], search);
