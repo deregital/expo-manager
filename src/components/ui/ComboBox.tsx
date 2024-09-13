@@ -43,6 +43,7 @@ type ComboBoxProps<
   placeholder?: string;
   notFoundText?: string;
 };
+
 const ComboBox = <
   TData extends Record<string, unknown>,
   Id extends KeysOfType<TData, string>,
@@ -73,11 +74,13 @@ const ComboBox = <
     : 'Etiqueta no encontrada.';
 
   const dataSelectedFirst = useMemo(() => {
-    const selectedItem = data.filter((item) => item[id] === selectedIf)[0];
-    if (!selectedItem) return data;
+    const selectedItem = data.find((item) => item[id] === selectedIf);
+    const sortedData = data
+      .filter((item) => item[id] !== selectedIf)
+      .sort((a, b) => (a[value] as string).localeCompare(b[value] as string));
 
-    return [selectedItem, ...data.filter((item) => item[id] !== selectedIf)];
-  }, [data, id, selectedIf]);
+    return selectedItem ? [selectedItem, ...sortedData] : sortedData;
+  }, [data, id, selectedIf, value]);
 
   return (
     <Popover modal open={open} onOpenChange={setOpen}>
