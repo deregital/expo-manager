@@ -18,7 +18,7 @@ export const carpetaEventosRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      return await ctx.prisma.carpetaEventos.create({
+      return await ctx.prisma.eventosCarpeta.create({
         data: {
           nombre: input.nombre,
           color: input.color,
@@ -27,7 +27,7 @@ export const carpetaEventosRouter = router({
     }),
 
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.carpetaEventos.findMany({
+    return await ctx.prisma.eventosCarpeta.findMany({
       include: {
         eventos: true,
       },
@@ -40,7 +40,7 @@ export const carpetaEventosRouter = router({
   getById: protectedProcedure
     .input(z.string().uuid())
     .query(async ({ input, ctx }) => {
-      return await ctx.prisma.carpetaEventos.findUnique({
+      return await ctx.prisma.eventosCarpeta.findUnique({
         where: {
           id: input,
         },
@@ -71,7 +71,7 @@ export const carpetaEventosRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      return await ctx.prisma.carpetaEventos.update({
+      return await ctx.prisma.eventosCarpeta.update({
         where: {
           id: input.id,
         },
@@ -85,7 +85,7 @@ export const carpetaEventosRouter = router({
   delete: protectedProcedure
     .input(z.string().uuid())
     .mutation(async ({ input, ctx }) => {
-      return await ctx.prisma.carpetaEventos.delete({
+      return await ctx.prisma.eventosCarpeta.delete({
         where: {
           id: input,
         },

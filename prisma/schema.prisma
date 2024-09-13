@@ -102,7 +102,7 @@ model EtiquetaGrupo {
   @@map("GRUPO_ETIQUETA")
 }
 
-model CarpetaEventos {
+model EventosCarpeta {
   id          String     @id @default(uuid())
   nombre      String
   color       String
@@ -111,7 +111,7 @@ model CarpetaEventos {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  @@map("CARPETA_EVENTOS")
+  @@map("EVENTOS_CARPETA")
 }
 
 model Evento {
@@ -120,7 +120,7 @@ model Evento {
   fecha           DateTime
   ubicacion       String
   carpetaId       String?   @map("carpeta_id") 
-  carpeta         CarpetaEventos? @relation("CarpetaEventos_Eventos", fields: [carpetaId], references: [id], onDelete: Cascade)
+  carpeta         EventosCarpeta? @relation("CarpetaEventos_Eventos", fields: [carpetaId], references: [id], onDelete: Cascade)
   
   etiquetaAsistioId  String   @map("etiqueta_asistio")
   etiquetaAsistio    Etiqueta @relation("EVENTOASISTIDO_X_ETIQUETA", fields: [etiquetaAsistioId], references: [id], onDelete: Cascade)
