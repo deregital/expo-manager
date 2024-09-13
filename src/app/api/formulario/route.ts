@@ -71,7 +71,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     if (telefonoExistente) {
       return NextResponse.json(
-        { error: 'El teléfono ya está registrado' },
+        {
+          error: `No podés anotarte porque tu número ya está en nuestra base de datos. Por favor contactate al siguiente número: https://wa.me/541135208230`,
+        },
         { status: 400 }
       );
     }
