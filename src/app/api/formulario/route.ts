@@ -32,7 +32,11 @@ const schema = z.object({
   provinciaArgentina: z
     .string()
     .min(1, 'La provincia de residencia es requerida'),
-  localidad: z.string().min(1, 'La localidad de residencia es requerida'),
+  localidad: z.object({
+    nombre: z.string().min(1, 'La localidad de residencia es requerida'),
+    latitud: z.number().min(-90).max(90),
+    longitud: z.number().min(-180).max(180),
+  }),
 });
 
 export async function POST(req: NextRequest, res: NextResponse) {
@@ -156,7 +160,16 @@ export async function POST(req: NextRequest, res: NextResponse) {
       },
     });
 
-    return NextResponse.json(response, { status: 201 });
+    const responseLocalidad = await prisma?.residencia.create({
+      data: {
+        provincia: provinciaArgentina,
+        localidad: localidad.nombre,
+        latitud: localidad.latitud,
+        longitud: localidad.longitud,
+      },
+    });
+    const responseTotal = { ...response, ...responseLocalidad };
+    return NextResponse.json(responseTotal, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors }, { status: 400 });
