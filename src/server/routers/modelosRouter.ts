@@ -14,6 +14,7 @@ export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const modelos = await ctx.prisma.perfil.findMany({
       where: {
+        esPapelera: false,
         etiquetas: {
           some: {
             id: { in: ctx.etiquetasVisibles },
@@ -58,6 +59,7 @@ export const modeloRouter = router({
       })
       .perfil.findMany({
         where: {
+          esPapelera: false,
           etiquetas: {
             some: {
               id: { in: ctx.etiquetasVisibles },
@@ -108,6 +110,7 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findMany({
         where: {
+          esPapelera: false,
           AND: [
             {
               etiquetas: {
@@ -143,6 +146,7 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findMany({
         where: {
+          esPapelera: false,
           etiquetas: {
             some: {
               id: { in: ctx.etiquetasVisibles },
@@ -219,6 +223,7 @@ export const modeloRouter = router({
         });
       }
       const modelos = await ctx.prisma.perfil.findMany({
+        where: {},
         select: {
           id: true,
           nombreCompleto: true,
@@ -347,6 +352,8 @@ export const modeloRouter = router({
             })
           )
           .optional(),
+        esPapelera: z.boolean().optional(),
+        fechaPapelera: z.string().datetime().nullable().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -444,6 +451,13 @@ export const modeloRouter = router({
                 ),
               }
             : undefined,
+          esPapelera: input.esPapelera ?? undefined,
+          fechaPapelera:
+            input.fechaPapelera === null
+              ? null
+              : input.fechaPapelera
+                ? new Date(input.fechaPapelera)
+                : undefined,
         },
       });
     }),
@@ -458,6 +472,7 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findMany({
         where: {
+          esPapelera: false,
           AND: [
             {
               nombreCompleto: {
@@ -512,6 +527,7 @@ export const modeloRouter = router({
 
       const modelos = await ctx.prisma.perfil.findMany({
         where: {
+          esPapelera: false,
           created_at: {
             gte: startDateTime,
             lte: endDateTime,
@@ -559,6 +575,7 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findUnique({
         where: {
+          esPapelera: false,
           telefono: input,
           etiquetas: {
             some: {
@@ -568,6 +585,27 @@ export const modeloRouter = router({
         },
       });
     }),
+  getModelosPapelera: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.perfil.findMany({
+      where: {
+        esPapelera: true,
+        etiquetas: {
+          some: {
+            id: { in: ctx.etiquetasVisibles },
+          },
+        },
+      },
+      select: {
+        id: true,
+        nombreCompleto: true,
+        fotoUrl: true,
+        created_at: true,
+        esPapelera: true,
+        telefono: true,
+        fechaPapelera: true,
+      },
+    });
+  }),
 });
 
 function modelosAgrupadas(
