@@ -19,7 +19,7 @@ export const useFiltroAvanzado = create<{
   isOpen: boolean;
   toggle: () => void;
 }>((set) => ({
-  isOpen: true,
+  isOpen: false,
   toggle: () => {
     set((state) => ({ isOpen: !state.isOpen }));
   },
