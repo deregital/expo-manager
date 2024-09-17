@@ -17,7 +17,9 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
 
   useEffect(() => {
     const pageIndex = table.getState().pagination.pageIndex + 1;
+    const pageSize = table.getState().pagination.pageSize;
     const params = new URLSearchParams(window.location.search);
+
     if (firstRender) {
       setFirstRender(false);
 
@@ -27,20 +29,34 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
           table.setPageIndex(page - 1);
         }
       }
+
+      if (params.has('pageSize')) {
+        const size = Number(params.get('pageSize'));
+        if (size !== pageSize) {
+          table.setPageSize(size);
+        }
+      }
       return;
     }
 
     params.set('page', pageIndex.toString());
+    params.set('pageSize', pageSize.toString());
 
     window.history.pushState(
       {
         page: pageIndex,
+        pageSize: pageSize,
       },
       '',
       `?${params.toString()}`
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [table.getState().pagination.pageIndex]);
+  }, [
+    table.getState().pagination.pageIndex,
+    table.getState().pagination.pageSize,
+  ]);
+
+  const noData = table.getPageCount() === 0;
 
   return (
     <>
@@ -67,8 +83,11 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
             <span className='flex items-center gap-1'>
               <div className='hidden sm:block'>Página</div>
               <strong className='text-sm sm:text-base'>
-                {table.getState().pagination.pageIndex + 1} de{' '}
-                {table.getPageCount().toLocaleString()}
+                {noData
+                  ? '0 de 0'
+                  : `${table.getState().pagination.pageIndex + 1} de ${table
+                      .getPageCount()
+                      .toLocaleString()}`}
               </strong>
             </span>
             <Button
@@ -103,7 +122,8 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
           <select
             value={table.getState().pagination.pageSize}
             onChange={(e) => {
-              table.setPageSize(Number(e.target.value));
+              const size = Number(e.target.value);
+              table.setPageSize(size);
             }}
             className='rounded border bg-white/90 p-1 text-sm sm:text-base'
           >
