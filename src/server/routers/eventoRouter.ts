@@ -12,6 +12,7 @@ export const eventoRouter = router({
           .string()
           .min(1, 'La fecha es requerida')
           .transform((val) => new Date(val)),
+        carpetaId: z.string().optional(),
         ubicacion: z.string().min(1, 'La ubicación es requerida'),
         subeventos: z.array(
           z.object({

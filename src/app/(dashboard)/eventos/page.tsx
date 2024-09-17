@@ -10,6 +10,7 @@ import ExpandContractEventos, {
 } from '@/components/eventos/expandcontracteventos';
 import { searchNormalize } from '@/lib/utils';
 import { XIcon } from 'lucide-react';
+import EventosCarpetaModal from '@/components/eventos/EventosCarpetaModal';
 
 const EventosPage = () => {
   const [search, setSearch] = useState('');
@@ -50,6 +51,7 @@ const EventosPage = () => {
       <div className='flex flex-col justify-between gap-4 px-3 md:flex-row md:px-5'>
         <div className='flex flex-col gap-4 md:flex-row'>
           <EventoModal action='CREATE' />
+          <EventosCarpetaModal action='CREATE' /> {}
         </div>
         <div className='flex items-center gap-x-2'>
           <ExpandContractEventos />
@@ -65,7 +67,8 @@ const EventosPage = () => {
                 setNone();
               }
             }}
-            placeholder='Buscar evento o subevento' className='pr-5'
+            placeholder='Buscar evento o subevento'
+            className='pr-5'
           />
           <XIcon
             className='h-6 w-6 cursor-pointer'

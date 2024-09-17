@@ -29,6 +29,7 @@ type ModalData = {
   nombre: string;
   fecha: string;
   ubicacion: string;
+  carpetaId: string; // Inicializar como cadena vacía en lugar de undefined
   subeventos: {
     id: string;
     nombre: string;
@@ -39,10 +40,10 @@ type ModalData = {
 
 export const useEventoModalData = create<ModalData>(() => ({
   tipo: 'CREATE',
-  eventoPadre: '',
   nombre: '',
   fecha: '',
   ubicacion: '',
+  carpetaId: '', // Inicializado como cadena vacía
   subeventos: [],
 }));
 
@@ -52,6 +53,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
     tipo: state.tipo,
     nombre: state.nombre,
     fecha: state.fecha,
+    carpetaId: state.carpetaId,
     ubicacion: state.ubicacion,
     subeventos: state.subeventos,
   }));
@@ -61,6 +63,8 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
   const createEvento = trpc.evento.create.useMutation();
   const deleteEvento = trpc.evento.delete.useMutation();
   const editEvento = trpc.evento.update.useMutation();
+  const { data: carpetas, isLoading: loadingCarpetas } =
+    trpc.carpetaEventos.getAll.useQuery();
 
   async function sendEvento() {
     if (modalData.tipo === 'CREATE') {
@@ -69,6 +73,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           nombre: modalData.nombre,
           fecha: modalData.fecha,
           ubicacion: modalData.ubicacion,
+          carpetaId: modalData.carpetaId || '',
           subeventos: modalData.subeventos,
         })
         .then(() => {
@@ -96,6 +101,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           nombre: modalData.nombre,
           subeventos: modalData.subeventos.map((subevento) => ({
             id: subevento.id,
+            carpetaId: modalData.carpetaId || '', // Asegúrate de enviar una cadena vacía si es undefined
             nombre: subevento.nombre,
             fecha: subevento.fecha,
             ubicacion: subevento.ubicacion,
@@ -118,6 +124,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
         nombre: '',
         fecha: '',
         ubicacion: '',
+        carpetaId: '', // Restablecer a cadena vacía
         subeventos: [],
       });
     }
@@ -131,6 +138,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
       nombre: '',
       fecha: '',
       ubicacion: '',
+      carpetaId: '', // Restablecer a cadena vacía
       subeventos: [],
     });
     createEvento.reset();
@@ -157,6 +165,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           nombre: '',
           fecha: '',
           ubicacion: '',
+          carpetaId: '', // Restablecer a cadena vacía
           subeventos: [],
         });
       }
@@ -180,6 +189,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     nombre: '',
                     fecha: '',
                     ubicacion: '',
+                    carpetaId: '', // Inicializar como cadena vacía
                     subeventos: [],
                   });
                 }}
@@ -201,6 +211,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     nombre: evento.nombre,
                     fecha: evento.fecha,
                     ubicacion: evento.ubicacion,
+                    carpetaId: evento.carpetaId || '', // Inicializar como cadena vacía
                     subeventos: evento.subEventos.map((subevento) => ({
                       id: subevento.id,
                       nombre: subevento.nombre,
@@ -236,32 +247,51 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   onChange={(e) =>
                     useEventoModalData.setState({ nombre: e.target.value })
                   }
-                  required // Atributo required agregado aquí
+                  required
                 />
                 <Input
                   type='datetime-local'
                   name='fecha'
                   id='fecha'
                   placeholder='Fecha del evento'
-                  value={modalData.fecha.replace('Z', '')}
+                  value={modalData.fecha}
                   onChange={(e) =>
                     useEventoModalData.setState({ fecha: e.target.value })
                   }
-                  required // Atributo required agregado aquí
+                  required
                 />
               </div>
               <div className='flex gap-3'>
                 <Input
+                  className='text-black'
                   type='text'
                   name='ubicacion'
                   id='ubicacion'
-                  placeholder='Ubicación del evento'
+                  placeholder='Ubicación'
                   value={modalData.ubicacion}
                   onChange={(e) =>
                     useEventoModalData.setState({ ubicacion: e.target.value })
                   }
-                  required // Atributo required agregado aquí
+                  required
                 />
+                <select
+                  className='text-black'
+                  value={modalData.carpetaId}
+                  onChange={(e) =>
+                    useEventoModalData.setState({ carpetaId: e.target.value })
+                  }
+                >
+                  <option value=''>Seleccionar Carpeta</option>
+                  {loadingCarpetas ? (
+                    <option value='cargando'>Cargando...</option>
+                  ) : (
+                    carpetas?.map((carpeta) => (
+                      <option key={carpeta.id} value={carpeta.id}>
+                        {carpeta.nombre}
+                      </option>
+                    ))
+                  )}
+                </select>
               </div>
             </div>
           </div>
