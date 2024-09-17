@@ -40,7 +40,20 @@ const EventosPage = () => {
       });
     }
 
-    return filteredEventos;
+    const eventosConCarpeta = filteredEventos.filter(
+      (evento) => evento.carpetaId
+    );
+    const eventosSinCarpeta = filteredEventos.filter(
+      (evento) => !evento.carpetaId
+    );
+
+    const eventosOrdenados = eventosConCarpeta.concat(eventosSinCarpeta);
+
+    return eventosOrdenados.sort((a, b) => {
+      if (a.fecha < b.fecha) return -1;
+      if (a.fecha > b.fecha) return 1;
+      return 0;
+    });
   }, [eventos, search]);
 
   return (
@@ -84,13 +97,20 @@ const EventosPage = () => {
             <Loader />
           </div>
         ) : (
-          <EventosList
-            eventos={eventosFiltrados.sort((a, b) => {
-              if (a.fecha < b.fecha) return -1;
-              if (a.fecha > b.fecha) return 1;
-              return 0;
-            })}
-          />
+          <div>
+            {eventosFiltrados.map((evento) => (
+              <div key={evento.id} className='mb-5'>
+                {}
+                {evento.carpetaId && (
+                  <p className='text-lg font-semibold'>
+                    Carpeta: {evento.carpetaId} {}
+                  </p>
+                )}
+                {}
+                <EventosList eventos={[evento]} />
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </>
