@@ -29,7 +29,7 @@ type ModalData = {
   nombre: string;
   fecha: string;
   ubicacion: string;
-  carpetaId: string; // Inicializar como cadena vacía en lugar de undefined
+  carpetaId: string;
   subeventos: {
     id: string;
     nombre: string;
@@ -43,7 +43,7 @@ export const useEventoModalData = create<ModalData>(() => ({
   nombre: '',
   fecha: '',
   ubicacion: '',
-  carpetaId: '', // Inicializado como cadena vacía
+  carpetaId: '',
   subeventos: [],
 }));
 
@@ -101,7 +101,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           nombre: modalData.nombre,
           subeventos: modalData.subeventos.map((subevento) => ({
             id: subevento.id,
-            carpetaId: modalData.carpetaId || '', // Asegúrate de enviar una cadena vacía si es undefined
+            carpetaId: modalData.carpetaId || '',
             nombre: subevento.nombre,
             fecha: subevento.fecha,
             ubicacion: subevento.ubicacion,
@@ -124,7 +124,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
         nombre: '',
         fecha: '',
         ubicacion: '',
-        carpetaId: '', // Restablecer a cadena vacía
+        carpetaId: '',
         subeventos: [],
       });
     }
@@ -138,7 +138,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
       nombre: '',
       fecha: '',
       ubicacion: '',
-      carpetaId: '', // Restablecer a cadena vacía
+      carpetaId: '',
       subeventos: [],
     });
     createEvento.reset();
@@ -165,7 +165,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           nombre: '',
           fecha: '',
           ubicacion: '',
-          carpetaId: '', // Restablecer a cadena vacía
+          carpetaId: '',
           subeventos: [],
         });
       }
@@ -189,7 +189,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     nombre: '',
                     fecha: '',
                     ubicacion: '',
-                    carpetaId: '', // Inicializar como cadena vacía
+                    carpetaId: '',
                     subeventos: [],
                   });
                 }}
@@ -211,7 +211,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     nombre: evento.nombre,
                     fecha: evento.fecha,
                     ubicacion: evento.ubicacion,
-                    carpetaId: evento.carpetaId || '', // Inicializar como cadena vacía
+                    carpetaId: evento.carpetaId || '',
                     subeventos: evento.subEventos.map((subevento) => ({
                       id: subevento.id,
                       nombre: subevento.nombre,
