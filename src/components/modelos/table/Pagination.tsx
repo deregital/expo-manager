@@ -23,7 +23,6 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
     if (firstRender) {
       setFirstRender(false);
 
-      // Cargar valores de 'page' y 'pageSize' de los parámetros de la URL
       if (params.has('page')) {
         const page = Number(params.get('page'));
         if (page !== pageIndex) {
@@ -57,7 +56,7 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
     table.getState().pagination.pageSize,
   ]);
 
-  const noData = table.getRowModel().rows.length === 0;
+  const noData = table.getPageCount() === 0;
 
   return (
     <>
