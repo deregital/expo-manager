@@ -83,6 +83,9 @@ export const eventoRouter = router({
           nombre: input.nombre,
           fecha: input.fecha,
           ubicacion: input.ubicacion,
+          carpeta: input.carpetaId
+            ? { connect: { id: input.carpetaId } }
+            : undefined,
           etiquetaAsistio: {
             create: {
               grupo: {
@@ -153,6 +156,7 @@ export const eventoRouter = router({
       z.object({
         id: z.string().uuid(),
         nombre: z.string().min(1).optional(),
+        carpetaId: z.string().optional(),
         fecha: z
           .string()
           .transform((val) => new Date(val))
@@ -160,7 +164,7 @@ export const eventoRouter = router({
         ubicacion: z.string().optional(),
         subeventos: z.array(
           z.object({
-            id: z.string(), // Agrega el ID del subevento
+            id: z.string(),
             fecha: z
               .string()
               .min(1, 'La fecha es requerida')
@@ -179,6 +183,9 @@ export const eventoRouter = router({
         data: {
           nombre: input.nombre,
           fecha: input.fecha,
+          carpeta: input.carpetaId
+            ? { connect: { id: input.carpetaId } }
+            : undefined,
           ubicacion: input.ubicacion,
         },
         select: {
