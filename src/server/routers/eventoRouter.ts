@@ -118,6 +118,7 @@ export const eventoRouter = router({
       include: {
         subEventos: true,
         eventoPadre: true,
+        carpeta: true,
       },
     });
   }),
