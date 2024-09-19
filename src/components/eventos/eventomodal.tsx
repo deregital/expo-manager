@@ -200,7 +200,6 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   e.preventDefault();
                   e.stopPropagation();
                   setOpen(true);
-                  console.log(carpetas);
 
                   useEventoModalData.setState({
                     tipo: 'EDIT',

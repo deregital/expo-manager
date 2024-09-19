@@ -193,8 +193,6 @@ export const eventoRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      console.log(input.carpetaId);
-
       const evento = await ctx.prisma.evento.update({
         where: {
           id: input.id,
@@ -223,8 +221,6 @@ export const eventoRouter = router({
           carpeta: true,
         },
       });
-
-      console.log(evento.carpeta);
 
       await ctx.prisma.etiquetaGrupo.update({
         where: {
