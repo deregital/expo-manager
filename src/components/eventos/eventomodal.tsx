@@ -15,11 +15,18 @@ import Loader from '@/components/ui/loader';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import EventFillIcon from '../icons/EventFillIcon';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface EventoModalProps {
   action: 'CREATE' | 'EDIT';
   evento?: Omit<
-    RouterOutputs['evento']['getAll'][number],
+    RouterOutputs['evento']['getAll']['sinCarpetas'][number],
     'created_at' | 'updated_at'
   >;
 }
@@ -29,22 +36,32 @@ type ModalData = {
   nombre: string;
   fecha: string;
   ubicacion: string;
-  carpetaId: string;
+  carpetaId: string | undefined;
   subeventos: {
     id: string;
     nombre: string;
     fecha: string;
     ubicacion: string;
   }[];
+  reset: () => void;
 };
 
-export const useEventoModalData = create<ModalData>(() => ({
+export const useEventoModalData = create<ModalData>((set) => ({
   tipo: 'CREATE',
   nombre: '',
   fecha: '',
   ubicacion: '',
-  carpetaId: '',
+  carpetaId: undefined,
   subeventos: [],
+  reset: () =>
+    set({
+      tipo: 'CREATE',
+      nombre: '',
+      fecha: '',
+      ubicacion: '',
+      carpetaId: undefined,
+      subeventos: [],
+    }),
 }));
 
 const EventoModal = ({ action, evento }: EventoModalProps) => {
@@ -56,9 +73,11 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
     carpetaId: state.carpetaId,
     ubicacion: state.ubicacion,
     subeventos: state.subeventos,
+    reset: state.reset,
   }));
 
   const [open, setOpen] = useState(false);
+  const [carpetaSelectOpen, setCarpetaSelectOpen] = useState(false);
   const [quiereEliminar, setQuiereEliminar] = useState(false);
   const createEvento = trpc.evento.create.useMutation();
   const deleteEvento = trpc.evento.delete.useMutation();
@@ -73,13 +92,14 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           nombre: modalData.nombre,
           fecha: modalData.fecha,
           ubicacion: modalData.ubicacion,
-          carpetaId: modalData.carpetaId || '',
+          carpetaId: modalData.carpetaId,
           subeventos: modalData.subeventos,
         })
         .then(() => {
           setOpen(!open);
           toast.success('Evento creado con éxito');
           utils.evento.getAll.invalidate();
+          utils.carpetaEventos.getAll.invalidate();
         })
         .catch((error) => {
           try {
@@ -93,15 +113,16 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
         });
     } else if (modalData.tipo === 'EDIT') {
       if (!evento) return;
+
       await editEvento
         .mutateAsync({
           id: evento.id,
           fecha: modalData.fecha,
           ubicacion: modalData.ubicacion,
           nombre: modalData.nombre,
+          carpetaId: modalData.carpetaId,
           subeventos: modalData.subeventos.map((subevento) => ({
             id: subevento.id,
-            carpetaId: modalData.carpetaId || '',
             nombre: subevento.nombre,
             fecha: subevento.fecha,
             ubicacion: subevento.ubicacion,
@@ -111,6 +132,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           setOpen(!open);
           toast.success('Evento editado con éxito');
           utils.evento.getAll.invalidate();
+          utils.carpetaEventos.getAll.invalidate();
         })
         .catch((error: any) => {
           console.log(error);
@@ -119,28 +141,14 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
     }
 
     if (createEvento.isSuccess || editEvento.isSuccess) {
-      useEventoModalData.setState({
-        tipo: 'CREATE',
-        nombre: '',
-        fecha: '',
-        ubicacion: '',
-        carpetaId: '',
-        subeventos: [],
-      });
+      modalData.reset();
     }
 
     utils.evento.getById.invalidate();
   }
 
   async function handleCancel() {
-    useEventoModalData.setState({
-      tipo: 'CREATE',
-      nombre: '',
-      fecha: '',
-      ubicacion: '',
-      carpetaId: '',
-      subeventos: [],
-    });
+    modalData.reset();
     createEvento.reset();
     editEvento.reset();
   }
@@ -160,14 +168,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
         });
 
       if (createEvento.isSuccess || editEvento.isSuccess) {
-        useEventoModalData.setState({
-          tipo: 'CREATE',
-          nombre: '',
-          fecha: '',
-          ubicacion: '',
-          carpetaId: '',
-          subeventos: [],
-        });
+        modalData.reset();
       }
       utils.evento.getById.invalidate();
     } else {
@@ -184,14 +185,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
               <ModalTriggerCreate
                 onClick={() => {
                   setOpen(true);
-                  useEventoModalData.setState({
-                    tipo: 'CREATE',
-                    nombre: '',
-                    fecha: '',
-                    ubicacion: '',
-                    carpetaId: '',
-                    subeventos: [],
-                  });
+                  modalData.reset();
                 }}
               >
                 <span>
@@ -206,6 +200,8 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   e.preventDefault();
                   e.stopPropagation();
                   setOpen(true);
+                  console.log(carpetas);
+
                   useEventoModalData.setState({
                     tipo: 'EDIT',
                     nombre: evento.nombre,
@@ -274,24 +270,38 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   }
                   required
                 />
-                <select
-                  className='text-black'
+                <Select
+                  open={carpetaSelectOpen}
+                  onOpenChange={setCarpetaSelectOpen}
                   value={modalData.carpetaId}
-                  onChange={(e) =>
-                    useEventoModalData.setState({ carpetaId: e.target.value })
-                  }
+                  onValueChange={(value) => {
+                    useEventoModalData.setState({ carpetaId: value });
+                  }}
+                  defaultValue={modalData.carpetaId ?? 'N/A'}
                 >
-                  <option value=''>Seleccionar Carpeta</option>
-                  {loadingCarpetas ? (
-                    <option value='cargando'>Cargando...</option>
-                  ) : (
-                    carpetas?.map((carpeta) => (
-                      <option key={carpeta.id} value={carpeta.id}>
-                        {carpeta.nombre}
-                      </option>
-                    ))
-                  )}
-                </select>
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={
+                        modalData.carpetaId
+                          ? carpetas?.find((c) => c.id === modalData.carpetaId)
+                              ?.nombre
+                          : 'Seleccione carpeta'
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {loadingCarpetas ? (
+                      <SelectItem value='cargando'>Cargando...</SelectItem>
+                    ) : (
+                      carpetas &&
+                      carpetas?.map((carpeta) => (
+                        <SelectItem key={carpeta.id} value={carpeta.id}>
+                          {carpeta.nombre}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>

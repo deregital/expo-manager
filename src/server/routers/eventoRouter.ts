@@ -117,13 +117,30 @@ export const eventoRouter = router({
       });
     }),
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.evento.findMany({
+    const eventosConCarpeta = await ctx.prisma.eventosCarpeta.findMany({
+      include: {
+        eventos: {
+          include: {
+            subEventos: true,
+            eventoPadre: true,
+          },
+        },
+      },
+    });
+    const eventosSinCarpetas = await ctx.prisma.evento.findMany({
+      where: {
+        carpetaId: null,
+      },
       include: {
         subEventos: true,
         eventoPadre: true,
-        carpeta: true,
       },
     });
+
+    return {
+      carpetas: eventosConCarpeta,
+      sinCarpetas: eventosSinCarpetas,
+    };
   }),
   getById: protectedProcedure
     .input(
@@ -176,6 +193,8 @@ export const eventoRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      console.log(input.carpetaId);
+
       const evento = await ctx.prisma.evento.update({
         where: {
           id: input.id,
@@ -201,8 +220,11 @@ export const eventoRouter = router({
           etiquetaConfirmo: {
             select: { id: true },
           },
+          carpeta: true,
         },
       });
+
+      console.log(evento.carpeta);
 
       await ctx.prisma.etiquetaGrupo.update({
         where: {

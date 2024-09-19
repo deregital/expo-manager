@@ -72,6 +72,7 @@ const EventosCarpetaModal = ({
         .mutateAsync({ nombre, color })
         .then(() => {
           setOpen(false);
+          utils.evento.getAll.invalidate();
           utils.carpetaEventos.getAll.invalidate();
           toast.success('Carpeta de eventos creada con éxito');
         })
@@ -84,6 +85,7 @@ const EventosCarpetaModal = ({
         .mutateAsync({ id: carpetaId, nombre, color })
         .then(() => {
           setOpen(false);
+          utils.evento.getAll.invalidate();
           utils.carpetaEventos.getAll.invalidate();
           toast.success('Carpeta de eventos editada con éxito');
         })
@@ -203,7 +205,14 @@ const EventosCarpetaModal = ({
                   });
                 }}
               />
-              <ColorPicker />
+              <ColorPicker
+                color={modalData.color}
+                setColor={(color) => {
+                  useEventosCarpetaModalData.setState({
+                    color,
+                  });
+                }}
+              />
             </div>
           </div>
           {createEventosCarpeta.isError || editEventosCarpeta.isError ? (
