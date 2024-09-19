@@ -272,9 +272,11 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                 <Select
                   open={carpetaSelectOpen}
                   onOpenChange={setCarpetaSelectOpen}
-                  value={modalData.carpetaId}
+                  value={modalData.carpetaId ?? 'N/A'}
                   onValueChange={(value) => {
-                    useEventoModalData.setState({ carpetaId: value });
+                    useEventoModalData.setState({
+                      carpetaId: value === 'N/A' ? undefined : value,
+                    });
                   }}
                   defaultValue={modalData.carpetaId ?? 'N/A'}
                 >
@@ -289,16 +291,12 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     />
                   </SelectTrigger>
                   <SelectContent>
-                    {loadingCarpetas ? (
-                      <SelectItem value='cargando'>Cargando...</SelectItem>
-                    ) : (
-                      carpetas &&
-                      carpetas?.map((carpeta) => (
-                        <SelectItem key={carpeta.id} value={carpeta.id}>
-                          {carpeta.nombre}
-                        </SelectItem>
-                      ))
-                    )}
+                    <SelectItem value='N/A'>Sin carpeta</SelectItem> {}
+                    {carpetas?.map((carpeta) => (
+                      <SelectItem key={carpeta.id} value={carpeta.id}>
+                        {carpeta.nombre}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

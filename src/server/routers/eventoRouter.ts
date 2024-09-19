@@ -202,7 +202,7 @@ export const eventoRouter = router({
           fecha: input.fecha,
           carpeta: input.carpetaId
             ? { connect: { id: input.carpetaId } }
-            : undefined,
+            : { disconnect: true },
           ubicacion: input.ubicacion,
         },
         select: {
