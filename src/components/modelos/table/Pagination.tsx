@@ -17,6 +17,14 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
 
   useEffect(() => {
     const pageIndex = table.getState().pagination.pageIndex + 1;
+    const pageCount = table.getPageCount();
+
+    if (pageIndex > pageCount) {
+      console.log('pageIndex > pageCount', pageIndex, pageCount);
+
+      table.setPageIndex(pageCount - 1);
+    }
+
     const pageSize = table.getState().pagination.pageSize;
     const params = new URLSearchParams(window.location.search);
 
@@ -52,8 +60,13 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    firstRender,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     table.getState().pagination.pageIndex,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     table.getState().pagination.pageSize,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    table.getPageCount(),
   ]);
 
   const noData = table.getPageCount() === 0;
