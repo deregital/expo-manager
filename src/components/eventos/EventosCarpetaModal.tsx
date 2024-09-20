@@ -14,6 +14,7 @@ import { cn, randomColor } from '@/lib/utils';
 interface EventosCarpetaModalProps {
   action: 'EDIT' | 'CREATE';
   eventosCarpeta?: {
+    [x: string]: any;
     id: string;
     nombre: string;
     color: string;
@@ -106,6 +107,11 @@ const EventosCarpetaModal = ({
 
   async function handleDelete() {
     if (eventosCarpeta) {
+      if (eventosCarpeta.eventos && eventosCarpeta.eventos.length > 0) {
+        toast.error('No se puede eliminar la carpeta, contiene eventos.');
+        setOpen(true);
+        return;
+      }
       await deleteEventosCarpeta
         .mutateAsync(eventosCarpeta.id)
         .then(() => {
