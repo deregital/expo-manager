@@ -2,6 +2,7 @@ import React from 'react';
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { trpc } from '@/lib/trpc';
+import L from 'leaflet';
 
 interface MapaClientProps {}
 
@@ -29,7 +30,10 @@ const MapaClient = ({}: MapaClientProps) => {
         { name: string; position: [number, number]; count: number }
       >
     );
-
+  const customIcon = new L.Icon({
+    iconUrl: '/img/mapMarker.svg',
+    iconSize: [25, 41],
+  });
   return (
     <MapContainer center={[-37.973, -68.937]} zoom={5}>
       <TileLayer
@@ -41,6 +45,7 @@ const MapaClient = ({}: MapaClientProps) => {
           <Marker
             key={`${marker.position[0]}-${marker.position[1]}`}
             position={[marker.position[0], marker.position[1]]}
+            icon={customIcon}
           >
             <Popup>
               <p>{marker.name}</p>
