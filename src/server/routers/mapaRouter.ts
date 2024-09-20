@@ -2,14 +2,24 @@ import { protectedProcedure, router } from '@/server/trpc';
 
 export const mapaRouter = router({
   getLocations: protectedProcedure.query(async ({ ctx }) => {
-    const locations = await ctx.prisma.residencia.findMany({
+    return await ctx.prisma.residencia.findMany({
+      where: {
+        // where it has some perfil associated
+        perfiles: {
+          some: {},
+        },
+      },
       select: {
         id: true,
         latitud: true,
         longitud: true,
         localidad: true,
+        _count: {
+          select: {
+            perfiles: true,
+          },
+        },
       },
     });
-    return locations;
   }),
 });
