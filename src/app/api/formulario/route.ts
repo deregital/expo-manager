@@ -160,16 +160,44 @@ export async function POST(req: NextRequest, res: NextResponse) {
       },
     });
 
-    const responseLocalidad = await prisma?.residencia.create({
-      data: {
-        provincia: provinciaArgentina,
-        localidad: localidad.nombre,
+    const responseLocalidad = await prisma?.residencia.findFirst({
+      where: {
         latitud: localidad.latitud,
         longitud: localidad.longitud,
       },
+      select: {
+        id: true,
+      },
     });
-    const responseTotal = { ...response, ...responseLocalidad };
-    return NextResponse.json(responseTotal, { status: 201 });
+    if (responseLocalidad && responseLocalidad.id) {
+      await prisma?.perfil.update({
+        where: {
+          id: response.id,
+        },
+        data: {
+          residencia: {
+            connect: {
+              id: responseLocalidad.id,
+            },
+          },
+        },
+      });
+    } else {
+      await prisma?.residencia.create({
+        data: {
+          latitud: localidad.latitud,
+          longitud: localidad.longitud,
+          localidad: localidad.nombre,
+          provincia: provinciaArgentina,
+          perfiles: {
+            connect: {
+              id: response.id,
+            },
+          },
+        },
+      });
+    }
+    return NextResponse.json(response, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors }, { status: 400 });
