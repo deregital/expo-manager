@@ -45,13 +45,14 @@ model Perfil {
   comentarios         Comentario[]
   mensajes            Mensaje[]    @relation("PERFIL_X_MENSAJE")
   etiquetas           Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
-  residencia          Residencia[]
+  residencialatitud Float?
+  residencialongitud Float?
+  residencia          Residencia? @relation(fields: [residencialatitud, residencialongitud], references: [latitud, longitud])
 
   @@map("PERFIL")
 }
 
 model Residencia {
-  id         String   @id @default(uuid())
   provincia  String
   localidad  String
   created_at DateTime @default(now())
@@ -61,6 +62,7 @@ model Residencia {
   perfiles   Perfil[]
 
   @@map("RESIDENCIA")
+  @@id([latitud, longitud])
 }
 
 model Comentario {

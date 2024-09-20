@@ -10,7 +10,6 @@ export const mapaRouter = router({
         },
       },
       select: {
-        id: true,
         latitud: true,
         longitud: true,
         localidad: true,
