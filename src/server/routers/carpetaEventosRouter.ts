@@ -5,9 +5,13 @@ export const carpetaEventosRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        nombre: z.string().min(1, {
-          message: 'El nombre debe tener al menos 1 caracter',
-        }),
+        nombre: z
+          .string({
+            required_error: 'Por favor ingrese un nombre',
+          })
+          .min(1, {
+            message: 'El nombre debe tener al menos 1 caracter',
+          }),
         color: z
           .string()
           .length(7)
@@ -55,7 +59,9 @@ export const carpetaEventosRouter = router({
       z.object({
         id: z.string().uuid(),
         nombre: z
-          .string()
+          .string({
+            required_error: 'Por favor ingrese un nombre',
+          })
           .min(1, {
             message: 'El nombre debe tener al menos 1 caracter',
           })

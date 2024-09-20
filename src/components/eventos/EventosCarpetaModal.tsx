@@ -10,15 +10,12 @@ import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
 import ColorPicker from '@/components/ui/ColorPicker';
 import { cn, randomColor } from '@/lib/utils';
+import FolderIcon from '@/components/icons/FolderIcon';
+import { RouterOutputs } from '@/server';
 
 interface EventosCarpetaModalProps {
   action: 'EDIT' | 'CREATE';
-  eventosCarpeta?: {
-    [x: string]: any;
-    id: string;
-    nombre: string;
-    color: string;
-  };
+  eventosCarpeta?: RouterOutputs['evento']['getAll']['carpetas'][number];
 }
 
 type EventosCarpetaModalData = {
@@ -144,7 +141,7 @@ const EventosCarpetaModal = ({
         <DialogTrigger asChild>
           {action === 'CREATE' ? (
             <Button
-              className='rounded-md bg-gray-400 px-5 py-0.5 text-gray-950 hover:bg-gray-300'
+              className='flex items-center gap-x-3 rounded-md bg-gray-400 px-5 py-0.5 text-gray-950 hover:bg-gray-300'
               onClick={() => {
                 setOpen(true);
                 useEventosCarpetaModalData.setState({
@@ -155,7 +152,8 @@ const EventosCarpetaModal = ({
                 });
               }}
             >
-              Crear carpeta de eventos
+              <FolderIcon className='size-6' />
+              <span>Crear carpeta de eventos</span>
             </Button>
           ) : (
             <div
@@ -224,11 +222,11 @@ const EventosCarpetaModal = ({
           {createEventosCarpeta.isError || editEventosCarpeta.isError ? (
             <p className='text-sm font-semibold text-red-500'>
               {createEventosCarpeta.isError
-                ? createEventosCarpeta.error?.message ||
+                ? JSON.parse(createEventosCarpeta.error?.message)[0].message ||
                   'Error al crear la carpeta de eventos'
                 : ''}
               {editEventosCarpeta.isError
-                ? editEventosCarpeta.error?.message ||
+                ? JSON.parse(editEventosCarpeta.error?.message)[0].message ||
                   'Error al editar la carpeta de eventos'
                 : ''}
             </p>
