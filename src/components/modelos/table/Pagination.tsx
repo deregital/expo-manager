@@ -6,11 +6,71 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
 interface PaginationProps<TData> {
   table: Table<TData>;
 }
 
 const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
+  const [firstRender, setFirstRender] = useState(true);
+
+  useEffect(() => {
+    const pageIndex = table.getState().pagination.pageIndex + 1;
+    const pageCount = table.getPageCount();
+
+    if (pageIndex > pageCount) {
+      console.log('pageIndex > pageCount', pageIndex, pageCount);
+
+      table.setPageIndex(pageCount - 1);
+    }
+
+    const pageSize = table.getState().pagination.pageSize;
+    const params = new URLSearchParams(window.location.search);
+
+    if (firstRender) {
+      setFirstRender(false);
+
+      if (params.has('page')) {
+        const page = Number(params.get('page'));
+        if (page !== pageIndex) {
+          table.setPageIndex(page - 1);
+        }
+      }
+
+      if (params.has('pageSize')) {
+        const size = Number(params.get('pageSize'));
+        if (size !== pageSize) {
+          table.setPageSize(size);
+        }
+      }
+      return;
+    }
+
+    params.set('page', pageIndex.toString());
+    params.set('pageSize', pageSize.toString());
+
+    window.history.pushState(
+      {
+        page: pageIndex,
+        pageSize: pageSize,
+      },
+      '',
+      `?${params.toString()}`
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    firstRender,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    table.getState().pagination.pageIndex,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    table.getState().pagination.pageSize,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    table.getPageCount(),
+  ]);
+
+  const noData = table.getPageCount() === 0;
+
   return (
     <>
       <div className='border-t border-black/10 bg-transparent px-3 py-3 text-black sm:px-6'>
@@ -36,8 +96,11 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
             <span className='flex items-center gap-1'>
               <div className='hidden sm:block'>Página</div>
               <strong className='text-sm sm:text-base'>
-                {table.getState().pagination.pageIndex + 1} de{' '}
-                {table.getPageCount().toLocaleString()}
+                {noData
+                  ? '0 de 0'
+                  : `${table.getState().pagination.pageIndex + 1} de ${table
+                      .getPageCount()
+                      .toLocaleString()}`}
               </strong>
             </span>
             <Button
@@ -72,7 +135,8 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
           <select
             value={table.getState().pagination.pageSize}
             onChange={(e) => {
-              table.setPageSize(Number(e.target.value));
+              const size = Number(e.target.value);
+              table.setPageSize(size);
             }}
             className='rounded border bg-white/90 p-1 text-sm sm:text-base'
           >

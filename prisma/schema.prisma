@@ -32,6 +32,7 @@ model Perfil {
   idLegible           Int       @map("id_legible")
 
   telefono            String    @unique
+  telefonoSecundario  String?   @unique
   nombreCompleto      String    @map("nombre_completo")
   nombrePila          String?   @map("nombre_pila")
   genero              String?
@@ -101,12 +102,26 @@ model EtiquetaGrupo {
   @@map("GRUPO_ETIQUETA")
 }
 
-model Evento {
-  id        String   @id @default(uuid())
-  nombre    String
-  fecha     DateTime
-  ubicacion String
+model EventosCarpeta {
+  id          String     @id @default(uuid())
+  nombre      String
+  color       String
+  eventos     Evento[]    @relation("CarpetaEventos_Eventos") 
 
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("EVENTOS_CARPETA")
+}
+
+model Evento {
+  id              String   @id @default(uuid())
+  nombre          String
+  fecha           DateTime
+  ubicacion       String
+  carpetaId       String?   @map("carpeta_id") 
+  carpeta         EventosCarpeta? @relation("CarpetaEventos_Eventos", fields: [carpetaId], references: [id], onDelete: Cascade)
+  
   etiquetaAsistioId  String   @map("etiqueta_asistio")
   etiquetaAsistio    Etiqueta @relation("EVENTOASISTIDO_X_ETIQUETA", fields: [etiquetaAsistioId], references: [id], onDelete: Cascade)
   etiquetaConfirmoId String   @map("etiqueta_confirmo")
