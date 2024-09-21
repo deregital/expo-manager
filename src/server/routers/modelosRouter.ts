@@ -43,13 +43,17 @@ export const modeloRouter = router({
         result: {
           perfil: {
             inChat: {
-              compute(data: Perfil & { mensajes: Mensaje[] }) {
+              compute(
+                data: Perfil & {
+                  mensajes: (Mensaje & { message: MessageJson })[];
+                }
+              ) {
                 return (
                   data.mensajes.length > 0 &&
                   data.mensajes.some(
                     (m) =>
                       m.created_at > subDays(new Date(), 1) &&
-                      (m.message as MessageJson).from === data.telefono
+                      m.message.from === data.telefono
                   )
                 );
               },
@@ -67,6 +71,7 @@ export const modeloRouter = router({
           },
         },
         include: {
+          etiquetas: true,
           mensajes: {
             select: {
               visto: true,
@@ -76,7 +81,18 @@ export const modeloRouter = router({
           },
         },
       });
-    return modelos;
+
+    type Modelo = (typeof modelos)[number];
+
+    type ReemplazarMensaje<T> = T extends { message: Prisma.JsonValue }
+      ? Omit<T, 'message'> & { message: MessageJson }
+      : T;
+
+    type ModeloActualizado = Omit<Modelo, 'mensajes'> & {
+      mensajes: ReemplazarMensaje<Modelo['mensajes'][number]>[];
+    };
+
+    return modelos as ModeloActualizado[];
   }),
   getById: protectedProcedure
     .input(z.string().uuid())
