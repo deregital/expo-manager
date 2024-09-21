@@ -27,6 +27,16 @@ const schema = z.object({
     .datetime()
     .min(1, 'La fecha de nacimiento es requerida')
     .optional(),
+  pais: z.string().min(1, 'El país de nacimiento es requerido'),
+  provincia: z.string().min(1, 'La provincia de nacimiento es requerida'),
+  provinciaArgentina: z
+    .string()
+    .min(1, 'La provincia de residencia es requerida'),
+  localidad: z.object({
+    nombre: z.string().min(1, 'La localidad de residencia es requerida'),
+    latitud: z.number().min(-90).max(90),
+    longitud: z.number().min(-180).max(180),
+  }),
 });
 
 export async function POST(req: NextRequest, res: NextResponse) {
@@ -43,6 +53,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
       mail,
       instagram,
       fechaNacimiento,
+      pais,
+      provincia,
+      provinciaArgentina,
+      localidad,
     } = parsedData;
 
     if (!username || !password) {
@@ -141,6 +155,24 @@ export async function POST(req: NextRequest, res: NextResponse) {
         etiquetas: {
           connect: {
             id: modeloEtiquetaId.id,
+          },
+        },
+        paisNacimiento: pais,
+        provinciaNacimiento: provincia,
+        residencia: {
+          connectOrCreate: {
+            where: {
+              latitud_longitud: {
+                latitud: localidad.latitud,
+                longitud: localidad.longitud,
+              },
+            },
+            create: {
+              latitud: localidad.latitud,
+              longitud: localidad.longitud,
+              localidad: localidad.nombre,
+              provincia: provinciaArgentina,
+            },
           },
         },
       },

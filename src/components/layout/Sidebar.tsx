@@ -16,6 +16,8 @@ import ModeloIcon from '../icons/ModeloIcon';
 import PapeleraIcon from '../icons/PapeleraIcon';
 import PapeleraFillIcon from '../icons/PapeleraFillIcon';
 import SidebarLinkMensajes from '@/components/layout/SidebarLinkMensajes';
+import MapIcon from '../icons/MapIcon';
+import MapFillIcon from '../icons/MapFillIcon';
 
 const Sidebar = () => {
   return (
@@ -71,6 +73,13 @@ const Sidebar = () => {
             iconActive={<PapeleraFillIcon height={24} width={24} />}
           >
             Papelera
+          </SidebarLink>
+          <SidebarLink
+            to='/mapa'
+            icon={<MapIcon height={24} width={24} />}
+            iconActive={<MapFillIcon height={24} width={24} />}
+          >
+            Mapa
           </SidebarLink>
         </ul>
       </div>
