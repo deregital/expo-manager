@@ -8,12 +8,14 @@ import CrearModelo from '@/components/modelos/CrearModelo';
 const ModelosPage = () => {
   return (
     <Suspense>
-      <p className='px-3 pt-3 text-xl font-bold md:px-5 md:pt-5 md:text-3xl'>
-        Base de Datos
-      </p>
+      <div className='flex items-end justify-between'>
+        <p className='px-3 pt-3 text-xl font-bold md:px-5 md:pt-5 md:text-3xl'>
+          Base de Datos
+        </p>
+        <CrearModelo />
+      </div>
       <FiltroTabla />
       <ModelosTable />
-      <CrearModelo />
     </Suspense>
   );
 };

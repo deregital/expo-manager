@@ -1,153 +1,22 @@
-'use client';
-import AsistenciaModal, {
-  usePresentismoModal,
-} from '@/components/eventos/AsistenciaModal';
-import { generateColumnsPresentismo } from '@/components/eventos/table/columnsPresentismo';
-import { DataTable } from '@/components/modelos/table/dataTable';
-import Filtro from '@/components/ui/filtro/Filtro';
-import Loader from '@/components/ui/loader';
-import { Progress } from '@/components/ui/progress';
-import { FuncionFiltrar, filterModelos } from '@/lib/filter';
-import { trpc } from '@/lib/trpc';
-import { RouterOutputs } from '@/server';
-import { format } from 'date-fns';
-import { ArrowLeftIcon } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
 
-interface PresentismoPageProps {
+import PresentismoPage from '@/components/eventos/presentismo/PresentismoPage';
+import { headers } from 'next/headers';
+
+interface PresentismoProps {
   params: {
     eventoId: string;
   };
 }
-const PresentismoPage = ({ params }: PresentismoPageProps) => {
-  const { data: evento, isLoading: isLoadingEvento } =
-    trpc.evento.getById.useQuery({
-      id: params.eventoId,
-    });
-  const modalPresentismo = usePresentismoModal();
-  const searchParams = new URLSearchParams(useSearchParams());
-  const router = useRouter();
-  const { data: modelos, isLoading: modelosIsLoading } =
-    trpc.modelo.getByEtiqueta.useQuery(
-      evento ? [evento.etiquetaConfirmoId, evento.etiquetaAsistioId] : [],
-      {
-        enabled: !!evento,
-      }
-    );
-  const [modelosData, setModelosData] = useState<
-    RouterOutputs['modelo']['getByEtiqueta']
-  >(modelos ?? []);
 
-  const countModelos = useMemo(() => {
-    if (!modelos || !evento) return 0;
-    return modelos.filter((modelo) =>
-      modelo.etiquetas.find(
-        (etiqueta) => etiqueta.id === evento.etiquetaAsistioId
-      )
-    ).length;
-  }, [evento, modelos]);
+const Presentismo = ({ params }: PresentismoProps) => {
+  const headersList = headers();
+  const hostname = headersList.get('x-forwarded-host');
 
-  useEffect(() => {
-    if (!evento) return;
-    usePresentismoModal.setState({ evento: evento });
-  }, [evento]);
+  if (!hostname) {
+    return null;
+  }
 
-  useEffect(() => {
-    usePresentismoModal.setState({ isOpen: false });
-    searchParams.delete('persona');
-    router.push(`/eventos/${params.eventoId}/presentismo`);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams.get('persona') === 'creada']);
-
-  const progress = useMemo(() => {
-    if (!modelos) return 0;
-    const asistieron = modelos.filter((modelo) =>
-      modelo.etiquetas.find(
-        (etiqueta) => etiqueta.id === evento?.etiquetaAsistioId
-      )
-    ).length;
-
-    const porcentaje = (asistieron / modelos.length) * 100;
-
-    if (isNaN(porcentaje)) return 0;
-    return porcentaje % 1 === 0 ? porcentaje : Number(porcentaje.toFixed(2));
-  }, [evento?.etiquetaAsistioId, modelos]);
-
-  if (isLoadingEvento || modelosIsLoading)
-    return (
-      <div className='flex items-center justify-center pt-5'>
-        <Loader />
-      </div>
-    );
-
-  const filtrar: FuncionFiltrar = ({ input }) => {
-    if (!modelos) return;
-    setModelosData(
-      filterModelos(modelos, {
-        input: input,
-        etiquetas: [],
-        grupos: [],
-      })
-    );
-  };
-
-  return (
-    <div>
-      <div>
-        <ArrowLeftIcon
-          className='h-10 w-10 pt-3 hover:cursor-pointer'
-          onClick={() => {
-            router.replace(`/eventos/${params.eventoId}`);
-          }}
-        />
-      </div>
-      <div className='flex items-center justify-center pb-3'>
-        <h1 className='text-3xl font-extrabold'>Presentismo</h1>
-      </div>
-      <div className='grid auto-rows-auto grid-cols-2 items-center justify-center gap-x-3 pb-3 sm:flex'>
-        <h3 className='col-span-2 p-2 text-center text-2xl font-semibold'>
-          {evento?.nombre}
-        </h3>
-        <h3 className='p-2 text-center text-sm sm:text-base'>
-          {format(evento!.fecha, 'yyyy-MM-dd')}
-        </h3>
-        <h3 className='p-2 text-center text-sm sm:text-base'>
-          {evento?.ubicacion}
-        </h3>
-      </div>
-      <div className='flex flex-col items-center justify-around gap-x-5 pb-5 sm:flex-row'>
-        <div className='w-[80%] pb-3 sm:w-[30%] sm:pb-0'>
-          <h3 className='text-sm sm:text-lg'>Progreso: {progress}%</h3>
-          <Progress value={progress} className='rounded-full bg-gray-300' />
-        </div>
-        <div>
-          <h3 className='text-sm sm:text-lg'>
-            Confirmaron: {countModelos}{' '}
-            {countModelos === 1 ? 'participante' : 'participantes'}
-          </h3>
-        </div>
-      </div>
-      <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
-        <Filtro mostrarInput funcionFiltrado={filtrar} />
-      </div>
-      <DataTable
-        columns={generateColumnsPresentismo({
-          asistenciaId: evento!.etiquetaAsistioId,
-          confirmoId: evento!.etiquetaConfirmoId,
-        })}
-        data={modelosData}
-        isLoading={modelosIsLoading}
-        initialSortingColumn={{
-          id: '¿Vino?' as keyof (typeof modelosData)[number],
-          desc: false,
-        }}
-      />
-      <div className='m-5 flex items-center justify-end'>
-        <AsistenciaModal open={modalPresentismo.isOpen} />
-      </div>
-    </div>
-  );
+  return <PresentismoPage eventoId={params.eventoId} baseUrl={hostname} />;
 };
 
-export default PresentismoPage;
+export default Presentismo;

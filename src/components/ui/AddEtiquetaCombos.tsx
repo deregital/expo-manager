@@ -97,7 +97,7 @@ const AddEtiquetaCombos = ({
 
   const selectedEtiqueta = useMemo(() => {
     return etiquetasData?.find((etiqueta) => etiqueta.id === etiquetaId);
-  }, [etiquetaId]);
+  }, [etiquetaId, etiquetasData]);
 
   return (
     <div className='mt-2 flex flex-col gap-2 md:flex-row'>
@@ -153,8 +153,8 @@ const AddEtiquetaCombos = ({
           <>
             <span className='truncate'>
               {etiquetaId !== ''
-                ? etiquetasData?.find((etiqueta) => etiqueta.id === etiquetaId)
-                    ?.nombre ?? 'Buscar etiqueta...'
+                ? (etiquetasData?.find((etiqueta) => etiqueta.id === etiquetaId)
+                    ?.nombre ?? 'Buscar etiqueta...')
                 : 'Buscar etiqueta...'}
             </span>
             <EtiquetaFillIcon className='h-5 w-5' />

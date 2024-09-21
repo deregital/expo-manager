@@ -104,6 +104,7 @@ const ModelosTable = () => {
             etiqueta.tipo !== TipoEtiqueta.TENTATIVA
         ),
       }))}
+      initialSortingColumn={{ id: 'idLegible', desc: true }}
       onClickRow={goToModel}
     />
   );

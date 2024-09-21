@@ -79,7 +79,10 @@ const EventoPage = ({ params }: EventoPageProps) => {
         <Filtro mostrarInput mostrarEtiq funcionFiltrado={filtrar} />
       </div>
       <DataTable
-        columns={generateColumns(evento!.etiquetaConfirmoId)}
+        columns={generateColumns(
+          evento!.etiquetaConfirmoId,
+          evento!.etiquetaAsistioId
+        )}
         data={modelosData}
         initialSortingColumn={{ id: 'created_at', desc: true }}
       />

@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",
+    "@pdfme/generator": "^4.2.4",
+    "@pdfme/schemas": "^4.2.4",
     "@prisma/client": "^5.13.0",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
@@ -36,9 +38,11 @@
     "date-fns": "^3.6.0",
     "exceljs": "^4.4.0",
     "fast-csv": "^5.0.1",
+    "firebase": "^10.13.0",
+    "firebase-admin": "^12.3.1",
     "jszip": "^3.10.1",
     "lucide-react": "^0.322.0",
-    "next": "14.1.0",
+    "next": "^14.2.0",
     "next-auth": "^4.24.5",
     "next-themes": "^0.2.1",
     "react": "^18",
@@ -66,17 +70,16 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "postcss": "^8",
-    "prettier": "^3.2.5",
+    "prettier": "^3.3.3",
     "prettier-eslint": "^16.3.0",
-    "prettier-plugin-tailwindcss": "^0.5.11",
+    "prettier-plugin-tailwindcss": "^0.5.14",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix",
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   }
 }

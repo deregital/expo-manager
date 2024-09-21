@@ -22,14 +22,17 @@ model Cuenta {
   filtroBase       Etiqueta[] @relation("FILTRO_BASE_X_ETIQUETA")
   filtroBaseActivo Boolean    @default(false) @map("filtro_base_activo")
 
+  fcmToken String[] @map("fcm_token")
+
   @@map("CUENTA")
 }
 
 model Perfil {
-  id        String @id @default(uuid())
-  idLegible Int    @map("id_legible")
+  id                  String    @id @default(uuid())
+  idLegible           Int       @map("id_legible")
 
   telefono            String    @unique
+  telefonoSecundario  String?   @unique
   nombreCompleto      String    @map("nombre_completo")
   nombrePila          String?   @map("nombre_pila")
   genero              String?
@@ -40,11 +43,14 @@ model Perfil {
   dni                 String?
   nombresAlternativos String[]  @map("nombres_alternativos")
 
-  comentarios Comentario[]
-  mensajes    Mensaje[]    @relation("PERFIL_X_MENSAJE")
-  etiquetas   Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
-  created_at  DateTime     @default(now())
-  updated_at  DateTime     @updatedAt
+  comentarios         Comentario[]
+  mensajes            Mensaje[]    @relation("PERFIL_X_MENSAJE")
+  etiquetas           Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
+  esPapelera      Boolean   @default(false) 
+  fechaPapelera       DateTime?    @map("fecha_papelera")
+  
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
 
   @@map("PERFIL")
 }
@@ -96,12 +102,26 @@ model EtiquetaGrupo {
   @@map("GRUPO_ETIQUETA")
 }
 
-model Evento {
-  id        String   @id @default(uuid())
-  nombre    String
-  fecha     DateTime
-  ubicacion String
+model EventosCarpeta {
+  id          String     @id @default(uuid())
+  nombre      String
+  color       String
+  eventos     Evento[]    @relation("CarpetaEventos_Eventos") 
 
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("EVENTOS_CARPETA")
+}
+
+model Evento {
+  id              String   @id @default(uuid())
+  nombre          String
+  fecha           DateTime
+  ubicacion       String
+  carpetaId       String?   @map("carpeta_id") 
+  carpeta         EventosCarpeta? @relation("CarpetaEventos_Eventos", fields: [carpetaId], references: [id], onDelete: Cascade)
+  
   etiquetaAsistioId  String   @map("etiqueta_asistio")
   etiquetaAsistio    Etiqueta @relation("EVENTOASISTIDO_X_ETIQUETA", fields: [etiquetaAsistioId], references: [id], onDelete: Cascade)
   etiquetaConfirmoId String   @map("etiqueta_confirmo")
@@ -124,6 +144,7 @@ model Mensaje {
   perfil         Perfil        @relation("PERFIL_X_MENSAJE", fields: [perfilTelefono], references: [telefono], onDelete: Cascade)
   status         MensajeStatus @default(ENVIADO)
   statusAt       DateTime?     @map("status_at")
+  visto          Boolean       @default(false)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

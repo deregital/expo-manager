@@ -12,6 +12,7 @@ export const eventoRouter = router({
           .string()
           .min(1, 'La fecha es requerida')
           .transform((val) => new Date(val)),
+        carpetaId: z.string().optional(),
         ubicacion: z.string().min(1, 'La ubicación es requerida'),
         subeventos: z.array(
           z.object({
@@ -82,6 +83,9 @@ export const eventoRouter = router({
           nombre: input.nombre,
           fecha: input.fecha,
           ubicacion: input.ubicacion,
+          carpeta: input.carpetaId
+            ? { connect: { id: input.carpetaId } }
+            : undefined,
           etiquetaAsistio: {
             create: {
               grupo: {
@@ -113,12 +117,30 @@ export const eventoRouter = router({
       });
     }),
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.evento.findMany({
+    const eventosConCarpeta = await ctx.prisma.eventosCarpeta.findMany({
+      include: {
+        eventos: {
+          include: {
+            subEventos: true,
+            eventoPadre: true,
+          },
+        },
+      },
+    });
+    const eventosSinCarpetas = await ctx.prisma.evento.findMany({
+      where: {
+        carpetaId: null,
+      },
       include: {
         subEventos: true,
         eventoPadre: true,
       },
     });
+
+    return {
+      carpetas: eventosConCarpeta,
+      sinCarpetas: eventosSinCarpetas,
+    };
   }),
   getById: protectedProcedure
     .input(
@@ -151,6 +173,7 @@ export const eventoRouter = router({
       z.object({
         id: z.string().uuid(),
         nombre: z.string().min(1).optional(),
+        carpetaId: z.string().optional(),
         fecha: z
           .string()
           .transform((val) => new Date(val))
@@ -158,7 +181,7 @@ export const eventoRouter = router({
         ubicacion: z.string().optional(),
         subeventos: z.array(
           z.object({
-            id: z.string(), // Agrega el ID del subevento
+            id: z.string(),
             fecha: z
               .string()
               .min(1, 'La fecha es requerida')
@@ -177,6 +200,9 @@ export const eventoRouter = router({
         data: {
           nombre: input.nombre,
           fecha: input.fecha,
+          carpeta: input.carpetaId
+            ? { connect: { id: input.carpetaId } }
+            : { disconnect: true },
           ubicacion: input.ubicacion,
         },
         select: {
@@ -192,6 +218,7 @@ export const eventoRouter = router({
           etiquetaConfirmo: {
             select: { id: true },
           },
+          carpeta: true,
         },
       });
 

@@ -5,16 +5,33 @@ import EnviarMensajeUI from '@/components/chat/privateChat/EnviarMensajeUI';
 import MensajesList from '@/components/chat/privateChat/MensajesList';
 import { trpc } from '@/lib/trpc';
 import { useParams } from 'next/navigation';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface ChatPageProps {}
 
 const ChatPage = ({}: ChatPageProps) => {
   const { telefono } = useParams<{ telefono: string }>();
+
+  const { mutateAsync: leerMensajes } =
+    trpc.whatsapp.readMensajes.useMutation();
   const { data } = trpc.whatsapp.getMessagesByTelefono.useQuery(telefono, {
     enabled: !!telefono,
     refetchInterval: 5000,
+    onSuccess: () => {
+      leerMensajitos();
+    },
   });
+  const utils = trpc.useUtils();
+  async function leerMensajitos() {
+    await leerMensajes(telefono);
+    utils.whatsapp.mensajesNoLeidos.invalidate();
+    utils.modelo.getAllWithInChat.invalidate();
+  }
+
+  useEffect(() => {
+    leerMensajitos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [telefono]);
 
   return (
     <div className='relative w-full bg-[url(/img/whatsapp_background.png)]'>

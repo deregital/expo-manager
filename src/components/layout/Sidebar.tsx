@@ -1,5 +1,3 @@
-import ChatFillIcon from '@/components/icons/ChatFillIcon';
-import ChatIcon from '@/components/icons/ChatIcon';
 import ConfigFillIcon from '@/components/icons/ConfigFillIcon';
 import ConfigIcon from '@/components/icons/ConfigIcon';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
@@ -15,6 +13,9 @@ import SidebarLink from '@/components/layout/SidebarLink';
 import Image from 'next/image';
 import ModeloFillIcon from '../icons/ModeloFillIcon';
 import ModeloIcon from '../icons/ModeloIcon';
+import PapeleraIcon from '../icons/PapeleraIcon';
+import PapeleraFillIcon from '../icons/PapeleraFillIcon';
+import SidebarLinkMensajes from '@/components/layout/SidebarLinkMensajes';
 
 const Sidebar = () => {
   return (
@@ -27,7 +28,7 @@ const Sidebar = () => {
         height={100}
       />
       <div className='flex-1'>
-        <ul className='h-full divide-y-2 divide-black/80'>
+        <ul className='h-full'>
           <SidebarLink
             to='/'
             icon={<HomeIcon height={24} width={24} />}
@@ -35,13 +36,7 @@ const Sidebar = () => {
           >
             Dashboard
           </SidebarLink>
-          <SidebarLink
-            to='/mensajes'
-            icon={<ChatIcon height={24} width={24} />}
-            iconActive={<ChatFillIcon height={24} width={24} />}
-          >
-            Mensajes
-          </SidebarLink>
+          <SidebarLinkMensajes />
           <SidebarLink
             to={['/modelos', '/modelo']}
             icon={<ModeloIcon height={24} width={24} />}
@@ -69,6 +64,13 @@ const Sidebar = () => {
             iconActive={<TemplateFillIcon height={24} width={24} />}
           >
             Plantillas
+          </SidebarLink>
+          <SidebarLink
+            to='/papelera'
+            icon={<PapeleraIcon height={24} width={24} />}
+            iconActive={<PapeleraFillIcon height={24} width={24} />}
+          >
+            Papelera
           </SidebarLink>
         </ul>
       </div>

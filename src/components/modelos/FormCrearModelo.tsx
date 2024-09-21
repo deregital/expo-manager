@@ -138,11 +138,25 @@ const FormCrearModelo = ({
           useCrearModeloModal.setState({
             modelo: {
               ...modalModelo.modelo,
-              telefono: e.target.value,
+              telefono: e.target.value.trim(),
             },
           })
         }
         required
+      />
+      <Label className='pt-2 text-sm'>Teléfono Secundario:</Label>
+      <Input
+        type='text'
+        placeholder='Teléfono Secundario'
+        value={modalModelo.modelo.telefonoSecundario}
+        onChange={(e) =>
+          useCrearModeloModal.setState({
+            modelo: {
+              ...modalModelo.modelo,
+              telefonoSecundario: e.target.value.trim(),
+            },
+          })
+        }
       />
       <Label className='pt-2 text-sm'>DNI:</Label>
       <Input
@@ -151,7 +165,7 @@ const FormCrearModelo = ({
         value={modalModelo.modelo.dni}
         onChange={(e) =>
           useCrearModeloModal.setState({
-            modelo: { ...modalModelo.modelo, dni: e.target.value },
+            modelo: { ...modalModelo.modelo, dni: e.target.value.trim() },
           })
         }
       />
@@ -209,7 +223,7 @@ const FormCrearModelo = ({
         value={modalModelo.modelo.mail}
         onChange={(e) =>
           useCrearModeloModal.setState({
-            modelo: { ...modalModelo.modelo, mail: e.target.value },
+            modelo: { ...modalModelo.modelo, mail: e.target.value.trim() },
           })
         }
       />
@@ -224,7 +238,7 @@ const FormCrearModelo = ({
             useCrearModeloModal.setState({
               modelo: {
                 ...modalModelo.modelo,
-                instagram: e.target.value,
+                instagram: e.target.value.trim(),
               },
             })
           }
@@ -332,9 +346,9 @@ const FormCrearModelo = ({
               <>
                 <span className='truncate'>
                   {etiquetaSelected !== ''
-                    ? etiquetasGrupo?.find(
+                    ? (etiquetasGrupo?.find(
                         (etiqueta) => etiqueta.id === etiquetaSelected
-                      )?.nombre ?? 'Buscar etiqueta...'
+                      )?.nombre ?? 'Buscar etiqueta...')
                     : 'Buscar etiqueta...'}
                 </span>
                 <EtiquetasFillIcon className='h-5 w-5' />

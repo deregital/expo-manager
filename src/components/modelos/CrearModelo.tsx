@@ -11,6 +11,7 @@ type ModeloModal = {
   modelo: {
     nombreCompleto: string;
     telefono: string;
+    telefonoSecundario?: string;
     fechaNacimiento: Date | undefined;
     genero: string;
     etiquetas: NonNullable<RouterOutputs['etiqueta']['getById']>[];
@@ -26,6 +27,7 @@ export const useCrearModeloModal = create<ModeloModal>(() => ({
   modelo: {
     nombreCompleto: '',
     telefono: '',
+    telefonoSecundario: '',
     fechaNacimiento: undefined,
     genero: 'N/A',
     etiquetas: [],
@@ -45,12 +47,13 @@ const CrearModelo = () => {
 
   useEffect(() => {
     setSearch(searchParams.get('modal') ?? '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.get('modal')]);
 
   return (
     <>
       <Button
-        className='mx-3 my-2 md:mx-5'
+        className='mx-3 mb-0 mt-3 md:mx-5'
         onClick={() => {
           searchParams.set('modal', 'true');
           router.push(`${pathname}?${searchParams.toString()}`);

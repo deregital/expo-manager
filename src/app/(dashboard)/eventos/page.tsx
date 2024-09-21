@@ -1,7 +1,6 @@
 'use client';
 import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
-import EventosList from '@/components/eventos/eventoslist';
 import SearchInput from '@/components/ui/SearchInput';
 import EventoModal from '@/components/eventos/eventomodal';
 import Loader from '@/components/ui/loader';
@@ -10,22 +9,48 @@ import ExpandContractEventos, {
 } from '@/components/eventos/expandcontracteventos';
 import { searchNormalize } from '@/lib/utils';
 import { XIcon } from 'lucide-react';
+import EventosCarpetaModal from '@/components/eventos/EventosCarpetaModal';
+import EventosList from '@/components/eventos/eventoslist';
 
 const EventosPage = () => {
   const [search, setSearch] = useState('');
-  const { data: eventos, isLoading } = trpc.evento.getAll.useQuery();
+  const { data, isLoading } = trpc.evento.getAll.useQuery();
   const { expandState, setNone } = useExpandEventos((s) => ({
     setNone: s.none,
     expandState: s.state,
   }));
 
-  const eventosFiltrados = useMemo(() => {
-    if (!eventos) return [];
+  const { carpetas, sinCarpetas: eventosSinCarpeta } = isLoading
+    ? { carpetas: [], sinCarpetas: [] }
+    : data!;
 
-    let filteredEventos = eventos.filter((evento) => !evento.eventoPadreId);
+  const eventosFiltrados = useMemo(() => {
+    if (isLoading) return { carpetas: [], sinCarpetas: [] };
+
+    let filteredCarpetas = carpetas.filter((carp) => {
+      return (
+        searchNormalize(carp.nombre, search) ||
+        carp.eventos.some((evento) => {
+          return (
+            searchNormalize(evento.nombre, search) ||
+            searchNormalize(evento.ubicacion, search) ||
+            evento.subEventos.some((subevento) =>
+              searchNormalize(subevento.nombre, search)
+            ) ||
+            evento.subEventos.some((subevento) =>
+              searchNormalize(subevento.ubicacion, search)
+            )
+          );
+        })
+      );
+    });
+
+    let filteredEventosSinCarpeta = eventosSinCarpeta.filter((evento) => {
+      return !evento.eventoPadreId;
+    });
 
     if (search !== '') {
-      filteredEventos = filteredEventos.filter((evento) => {
+      filteredEventosSinCarpeta = eventosSinCarpeta.filter((evento) => {
         return (
           searchNormalize(evento.nombre, search) ||
           searchNormalize(evento.ubicacion, search) ||
@@ -39,8 +64,17 @@ const EventosPage = () => {
       });
     }
 
-    return filteredEventos;
-  }, [eventos, search]);
+    const eventosOrdenados = {
+      carpetas: filteredCarpetas.sort((a, b) => {
+        return a.nombre.localeCompare(b.nombre);
+      }),
+      sinCarpetas: filteredEventosSinCarpeta.sort((a, b) => {
+        return a.nombre.localeCompare(b.nombre);
+      }),
+    };
+
+    return eventosOrdenados;
+  }, [carpetas, eventosSinCarpeta, isLoading, search]);
 
   return (
     <>
@@ -50,6 +84,7 @@ const EventosPage = () => {
       <div className='flex flex-col justify-between gap-4 px-3 md:flex-row md:px-5'>
         <div className='flex flex-col gap-4 md:flex-row'>
           <EventoModal action='CREATE' />
+          <EventosCarpetaModal action='CREATE' /> {}
         </div>
         <div className='flex items-center gap-x-2'>
           <ExpandContractEventos />
@@ -66,6 +101,7 @@ const EventosPage = () => {
               }
             }}
             placeholder='Buscar evento o subevento'
+            className='pr-5'
           />
           <XIcon
             className='h-6 w-6 cursor-pointer'
@@ -81,13 +117,9 @@ const EventosPage = () => {
             <Loader />
           </div>
         ) : (
-          <EventosList
-            eventos={eventosFiltrados.sort((a, b) => {
-              if (a.fecha < b.fecha) return -1;
-              if (a.fecha > b.fecha) return 1;
-              return 0;
-            })}
-          />
+          <div>
+            <EventosList eventos={eventosFiltrados} />
+          </div>
         )}
       </div>
     </>

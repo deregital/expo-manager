@@ -8,7 +8,7 @@ export const modeloSchemaCrearOEditar = z.object({
       message: 'El teléfono es un campo obligatorio',
     })
     .regex(
-      /^(549\d{10}|\d{10})$/,
+      /^\+?549(11|[2368]\d)\d{8}$/,
       'El número de teléfono debe tener 10 dígitos. Puede empezar con 549'
     ),
   genero: z.string().optional(),
@@ -21,5 +21,18 @@ export const modeloSchemaCrearOEditar = z.object({
     z.literal(''),
     z.string().email('El mail debe tener un formato válido'),
   ]),
-  instagram: z.string().optional(),
+  instagram: z
+    .string()
+    .regex(
+      /^[\w](?!.*?\.{2})[\w.]{1,28}[\w]$/,
+      'El instagram no es válido. No debe comenzar con @'
+    )
+    .optional(),
+  telefonoSecundario: z
+    .string()
+    .regex(
+      /^\+?549(11|[2368]\d)\d{8}$/,
+      'El número de teléfono secundario debe tener 10 dígitos. Puede empezar con 549'
+    )
+    .optional(),
 });

@@ -63,4 +63,16 @@ export const cuentaRouter = router({
       etiquetas: cuenta?.filtroBase,
     };
   }),
+  getMe: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session?.user?.id;
+    if (!userId) {
+      throw new Error('No se ha encontrado el usuario');
+    }
+
+    return ctx.prisma.cuenta.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+  }),
 });

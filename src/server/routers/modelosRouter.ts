@@ -14,6 +14,7 @@ export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const modelos = await ctx.prisma.perfil.findMany({
       where: {
+        esPapelera: false,
         etiquetas: {
           some: {
             id: { in: ctx.etiquetasVisibles },
@@ -62,6 +63,7 @@ export const modeloRouter = router({
       })
       .perfil.findMany({
         where: {
+          esPapelera: false,
           etiquetas: {
             some: {
               id: { in: ctx.etiquetasVisibles },
@@ -69,8 +71,14 @@ export const modeloRouter = router({
           },
         },
         include: {
-          mensajes: true,
           etiquetas: true,
+          mensajes: {
+            select: {
+              visto: true,
+              message: true,
+              created_at: true,
+            },
+          },
         },
       });
 
@@ -118,6 +126,7 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findMany({
         where: {
+          esPapelera: false,
           AND: [
             {
               etiquetas: {
@@ -153,6 +162,7 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findMany({
         where: {
+          esPapelera: false,
           etiquetas: {
             some: {
               id: { in: ctx.etiquetasVisibles },
@@ -171,9 +181,9 @@ export const modeloRouter = router({
     }),
   create: publicProcedure
     .input(
-      z.object({
-        nombreCompleto: z.string(),
-        telefono: z.string(),
+      modeloSchemaCrearOEditar.pick({
+        nombreCompleto: true,
+        telefono: true,
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -210,6 +220,12 @@ export const modeloRouter = router({
         ? input.modelo.telefono
         : `549${input.modelo.telefono}`;
 
+      const telefonoSecundario = input.modelo.telefonoSecundario
+        ? input.modelo.telefonoSecundario.startsWith('549')
+          ? input.modelo.telefonoSecundario
+          : `549${input.modelo.telefonoSecundario}`
+        : undefined;
+
       const perfilConMismoTelefonoDNI = await ctx.prisma.perfil.findMany({
         where: {
           OR: [
@@ -229,6 +245,7 @@ export const modeloRouter = router({
         });
       }
       const modelos = await ctx.prisma.perfil.findMany({
+        where: {},
         select: {
           id: true,
           nombreCompleto: true,
@@ -275,6 +292,7 @@ export const modeloRouter = router({
           nombreCompleto: input.modelo.nombreCompleto,
           nombrePila: input.modelo.nombreCompleto.split(' ')[0],
           telefono: telefono,
+          telefonoSecundario: telefonoSecundario,
           genero:
             input.modelo.genero !== 'N/A' ? input.modelo.genero : undefined,
           fechaNacimiento: input.modelo.fechaNacimiento
@@ -320,12 +338,36 @@ export const modeloRouter = router({
         idLegible: z.number().optional(),
         nombreCompleto: z.string().optional(),
         nombrePila: z.string().optional(),
-        telefono: z.string().optional(),
+        telefono: z
+          .string()
+          .regex(
+            /^549(11|[2368]\d)\d{8}$/,
+            'El teléfono no es válido, debe empezar con 549 y tener 10 dígitos. Ejemplo: 5491123456789'
+          )
+          .optional(),
+        telefonoSecundario: z
+          .string()
+          .regex(
+            /^549(11|[2368]\d)\d{8}$/,
+            'El teléfono no es válido, debe empezar con 549 y tener 10 dígitos. Ejemplo: 5491123456789'
+          )
+          .optional(),
         fotoUrl: z.string().optional().nullable(),
         genero: z.string().optional(),
         fechaNacimiento: z.string().optional(),
-        instagram: z.string().optional().nullable(),
-        mail: z.string().optional().nullable(),
+        instagram: z
+          .string()
+          .regex(
+            /^[\w](?!.*?\.{2})[\w.]{1,28}[\w]$/,
+            'El instagram no es válido. No debe comenzar con @'
+          )
+          .optional()
+          .nullable(),
+        mail: z
+          .string()
+          .email('El mail no es válido, debe tener el formato mail@mail.com')
+          .optional()
+          .nullable(),
         dni: z.string().optional().nullable(),
         nombresAlternativos: z.array(z.string()).optional().nullable(),
         etiquetas: z
@@ -340,6 +382,8 @@ export const modeloRouter = router({
             })
           )
           .optional(),
+        esPapelera: z.boolean().optional(),
+        fechaPapelera: z.string().datetime().nullable().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -357,33 +401,56 @@ export const modeloRouter = router({
         }
       });
 
-      const perfilConMismoTelefono = await ctx.prisma.perfil.findMany({
-        where: {
-          OR: [
-            {
-              telefono: input.telefono,
-            },
-            {
-              dni: input.dni ?? undefined,
-            },
-          ],
-        },
-      });
-
-      if (
-        perfilConMismoTelefono &&
-        perfilConMismoTelefono.length > 0 &&
-        perfilConMismoTelefono.find((p) => p.id !== input.id)
-      ) {
-        throw new TRPCError({
-          code: 'CONFLICT',
-          message: `Ya existe un perfil con el teléfono ${input.telefono}`,
+      const perfilConMismoTelefono = await ctx.prisma.perfil
+        .findMany({
+          where: {
+            OR: [
+              {
+                telefono: input.telefono,
+              },
+              {
+                dni: input.dni ?? undefined,
+              },
+            ],
+          },
+        })
+        .then((res) => {
+          return res.filter((p) => p.id !== input.id);
         });
+
+      if (perfilConMismoTelefono && perfilConMismoTelefono.length > 0) {
+        if (perfilConMismoTelefono.some((p) => p.telefono === input.telefono)) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: `Ya existe un perfil con el teléfono ${input.telefono}`,
+          });
+        } else if (
+          perfilConMismoTelefono.some((p) => p.dni === input.dni) &&
+          input.dni
+        ) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: `Ya existe un perfil con el DNI ${input.dni}`,
+          });
+        }
       }
 
       const nombrePila = input.nombreCompleto
         ? input.nombreCompleto.split(' ')[0]
         : input.nombrePila;
+
+      const etiquetaModelo = await ctx.prisma.etiqueta.findFirst({
+        where: {
+          tipo: TipoEtiqueta.MODELO,
+        },
+      });
+
+      if (!etiquetaModelo) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'No se encontró la etiqueta de modelo',
+        });
+      }
 
       return await ctx.prisma.perfil.update({
         where: {
@@ -394,6 +461,7 @@ export const modeloRouter = router({
           idLegible: input.idLegible,
           nombrePila: nombrePila,
           telefono: input.telefono,
+          telefonoSecundario: input.telefonoSecundario,
           genero: input.genero,
           fotoUrl: input.fotoUrl,
           fechaNacimiento: input.fechaNacimiento
@@ -405,13 +473,22 @@ export const modeloRouter = router({
           nombresAlternativos: input.nombresAlternativos ?? undefined,
           etiquetas: input.etiquetas
             ? {
-                set: (input.etiquetas ?? []).map((etiqueta) => {
-                  return {
-                    id: etiqueta.id,
-                  };
-                }),
+                set: [etiquetaModelo, ...(input.etiquetas ?? [])].map(
+                  (etiqueta) => {
+                    return {
+                      id: etiqueta.id,
+                    };
+                  }
+                ),
               }
             : undefined,
+          esPapelera: input.esPapelera ?? undefined,
+          fechaPapelera:
+            input.fechaPapelera === null
+              ? null
+              : input.fechaPapelera
+                ? new Date(input.fechaPapelera)
+                : undefined,
         },
       });
     }),
@@ -426,6 +503,7 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findMany({
         where: {
+          esPapelera: false,
           AND: [
             {
               nombreCompleto: {
@@ -480,6 +558,7 @@ export const modeloRouter = router({
 
       const modelos = await ctx.prisma.perfil.findMany({
         where: {
+          esPapelera: false,
           created_at: {
             gte: startDateTime,
             lte: endDateTime,
@@ -527,6 +606,7 @@ export const modeloRouter = router({
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.perfil.findUnique({
         where: {
+          esPapelera: false,
           telefono: input,
           etiquetas: {
             some: {
@@ -536,6 +616,27 @@ export const modeloRouter = router({
         },
       });
     }),
+  getModelosPapelera: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.perfil.findMany({
+      where: {
+        esPapelera: true,
+        etiquetas: {
+          some: {
+            id: { in: ctx.etiquetasVisibles },
+          },
+        },
+      },
+      select: {
+        id: true,
+        nombreCompleto: true,
+        fotoUrl: true,
+        created_at: true,
+        esPapelera: true,
+        telefono: true,
+        fechaPapelera: true,
+      },
+    });
+  }),
 });
 
 function modelosAgrupadas(
