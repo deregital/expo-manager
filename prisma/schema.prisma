@@ -45,6 +45,8 @@ model Perfil {
   comentarios         Comentario[]
   mensajes            Mensaje[]    @relation("PERFIL_X_MENSAJE")
   etiquetas           Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
+  paisNacimiento      String?      @map("pais_nacimiento")
+  provinciaNacimiento String?      @map("provincia_nacimiento")
   residencialatitud Float?
   residencialongitud Float?
   residencia          Residencia? @relation(fields: [residencialatitud, residencialongitud], references: [latitud, longitud])

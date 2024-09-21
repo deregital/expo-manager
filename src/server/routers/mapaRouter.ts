@@ -6,7 +6,9 @@ export const mapaRouter = router({
       where: {
         // where it has some perfil associated
         perfiles: {
-          some: {},
+          some: {
+            esPapelera: false,
+          },
         },
       },
       select: {

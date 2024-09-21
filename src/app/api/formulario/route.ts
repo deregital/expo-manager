@@ -157,8 +157,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
             id: modeloEtiquetaId.id,
           },
         },
-        residencialatitud: localidad.latitud,
-        residencialongitud: localidad.longitud,
+        paisNacimiento: pais,
+        provinciaNacimiento: provincia,
         residencia: {
           connectOrCreate: {
             where: {
