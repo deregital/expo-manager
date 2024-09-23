@@ -30,7 +30,9 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
 
   const contactosNoLeidos = useMemo(() => {
     return contactosFiltrados
-      ? contactosFiltrados.filter((contacto) => contacto.mensajes.some((m) => !m.visto))
+      ? contactosFiltrados.filter((contacto) =>
+          contacto.mensajes.some((m) => !m.visto)
+        )
       : [];
   }, [contactosFiltrados]);
 
@@ -45,16 +47,34 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
       : contactosFiltrados;
   }, [contactosFiltrados, contactosNoLeidos]);
 
+  const getUltimaFechaMensaje = (contacto: any) => {
+    const ultimoMensaje =
+      contacto.mensajes.length > 0
+        ? contacto.mensajes[contacto.mensajes.length - 1]
+        : null;
+    return ultimoMensaje
+      ? new Date(ultimoMensaje.message.timestamp)
+      : new Date(0);
+  };
+
   const contactosActivos = useMemo(() => {
     return contactosLeidos
       .filter((c) => c.inChat)
-      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
+      .sort((a, b) => {
+        const fechaA = getUltimaFechaMensaje(a);
+        const fechaB = getUltimaFechaMensaje(b);
+        return fechaB.getTime() - fechaA.getTime();
+      });
   }, [contactosLeidos]);
 
   const contactosInactivos = useMemo(() => {
     return contactosLeidos
       .filter((c) => !c.inChat)
-      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
+      .sort((a, b) => {
+        const fechaA = getUltimaFechaMensaje(a);
+        const fechaB = getUltimaFechaMensaje(b);
+        return fechaB.getTime() - fechaA.getTime();
+      });
   }, [contactosLeidos]);
 
   if (contactosLoading) {
