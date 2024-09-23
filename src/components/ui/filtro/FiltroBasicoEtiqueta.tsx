@@ -4,7 +4,7 @@ import ComboBox from '@/components/ui/ComboBox';
 import { useFiltro } from '@/components/ui/filtro/Filtro';
 import { Switch } from '@/components/ui/switch';
 import { trpc } from '@/lib/trpc';
-import React, { useMemo, useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 type FiltroBasicoEtiquetaProps = {
   editarEtiq: (etiq: string) => void;
@@ -82,7 +82,8 @@ const FiltroBasicoEtiqueta = ({
         }
       />
       <ComboBox
-        data={etiquetasFiltradas ?? []}
+        data={dataEtiquetas ?? []}
+        filteredData={etiquetasFiltradas}
         id='id'
         value='nombre'
         onSelect={(value) => {

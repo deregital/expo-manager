@@ -28,6 +28,7 @@ type ComboBoxProps<
   setOpen: (_open: boolean) => void;
   triggerChildren: React.ReactNode;
   data: TData[];
+  filteredData?: TData[];
   id: Id;
   value: keyof TData;
   onSelect: (_value: string) => void;
@@ -66,6 +67,7 @@ const ComboBox = <
   contentClassName,
   placeholder,
   notFoundText,
+  filteredData,
 }: ComboBoxProps<TData, Id>) => {
   const isGrupo = 'color' in (data[0] ?? {});
   const placeholderInput = isGrupo ? 'Buscar grupo...' : 'Buscar etiqueta...';
@@ -75,12 +77,13 @@ const ComboBox = <
 
   const dataSelectedFirst = useMemo(() => {
     const selectedItem = data.find((item) => item[id] === selectedIf);
-    const sortedData = data
+
+    const sortedData = (filteredData || data)
       .filter((item) => item[id] !== selectedIf)
       .sort((a, b) => (a[value] as string).localeCompare(b[value] as string));
 
     return selectedItem ? [selectedItem, ...sortedData] : sortedData;
-  }, [data, id, selectedIf, value]);
+  }, [data, filteredData, id, selectedIf, value]);
 
   return (
     <Popover modal open={open} onOpenChange={setOpen}>

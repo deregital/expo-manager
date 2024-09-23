@@ -124,7 +124,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
         </h1>
       </div>
       <Filtro
-        className='p-0'
+        className='py-1'
         funcionFiltrado={filtrarModelos}
         mostrarEtiq
         mostrarInput
