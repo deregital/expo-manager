@@ -52,8 +52,11 @@ const MapaClient = ({}: MapaClientProps) => {
           Cargando el mapa...
         </div>
       ) : (
-        <MapContainer center={[-37.973, -68.937]} zoom={5}>
-          <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' />
+        <MapContainer center={[-37.973, -68.937]} zoom={5} minZoom={2}>
+          <TileLayer
+            url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+            noWrap
+          />
           {markers &&
             Object.values(markers).map((marker) => {
               const tailwindClass = ColorMarker(marker._count.perfiles);
