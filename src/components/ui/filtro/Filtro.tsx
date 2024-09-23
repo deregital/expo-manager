@@ -30,11 +30,13 @@ type FiltroProps = PropsWithChildren<{
   mostrarEtiq?: boolean;
   mostrarInput?: boolean;
   className?: string;
+  defaultFiltro?: Partial<FiltroType>;
 }>;
 
 const Filtro = ({
   funcionFiltrado,
   className,
+  defaultFiltro = defaultFilter,
   mostrarEtiq = false,
   mostrarInput = false,
   children,
@@ -116,14 +118,30 @@ const Filtro = ({
   }
 
   const etiquetaBasico = useMemo(() => {
+    if (
+      defaultFiltro.etiquetas &&
+      defaultFiltro.etiquetas.length > 0 &&
+      filtro.etiquetas.length === 0
+    ) {
+      return defaultFiltro.etiquetas[0].etiqueta.id;
+    }
+
     return filtro.etiquetas.length > 0
       ? filtro.etiquetas[0].etiqueta.id
       : undefined;
-  }, [filtro.etiquetas]);
+  }, [defaultFiltro.etiquetas, filtro.etiquetas]);
 
   const grupoBasico = useMemo(() => {
+    if (
+      defaultFiltro.grupos &&
+      defaultFiltro.grupos.length > 0 &&
+      filtro.grupos.length === 0
+    ) {
+      return defaultFiltro.grupos[0].grupo.id;
+    }
+
     return filtro.grupos.length > 0 ? filtro.grupos[0].grupo.id : undefined;
-  }, [filtro.grupos]);
+  }, [defaultFiltro.grupos, filtro.grupos]);
 
   useEffect(() => {
     const filtrar = () => {
