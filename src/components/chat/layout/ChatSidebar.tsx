@@ -88,7 +88,7 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
   return (
     contactos && (
       <aside className='grid h-full grid-cols-1 grid-rows-[auto,1fr]'>
-        <div>
+        <div className='max-h-96 overflow-y-auto'>
           {contactosNoLeidos.map((contacto) => (
             <Link
               href={`/mensajes/${contacto.telefono}`}
