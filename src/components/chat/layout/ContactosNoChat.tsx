@@ -29,7 +29,7 @@ const ContactosNoChat = ({ telefonoSelected, items }: ContactosNoChatProps) => {
   const rowVirtualizer = useVirtualizer({
     count: items.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 70, // Estimación del tamaño en píxeles por cada item
+    estimateSize: () => 80, // Estimación del tamaño en píxeles por cada item
   });
 
   return (
@@ -59,7 +59,7 @@ const ContactosNoChat = ({ telefonoSelected, items }: ContactosNoChatProps) => {
                     top: 0,
                     left: 0,
                     width: '100%',
-                    height: `${virtualRow.size}px`,
+
                     transform: `translateY(${virtualRow.start}px)`,
                   }}
                 >
