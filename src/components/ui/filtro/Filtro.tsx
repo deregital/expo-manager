@@ -153,6 +153,21 @@ const Filtro = ({
       >
         {mostrarEtiq && (
           <FiltroBasicoEtiqueta
+            include={filtro.etiquetas.length > 0 && filtro.etiquetas[0].include}
+            setInclude={(value) => {
+              useFiltro.setState({
+                etiquetas: [
+                  {
+                    ...(filtro.etiquetas[0] ?? {
+                      id: undefined,
+                    }),
+                    include: value,
+                  },
+                  ...filtro.etiquetas.slice(1, filtro.etiquetas.length),
+                ],
+              });
+            }}
+            switchDisabled={filtro.etiquetas.length === 0}
             editarEtiq={editarEtiq}
             editarGrupoEtiq={editarGrupoEtiq}
             grupoId={grupoBasico}
