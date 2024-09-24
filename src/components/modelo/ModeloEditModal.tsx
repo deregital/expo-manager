@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { trpc } from '@/lib/trpc';
+import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { differenceInYears } from 'date-fns';
 import { TrashIcon } from 'lucide-react';
@@ -348,7 +349,12 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           </div>
           <div className='w-full'>
             <Label htmlFor='telefono'>Teléfono</Label>
-            <div className='flex items-center'>
+            <div
+              className={cn(
+                'flex items-center',
+                telefonoSecundario !== undefined && 'flex-col'
+              )}
+            >
               <Input
                 type='text'
                 name='telefono'
@@ -361,7 +367,34 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
                 }}
               />
 
-              {}
+              {telefonoSecundario !== undefined && (
+                <div className='mt-2 w-full'>
+                  <Label htmlFor='telefonoSecundario'>
+                    Teléfono Secundario
+                  </Label>
+                  <div className='flex items-center'>
+                    <Input
+                      type='text'
+                      name='telefonoSecundario'
+                      id='telefonoSecundario'
+                      value={telefonoSecundario ?? ''}
+                      onChange={(e) => {
+                        useModeloModalData.setState({
+                          telefonoSecundario:
+                            e.currentTarget.value || undefined,
+                        });
+                      }}
+                    />
+                  </div>
+                  <Button
+                    variant='secondary'
+                    className='mt-2 bg-blue-800 p-2 text-white hover:bg-blue-900'
+                    onClick={intercambiarNumeros}
+                  >
+                    Intercambiar Teléfonos
+                  </Button>
+                </div>
+              )}
               {telefonoSecundario === undefined && (
                 <Button
                   variant='secondary'
@@ -378,33 +411,6 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               )}
             </div>
           </div>
-
-          {}
-          {telefonoSecundario !== undefined && (
-            <div className='mt-4 w-full'>
-              <Label htmlFor='telefonoSecundario'>Teléfono Secundario</Label>
-              <div className='flex items-center'>
-                <Input
-                  type='text'
-                  name='telefonoSecundario'
-                  id='telefonoSecundario'
-                  value={telefonoSecundario ?? ''}
-                  onChange={(e) => {
-                    useModeloModalData.setState({
-                      telefonoSecundario: e.currentTarget.value || undefined,
-                    });
-                  }}
-                />
-              </div>
-              <Button
-                variant='secondary'
-                className='mt-2 bg-blue-800 p-2 text-white hover:bg-blue-900'
-                onClick={intercambiarNumeros}
-              >
-                Intercambiar Teléfonos
-              </Button>
-            </div>
-          )}
         </div>
         <div className='flex flex-col gap-y-2'>
           <Label htmlFor='nombresAlternativos'>Nombres Alternativos</Label>
