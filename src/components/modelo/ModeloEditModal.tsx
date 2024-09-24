@@ -80,8 +80,6 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
   } = useModeloModalData();
   const [openSelect, setOpenSelect] = useState(false);
   const [error, setError] = useState('');
-  const [provinciaResidencia, setProvinciaResidencia] = useState('');
-  const [localidadResidencia, setLocalidadResidencia] = useState('');
   const utils = trpc.useUtils();
 
   useEffect(() => {
@@ -134,6 +132,12 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     lat: latitudResidencia ?? 0,
     lon: longitudResidencia ?? 0,
   });
+  const [provinciaResidencia, setProvinciaResidencia] = useState(
+    data?.provincia ?? ''
+  );
+  const [localidadResidencia, setLocalidadResidencia] = useState(
+    data?.nombre ?? ''
+  );
   useEffect(() => {
     const countries = Country.getAllCountries().filter(
       (country) => country.name !== 'Palestinian Territory Occupied'
@@ -502,16 +506,17 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
         <div className='flex items-center justify-between'>
           <Select
             onValueChange={(value) => {
-              setSelectedCity(value as string);
+              setSelectedArgentineProvince(value as string);
+              setProvinciaResidencia(value as string);
             }}
           >
             <SelectTrigger>
               <SelectValue>{provinciaResidencia || 'Provincia'}</SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {citiesData?.map((localidad) => (
-                <SelectItem key={localidad.id} value={localidad.nombre}>
-                  {localidad.nombre}
+              {argentineProvinces.map((state) => (
+                <SelectItem key={state.isoCode} value={state.name}>
+                  {state.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -519,21 +524,16 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           <Select
             onValueChange={(value) => {
               setSelectedCity(value as string);
+              setLocalidadResidencia(value as string);
             }}
           >
             <SelectTrigger>
               <SelectValue>{localidadResidencia || 'Localidad'}</SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {states.map((state) => (
-                <SelectItem
-                  key={state.isoCode}
-                  onClick={() => {
-                    setLocalidadResidencia(state.name);
-                  }}
-                  value={state.name}
-                >
-                  {state.name}
+              {citiesData?.map((localidad) => (
+                <SelectItem key={localidad.id} value={localidad.nombre}>
+                  {localidad.nombre}
                 </SelectItem>
               ))}
             </SelectContent>
