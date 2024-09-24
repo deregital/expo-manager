@@ -446,7 +446,7 @@ const FormCrearModelo = ({
             ))}
           </SelectContent>
         </Select>
-        <Select>
+        <Select disabled={!selectedCountry}>
           <SelectTrigger>
             <SelectValue placeholder='Selecciona tu provincia' />
           </SelectTrigger>
@@ -497,7 +497,7 @@ const FormCrearModelo = ({
             ))}
           </SelectContent>
         </Select>
-        <Select>
+        <Select disabled={!selectedArgentineProvince}>
           <SelectTrigger>
             <SelectValue placeholder='Selecciona tu localidad' />
           </SelectTrigger>
