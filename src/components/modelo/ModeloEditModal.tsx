@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
+import { Country, ICountry, IState, State } from 'country-state-city';
 import { differenceInYears } from 'date-fns';
 import { TrashIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -35,6 +36,10 @@ interface ModeloModalData {
   dni: string | undefined;
   telefono: string | undefined;
   nombreCompleto: string | undefined;
+  paisNacimiento: string;
+  provinciaNacimiento: string;
+  latitudResidencia: number | null;
+  longitudResidencia: number | null;
 }
 
 export function edadFromFechaNacimiento(fechaNacimiento: string) {
@@ -51,6 +56,10 @@ const useModeloModalData = create<ModeloModalData>(() => ({
   dni: undefined,
   telefono: undefined,
   nombreCompleto: undefined,
+  paisNacimiento: '',
+  provinciaNacimiento: '',
+  latitudResidencia: null,
+  longitudResidencia: null,
 }));
 
 const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
@@ -64,9 +73,15 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     dni,
     telefono,
     nombreCompleto,
+    paisNacimiento,
+    provinciaNacimiento,
+    latitudResidencia,
+    longitudResidencia,
   } = useModeloModalData();
   const [openSelect, setOpenSelect] = useState(false);
   const [error, setError] = useState('');
+  const [provinciaResidencia, setProvinciaResidencia] = useState('');
+  const [localidadResidencia, setLocalidadResidencia] = useState('');
   const utils = trpc.useUtils();
 
   useEffect(() => {
@@ -80,6 +95,10 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       dni: modelo.dni ?? undefined,
       telefono: modelo.telefono ?? undefined,
       nombreCompleto: modelo.nombreCompleto ?? undefined,
+      paisNacimiento: modelo.paisNacimiento ?? '',
+      provinciaNacimiento: modelo.provinciaNacimiento ?? '',
+      latitudResidencia: modelo.residencialatitud ?? null,
+      longitudResidencia: modelo.residencialongitud ?? null,
     });
   }, [
     modelo.fechaNacimiento,
@@ -89,7 +108,47 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     modelo.dni,
     modelo.telefono,
     modelo.nombreCompleto,
+    modelo.paisNacimiento,
+    modelo.provinciaNacimiento,
+    modelo.residencialatitud,
+    modelo.residencialongitud,
   ]);
+
+  const [countries, setCountries] = useState<NonNullable<ICountry[]>>([]);
+  const [states, setStates] = useState<NonNullable<IState[]>>([]);
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedState, setSelectedState] = useState(provinciaNacimiento);
+  const [argentineProvinces, setArgentineProvinces] = useState<
+    NonNullable<IState[]>
+  >(State.getStatesOfCountry('AR'));
+  const [selectedArgentineProvince, setSelectedArgentineProvince] =
+    useState('');
+  const [selectedCity, setSelectedCity] = useState('');
+  const { data: citiesData } = trpc.mapa.getLocalidadesByProvincia.useQuery(
+    selectedArgentineProvince,
+    {
+      enabled: !!selectedArgentineProvince,
+    }
+  );
+  const { data } = trpc.mapa.getLocalidadByLatLon.useQuery({
+    lat: latitudResidencia ?? 0,
+    lon: longitudResidencia ?? 0,
+  });
+  useEffect(() => {
+    const countries = Country.getAllCountries().filter(
+      (country) => country.name !== 'Palestinian Territory Occupied'
+    );
+    setCountries(countries);
+  }, []);
+
+  useEffect(() => {
+    if (selectedCountry) {
+      setStates(State.getStatesOfCountry(selectedCountry));
+    } else {
+      setStates([]);
+    }
+    setSelectedState('');
+  }, [selectedCountry]);
 
   const editModelo = trpc.modelo.edit.useMutation({
     onSuccess: () => {
@@ -137,6 +196,17 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     });
   };
 
+  useEffect(() => {
+    if (data) {
+      useModeloModalData.setState({
+        latitudResidencia: data.centroide.lat,
+        longitudResidencia: data.centroide.lon,
+      });
+      setProvinciaResidencia(data.provincia);
+      setLocalidadResidencia(data.nombre);
+    }
+  }, [latitudResidencia, longitudResidencia]);
+
   const handleNicknameChange = (index: number, value: string) => {
     const newNombresAlternativos = [...nombresAlternativos];
     newNombresAlternativos[index] = value;
@@ -166,6 +236,12 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
         dni: dni ?? null,
         telefono: telefono ?? undefined,
         nombreCompleto: nombreCompleto ?? undefined,
+        paisNacimiento: paisNacimiento ?? '',
+        provinciaNacimiento: provinciaNacimiento,
+        residenciaLatitud: modelo.residencialatitud ?? 0,
+        residenciaLongitud: modelo.residencialongitud ?? 0,
+        provinciaResidencia: provinciaResidencia,
+        localidadResidencia: localidadResidencia,
       });
     } catch (error) {}
   }
@@ -377,7 +453,92 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             <CirclePlus className='h-6 w-6' />
           </Button>
         </div>
-
+        <Label>Lugar de nacimiento:</Label>
+        <div className='flex items-center justify-between pb-3'>
+          <Select
+            onValueChange={(value) => {
+              setSelectedCountry(value as string);
+              useModeloModalData.setState({
+                paisNacimiento: countries.find(
+                  (country) => country.isoCode === value
+                )?.name as string,
+              });
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue>{paisNacimiento || 'País'}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {countries.map((country) => (
+                <SelectItem key={country.isoCode} value={country.isoCode}>
+                  {country.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            onValueChange={(value) => {
+              setSelectedState(value as string);
+              useModeloModalData.setState({
+                provinciaNacimiento: states.find(
+                  (state) => state.isoCode === value
+                )?.name as string,
+              });
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue>{provinciaNacimiento || 'Provincia'}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {states.map((state) => (
+                <SelectItem key={state.isoCode} value={state.isoCode}>
+                  {state.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Label>Lugar de residencia: (Argentina)</Label>
+        <div className='flex items-center justify-between'>
+          <Select
+            onValueChange={(value) => {
+              setSelectedCity(value as string);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue>{provinciaResidencia || 'Provincia'}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {citiesData?.map((localidad) => (
+                <SelectItem key={localidad.id} value={localidad.nombre}>
+                  {localidad.nombre}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            onValueChange={(value) => {
+              setSelectedCity(value as string);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue>{localidadResidencia || 'Localidad'}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {states.map((state) => (
+                <SelectItem
+                  key={state.isoCode}
+                  onClick={() => {
+                    setLocalidadResidencia(state.name);
+                  }}
+                  value={state.name}
+                >
+                  {state.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         {editModelo.isError || error !== '' ? (
           <p className='text-sm font-semibold text-red-500'>
             {error ??

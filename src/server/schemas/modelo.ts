@@ -28,4 +28,14 @@ export const modeloSchemaCrearOEditar = z.object({
       'El instagram no es válido. No debe comenzar con @'
     )
     .optional(),
+  paisNacimiento: z
+    .string()
+    .min(1, 'El país de nacimiento es un campo obligatorio'),
+  provinciaNacimiento: z
+    .string()
+    .min(1, 'La provincia de nacimiento es un campo obligatorio'),
+  provinciaResidencia: z.string(),
+  localidadResidencia: z.string(),
+  residenciaLatitud: z.number().min(-90).max(90),
+  residenciaLongitud: z.number().min(-180).max(180),
 });

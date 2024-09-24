@@ -293,6 +293,24 @@ export const modeloRouter = router({
           instagram: input.modelo.instagram
             ? input.modelo.instagram
             : undefined,
+          paisNacimiento: input.modelo.paisNacimiento,
+          provinciaNacimiento: input.modelo.provinciaNacimiento,
+          residencia: {
+            connectOrCreate: {
+              where: {
+                latitud_longitud: {
+                  latitud: input.modelo.residenciaLatitud ?? 0,
+                  longitud: input.modelo.residenciaLongitud ?? 0,
+                },
+              },
+              create: {
+                latitud: input.modelo.residenciaLatitud ?? 0,
+                longitud: input.modelo.residenciaLongitud ?? 0,
+                localidad: input.modelo.localidadResidencia,
+                provincia: input.modelo.provinciaResidencia,
+              },
+            },
+          },
         },
         select: {
           id: true,
@@ -354,6 +372,12 @@ export const modeloRouter = router({
           .optional(),
         esPapelera: z.boolean().optional(),
         fechaPapelera: z.string().datetime().nullable().optional(),
+        paisNacimiento: z.string().optional(),
+        provinciaNacimiento: z.string().optional(),
+        provinciaResidencia: z.string().optional(),
+        localidadResidencia: z.string().optional(),
+        residenciaLatitud: z.number().optional(),
+        residenciaLongitud: z.number().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -458,6 +482,24 @@ export const modeloRouter = router({
               : input.fechaPapelera
                 ? new Date(input.fechaPapelera)
                 : undefined,
+          paisNacimiento: input.paisNacimiento,
+          provinciaNacimiento: input.provinciaNacimiento,
+          residencia: {
+            connectOrCreate: {
+              where: {
+                latitud_longitud: {
+                  latitud: input.residenciaLatitud ?? 0,
+                  longitud: input.residenciaLongitud ?? 0,
+                },
+              },
+              create: {
+                latitud: input.residenciaLatitud ?? 0,
+                longitud: input.residenciaLongitud ?? 0,
+                localidad: input.localidadResidencia ?? '',
+                provincia: input.provinciaResidencia ?? '',
+              },
+            },
+          },
         },
       });
     }),

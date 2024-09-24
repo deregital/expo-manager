@@ -100,6 +100,16 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
           instagram: modalModelo.modelo.instagram,
           etiquetas: etiquetasInsertar.map((e) => e.id),
           apodos: modalModelo.modelo.apodos.filter((e) => e !== ''),
+          paisNacimiento: modalModelo.modelo.paisNacimiento,
+          provinciaNacimiento: modalModelo.modelo.provinciaNacimiento,
+          provinciaResidencia: modalModelo.modelo.provinciaResidencia,
+          localidadResidencia: modalModelo.modelo.localidadResidencia,
+          residenciaLatitud: modalModelo.modelo.residenciaLatitud
+            ? modalModelo.modelo.residenciaLatitud
+            : 0,
+          residenciaLongitud: modalModelo.modelo.residenciaLongitud
+            ? modalModelo.modelo.residenciaLongitud
+            : 0,
         },
         similarity: similarity,
       })
@@ -137,6 +147,12 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
           dni: '',
           mail: '',
           instagram: '',
+          paisNacimiento: '',
+          provinciaNacimiento: '',
+          provinciaResidencia: '',
+          localidadResidencia: '',
+          residenciaLatitud: null,
+          residenciaLongitud: null,
         },
       });
       searchParams.delete('modal');
@@ -189,6 +205,12 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         dni: '',
         mail: '',
         instagram: '',
+        paisNacimiento: '',
+        provinciaNacimiento: '',
+        provinciaResidencia: '',
+        localidadResidencia: '',
+        residenciaLatitud: null,
+        residenciaLongitud: null,
       },
     });
     searchParams.delete('modal');
