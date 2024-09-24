@@ -18,6 +18,10 @@ type ModeloModal = {
     dni: string;
     mail: string;
     instagram: string;
+    paisNacimiento: string;
+    provinciaNacimiento: string;
+    residenciaLatitud: number | null;
+    residenciaLongitud: number | null;
   };
 };
 
@@ -33,6 +37,10 @@ export const useCrearModeloModal = create<ModeloModal>(() => ({
     dni: '',
     mail: '',
     instagram: '',
+    paisNacimiento: '',
+    provinciaNacimiento: '',
+    residenciaLatitud: null,
+    residenciaLongitud: null,
   },
 }));
 
