@@ -147,7 +147,11 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
 
   useEffect(() => {
     if (selectedCountry) {
-      setStates(State.getStatesOfCountry(selectedCountry));
+      setStates(
+        State.getStatesOfCountry(selectedCountry).sort((a, b) =>
+          a.name.localeCompare(b.name)
+        )
+      );
     } else {
       setStates([]);
     }
@@ -209,7 +213,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       setProvinciaResidencia(data.provincia);
       setLocalidadResidencia(data.nombre);
     }
-  }, [latitudResidencia, longitudResidencia]);
+  }, [data, latitudResidencia, longitudResidencia]);
 
   const handleNicknameChange = (index: number, value: string) => {
     const newNombresAlternativos = [...nombresAlternativos];

@@ -70,13 +70,15 @@ export const mapaRouter = router({
           message: 'No se encontraron localidades',
         });
       }
-      return localidadesByState.map((localidad) => {
-        return {
-          id: localidad.id,
-          nombre: localidad.nombre,
-          centroide: localidad.centroide,
-        };
-      });
+      return localidadesByState
+        .map((localidad) => {
+          return {
+            id: localidad.id,
+            nombre: localidad.nombre,
+            centroide: localidad.centroide,
+          };
+        })
+        .sort((a, b) => a.nombre.localeCompare(b.nombre));
     }),
   getLocalidadByLatLon: protectedProcedure
     .input(
