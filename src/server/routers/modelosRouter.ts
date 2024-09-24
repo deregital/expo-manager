@@ -293,6 +293,24 @@ export const modeloRouter = router({
           instagram: input.modelo.instagram
             ? input.modelo.instagram
             : undefined,
+          paisNacimiento: input.modelo.paisNacimiento,
+          provinciaNacimiento: input.modelo.provinciaNacimiento,
+          residencia: {
+            connectOrCreate: {
+              where: {
+                latitud_longitud: {
+                  latitud: input.modelo.residenciaLatitud ?? 0,
+                  longitud: input.modelo.residenciaLongitud ?? 0,
+                },
+              },
+              create: {
+                latitud: input.modelo.residenciaLatitud ?? 0,
+                longitud: input.modelo.residenciaLongitud ?? 0,
+                localidad: input.modelo.localidadResidencia,
+                provincia: input.modelo.provinciaResidencia,
+              },
+            },
+          },
         },
         select: {
           id: true,

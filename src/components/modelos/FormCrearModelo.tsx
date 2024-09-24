@@ -459,7 +459,7 @@ const FormCrearModelo = ({
                   useCrearModeloModal.setState({
                     modelo: {
                       ...modalModelo.modelo,
-                      paisNacimiento: state.name,
+                      provinciaNacimiento: state.name,
                     },
                   });
                 }}
@@ -486,7 +486,7 @@ const FormCrearModelo = ({
                   useCrearModeloModal.setState({
                     modelo: {
                       ...modalModelo.modelo,
-                      provinciaNacimiento: province.name,
+                      provinciaResidencia: province.name,
                     },
                   });
                 }}
@@ -512,6 +512,7 @@ const FormCrearModelo = ({
                       ...modalModelo.modelo,
                       residenciaLatitud: city.centroide.lat,
                       residenciaLongitud: city.centroide.lon,
+                      localidadResidencia: city.nombre,
                     },
                   });
                 }}

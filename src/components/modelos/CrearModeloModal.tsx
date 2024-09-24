@@ -102,6 +102,8 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
           apodos: modalModelo.modelo.apodos.filter((e) => e !== ''),
           paisNacimiento: modalModelo.modelo.paisNacimiento,
           provinciaNacimiento: modalModelo.modelo.provinciaNacimiento,
+          provinciaResidencia: modalModelo.modelo.provinciaResidencia,
+          localidadResidencia: modalModelo.modelo.localidadResidencia,
           residenciaLatitud: modalModelo.modelo.residenciaLatitud
             ? modalModelo.modelo.residenciaLatitud
             : 0,
@@ -147,6 +149,8 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
           instagram: '',
           paisNacimiento: '',
           provinciaNacimiento: '',
+          provinciaResidencia: '',
+          localidadResidencia: '',
           residenciaLatitud: null,
           residenciaLongitud: null,
         },
@@ -203,6 +207,8 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         instagram: '',
         paisNacimiento: '',
         provinciaNacimiento: '',
+        provinciaResidencia: '',
+        localidadResidencia: '',
         residenciaLatitud: null,
         residenciaLongitud: null,
       },

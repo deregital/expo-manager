@@ -34,6 +34,8 @@ export const modeloSchemaCrearOEditar = z.object({
   provinciaNacimiento: z
     .string()
     .min(1, 'La provincia de nacimiento es un campo obligatorio'),
+  provinciaResidencia: z.string(),
+  localidadResidencia: z.string(),
   residenciaLatitud: z.number().min(-90).max(90),
   residenciaLongitud: z.number().min(-180).max(180),
 });
