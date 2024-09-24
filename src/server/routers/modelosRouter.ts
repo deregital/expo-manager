@@ -244,6 +244,23 @@ export const modeloRouter = router({
           message: `Ya existe un perfil con el mismo teléfono o DNI`,
         });
       }
+      const perfilConMismoTelefonoSecundario = await ctx.prisma.perfil.findMany(
+        {
+          where: {
+            telefonoSecundario: input.modelo.telefonoSecundario ?? undefined,
+          },
+        }
+      );
+      if (
+        perfilConMismoTelefonoSecundario &&
+        perfilConMismoTelefonoSecundario.length > 0
+      ) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: `Ya existe un perfil con el mismo teléfono secundario`,
+        });
+      }
+
       const modelos = await ctx.prisma.perfil.findMany({
         where: {},
         select: {
@@ -411,6 +428,9 @@ export const modeloRouter = router({
               {
                 dni: input.dni ?? undefined,
               },
+              {
+                telefonoSecundario: input.telefonoSecundario ?? undefined,
+              },
             ],
           },
         })
@@ -431,6 +451,16 @@ export const modeloRouter = router({
           throw new TRPCError({
             code: 'CONFLICT',
             message: `Ya existe un perfil con el DNI ${input.dni}`,
+          });
+        } else if (
+          perfilConMismoTelefono.some(
+            (p) => p.telefonoSecundario === input.telefonoSecundario
+          ) &&
+          input.telefonoSecundario
+        ) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: `Ya existe un perfil con el teléfono secundario ${input.telefonoSecundario}`,
           });
         }
       }
