@@ -360,25 +360,26 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
                   });
                 }}
               />
-              <Button
-                variant='secondary'
-                className='ml-2 bg-black p-2 text-white hover:bg-gray-700'
-                title={
-                  telefonoSecundario
-                    ? 'Eliminar Teléfono Secundario'
-                    : 'Agregar Teléfono Secundario'
-                }
-                onClick={() => {
-                  useModeloModalData.setState({
-                    telefonoSecundario: telefonoSecundario ? undefined : '',
-                  });
-                }}
-              >
-                {telefonoSecundario ? '-' : '+'}
-              </Button>
+
+              {}
+              {telefonoSecundario === undefined && (
+                <Button
+                  variant='secondary'
+                  className='ml-2 bg-black p-2 text-white hover:bg-gray-700'
+                  title='Agregar Teléfono Secundario'
+                  onClick={() => {
+                    useModeloModalData.setState({
+                      telefonoSecundario: '',
+                    });
+                  }}
+                >
+                  +
+                </Button>
+              )}
             </div>
           </div>
 
+          {}
           {telefonoSecundario !== undefined && (
             <div className='mt-4 w-full'>
               <Label htmlFor='telefonoSecundario'>Teléfono Secundario</Label>
