@@ -78,4 +78,31 @@ export const mapaRouter = router({
         };
       });
     }),
+  getLocalidadByLatLon: protectedProcedure
+    .input(
+      z.object({
+        lat: z.number(),
+        lon: z.number(),
+      })
+    )
+    .query(async ({ input }) => {
+      const localidades: LocalidadesJson = require('../../lib/localidades.json');
+      const localidad = localidades.localidades.find(
+        (localidad) =>
+          localidad.centroide.lat === input.lat &&
+          localidad.centroide.lon === input.lon
+      );
+      if (!localidad) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'No se encontró la localidad',
+        });
+      }
+      return {
+        id: localidad.id,
+        provincia: localidad.provincia.nombre,
+        nombre: localidad.nombre,
+        centroide: localidad.centroide,
+      };
+    }),
 });
