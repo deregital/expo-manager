@@ -75,12 +75,6 @@ const FormCrearModelo = ({
   useEffect(() => {
     if (selectedCountry) {
       setStates(State.getStatesOfCountry(selectedCountry));
-      useCrearModeloModal.setState({
-        modelo: {
-          ...modalModelo.modelo,
-          paisNacimiento: selectedCountry,
-        },
-      });
     } else {
       setStates([]);
     }
@@ -428,96 +422,110 @@ const FormCrearModelo = ({
           }}
         />
       </div>
-      <div>
+      <div className='flex flex-col gap-y-2'>
         <Label className='pt-2 text-sm'>Nacionalidad:</Label>
-        <Select>
+        <Select
+          onValueChange={(value) => {
+            setSelectedCountry(value as string);
+            useCrearModeloModal.setState({
+              modelo: {
+                ...modalModelo.modelo,
+                paisNacimiento: countries.find(
+                  (country) => country.isoCode === value
+                )?.name as string,
+              },
+            });
+          }}
+        >
           <SelectTrigger>
             <SelectValue placeholder='Selecciona tu país' />
           </SelectTrigger>
           <SelectContent>
             {countries.map((country) => (
-              <SelectItem
-                key={country.isoCode}
-                onClick={() => setSelectedCountry(country.isoCode)}
-                value={country.isoCode}
-              >
+              <SelectItem key={country.isoCode} value={country.isoCode}>
                 {country.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Select disabled={!selectedCountry}>
+        <Select
+          disabled={!selectedCountry}
+          onValueChange={(value) => {
+            setSelectedState(value as string);
+            useCrearModeloModal.setState({
+              modelo: {
+                ...modalModelo.modelo,
+                provinciaNacimiento: states.find(
+                  (state) => state.isoCode === value
+                )?.name as string,
+              },
+            });
+          }}
+        >
           <SelectTrigger>
             <SelectValue placeholder='Selecciona tu provincia' />
           </SelectTrigger>
           <SelectContent>
             {states.map((state) => (
-              <SelectItem
-                key={state.isoCode}
-                onClick={() => {
-                  setSelectedState(state.isoCode);
-                  useCrearModeloModal.setState({
-                    modelo: {
-                      ...modalModelo.modelo,
-                      provinciaNacimiento: state.name,
-                    },
-                  });
-                }}
-                value={state.isoCode}
-              >
+              <SelectItem key={state.isoCode} value={state.isoCode}>
                 {state.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
-      <div>
+      <div className='flex flex-col gap-y-2 pb-2'>
         <Label className='pt-2 text-sm'>Lugar de residencia (Argentina):</Label>
-        <Select>
+        <Select
+          onValueChange={(value) => {
+            setSelectedArgentineProvince(value as string);
+            useCrearModeloModal.setState({
+              modelo: {
+                ...modalModelo.modelo,
+                provinciaResidencia: argentineProvinces.find(
+                  (province) => province.name === value
+                )?.name as string,
+              },
+            });
+          }}
+        >
           <SelectTrigger>
             <SelectValue placeholder='Selecciona tu provincia' />
           </SelectTrigger>
           <SelectContent>
             {argentineProvinces.map((province) => (
-              <SelectItem
-                key={province.isoCode}
-                onClick={() => {
-                  setSelectedArgentineProvince(province.name);
-                  useCrearModeloModal.setState({
-                    modelo: {
-                      ...modalModelo.modelo,
-                      provinciaResidencia: province.name,
-                    },
-                  });
-                }}
-                value={province.isoCode}
-              >
+              <SelectItem key={province.isoCode} value={province.name}>
                 {province.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Select disabled={!selectedArgentineProvince}>
+        <Select
+          disabled={!selectedArgentineProvince}
+          onValueChange={(value) => {
+            setSelectedCity(value as string);
+            useCrearModeloModal.setState({
+              modelo: {
+                ...modalModelo.modelo,
+                localidadResidencia: citiesData?.find(
+                  (city) => city.nombre === value
+                )?.nombre as string,
+                residenciaLatitud: citiesData?.find(
+                  (city) => city.nombre === value
+                )?.centroide.lat as number,
+                residenciaLongitud: citiesData?.find(
+                  (city) => city.nombre === value
+                )?.centroide.lon as number,
+              },
+            });
+          }}
+        >
           <SelectTrigger>
             <SelectValue placeholder='Selecciona tu localidad' />
           </SelectTrigger>
           <SelectContent>
             {citiesData?.map((city) => (
-              <SelectItem
-                key={city.id}
-                onClick={() => {
-                  setSelectedCity(city.nombre);
-                  useCrearModeloModal.setState({
-                    modelo: {
-                      ...modalModelo.modelo,
-                      residenciaLatitud: city.centroide.lat,
-                      residenciaLongitud: city.centroide.lon,
-                      localidadResidencia: city.nombre,
-                    },
-                  });
-                }}
-                value={city.id}
-              >
+              <SelectItem key={city.id} value={city.nombre}>
                 {city.nombre}
               </SelectItem>
             ))}
