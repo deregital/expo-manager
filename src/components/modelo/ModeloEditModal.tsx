@@ -83,7 +83,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       mail: modelo.mail ?? undefined,
       dni: modelo.dni ?? undefined,
       telefono: modelo.telefono ?? undefined,
-      telefonoSecundario: modelo.telefonoSecundario ?? undefined,
+      telefonoSecundario: modelo.telefonoSecundario,
       nombreCompleto: modelo.nombreCompleto ?? undefined,
     });
   }, [
@@ -152,6 +152,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
   }
 
   function intercambiarNumeros() {
+    if (!telefono || !telefonoSecundario) return;
     useModeloModalData.setState((state) => {
       if (!state.telefonoSecundario) return {};
       return {
@@ -162,11 +163,10 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
   }
 
   async function edit() {
-    // if (!genero || !fechaNacimiento || !nombreCompleto) {
-    //   setError('Debe ingresar un género, una fecha de nacimiento y un nombre');
-    //   return;
-    // }
-
+    if (!telefono) {
+      setError('El teléfono es requerido');
+      return;
+    }
     try {
       return await editModelo.mutateAsync({
         id: modelo.id,
@@ -181,7 +181,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
         mail: mail ?? null,
         dni: dni ?? null,
         telefono: telefono ?? undefined,
-        telefonoSecundario: telefonoSecundario ?? undefined,
+        telefonoSecundario: telefonoSecundario,
         nombreCompleto: nombreCompleto ?? undefined,
       });
     } catch (error) {}
