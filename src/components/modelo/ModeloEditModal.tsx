@@ -486,7 +486,6 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             </SelectContent>
           </Select>
         </div>
-
         <Label>Lugar de residencia:</Label>
         <div className='flex items-center justify-between gap-x-4 pb-3'>
           <Select
