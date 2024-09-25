@@ -41,7 +41,10 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
 
               {}
               <span className='ml-2 flex items-center justify-center rounded bg-gray-200 p-1'>
-                <Link href={`/modelo/${perfil.id}`}>
+                <Link
+                  href={`/modelo/${perfil.id}`}
+                  title='Ir a la vista de la modelo'
+                >
                   <ModeloFillIcon />
                 </Link>
               </span>
