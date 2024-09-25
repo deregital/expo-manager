@@ -15,10 +15,10 @@ import {
 } from '@/components/ui/select';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
-import { Country, ICountry, IState, State } from 'country-state-city';
+import { Country, State } from 'country-state-city';
 import { differenceInYears } from 'date-fns';
 import { TrashIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 
@@ -36,10 +36,16 @@ interface ModeloModalData {
   dni: string | undefined;
   telefono: string | undefined;
   nombreCompleto: string | undefined;
-  paisNacimiento: string;
-  provinciaNacimiento: string;
-  latitudResidencia: number | null;
-  longitudResidencia: number | null;
+  paisNacimiento: string | undefined;
+  provinciaNacimiento: string | undefined;
+  residencia:
+    | {
+        latitud?: number | undefined;
+        longitud?: number | undefined;
+        provincia: string | undefined;
+        localidad: string | undefined;
+      }
+    | undefined;
 }
 
 export function edadFromFechaNacimiento(fechaNacimiento: string) {
@@ -56,10 +62,14 @@ const useModeloModalData = create<ModeloModalData>(() => ({
   dni: undefined,
   telefono: undefined,
   nombreCompleto: undefined,
-  paisNacimiento: '',
-  provinciaNacimiento: '',
-  latitudResidencia: null,
-  longitudResidencia: null,
+  paisNacimiento: undefined,
+  provinciaNacimiento: undefined,
+  residencia: {
+    latitud: undefined,
+    longitud: undefined,
+    provincia: undefined,
+    localidad: undefined,
+  },
 }));
 
 const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
@@ -75,12 +85,16 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     nombreCompleto,
     paisNacimiento,
     provinciaNacimiento,
-    latitudResidencia,
-    longitudResidencia,
+    residencia,
   } = useModeloModalData();
   const [openSelect, setOpenSelect] = useState(false);
   const [error, setError] = useState('');
   const utils = trpc.useUtils();
+
+  const [openCountrySelect, setOpenCountrySelect] = useState(false);
+  const [openStateSelect, setOpenStateSelect] = useState(false);
+  const [openProvinceSelect, setOpenProvinceSelect] = useState(false);
+  const [openCitySelect, setOpenCitySelect] = useState(false);
 
   useEffect(() => {
     useModeloModalData.setState({
@@ -95,68 +109,14 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       nombreCompleto: modelo.nombreCompleto ?? undefined,
       paisNacimiento: modelo.paisNacimiento ?? '',
       provinciaNacimiento: modelo.provinciaNacimiento ?? '',
-      latitudResidencia: modelo.residencialatitud ?? null,
-      longitudResidencia: modelo.residencialongitud ?? null,
+      residencia: {
+        latitud: modelo.residencia?.latitud,
+        longitud: modelo.residencia?.longitud,
+        provincia: modelo.residencia?.provincia ?? '',
+        localidad: modelo.residencia?.localidad ?? '',
+      },
     });
-  }, [
-    modelo.fechaNacimiento,
-    modelo.nombresAlternativos,
-    modelo.instagram,
-    modelo.mail,
-    modelo.dni,
-    modelo.telefono,
-    modelo.nombreCompleto,
-    modelo.paisNacimiento,
-    modelo.provinciaNacimiento,
-    modelo.residencialatitud,
-    modelo.residencialongitud,
-  ]);
-
-  const [countries, setCountries] = useState<NonNullable<ICountry[]>>([]);
-  const [states, setStates] = useState<NonNullable<IState[]>>([]);
-  const [selectedCountry, setSelectedCountry] = useState('');
-  const [selectedState, setSelectedState] = useState(provinciaNacimiento);
-  const [argentineProvinces, setArgentineProvinces] = useState<
-    NonNullable<IState[]>
-  >(State.getStatesOfCountry('AR'));
-  const [selectedArgentineProvince, setSelectedArgentineProvince] =
-    useState('');
-  const [selectedCity, setSelectedCity] = useState('');
-  const { data: citiesData } = trpc.mapa.getLocalidadesByProvincia.useQuery(
-    selectedArgentineProvince,
-    {
-      enabled: !!selectedArgentineProvince,
-    }
-  );
-  const { data } = trpc.mapa.getLocalidadByLatLon.useQuery({
-    lat: latitudResidencia ?? 0,
-    lon: longitudResidencia ?? 0,
-  });
-  const [provinciaResidencia, setProvinciaResidencia] = useState(
-    data?.provincia ?? ''
-  );
-  const [localidadResidencia, setLocalidadResidencia] = useState(
-    data?.nombre ?? ''
-  );
-  useEffect(() => {
-    const countries = Country.getAllCountries().filter(
-      (country) => country.name !== 'Palestinian Territory Occupied'
-    );
-    setCountries(countries);
-  }, []);
-
-  useEffect(() => {
-    if (selectedCountry) {
-      setStates(
-        State.getStatesOfCountry(selectedCountry).sort((a, b) =>
-          a.name.localeCompare(b.name)
-        )
-      );
-    } else {
-      setStates([]);
-    }
-    setSelectedState('');
-  }, [selectedCountry]);
+  }, [modelo]);
 
   const editModelo = trpc.modelo.edit.useMutation({
     onSuccess: () => {
@@ -204,17 +164,6 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     });
   };
 
-  useEffect(() => {
-    if (data) {
-      useModeloModalData.setState({
-        latitudResidencia: data.centroide.lat,
-        longitudResidencia: data.centroide.lon,
-      });
-      setProvinciaResidencia(data.provincia);
-      setLocalidadResidencia(data.nombre);
-    }
-  }, [data, latitudResidencia, longitudResidencia]);
-
   const handleNicknameChange = (index: number, value: string) => {
     const newNombresAlternativos = [...nombresAlternativos];
     newNombresAlternativos[index] = value;
@@ -224,11 +173,6 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
   };
 
   async function edit() {
-    // if (!genero || !fechaNacimiento || !nombreCompleto) {
-    //   setError('Debe ingresar un género, una fecha de nacimiento y un nombre');
-    //   return;
-    // }
-
     try {
       return await editModelo.mutateAsync({
         id: modelo.id,
@@ -245,11 +189,11 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
         telefono: telefono ?? undefined,
         nombreCompleto: nombreCompleto ?? undefined,
         paisNacimiento: paisNacimiento ?? '',
-        provinciaNacimiento: provinciaNacimiento,
-        residenciaLatitud: modelo.residencialatitud ?? 0,
-        residenciaLongitud: modelo.residencialongitud ?? 0,
-        provinciaResidencia: provinciaResidencia,
-        localidadResidencia: localidadResidencia,
+        provinciaNacimiento: provinciaNacimiento ?? '',
+        residenciaLatitud: residencia?.latitud,
+        residenciaLongitud: residencia?.longitud,
+        provinciaResidencia: residencia?.provincia,
+        localidadResidencia: residencia?.localidad,
       });
     } catch (error) {}
   }
@@ -260,11 +204,46 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       fechaNacimiento: modelo.fechaNacimiento
         ? new Date(modelo.fechaNacimiento)
         : undefined,
+      paisNacimiento: modelo.paisNacimiento ?? '',
+      provinciaNacimiento: modelo.provinciaNacimiento ?? '',
+      residencia: {
+        latitud: modelo.residencia?.latitud,
+        longitud: modelo.residencia?.longitud,
+        provincia: modelo.residencia?.provincia ?? '',
+        localidad: modelo.residencia?.localidad ?? '',
+      },
       open: false,
     });
     setOpenSelect(false);
     setError('');
   }
+
+  const allCountries = useMemo(
+    () =>
+      Country.getAllCountries().filter(
+        (country) => country.name !== 'Palestinian Territory Occupied'
+      ),
+    []
+  );
+  const statesBySelectedCountry = useMemo(() => {
+    if (!paisNacimiento) return [];
+    const countryCode = allCountries.find(
+      (country) => country.name === paisNacimiento
+    )?.isoCode;
+
+    return State.getStatesOfCountry(countryCode);
+  }, [allCountries, paisNacimiento]);
+
+  const provinces = useMemo(() => {
+    return State.getStatesOfCountry('AR');
+  }, []);
+
+  const { data: citiesData } = trpc.mapa.getLocalidadesByProvincia.useQuery(
+    residencia?.provincia ?? '',
+    {
+      enabled: !!residencia?.provincia,
+    }
+  );
 
   return (
     <Dialog
@@ -462,82 +441,119 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           </Button>
         </div>
         <Label>Lugar de nacimiento:</Label>
-        <div className='flex items-center justify-between pb-3'>
+        <div className='flex items-center justify-between gap-x-4 pb-3'>
           <Select
+            open={openCountrySelect}
+            onOpenChange={setOpenCountrySelect}
             onValueChange={(value) => {
-              setSelectedCountry(value as string);
               useModeloModalData.setState({
-                paisNacimiento: countries.find(
-                  (country) => country.isoCode === value
-                )?.name as string,
+                paisNacimiento: value as string,
               });
             }}
+            defaultValue={paisNacimiento}
           >
             <SelectTrigger>
-              <SelectValue>{paisNacimiento || 'País'}</SelectValue>
+              <SelectValue placeholder='País' />
             </SelectTrigger>
             <SelectContent>
-              {countries.map((country) => (
-                <SelectItem key={country.isoCode} value={country.isoCode}>
+              {allCountries.map((country) => (
+                <SelectItem key={country.isoCode} value={country.name}>
                   {country.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <Select
+            open={openStateSelect}
+            onOpenChange={setOpenStateSelect}
             onValueChange={(value) => {
-              setSelectedState(value as string);
               useModeloModalData.setState({
-                provinciaNacimiento: states.find(
-                  (state) => state.isoCode === value
-                )?.name as string,
+                provinciaNacimiento: value as string,
               });
             }}
+            disabled={!paisNacimiento}
+            defaultValue={provinciaNacimiento}
           >
             <SelectTrigger>
-              <SelectValue>{provinciaNacimiento || 'Provincia'}</SelectValue>
+              <SelectValue placeholder='Provincia' />
             </SelectTrigger>
             <SelectContent>
-              {states.map((state) => (
-                <SelectItem key={state.isoCode} value={state.isoCode}>
-                  {state.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <Label>Lugar de residencia: (Argentina)</Label>
-        <div className='flex items-center justify-between'>
-          <Select
-            onValueChange={(value) => {
-              setSelectedArgentineProvince(value as string);
-              setProvinciaResidencia(value as string);
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue>{provinciaResidencia || 'Provincia'}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {argentineProvinces.map((state) => (
+              {statesBySelectedCountry.map((state) => (
                 <SelectItem key={state.isoCode} value={state.name}>
                   {state.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <Label>Lugar de residencia:</Label>
+        <div className='flex items-center justify-between gap-x-4 pb-3'>
           <Select
+            open={openProvinceSelect}
+            onOpenChange={setOpenProvinceSelect}
             onValueChange={(value) => {
-              setSelectedCity(value as string);
-              setLocalidadResidencia(value as string);
+              useModeloModalData.setState({
+                residencia: {
+                  ...residencia,
+                  localidad: residencia?.localidad,
+                  provincia: value as string,
+                },
+              });
             }}
+            defaultValue={residencia?.provincia}
           >
             <SelectTrigger>
-              <SelectValue>{localidadResidencia || 'Localidad'}</SelectValue>
+              <SelectValue placeholder='Provincia' />
             </SelectTrigger>
             <SelectContent>
-              {citiesData?.map((localidad) => (
-                <SelectItem key={localidad.id} value={localidad.nombre}>
-                  {localidad.nombre}
+              {provinces.map((province) => (
+                <SelectItem key={province.name} value={province.name}>
+                  {province.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            open={openCitySelect}
+            onOpenChange={setOpenCitySelect}
+            onValueChange={(value) => {
+              const city = JSON.parse(value as string) as {
+                latitud: number;
+                longitud: number;
+                nombre: string;
+              };
+
+              useModeloModalData.setState({
+                residencia: {
+                  localidad: city.nombre as string,
+                  provincia: residencia?.provincia,
+                  latitud: city.latitud,
+                  longitud: city.longitud,
+                },
+              });
+            }}
+            defaultValue={JSON.stringify({
+              latitud: residencia?.latitud,
+              longitud: residencia?.longitud,
+              nombre: residencia?.localidad,
+            })}
+            disabled={!residencia?.provincia}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder='Localidad' />
+            </SelectTrigger>
+            <SelectContent>
+              {citiesData?.map((city) => (
+                <SelectItem
+                  key={city.nombre}
+                  value={JSON.stringify({
+                    latitud: city.centroide.lat,
+                    longitud: city.centroide.lon,
+                    nombre: city.nombre,
+                  })}
+                >
+                  {city.nombre}
                 </SelectItem>
               ))}
             </SelectContent>

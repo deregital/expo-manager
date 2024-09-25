@@ -15,11 +15,11 @@ import {
 } from '@/components/ui/select';
 import { getTextColorByBg } from '@/lib/utils';
 import { TrashIcon } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { RouterOutputs } from '@/server';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
-import { Country, ICountry, IState, State } from 'country-state-city';
+import { Country, State } from 'country-state-city';
 
 interface FormCrearModeloProps {
   inputRef: React.RefObject<HTMLInputElement>;
@@ -48,38 +48,6 @@ const FormCrearModelo = ({
     grupoEtiquetaSelected === ''
       ? trpc.etiqueta.getAll.useQuery()
       : trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoEtiquetaSelected);
-  const [countries, setCountries] = useState<NonNullable<ICountry[]>>([]);
-  const [states, setStates] = useState<NonNullable<IState[]>>([]);
-  const [selectedCountry, setSelectedCountry] = useState('');
-  const [selectedState, setSelectedState] = useState('');
-  const [argentineProvinces, setArgentineProvinces] = useState<
-    NonNullable<IState[]>
-  >(State.getStatesOfCountry('AR'));
-  const [selectedArgentineProvince, setSelectedArgentineProvince] =
-    useState('');
-  const [selectedCity, setSelectedCity] = useState('');
-  const { data: citiesData } = trpc.mapa.getLocalidadesByProvincia.useQuery(
-    selectedArgentineProvince,
-    {
-      enabled: !!selectedArgentineProvince,
-    }
-  );
-
-  useEffect(() => {
-    const countries = Country.getAllCountries().filter(
-      (country) => country.name !== 'Palestinian Territory Occupied'
-    );
-    setCountries(countries);
-  }, []);
-
-  useEffect(() => {
-    if (selectedCountry) {
-      setStates(State.getStatesOfCountry(selectedCountry));
-    } else {
-      setStates([]);
-    }
-    setSelectedState('');
-  }, [selectedCountry]);
 
   const currentGrupo = useMemo(() => {
     return grupoEtiquetas?.find((g) => g.id === grupoEtiquetaSelected);
@@ -145,6 +113,34 @@ const FormCrearModelo = ({
     setComboBoxEtiquetaOpen(false);
     setAddEtiquetaOpen(false);
   }
+
+  const allCountries = useMemo(
+    () =>
+      Country.getAllCountries().filter(
+        (country) => country.name !== 'Palestinian Territory Occupied'
+      ),
+    []
+  );
+  const statesBySelectedCountry = useMemo(() => {
+    if (!modalModelo.modelo.paisNacimiento) return [];
+
+    const countryCode = allCountries.find(
+      (country) => country.name === modalModelo.modelo.paisNacimiento
+    )?.isoCode;
+
+    return State.getStatesOfCountry(countryCode);
+  }, [allCountries, modalModelo.modelo.paisNacimiento]);
+
+  const provinces = useMemo(() => {
+    return State.getStatesOfCountry('AR');
+  }, []);
+
+  const { data: citiesData } = trpc.mapa.getLocalidadesByProvincia.useQuery(
+    modalModelo.modelo.residencia?.provincia ?? '',
+    {
+      enabled: !!modalModelo.modelo.residencia?.provincia,
+    }
+  );
 
   return (
     <>
@@ -426,13 +422,10 @@ const FormCrearModelo = ({
         <Label className='pt-2 text-sm'>Nacionalidad:</Label>
         <Select
           onValueChange={(value) => {
-            setSelectedCountry(value as string);
             useCrearModeloModal.setState({
               modelo: {
                 ...modalModelo.modelo,
-                paisNacimiento: countries.find(
-                  (country) => country.isoCode === value
-                )?.name as string,
+                paisNacimiento: value as string,
               },
             });
           }}
@@ -441,23 +434,20 @@ const FormCrearModelo = ({
             <SelectValue placeholder='Selecciona tu país' />
           </SelectTrigger>
           <SelectContent>
-            {countries.map((country) => (
-              <SelectItem key={country.isoCode} value={country.isoCode}>
+            {allCountries.map((country) => (
+              <SelectItem key={country.isoCode} value={country.name}>
                 {country.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select
-          disabled={!selectedCountry}
+          disabled={!modalModelo.modelo.paisNacimiento}
           onValueChange={(value) => {
-            setSelectedState(value as string);
             useCrearModeloModal.setState({
               modelo: {
                 ...modalModelo.modelo,
-                provinciaNacimiento: states.find(
-                  (state) => state.isoCode === value
-                )?.name as string,
+                provinciaNacimiento: value,
               },
             });
           }}
@@ -466,8 +456,8 @@ const FormCrearModelo = ({
             <SelectValue placeholder='Selecciona tu provincia' />
           </SelectTrigger>
           <SelectContent>
-            {states.map((state) => (
-              <SelectItem key={state.isoCode} value={state.isoCode}>
+            {statesBySelectedCountry.map((state) => (
+              <SelectItem key={state.isoCode} value={state.name}>
                 {state.name}
               </SelectItem>
             ))}
@@ -478,13 +468,15 @@ const FormCrearModelo = ({
         <Label className='pt-2 text-sm'>Lugar de residencia (Argentina):</Label>
         <Select
           onValueChange={(value) => {
-            setSelectedArgentineProvince(value as string);
             useCrearModeloModal.setState({
               modelo: {
                 ...modalModelo.modelo,
-                provinciaResidencia: argentineProvinces.find(
-                  (province) => province.name === value
-                )?.name as string,
+                residencia: {
+                  localidad: modalModelo.modelo.residencia?.localidad,
+                  latitud: modalModelo.modelo.residencia?.latitud,
+                  longitud: modalModelo.modelo.residencia?.longitud,
+                  provincia: value,
+                },
               },
             });
           }}
@@ -493,7 +485,7 @@ const FormCrearModelo = ({
             <SelectValue placeholder='Selecciona tu provincia' />
           </SelectTrigger>
           <SelectContent>
-            {argentineProvinces.map((province) => (
+            {provinces.map((province) => (
               <SelectItem key={province.isoCode} value={province.name}>
                 {province.name}
               </SelectItem>
@@ -501,21 +493,22 @@ const FormCrearModelo = ({
           </SelectContent>
         </Select>
         <Select
-          disabled={!selectedArgentineProvince}
+          disabled={!modalModelo.modelo.residencia?.provincia}
           onValueChange={(value) => {
-            setSelectedCity(value as string);
+            const city = JSON.parse(value as string) as {
+              latitud: number;
+              longitud: number;
+              nombre: string;
+            };
             useCrearModeloModal.setState({
               modelo: {
                 ...modalModelo.modelo,
-                localidadResidencia: citiesData?.find(
-                  (city) => city.nombre === value
-                )?.nombre as string,
-                residenciaLatitud: citiesData?.find(
-                  (city) => city.nombre === value
-                )?.centroide.lat as number,
-                residenciaLongitud: citiesData?.find(
-                  (city) => city.nombre === value
-                )?.centroide.lon as number,
+                residencia: {
+                  localidad: city.nombre,
+                  latitud: city.latitud,
+                  longitud: city.longitud,
+                  provincia: modalModelo.modelo.residencia?.provincia,
+                },
               },
             });
           }}
@@ -525,7 +518,14 @@ const FormCrearModelo = ({
           </SelectTrigger>
           <SelectContent>
             {citiesData?.map((city) => (
-              <SelectItem key={city.id} value={city.nombre}>
+              <SelectItem
+                key={city.id}
+                value={JSON.stringify({
+                  latitud: city.centroide.lat,
+                  longitud: city.centroide.lon,
+                  nombre: city.nombre,
+                })}
+              >
                 {city.nombre}
               </SelectItem>
             ))}

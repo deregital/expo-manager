@@ -64,13 +64,25 @@ export const mapaRouter = router({
       const localidadesByState = localidades.localidades.filter(
         (localidad) => localidad.provincia.nombre === input
       );
-      if (localidadesByState.length === 0) {
+
+      const localidadesNoRepetidas = localidadesByState.reduce(
+        (acc: Localidad, localidad) => {
+          if (!acc.find((l) => l.nombre === localidad.nombre)) {
+            acc.push(localidad);
+          }
+          return acc;
+        },
+        []
+      );
+
+      if (localidadesNoRepetidas.length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'No se encontraron localidades',
         });
       }
-      return localidadesByState
+
+      return localidadesNoRepetidas
         .map((localidad) => {
           return {
             id: localidad.id,

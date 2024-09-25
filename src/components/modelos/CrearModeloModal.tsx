@@ -102,14 +102,10 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
           apodos: modalModelo.modelo.apodos.filter((e) => e !== ''),
           paisNacimiento: modalModelo.modelo.paisNacimiento,
           provinciaNacimiento: modalModelo.modelo.provinciaNacimiento,
-          provinciaResidencia: modalModelo.modelo.provinciaResidencia,
-          localidadResidencia: modalModelo.modelo.localidadResidencia,
-          residenciaLatitud: modalModelo.modelo.residenciaLatitud
-            ? modalModelo.modelo.residenciaLatitud
-            : 0,
-          residenciaLongitud: modalModelo.modelo.residenciaLongitud
-            ? modalModelo.modelo.residenciaLongitud
-            : 0,
+          provinciaResidencia: modalModelo.modelo.residencia?.provincia,
+          localidadResidencia: modalModelo.modelo.residencia?.localidad,
+          residenciaLatitud: modalModelo.modelo.residencia?.latitud,
+          residenciaLongitud: modalModelo.modelo.residencia?.longitud,
         },
         similarity: similarity,
       })
@@ -135,26 +131,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       toast.success('Participante creado correctamente');
       setSimilarity(false);
       utils.modelo.getAll.invalidate();
-      useCrearModeloModal.setState({
-        open: false,
-        modelo: {
-          nombreCompleto: '',
-          telefono: '',
-          fechaNacimiento: undefined,
-          genero: 'N/A',
-          etiquetas: [],
-          apodos: [],
-          dni: '',
-          mail: '',
-          instagram: '',
-          paisNacimiento: '',
-          provinciaNacimiento: '',
-          provinciaResidencia: '',
-          localidadResidencia: '',
-          residenciaLatitud: null,
-          residenciaLongitud: null,
-        },
-      });
+      modalModelo.resetModelo();
       searchParams.delete('modal');
       if (eventoId && eventoId !== '') {
         searchParams.delete('evento');
@@ -193,26 +170,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   }
 
   async function handleCancel() {
-    useCrearModeloModal.setState({
-      open: false,
-      modelo: {
-        nombreCompleto: '',
-        telefono: '',
-        fechaNacimiento: undefined,
-        genero: 'N/A',
-        etiquetas: [],
-        apodos: [],
-        dni: '',
-        mail: '',
-        instagram: '',
-        paisNacimiento: '',
-        provinciaNacimiento: '',
-        provinciaResidencia: '',
-        localidadResidencia: '',
-        residenciaLatitud: null,
-        residenciaLongitud: null,
-      },
-    });
+    modalModelo.resetModelo();
     searchParams.delete('modal');
     setVideo(null);
     setFotoUrl(null);

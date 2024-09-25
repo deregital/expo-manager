@@ -102,6 +102,7 @@ export const modeloRouter = router({
               },
             },
           },
+          residencia: true,
         },
       });
     }),
@@ -264,6 +265,10 @@ export const modeloRouter = router({
 
       const idLegibleMasAlto = await getHighestIdLegible(ctx.prisma);
 
+      const connectResidencia =
+        input.modelo.residenciaLatitud !== undefined &&
+        input.modelo.residenciaLongitud !== undefined;
+
       return await ctx.prisma.perfil.create({
         data: {
           idLegible: idLegibleMasAlto + 1,
@@ -296,20 +301,22 @@ export const modeloRouter = router({
           paisNacimiento: input.modelo.paisNacimiento,
           provinciaNacimiento: input.modelo.provinciaNacimiento,
           residencia: {
-            connectOrCreate: {
-              where: {
-                latitud_longitud: {
-                  latitud: input.modelo.residenciaLatitud ?? 0,
-                  longitud: input.modelo.residenciaLongitud ?? 0,
-                },
-              },
-              create: {
-                latitud: input.modelo.residenciaLatitud ?? 0,
-                longitud: input.modelo.residenciaLongitud ?? 0,
-                localidad: input.modelo.localidadResidencia,
-                provincia: input.modelo.provinciaResidencia,
-              },
-            },
+            connectOrCreate: connectResidencia
+              ? {
+                  where: {
+                    latitud_longitud: {
+                      latitud: input.modelo.residenciaLatitud ?? 0,
+                      longitud: input.modelo.residenciaLongitud ?? 0,
+                    },
+                  },
+                  create: {
+                    latitud: input.modelo.residenciaLatitud ?? 0,
+                    longitud: input.modelo.residenciaLongitud ?? 0,
+                    localidad: input.modelo.localidadResidencia ?? '',
+                    provincia: input.modelo.provinciaResidencia ?? '',
+                  },
+                }
+              : undefined,
           },
         },
         select: {
@@ -446,6 +453,10 @@ export const modeloRouter = router({
         });
       }
 
+      const connectResidencia =
+        input.residenciaLatitud !== undefined &&
+        input.residenciaLongitud !== undefined;
+
       return await ctx.prisma.perfil.update({
         where: {
           id: input.id,
@@ -482,23 +493,25 @@ export const modeloRouter = router({
               : input.fechaPapelera
                 ? new Date(input.fechaPapelera)
                 : undefined,
-          paisNacimiento: input.paisNacimiento,
-          provinciaNacimiento: input.provinciaNacimiento,
+          paisNacimiento: input.paisNacimiento ?? null,
+          provinciaNacimiento: input.provinciaNacimiento ?? null,
           residencia: {
-            connectOrCreate: {
-              where: {
-                latitud_longitud: {
-                  latitud: input.residenciaLatitud ?? 0,
-                  longitud: input.residenciaLongitud ?? 0,
-                },
-              },
-              create: {
-                latitud: input.residenciaLatitud ?? 0,
-                longitud: input.residenciaLongitud ?? 0,
-                localidad: input.localidadResidencia ?? '',
-                provincia: input.provinciaResidencia ?? '',
-              },
-            },
+            connectOrCreate: connectResidencia
+              ? {
+                  where: {
+                    latitud_longitud: {
+                      latitud: input.residenciaLatitud ?? 0,
+                      longitud: input.residenciaLongitud ?? 0,
+                    },
+                  },
+                  create: {
+                    latitud: input.residenciaLatitud ?? 0,
+                    longitud: input.residenciaLongitud ?? 0,
+                    localidad: input.localidadResidencia ?? '',
+                    provincia: input.provinciaResidencia ?? '',
+                  },
+                }
+              : undefined,
           },
         },
       });
