@@ -10,6 +10,7 @@ import { eventoRouter } from '@/server/routers/eventoRouter';
 import { cuentaRouter } from '@/server/routers/cuentaRouter';
 import { notificacionRouter } from '@/server/routers/notificacionRouter';
 import { carpetaEventosRouter } from '@/server/routers/carpetaEventosRouter';
+import { respuestasEnlatadasRouter } from '@/server/routers/respuestasEnlatadasRouter';
 
 export const appRouter = router({
   modelo: modeloRouter,
@@ -22,6 +23,7 @@ export const appRouter = router({
   carpetaEventos: carpetaEventosRouter,
   cuenta: cuentaRouter,
   notificacion: notificacionRouter,
+  respuestasEnlatadas: respuestasEnlatadasRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;
