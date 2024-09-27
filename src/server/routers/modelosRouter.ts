@@ -233,6 +233,15 @@ export const modeloRouter = router({
               telefono: telefono,
             },
             {
+              telefono: telefonoSecundario ?? undefined,
+            },
+            {
+              telefonoSecundario: telefonoSecundario ?? undefined,
+            },
+            {
+              telefonoSecundario: telefono ?? undefined,
+            },
+            {
               dni: input.modelo.dni ?? undefined,
             },
           ],
@@ -244,6 +253,23 @@ export const modeloRouter = router({
           message: `Ya existe un perfil con el mismo teléfono o DNI`,
         });
       }
+      const perfilConMismoTelefonoSecundario = await ctx.prisma.perfil.findMany(
+        {
+          where: {
+            telefonoSecundario: input.modelo.telefonoSecundario ?? undefined,
+          },
+        }
+      );
+      if (
+        perfilConMismoTelefonoSecundario &&
+        perfilConMismoTelefonoSecundario.length > 0
+      ) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: `Ya existe un perfil con el mismo teléfono secundario`,
+        });
+      }
+
       const modelos = await ctx.prisma.perfil.findMany({
         where: {},
         select: {
@@ -351,7 +377,8 @@ export const modeloRouter = router({
             /^549(11|[2368]\d)\d{8}$/,
             'El teléfono no es válido, debe empezar con 549 y tener 10 dígitos. Ejemplo: 5491123456789'
           )
-          .optional(),
+          .optional()
+          .nullable(),
         fotoUrl: z.string().optional().nullable(),
         genero: z.string().optional(),
         fechaNacimiento: z.string().optional(),
@@ -409,7 +436,16 @@ export const modeloRouter = router({
                 telefono: input.telefono,
               },
               {
+                telefono: input.telefonoSecundario ?? undefined,
+              },
+              {
                 dni: input.dni ?? undefined,
+              },
+              {
+                telefonoSecundario: input.telefonoSecundario ?? undefined,
+              },
+              {
+                telefonoSecundario: input.telefono ?? undefined,
               },
             ],
           },
@@ -419,7 +455,13 @@ export const modeloRouter = router({
         });
 
       if (perfilConMismoTelefono && perfilConMismoTelefono.length > 0) {
-        if (perfilConMismoTelefono.some((p) => p.telefono === input.telefono)) {
+        if (
+          perfilConMismoTelefono.some(
+            (p) =>
+              p.telefono === input.telefono ||
+              p.telefonoSecundario === input.telefono
+          )
+        ) {
           throw new TRPCError({
             code: 'CONFLICT',
             message: `Ya existe un perfil con el teléfono ${input.telefono}`,
@@ -431,6 +473,18 @@ export const modeloRouter = router({
           throw new TRPCError({
             code: 'CONFLICT',
             message: `Ya existe un perfil con el DNI ${input.dni}`,
+          });
+        } else if (
+          perfilConMismoTelefono.some(
+            (p) =>
+              p.telefonoSecundario === input.telefonoSecundario ||
+              p.telefono === input.telefonoSecundario
+          ) &&
+          input.telefonoSecundario
+        ) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: `Ya existe un perfil con el teléfono secundario ${input.telefonoSecundario}`,
           });
         }
       }

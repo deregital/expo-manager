@@ -75,13 +75,34 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const telefonoExistente = await prisma.perfil.findFirst({
       where: {
-        telefono: telefonoSinSeparaciones,
+        OR: [
+          {
+            telefono: telefonoSinSeparaciones,
+          },
+          {
+            telefono: telefonoSecundarioSinSeparaciones ?? undefined,
+          },
+          {
+            telefonoSecundario: telefonoSecundarioSinSeparaciones ?? undefined,
+          },
+          {
+            telefonoSecundario: telefonoSinSeparaciones ?? undefined,
+          },
+        ],
       },
     });
 
     if (telefonoExistente) {
+      const telefonoExistenteEsSecundario =
+        telefonoSecundarioSinSeparaciones &&
+        (telefonoExistente.telefonoSecundario ===
+          telefonoSecundarioSinSeparaciones ||
+          telefonoExistente.telefono === telefonoSecundarioSinSeparaciones);
+
       return NextResponse.json(
-        { error: 'El teléfono ya está registrado' },
+        {
+          error: `El teléfono ${telefonoExistenteEsSecundario ? ' secundario' : ''} ya está registrado`,
+        },
         { status: 400 }
       );
     }

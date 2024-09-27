@@ -14,10 +14,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { trpc } from '@/lib/trpc';
+import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { differenceInYears } from 'date-fns';
 import { TrashIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 
@@ -34,7 +35,7 @@ interface ModeloModalData {
   mail: string | undefined;
   dni: string | undefined;
   telefono: string | undefined;
-  telefonoSecundario: string | undefined;
+  telefonoSecundario: string | null | undefined;
   nombreCompleto: string | undefined;
 }
 
@@ -82,7 +83,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       mail: modelo.mail ?? undefined,
       dni: modelo.dni ?? undefined,
       telefono: modelo.telefono ?? undefined,
-      telefonoSecundario: modelo.telefonoSecundario ?? undefined,
+      telefonoSecundario: modelo.telefonoSecundario,
       nombreCompleto: modelo.nombreCompleto ?? undefined,
     });
   }, [
@@ -130,39 +131,42 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     },
   });
 
-  const addNickname = () => {
+  function addNickname() {
     useModeloModalData.setState({
       nombresAlternativos: [...nombresAlternativos, ''],
     });
-  };
+  }
 
-  const removeNickname = (index: number) => {
+  function removeNickname(index: number) {
     useModeloModalData.setState({
       nombresAlternativos: nombresAlternativos.filter((_, i) => i !== index),
     });
-  };
+  }
 
-  const handleNicknameChange = (index: number, value: string) => {
+  function handleNicknameChange(index: number, value: string) {
     const newNombresAlternativos = [...nombresAlternativos];
     newNombresAlternativos[index] = value;
     useModeloModalData.setState({
       nombresAlternativos: newNombresAlternativos,
     });
-  };
+  }
 
-  const intercambiarNumeros = () => {
-    useModeloModalData.setState((state) => ({
-      telefono: state.telefonoSecundario,
-      telefonoSecundario: state.telefono,
-    }));
-  };
+  function intercambiarNumeros() {
+    if (!telefono || !telefonoSecundario) return;
+    useModeloModalData.setState((state) => {
+      if (!state.telefonoSecundario) return {};
+      return {
+        telefono: state.telefonoSecundario,
+        telefonoSecundario: state.telefono,
+      };
+    });
+  }
 
   async function edit() {
-    // if (!genero || !fechaNacimiento || !nombreCompleto) {
-    //   setError('Debe ingresar un género, una fecha de nacimiento y un nombre');
-    //   return;
-    // }
-
+    if (!telefono) {
+      setError('El teléfono es requerido');
+      return;
+    }
     try {
       return await editModelo.mutateAsync({
         id: modelo.id,
@@ -177,7 +181,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
         mail: mail ?? null,
         dni: dni ?? null,
         telefono: telefono ?? undefined,
-        telefonoSecundario: telefonoSecundario ?? undefined,
+        telefonoSecundario: telefonoSecundario,
         nombreCompleto: nombreCompleto ?? undefined,
       });
     } catch (error) {}
@@ -194,6 +198,10 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     setOpenSelect(false);
     setError('');
   }
+
+  const telefonoSecundarioExists = useMemo(() => {
+    return telefonoSecundario !== null && telefonoSecundario !== undefined;
+  }, [telefonoSecundario]);
 
   return (
     <Dialog
@@ -348,43 +356,85 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           </div>
           <div className='w-full'>
             <Label htmlFor='telefono'>Teléfono</Label>
-            <Input
-              type='text'
-              name='telefono'
-              id='telefono'
-              value={telefono ?? ''}
-              onChange={(e) => {
-                useModeloModalData.setState({
-                  telefono: e.currentTarget.value || undefined,
-                });
-              }}
-            />
-          </div>
-          {telefonoSecundario && (
-            <div className='w-full'>
-              <Label htmlFor='telefonoSecundario'>Teléfono Secundario</Label>
-              <Input
-                type='text'
-                name='telefonoSecundario'
-                id='telefonoSecundario'
-                value={telefonoSecundario ?? ''}
-                onChange={(e) => {
-                  useModeloModalData.setState({
-                    telefonoSecundario: e.currentTarget.value || undefined,
-                  });
-                }}
-              />
-              {telefonoSecundario && (
-                <Button
-                  variant='secondary'
-                  className='mt-2 bg-blue-800 p-2 text-white hover:bg-blue-900'
-                  onClick={intercambiarNumeros}
-                >
-                  Intercambiar Telefonos
-                </Button>
+            <div
+              className={cn(
+                'flex items-center',
+                telefonoSecundarioExists && 'flex-col'
+              )}
+            >
+              <div className='flex w-full items-center gap-x-2'>
+                <Input
+                  type='text'
+                  name='telefono'
+                  id='telefono'
+                  value={telefono ?? ''}
+                  onChange={(e) => {
+                    useModeloModalData.setState({
+                      telefono: e.currentTarget.value || undefined,
+                    });
+                  }}
+                />
+                {!telefonoSecundarioExists && (
+                  <Button
+                    variant='secondary'
+                    className='bg-black p-2 text-white hover:bg-gray-700'
+                    title='Agregar Teléfono Secundario'
+                    onClick={() => {
+                      useModeloModalData.setState({
+                        telefonoSecundario: '',
+                      });
+                    }}
+                  >
+                    +
+                  </Button>
+                )}
+              </div>
+
+              {telefonoSecundarioExists && (
+                <div className='mt-2 w-full'>
+                  <Label htmlFor='telefonoSecundario'>
+                    Teléfono Secundario
+                  </Label>
+                  <div className='flex items-center gap-x-2'>
+                    <Input
+                      type='text'
+                      name='telefonoSecundario'
+                      id='telefonoSecundario'
+                      value={telefonoSecundario ?? ''}
+                      onChange={(e) => {
+                        useModeloModalData.setState({
+                          telefonoSecundario: e.currentTarget.value,
+                        });
+                      }}
+                    />
+                    <Button
+                      onClick={() => {
+                        useModeloModalData.setState({
+                          telefonoSecundario: null,
+                        });
+                      }}
+                      className='w-8 p-1'
+                      variant={'destructive'}
+                    >
+                      <TrashIcon className='w-full' />
+                    </Button>
+                  </div>
+                  {telefonoSecundario &&
+                    telefonoSecundario.length > 0 &&
+                    telefono &&
+                    telefono.length > 0 && (
+                      <Button
+                        variant='secondary'
+                        className='mt-2 bg-blue-800 p-2 text-white hover:bg-blue-900'
+                        onClick={intercambiarNumeros}
+                      >
+                        Intercambiar Teléfonos
+                      </Button>
+                    )}
+                </div>
               )}
             </div>
-          )}
+          </div>
         </div>
         <div className='flex flex-col gap-y-2'>
           <Label htmlFor='nombresAlternativos'>Nombres Alternativos</Label>
