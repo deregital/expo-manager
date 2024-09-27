@@ -129,7 +129,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
         mostrarEtiq
         mostrarInput
       />
-      <div className='flex h-auto gap-x-2 p-3 md:p-5'>
+      <div className='flex h-auto gap-x-2 border-t-[1px] border-t-black/20 p-3 md:p-5 '>
         <div className='flex-1'>
           <ModelosComboYList
             modelos={modelosFiltradas}
@@ -152,7 +152,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
           )}
         </div>
       </div>
-      <div className='flex gap-x-4'>
+      <div className='ml-4 flex gap-x-4'>
         <Button
           className='mt-4'
           onClick={() => asignarEtiquetas()}

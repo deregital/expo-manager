@@ -73,7 +73,12 @@ const Filtro = ({
             id: etiquetaSeleccionada.id,
             nombre: etiquetaSeleccionada.nombre,
           },
-          include: true,
+          include:
+            filtro.grupos.length > 0
+              ? filtro.grupos[0].include
+              : filtro.etiquetas.length > 0
+                ? filtro.etiquetas[0].include
+                : true,
         },
       ],
     });
@@ -100,7 +105,12 @@ const Filtro = ({
             nombre: grupo.nombre,
             color: grupo.color,
           },
-          include: true,
+          include:
+            filtro.grupos.length > 0
+              ? filtro.grupos[0].include
+              : filtro.etiquetas.length > 0
+                ? filtro.etiquetas[0].include
+                : true,
         },
       ],
     });
@@ -117,6 +127,47 @@ const Filtro = ({
     setEtiquetaId(undefined);
   }
 
+  function switchIncludeBasico(value: boolean) {
+    const etiqueta = dataEtiquetas?.find(
+      (etiqueta) => etiqueta.id === etiquetaBasico
+    );
+
+    const etiquetaArray = etiqueta
+      ? [
+          {
+            etiqueta: {
+              id: etiqueta.id,
+              nombre: etiqueta.nombre,
+            },
+            include: value,
+          },
+        ]
+      : [];
+
+    const grupo = dataGrupoEtiquetas?.find((grupo) => grupo.id === grupoBasico);
+
+    const grupoArray = grupo
+      ? [
+          {
+            grupo: {
+              id: grupo.id,
+              nombre: grupo?.nombre,
+              color: grupo?.color,
+            },
+            include: value,
+          },
+        ]
+      : [];
+
+    useFiltro.setState({
+      etiquetas: [
+        ...etiquetaArray,
+        ...filtro.etiquetas.slice(1, filtro.etiquetas.length),
+      ],
+      grupos: [...grupoArray, ...filtro.grupos.slice(1, filtro.grupos.length)],
+    });
+  }
+
   const etiquetaBasico = useMemo(() => {
     if (
       defaultFiltro.etiquetas &&
@@ -125,6 +176,8 @@ const Filtro = ({
     ) {
       return defaultFiltro.etiquetas[0].etiqueta.id;
     }
+
+    if (!filtro.etiquetas || filtro.etiquetas.length === 0) return undefined;
 
     return filtro.etiquetas.length > 0
       ? filtro.etiquetas[0].etiqueta.id
@@ -171,21 +224,14 @@ const Filtro = ({
       >
         {mostrarEtiq && (
           <FiltroBasicoEtiqueta
-            include={filtro.etiquetas.length > 0 && filtro.etiquetas[0].include}
-            setInclude={(value) => {
-              useFiltro.setState({
-                etiquetas: [
-                  {
-                    ...(filtro.etiquetas[0] ?? {
-                      id: undefined,
-                    }),
-                    include: value,
-                  },
-                  ...filtro.etiquetas.slice(1, filtro.etiquetas.length),
-                ],
-              });
-            }}
-            switchDisabled={filtro.etiquetas.length === 0}
+            include={
+              (filtro.etiquetas.length > 0 && filtro.etiquetas[0].include) ||
+              (filtro.grupos.length > 0 && filtro.grupos[0].include)
+            }
+            setInclude={(value) => switchIncludeBasico(value)}
+            switchDisabled={
+              filtro.etiquetas.length === 0 && filtro.grupos.length === 0
+            }
             editarEtiq={editarEtiq}
             editarGrupoEtiq={editarGrupoEtiq}
             grupoId={grupoBasico}

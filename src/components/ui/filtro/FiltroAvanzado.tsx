@@ -12,15 +12,17 @@ const FiltroAvanzado = ({
   mostrarEtiq = false,
   mostrarInput = false,
 }: FiltroAvanzadoProps) => {
-  const { etiquetasFiltro } = useFiltro((s) => ({
+  const { etiquetasFiltro, gruposFiltro } = useFiltro((s) => ({
     etiquetasFiltro: s.etiquetas,
+    gruposFiltro: s.grupos,
   }));
   return (
     <div className='grid w-full grid-cols-[auto,1fr] grid-rows-1 gap-x-4 border-t border-t-black/10 py-3'>
       <div className='flex h-fit w-full'>
-        {mostrarEtiq && etiquetasFiltro.length > 0 && (
-          <FiltroAvanzadoEtiquetasYGrupos />
-        )}
+        {mostrarEtiq &&
+          (etiquetasFiltro.length > 0 || gruposFiltro.length > 0) && (
+            <FiltroAvanzadoEtiquetasYGrupos />
+          )}
       </div>
       <div className='flex h-fit w-full'>
         {mostrarInput && <FiltroAvanzadoInputs />}
