@@ -1,9 +1,9 @@
+import * as React from 'react';
 import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
 import FotoModelo from '@/components/ui/FotoModelo';
 import WhatsappIcon from '@/components/icons/WhatsappIcon';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
-import React from 'react';
 
 interface ChatTopbarProps {
   telefono: string;
@@ -33,13 +33,10 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
               url={perfil.fotoUrl}
             />
             <div className='ml-2 flex items-center'>
-              {}
               <p className='font-bold'>{perfil.nombreCompleto}</p>
 
-              {}
               <p className='ml-2 text-gray-500'>{`ID: ${perfil.idLegible}`}</p>
 
-              {}
               <span className='ml-2 flex items-center justify-center rounded bg-gray-200 p-1'>
                 <Link
                   href={`/modelo/${perfil.id}`}
@@ -51,19 +48,18 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
             </div>
           </div>
           <div className='flex items-center'>
-            {}
+            {/* Ícono de WhatsApp */}
             <a
-              className='mr-2 cursor-pointer rounded-md bg-lime-600 p-2'
               title='Enviar mensaje por WhatsApp'
               href={`https://wa.me/${perfil.telefono}`}
               target='_blank'
               rel='noreferrer'
+              className='flex items-center justify-center rounded bg-gray-200 p-1'
             >
-              <WhatsappIcon className='h-4 w-4 fill-white' />
+              <WhatsappIcon className='h-5 w-5 fill-lime-600' />
             </a>
-            <p>
+            <p className='ml-2'>
               <span>{formatTelefono(perfil.telefono)}</span>
-              {}
               <span className='ml-4 text-gray-400'>
                 {inChat ? 'Activo' : 'Inactivo'}
               </span>
