@@ -1,9 +1,9 @@
 import * as React from 'react';
-import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
 import FotoModelo from '@/components/ui/FotoModelo';
-import WhatsappIcon from '@/components/icons/WhatsappIcon';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
+import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
+import WhatsappIcon from '@/components/icons/WhatsappIcon';
 
 interface ChatTopbarProps {
   telefono: string;
@@ -24,48 +24,48 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
   };
 
   return (
-    <div className='flex h-14 w-full items-center justify-between bg-white px-2'>
+    <div className='flex min-h-14 w-full items-center justify-between bg-white px-2'>
       {perfil && (
-        <>
-          <div className='flex items-center'>
-            <FotoModelo
-              alt={`Foto de ${perfil.nombreCompleto}`}
-              url={perfil.fotoUrl}
-            />
-            <div className='ml-2 flex items-center'>
+        <div className='flex w-full items-center justify-between'>
+          <div className='flex items-center gap-x-2'>
+            <div className='flex items-center gap-x-2'>
+              <FotoModelo
+                className='my-0.5'
+                alt={`Foto de ${perfil.nombreCompleto}`}
+                url={perfil.fotoUrl}
+              />
               <p className='font-bold'>{perfil.nombreCompleto}</p>
-
-              <p className='ml-2 text-gray-500'>{`ID: ${perfil.idLegible}`}</p>
-
-              <span className='ml-2 flex items-center justify-center rounded bg-gray-200 p-1'>
-                <Link
-                  href={`/modelo/${perfil.id}`}
-                  title='Ir a la vista de la modelo'
-                >
-                  <ModeloFillIcon />
-                </Link>
-              </span>
+              <p className='text-nowrap  text-gray-500'>
+                ID: {perfil.idLegible}
+              </p>
+            </div>
+            <div className='flex flex-1 items-center gap-x-2'>
+              <Link
+                href={`/modelo/${perfil.id}`}
+                className='flex items-center justify-center rounded bg-gray-200 p-1'
+                title='Ir a la vista de la modelo'
+              >
+                <ModeloFillIcon className='size-5' />
+              </Link>
+              {/* Ícono de WhatsApp */}
+              <Link
+                title='Enviar mensaje por WhatsApp'
+                href={`https://wa.me/${perfil.telefono}`}
+                target='_blank'
+                rel='noreferrer'
+                className='flex items-center justify-center rounded bg-gray-200 p-1'
+              >
+                <WhatsappIcon className='size-5 fill-lime-600' />
+              </Link>
             </div>
           </div>
-          <div className='flex items-center'>
-            {/* Ícono de WhatsApp */}
-            <a
-              title='Enviar mensaje por WhatsApp'
-              href={`https://wa.me/${perfil.telefono}`}
-              target='_blank'
-              rel='noreferrer'
-              className='flex items-center justify-center rounded bg-gray-200 p-1'
-            >
-              <WhatsappIcon className='h-5 w-5 fill-lime-600' />
-            </a>
-            <p className='ml-2'>
-              <span>{formatTelefono(perfil.telefono)}</span>
-              <span className='ml-4 text-gray-400'>
-                {inChat ? 'Activo' : 'Inactivo'}
-              </span>
-            </p>
-          </div>
-        </>
+          <p className='ml-2 text-nowrap'>
+            <span>{formatTelefono(perfil.telefono)}</span>
+            <span className='ml-2 hidden text-gray-400 md:inline-block'>
+              {inChat ? 'Activo' : 'Inactivo'}
+            </span>
+          </p>
+        </div>
       )}
     </div>
   );

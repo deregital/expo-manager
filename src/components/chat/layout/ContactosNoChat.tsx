@@ -34,9 +34,7 @@ const ContactosNoChat = ({ telefonoSelected, items }: ContactosNoChatProps) => {
 
   return (
     <Accordion value={isOpen} type='single' className='overflow-y-auto'>
-      {}
       <div ref={parentRef} className='h-96 overflow-auto'>
-        {}
         <div
           style={{
             height: `${rowVirtualizer.getTotalSize()}px`,
