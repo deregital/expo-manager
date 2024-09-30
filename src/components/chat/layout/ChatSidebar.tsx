@@ -2,12 +2,14 @@
 import { useChatSidebar } from '@/components/chat/layout/ChatSidebarMobile';
 import ContactoCard from '@/components/chat/layout/ContactoCard';
 import ContactosNoChat from '@/components/chat/layout/ContactosNoChat';
+import { Button } from '@/components/ui/button';
 import Loader from '@/components/ui/loader';
 import { Filtro, filterModelos } from '@/lib/filter';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import RespuestasEnlatadasModal from '../RespuestasEnlatadasModal';
 
 type ChatSidebarProps = {
   filtro: Filtro;
@@ -20,11 +22,20 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
   const params = useParams();
   const telefonoSelected = params.telefono as string;
 
+  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar el modal
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   const contactosFiltrados = useMemo(() => {
     if (!contactos) {
       return [];
     }
-
     return filterModelos(contactos, filtro);
   }, [contactos, filtro]);
 
@@ -123,6 +134,15 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
             },
           ]}
         />
+
+        <Button className='mx-3 mb-0 mt-3 md:mx-5' onClick={openModal}>
+          Crear Respuesta Enlatada
+        </Button>
+
+        {}
+        {isModalOpen && (
+          <RespuestasEnlatadasModal action='CREATE' onClose={closeModal} />
+        )}
       </aside>
     )
   );
