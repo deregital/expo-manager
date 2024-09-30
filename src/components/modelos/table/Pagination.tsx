@@ -20,8 +20,6 @@ const PaginationComp = <TData,>({ table }: PaginationProps<TData>) => {
     const pageCount = table.getPageCount();
 
     if (pageIndex > pageCount) {
-      console.log('pageIndex > pageCount', pageIndex, pageCount);
-
       table.setPageIndex(pageCount - 1);
     }
 

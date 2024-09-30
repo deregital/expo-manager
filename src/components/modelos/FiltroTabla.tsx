@@ -5,6 +5,7 @@ import SwitchEventos from '@/components/ui/SwitchEventos';
 import { create } from 'zustand';
 import Filtro from '@/components/ui/filtro/Filtro';
 import { type Filtro as FiltroType, FuncionFiltrar } from '@/lib/filter';
+import { useMemo } from 'react';
 
 export const useModelosFiltro = create(() => ({
   showEventos: false,
@@ -34,6 +35,22 @@ const FiltroTabla = () => {
     }
   }
 
+  const defaultEtiquetas = useMemo(
+    () =>
+      JSON.parse(
+        searchParams.get('etiquetas') ?? '[]'
+      ) as FiltroType['etiquetas'],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [searchParams.get('etiquetas')]
+  );
+
+  const defaultGrupos = useMemo(
+    () =>
+      JSON.parse(searchParams.get('grupos') ?? '[]') as FiltroType['grupos'],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [searchParams.get('grupos')]
+  );
+
   const filtrar: FuncionFiltrar = ({
     etiquetas,
     input,
@@ -62,7 +79,15 @@ const FiltroTabla = () => {
 
   return (
     <div className='flex items-center justify-between gap-x-4'>
-      <Filtro mostrarInput mostrarEtiq funcionFiltrado={filtrar}>
+      <Filtro
+        defaultFiltro={{
+          etiquetas: defaultEtiquetas,
+          grupos: defaultGrupos,
+        }}
+        mostrarInput
+        mostrarEtiq
+        funcionFiltrado={filtrar}
+      >
         <div className='flex w-full items-center justify-between gap-x-4'>
           {!isLoadingModelos && (
             <p className='self-start text-nowrap text-sm text-black/80 md:self-end'>

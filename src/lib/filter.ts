@@ -101,7 +101,7 @@ export function filterModelos<
         searchNormalize(modelo.genero ?? '', search.genero)) &&
       (search.etiquetas === undefined ||
         search.etiquetas.length === 0 ||
-        ((search.condicionalEtiq === 'AND'
+        (search.condicionalEtiq === 'AND'
           ? etiquetasInclude.every(({ etiqueta }) =>
               modelo.etiquetas.some((et) => et.id === etiqueta.id)
             ) &&
@@ -113,22 +113,22 @@ export function filterModelos<
             ) &&
             etiquetasNotInclude.some(({ etiqueta }) =>
               modelo.etiquetas.every((et) => et.id !== etiqueta.id)
-            )) &&
-          (search.grupos === undefined ||
-            search.grupos.length === 0 ||
-            (search.condicionalGrupo === 'AND'
-              ? gruposInclude.every(({ grupo }) =>
-                  modelo.etiquetas.some((et) => et.grupoId === grupo.id)
-                ) &&
-                gruposNotInclude.every(({ grupo }) =>
-                  modelo.etiquetas.every((et) => et.grupoId !== grupo.id)
-                )
-              : gruposInclude.some(({ grupo }) =>
-                  modelo.etiquetas.some((et) => et.grupoId === grupo.id)
-                ) &&
-                gruposNotInclude.some(({ grupo }) =>
-                  modelo.etiquetas.every((et) => et.grupoId !== grupo.id)
-                )))))
+            ))) &&
+      (search.grupos === undefined ||
+        search.grupos.length === 0 ||
+        (search.condicionalGrupo === 'AND'
+          ? gruposInclude.every(({ grupo }) =>
+              modelo.etiquetas.some((et) => et.grupoId === grupo.id)
+            ) &&
+            gruposNotInclude.every(({ grupo }) =>
+              modelo.etiquetas.every((et) => et.grupoId !== grupo.id)
+            )
+          : gruposInclude.some(({ grupo }) =>
+              modelo.etiquetas.some((et) => et.grupoId === grupo.id)
+            ) &&
+            gruposNotInclude.some(({ grupo }) =>
+              modelo.etiquetas.every((et) => et.grupoId !== grupo.id)
+            )))
     );
   });
   return mod;

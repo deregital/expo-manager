@@ -108,7 +108,6 @@ const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
                 key={etiqueta.id}
                 etiqueta={etiqueta}
                 background={grupo.color}
-                grupoId={grupo.id}
               />
             ))}
           </AccordionContent>
