@@ -6,12 +6,12 @@ import { RouterOutputs } from '@/server';
 import { ArrowLeftIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import SearchInput from '@/components/ui/SearchInput';
-import { useEffect, useState } from 'react';
-import { searchNormalize } from '@/lib/utils';
+import { useState } from 'react';
 import { DataTable } from '@/components/modelos/table/dataTable';
 import { generateColumns } from '@/components/eventos/table/columnsEvento';
 import RaiseHand from '@/components/icons/RaiseHand';
+import Filtro from '@/components/ui/filtro/Filtro';
+import { FuncionFiltrar, filterModelos } from '@/lib/filter';
 
 interface EventoPageProps {
   params: {
@@ -27,25 +27,14 @@ const EventoPage = ({ params }: EventoPageProps) => {
   const { data: modelos } = trpc.modelo.getAll.useQuery();
 
   const router = useRouter();
-  const [search, setSearch] = useState('');
   const [modelosData, setModelosData] = useState<
     RouterOutputs['modelo']['getAll']
   >(modelos ?? []);
 
-  useEffect(() => {
+  const filtrar: FuncionFiltrar = (filter) => {
     if (!modelos) return;
-    setModelosData(
-      modelos.filter((modelo) => {
-        if (modelo.idLegible !== null) {
-          return (
-            searchNormalize(modelo.idLegible.toString(), search) ||
-            searchNormalize(modelo.nombreCompleto, search)
-          );
-        }
-        return searchNormalize(modelo.nombreCompleto, search);
-      })
-    );
-  }, [search, modelos]);
+    setModelosData(filterModelos(modelos, filter));
+  };
 
   if (isLoadingEvento)
     return (
@@ -64,28 +53,30 @@ const EventoPage = ({ params }: EventoPageProps) => {
           }}
         />
       </div>
-      <div className='grid auto-rows-auto grid-cols-2 items-center justify-center gap-x-3 pb-3 sm:flex'>
-        <h3 className='col-span-2 p-2 text-center text-2xl font-bold'>
-          {evento?.nombre}
-        </h3>
+      <div className='grid auto-rows-auto grid-cols-3 items-center justify-center gap-x-3 pb-3 sm:flex'>
+        <div className='col-span-3 p-2'>
+          <h3 className='text-center text-2xl font-bold'>{evento?.nombre}</h3>
+        </div>
         <h3 className='p-2 text-center text-sm sm:text-base'>
           {format(evento!.fecha, 'yyyy-MM-dd')}
         </h3>
         <h3 className='p-2 text-center text-sm sm:text-base'>
           {evento?.ubicacion}
         </h3>
-      </div>
-      <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
-        <SearchInput
-          onChange={setSearch}
-          placeholder='Buscar por nombre o ID legible'
-        />
+
         <Button
-          className='rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500'
+          className='aspect-square justify-self-center rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500'
           onClick={() => router.push(`/eventos/${evento?.id}/presentismo`)}
         >
           <RaiseHand />
         </Button>
+      </div>
+      <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
+        {/* <SearchInput
+          onChange={setSearch}
+          placeholder='Buscar por nombre o ID legible'
+        /> */}
+        <Filtro mostrarInput mostrarEtiq funcionFiltrado={filtrar} />
       </div>
       <DataTable
         columns={generateColumns(

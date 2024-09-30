@@ -37,4 +37,11 @@ export const modeloSchemaCrearOEditar = z.object({
   localidadResidencia: z.string().optional(),
   residenciaLatitud: z.number().min(-90).max(90).optional(),
   residenciaLongitud: z.number().min(-180).max(180).optional(),
+  telefonoSecundario: z
+    .string()
+    .regex(
+      /^\+?549(11|[2368]\d)\d{8}$/,
+      'El número de teléfono secundario debe tener 10 dígitos. Puede empezar con 549'
+    )
+    .optional(),
 });

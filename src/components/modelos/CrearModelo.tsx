@@ -11,6 +11,7 @@ type ModeloModal = {
   modelo: {
     nombreCompleto: string;
     telefono: string;
+    telefonoSecundario?: string;
     fechaNacimiento: Date | undefined;
     genero: string;
     etiquetas: NonNullable<RouterOutputs['etiqueta']['getById']>[];
@@ -35,6 +36,7 @@ type ModeloModal = {
 const defaultModelo = {
   nombreCompleto: '',
   telefono: '',
+  telefonoSecundario: undefined,
   fechaNacimiento: undefined,
   genero: 'N/A',
   etiquetas: [],

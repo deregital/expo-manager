@@ -108,17 +108,21 @@ export function generateColumns(
       minSize: 100,
       maxSize: 100,
       cell: ({ row }) => {
-        const date = new Date(row.original.created_at).toLocaleDateString(
-          undefined,
-          {
-            localeMatcher: 'best fit',
-          }
-        );
+        const date = new Date(row.original.created_at);
 
-        const month = date.split('/')[0];
-        const day = date.split('/')[1];
-        const year = date.split('/')[2];
-        return <p>{`${day}/${month}/${year}`}</p>;
+        const formattedDate = date.toLocaleDateString(undefined, {
+          localeMatcher: 'best fit',
+        });
+
+        const formattedTime = date.toLocaleTimeString(undefined, {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+
+        const month = formattedDate.split('/')[0];
+        const day = formattedDate.split('/')[1];
+        const year = formattedDate.split('/')[2];
+        return <p>{`${day}/${month}/${year} ${formattedTime}`}</p>;
       },
     },
     {

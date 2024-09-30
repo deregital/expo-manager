@@ -118,6 +118,7 @@ const PageClient = ({}: PageClientProps) => {
   const retencion = useMemo(() => {
     return (
       (modelosQueCuentan.filter((modelo) =>
+        // @ts-expect-error
         modelo.mensajes.filter((m) => 'from' in (m.message as MessageJson))
       ).length /
         modelosQueCuentan.length) *

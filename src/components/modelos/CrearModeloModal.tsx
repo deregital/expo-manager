@@ -87,11 +87,18 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       ? modalModelo.modelo.telefono
       : `549${modalModelo.modelo.telefono}`;
 
+    const telefonosecParseado = modalModelo.modelo.telefonoSecundario
+      ? modalModelo.modelo.telefonoSecundario.startsWith('549')
+        ? modalModelo.modelo.telefonoSecundario
+        : `549${modalModelo.modelo.telefonoSecundario}`
+      : undefined;
+
     const res = await createModelo
       .mutateAsync({
         modelo: {
           nombreCompleto: modalModelo.modelo.nombreCompleto,
           telefono: telefonoParseado,
+          telefonoSecundario: telefonosecParseado,
           dni: modalModelo.modelo.dni ?? undefined,
           mail: modalModelo.modelo.mail ?? undefined,
           fechaNacimiento: modalModelo.modelo.fechaNacimiento
@@ -187,70 +194,68 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   }
 
   return (
-    <>
-      <Dialog
-        open={open}
-        onOpenChange={() => {
-          searchParams.delete('modal');
-          router.push(`${pathname}?${searchParams.toString()}`);
-        }}
-      >
-        <DialogContent onCloseAutoFocus={handleCancel}>
-          <div className='flex flex-col gap-y-0.5'>
-            <p className='text-xl font-semibold'>
-              Crear participante manualmente
-            </p>
-            {!similarityView ? (
-              <div className='mt-1 flex max-h-[400px] flex-col gap-y-1 overflow-y-auto px-2'>
-                <FormCrearModelo
-                  video={video}
-                  setVideo={setVideo}
-                  setFotoUrl={setFotoUrl}
-                  inputRef={inputRef}
-                />
-              </div>
-            ) : (
-              <div className='flex max-h-[400px] flex-col gap-y-2 overflow-y-auto'>
-                <ModelosSimilares similarityModelos={similarityModelos} />
-                <Button onClick={() => setSimilarityView(false)}>Volver</Button>
+    <Dialog
+      open={open}
+      onOpenChange={() => {
+        searchParams.delete('modal');
+        router.push(`${pathname}?${searchParams.toString()}`);
+      }}
+    >
+      <DialogContent onCloseAutoFocus={handleCancel}>
+        <div className='flex flex-col gap-y-0.5'>
+          <p className='text-xl font-semibold'>
+            Crear participante manualmente
+          </p>
+          {!similarityView ? (
+            <div className='mt-1 flex max-h-[400px] flex-col gap-y-1 overflow-y-auto px-2'>
+              <FormCrearModelo
+                video={video}
+                setVideo={setVideo}
+                setFotoUrl={setFotoUrl}
+                inputRef={inputRef}
+              />
+            </div>
+          ) : (
+            <div className='flex max-h-[400px] flex-col gap-y-2 overflow-y-auto'>
+              <ModelosSimilares similarityModelos={similarityModelos} />
+              <Button onClick={() => setSimilarityView(false)}>Volver</Button>
+            </div>
+          )}
+          <div
+            className={clsx(
+              `flex gap-x-2 pt-2`,
+              similarity ? 'justify-between' : 'justify-end'
+            )}
+          >
+            {similarity && (
+              <div>
+                <span className='align-middle text-xs'>
+                  Hay{' '}
+                  <span
+                    className='cursor-pointer font-semibold underline'
+                    onClick={() => setSimilarityView(true)}
+                  >
+                    {similarityModelos.length}{' '}
+                    {similarityModelos.length === 1
+                      ? 'participante similar.'
+                      : 'participantes similares.'}
+                  </span>{' '}
+                  ¿Quieres agregar a este participante?
+                </span>
               </div>
             )}
-            <div
-              className={clsx(
-                `flex gap-x-2 pt-2`,
-                similarity ? 'justify-between' : 'justify-end'
-              )}
+            <Button
+              onClick={handleSave}
+              className='flex justify-center gap-x-2'
+              disabled={createModelo.isLoading}
             >
-              {similarity && (
-                <div>
-                  <span className='align-middle text-xs'>
-                    Hay{' '}
-                    <span
-                      className='cursor-pointer font-semibold underline'
-                      onClick={() => setSimilarityView(true)}
-                    >
-                      {similarityModelos.length}{' '}
-                      {similarityModelos.length === 1
-                        ? 'participante similar.'
-                        : 'participantes similares.'}
-                    </span>{' '}
-                    ¿Quieres agregar a este participante?
-                  </span>
-                </div>
-              )}
-              <Button
-                onClick={handleSave}
-                className='flex justify-center gap-x-2'
-                disabled={createModelo.isLoading}
-              >
-                {createModelo.isLoading ?? <Loader className='h-5 w-5' />}
-                <p>{similarity ? 'Agregar igualmente' : 'Guardar'}</p>
-              </Button>
-            </div>
+              {createModelo.isLoading ?? <Loader className='h-5 w-5' />}
+              <p>{similarity ? 'Agregar igualmente' : 'Guardar'}</p>
+            </Button>
           </div>
-        </DialogContent>
-      </Dialog>
-    </>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

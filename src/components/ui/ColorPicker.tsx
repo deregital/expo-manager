@@ -2,45 +2,39 @@
 import { useState } from 'react';
 import Colorful from '@uiw/react-color-colorful';
 import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
-import { useGrupoEtiquetaModalData } from '@/components/etiquetas/modal/GrupoEtiquetaModal';
 import { Button } from './button';
 import { cn, getTextColorByBg, randomColor } from '@/lib/utils';
 
-const ColorPicker = () => {
-  const modalData = useGrupoEtiquetaModalData((state) => ({
-    tipo: state.tipo,
-    color: state.color,
-  }));
+interface ColorPickerProps {
+  color: string;
+  setColor: (color: string) => void;
+}
+
+const ColorPicker = ({ color, setColor }: ColorPickerProps) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <>
+    <div className='relative'>
       <Button
         style={{
-          backgroundColor: `${useGrupoEtiquetaModalData.getState().color}`,
-          color: getTextColorByBg(useGrupoEtiquetaModalData.getState().color),
+          backgroundColor: `${color}`,
+          color: getTextColorByBg(color),
         }}
         onClick={() => setOpen(!open)}
       >
         Elegir Color
       </Button>
-      <div className='absolute top-12 flex -translate-x-[29%] flex-col gap-y-2'>
+      <div className='absolute top-12 flex -translate-x-[45%] flex-col gap-y-2'>
         <Colorful
-          color={
-            modalData.color.length > 0
-              ? hexToHsva(modalData.color)
-              : randomColor()
-          }
+          color={color.length > 0 ? hexToHsva(color) : randomColor()}
           disableAlpha={true}
           onChange={(color) => {
-            useGrupoEtiquetaModalData.setState({
-              color: hsvaToHex(color.hsva),
-            });
+            setColor(hsvaToHex(color.hsva));
           }}
           className={cn(open ? 'block' : 'hidden')}
         />
       </div>
-    </>
+    </div>
   );
 };
 

@@ -174,6 +174,20 @@ const FormCrearModelo = ({
         }
         required
       />
+      <Label className='pt-2 text-sm'>Teléfono Secundario:</Label>
+      <Input
+        type='text'
+        placeholder='Teléfono Secundario'
+        value={modalModelo.modelo.telefonoSecundario}
+        onChange={(e) =>
+          useCrearModeloModal.setState({
+            modelo: {
+              ...modalModelo.modelo,
+              telefonoSecundario: e.target.value.trim(),
+            },
+          })
+        }
+      />
       <Label className='pt-2 text-sm'>DNI:</Label>
       <Input
         type='text'

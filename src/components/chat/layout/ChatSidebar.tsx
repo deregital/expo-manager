@@ -3,36 +3,49 @@ import { useChatSidebar } from '@/components/chat/layout/ChatSidebarMobile';
 import ContactoCard from '@/components/chat/layout/ContactoCard';
 import ContactosNoChat from '@/components/chat/layout/ContactosNoChat';
 import Loader from '@/components/ui/loader';
+import { Filtro, filterModelos } from '@/lib/filter';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React, { useMemo } from 'react';
 
-interface ChatSidebarProps {}
+type ChatSidebarProps = {
+  filtro: Filtro;
+};
 
-const ChatSidebar = ({}: ChatSidebarProps) => {
+const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
   const { data: contactos, isLoading: contactosLoading } =
     trpc.modelo.getAllWithInChat.useQuery();
 
   const params = useParams();
   const telefonoSelected = params.telefono as string;
 
-  const contactosNoLeidos = useMemo(() => {
-    return contactos
-      ? contactos.filter((contacto) => contacto.mensajes.some((m) => !m.visto))
-      : [];
-  }, [contactos]);
-
-  const contactosLeidos = useMemo(() => {
+  const contactosFiltrados = useMemo(() => {
     if (!contactos) {
       return [];
     }
+
+    return filterModelos(contactos, filtro);
+  }, [contactos, filtro]);
+
+  const contactosNoLeidos = useMemo(() => {
+    return contactosFiltrados
+      ? contactosFiltrados.filter((contacto) =>
+          contacto.mensajes.some((m) => !m.visto)
+        )
+      : [];
+  }, [contactosFiltrados]);
+
+  const contactosLeidos = useMemo(() => {
+    if (!contactosFiltrados) {
+      return [];
+    }
     return contactosNoLeidos.length > 0
-      ? contactos.filter(
+      ? contactosFiltrados.filter(
           (contacto) => !contactosNoLeidos.some((cnl) => cnl.id === contacto.id)
         )
-      : contactos;
-  }, [contactos, contactosNoLeidos]);
+      : contactosFiltrados;
+  }, [contactosFiltrados, contactosNoLeidos]);
 
   const contactosActivos = useMemo(() => {
     return contactosLeidos

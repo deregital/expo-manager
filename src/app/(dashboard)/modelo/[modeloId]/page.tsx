@@ -47,7 +47,12 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
   return (
     <div className='h-full px-4 pt-4'>
       <div className='flex items-center gap-x-4'>
-        <ArrowLeft className='cursor-pointer' onClick={() => router.back()} />
+        <ArrowLeft
+          className='cursor-pointer'
+          onClick={() => {
+            router.back();
+          }}
+        />
       </div>
       {isLoadingModelo || isLoadingComentarios || !modelo || !comentarios ? (
         <div className='flex h-full w-full items-center justify-center'>
