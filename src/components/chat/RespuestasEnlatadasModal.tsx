@@ -47,7 +47,7 @@ const RespuestasEnlatadasModal = ({
         .mutateAsync({ nombre, descripcion })
         .then(() => {
           setOpen(false);
-          onClose(); // Llama a onClose al cerrar el modal
+          onClose();
           toast.success('Respuesta enlatada creada con éxito');
         })
         .catch(() => toast.error('Error al crear la respuesta enlatada'));
@@ -56,7 +56,7 @@ const RespuestasEnlatadasModal = ({
         .mutateAsync({ id, nombre, descripcion })
         .then(() => {
           setOpen(false);
-          onClose(); // Llama a onClose al cerrar el modal
+          onClose();
           toast.success('Respuesta enlatada editada con éxito');
         })
         .catch(() => toast.error('Error al editar la respuesta enlatada'));
@@ -69,7 +69,7 @@ const RespuestasEnlatadasModal = ({
         .mutateAsync({ id: respuestaEnlatada.id })
         .then(() => {
           setOpen(false);
-          onClose(); // Llama a onClose al cerrar el modal
+          onClose();
           toast.success('Respuesta enlatada eliminada con éxito');
         })
         .catch(() => toast.error('Error al eliminar la respuesta enlatada'));
@@ -83,7 +83,7 @@ const RespuestasEnlatadasModal = ({
         onOpenChange={(isOpen) => {
           setOpen(isOpen);
           if (!isOpen) {
-            onClose(); // Llama a onClose si se cierra el modal
+            onClose();
           }
         }}
       >
