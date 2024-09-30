@@ -30,7 +30,9 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
 
   const contactosNoLeidos = useMemo(() => {
     return contactosFiltrados
-      ? contactosFiltrados.filter((contacto) => contacto.mensajes.some((m) => !m.visto))
+      ? contactosFiltrados.filter((contacto) =>
+          contacto.mensajes.some((m) => !m.visto)
+        )
       : [];
   }, [contactosFiltrados]);
 

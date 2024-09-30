@@ -52,9 +52,27 @@ model Perfil {
   created_at          DateTime  @default(now())
   updated_at          DateTime  @updatedAt
 
+  paisNacimiento      String?      @map("pais_nacimiento")
+  provinciaNacimiento String?      @map("provincia_nacimiento")
+  residencialatitud Float?
+  residencialongitud Float?
+  residencia          Residencia? @relation(fields: [residencialatitud, residencialongitud], references: [latitud, longitud])
+  
   @@map("PERFIL")
 }
 
+model Residencia {
+  provincia  String
+  localidad  String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  latitud    Float
+  longitud   Float
+  perfiles   Perfil[]
+
+  @@map("RESIDENCIA")
+  @@id([latitud, longitud])
+}
 model Comentario {
   id        String @id @default(uuid())
   contenido String
