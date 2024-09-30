@@ -4,18 +4,21 @@ import { create } from 'zustand';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
 
 interface RespuestasEnlatadasModalProps {
   action: 'EDIT' | 'CREATE';
   respuestaEnlatada?: { id: string; nombre: string; descripcion: string };
-  onClose: () => void;
 }
 
 type RespuestaEnlatadaModalData = {
-  [x: string]: any;
   tipo: 'CREATE' | 'EDIT';
   id?: string;
   nombre: string;
@@ -32,7 +35,6 @@ export const useRespuestasEnlatadasModalData =
 const RespuestasEnlatadasModal = ({
   action,
   respuestaEnlatada,
-  onClose,
 }: RespuestasEnlatadasModalProps) => {
   const [open, setOpen] = useState(false);
   const modalData = useRespuestasEnlatadasModalData();
@@ -40,8 +42,18 @@ const RespuestasEnlatadasModal = ({
   const editRespuesta = trpc.respuestasEnlatadas.update.useMutation();
   const deleteRespuesta = trpc.respuestasEnlatadas.delete.useMutation();
 
+  function onClose() {
+    useRespuestasEnlatadasModalData.setState({
+      tipo: 'CREATE',
+      nombre: '',
+      descripcion: '',
+    });
+    setOpen(false);
+  }
+
   const handleSubmit = async () => {
-    const { tipo, id, nombre, descripcion } = modalData.getState();
+    const { tipo, id, nombre, descripcion } =
+      useRespuestasEnlatadasModalData.getState();
     if (tipo === 'CREATE') {
       await createRespuesta
         .mutateAsync({ nombre, descripcion })
@@ -52,6 +64,7 @@ const RespuestasEnlatadasModal = ({
         })
         .catch(() => toast.error('Error al crear la respuesta enlatada'));
     } else if (tipo === 'EDIT') {
+      if (!id) return;
       await editRespuesta
         .mutateAsync({ id, nombre, descripcion })
         .then(() => {
@@ -89,9 +102,10 @@ const RespuestasEnlatadasModal = ({
       >
         <DialogTrigger asChild>
           <Button
+            className='mx-3'
             onClick={() => {
               setOpen(true);
-              modalData.setState({
+              useRespuestasEnlatadasModalData.setState({
                 tipo: action,
                 id: respuestaEnlatada?.id || '',
                 nombre: respuestaEnlatada?.nombre || '',
@@ -99,20 +113,33 @@ const RespuestasEnlatadasModal = ({
               });
             }}
           >
-            {action === 'CREATE' ? 'Crear Respuesta' : 'Editar Respuesta'}
+            {action === 'CREATE'
+              ? 'Crear Respuesta enlatada'
+              : 'Editar Respuesta'}
           </Button>
         </DialogTrigger>
         <DialogContent>
+          <DialogTitle>
+            {action === 'CREATE'
+              ? 'Crear Respuesta enlatada'
+              : 'Editar Respuesta enlatada'}
+          </DialogTitle>
           <Input
             placeholder='Nombre'
-            value={modalData.getState().nombre}
-            onChange={(e) => modalData.setState({ nombre: e.target.value })}
+            value={modalData.nombre}
+            onChange={(e) =>
+              useRespuestasEnlatadasModalData.setState({
+                nombre: e.target.value,
+              })
+            }
           />
           <Input
             placeholder='Descripción'
-            value={modalData.getState().descripcion}
+            value={modalData.descripcion}
             onChange={(e) =>
-              modalData.setState({ descripcion: e.target.value })
+              useRespuestasEnlatadasModalData.setState({
+                descripcion: e.target.value,
+              })
             }
           />
           <Button onClick={handleSubmit}>
