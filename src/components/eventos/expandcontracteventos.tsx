@@ -8,11 +8,26 @@ export const useExpandEventos = create<{
   expand: () => void;
   contract: () => void;
   none: () => void;
-}>((set) => ({
+  active: string[];
+  setActive: (active: string[]) => void;
+  clickTrigger: (id: string) => void;
+}>((set, get) => ({
   state: 'CONTRACT',
   expand: () => set({ state: 'EXPAND' }),
   contract: () => set({ state: 'CONTRACT' }),
   none: () => set({ state: 'NONE' }),
+  active: [],
+  setActive: (active) => set({ active }),
+  clickTrigger: (id: string) => {
+    if (get().active.includes(id)) {
+      get().setActive(get().active.filter((trigId) => trigId !== id));
+      if (get().active.length === 1) {
+        get().contract();
+      }
+    } else {
+      get().setActive([...get().active, id]);
+    }
+  },
 }));
 
 const ExpandContractEventos = () => {

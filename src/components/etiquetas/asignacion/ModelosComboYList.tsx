@@ -1,12 +1,14 @@
 import ComboBox from '@/components/ui/ComboBox';
-import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { Trash } from 'lucide-react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { create } from 'zustand';
 
-interface ModelosComboYListProps {}
+interface ModelosComboYListProps {
+  modelos: RouterOutputs['modelo']['getAll'];
+  modelosLoading: boolean;
+}
 
 export const asignacionComboBoxOpens = create<{
   modelos: boolean;
@@ -81,18 +83,12 @@ export const asignacionSelectedData = create<{
   clearGrupo: () => set({ grupo: undefined }),
 }));
 
-const ModelosComboYList = ({}: ModelosComboYListProps) => {
-  const { data: modelos, isLoading: modelosLoading } =
-    trpc.modelo.getAll.useQuery();
-
+const ModelosComboYList = ({
+  modelos,
+  modelosLoading,
+}: ModelosComboYListProps) => {
   const { modelos: modelosOpen, setModelosOpen } = asignacionComboBoxOpens();
   const { modelos: modelosList, setModelos } = asignacionSelectedData();
-
-  const modelosParaElegir = useMemo(() => {
-    return modelos
-      ?.filter((modelo) => !modelosList.find((m) => m.id === modelo.id))
-      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
-  }, [modelos, modelosList]);
 
   return (
     <>
@@ -103,7 +99,7 @@ const ModelosComboYList = ({}: ModelosComboYListProps) => {
         triggerChildren={<p>Modelos</p>}
         notFoundText='No hay participantes disponibles'
         placeholder='Buscar participantes...'
-        data={modelosParaElegir ?? []}
+        data={modelos ?? []}
         id='id'
         value='nombreCompleto'
         onSelect={(value) => {

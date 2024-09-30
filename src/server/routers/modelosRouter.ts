@@ -43,13 +43,17 @@ export const modeloRouter = router({
         result: {
           perfil: {
             inChat: {
-              compute(data: Perfil & { mensajes: Mensaje[] }) {
+              compute(
+                data: Perfil & {
+                  mensajes: (Mensaje & { message: MessageJson })[];
+                }
+              ) {
                 return (
                   data.mensajes.length > 0 &&
                   data.mensajes.some(
                     (m) =>
                       m.created_at > subDays(new Date(), 1) &&
-                      (m.message as MessageJson).from === data.telefono
+                      m.message.from === data.telefono
                   )
                 );
               },
@@ -67,6 +71,7 @@ export const modeloRouter = router({
           },
         },
         include: {
+          etiquetas: true,
           mensajes: {
             select: {
               visto: true,
@@ -76,7 +81,18 @@ export const modeloRouter = router({
           },
         },
       });
-    return modelos;
+
+    type Modelo = (typeof modelos)[number];
+
+    type ReemplazarMensaje<T> = T extends { message: Prisma.JsonValue }
+      ? Omit<T, 'message'> & { message: MessageJson }
+      : T;
+
+    type ModeloActualizado = Omit<Modelo, 'mensajes'> & {
+      mensajes: ReemplazarMensaje<Modelo['mensajes'][number]>[];
+    };
+
+    return modelos as ModeloActualizado[];
   }),
   getById: protectedProcedure
     .input(z.string().uuid())
@@ -102,6 +118,7 @@ export const modeloRouter = router({
               },
             },
           },
+          residencia: true,
         },
       });
     }),
@@ -204,11 +221,26 @@ export const modeloRouter = router({
         ? input.modelo.telefono
         : `549${input.modelo.telefono}`;
 
+      const telefonoSecundario = input.modelo.telefonoSecundario
+        ? input.modelo.telefonoSecundario.startsWith('549')
+          ? input.modelo.telefonoSecundario
+          : `549${input.modelo.telefonoSecundario}`
+        : undefined;
+
       const perfilConMismoTelefonoDNI = await ctx.prisma.perfil.findMany({
         where: {
           OR: [
             {
               telefono: telefono,
+            },
+            {
+              telefono: telefonoSecundario ?? undefined,
+            },
+            {
+              telefonoSecundario: telefonoSecundario ?? undefined,
+            },
+            {
+              telefonoSecundario: telefono ?? undefined,
             },
             {
               dni: input.modelo.dni ?? undefined,
@@ -222,6 +254,23 @@ export const modeloRouter = router({
           message: `Ya existe un perfil con el mismo teléfono o DNI`,
         });
       }
+      const perfilConMismoTelefonoSecundario = await ctx.prisma.perfil.findMany(
+        {
+          where: {
+            telefonoSecundario: input.modelo.telefonoSecundario ?? undefined,
+          },
+        }
+      );
+      if (
+        perfilConMismoTelefonoSecundario &&
+        perfilConMismoTelefonoSecundario.length > 0
+      ) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: `Ya existe un perfil con el mismo teléfono secundario`,
+        });
+      }
+
       const modelos = await ctx.prisma.perfil.findMany({
         where: {},
         select: {
@@ -264,12 +313,17 @@ export const modeloRouter = router({
 
       const idLegibleMasAlto = await getHighestIdLegible(ctx.prisma);
 
+      const connectResidencia =
+        input.modelo.residenciaLatitud !== undefined &&
+        input.modelo.residenciaLongitud !== undefined;
+
       return await ctx.prisma.perfil.create({
         data: {
           idLegible: idLegibleMasAlto + 1,
           nombreCompleto: input.modelo.nombreCompleto,
           nombrePila: input.modelo.nombreCompleto.split(' ')[0],
           telefono: telefono,
+          telefonoSecundario: telefonoSecundario,
           genero:
             input.modelo.genero !== 'N/A' ? input.modelo.genero : undefined,
           fechaNacimiento: input.modelo.fechaNacimiento
@@ -293,6 +347,26 @@ export const modeloRouter = router({
           instagram: input.modelo.instagram
             ? input.modelo.instagram
             : undefined,
+          paisNacimiento: input.modelo.paisNacimiento,
+          provinciaNacimiento: input.modelo.provinciaNacimiento,
+          residencia: {
+            connectOrCreate: connectResidencia
+              ? {
+                  where: {
+                    latitud_longitud: {
+                      latitud: input.modelo.residenciaLatitud ?? 0,
+                      longitud: input.modelo.residenciaLongitud ?? 0,
+                    },
+                  },
+                  create: {
+                    latitud: input.modelo.residenciaLatitud ?? 0,
+                    longitud: input.modelo.residenciaLongitud ?? 0,
+                    localidad: input.modelo.localidadResidencia ?? '',
+                    provincia: input.modelo.provinciaResidencia ?? '',
+                  },
+                }
+              : undefined,
+          },
         },
         select: {
           id: true,
@@ -322,6 +396,14 @@ export const modeloRouter = router({
             'El teléfono no es válido, debe empezar con 549 y tener 10 dígitos. Ejemplo: 5491123456789'
           )
           .optional(),
+        telefonoSecundario: z
+          .string()
+          .regex(
+            /^549(11|[2368]\d)\d{8}$/,
+            'El teléfono no es válido, debe empezar con 549 y tener 10 dígitos. Ejemplo: 5491123456789'
+          )
+          .optional()
+          .nullable(),
         fotoUrl: z.string().optional().nullable(),
         genero: z.string().optional(),
         fechaNacimiento: z.string().optional(),
@@ -354,6 +436,12 @@ export const modeloRouter = router({
           .optional(),
         esPapelera: z.boolean().optional(),
         fechaPapelera: z.string().datetime().nullable().optional(),
+        paisNacimiento: z.string().optional(),
+        provinciaNacimiento: z.string().optional(),
+        provinciaResidencia: z.string().optional(),
+        localidadResidencia: z.string().optional(),
+        residenciaLatitud: z.number().optional(),
+        residenciaLongitud: z.number().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -379,7 +467,16 @@ export const modeloRouter = router({
                 telefono: input.telefono,
               },
               {
+                telefono: input.telefonoSecundario ?? undefined,
+              },
+              {
                 dni: input.dni ?? undefined,
+              },
+              {
+                telefonoSecundario: input.telefonoSecundario ?? undefined,
+              },
+              {
+                telefonoSecundario: input.telefono ?? undefined,
               },
             ],
           },
@@ -389,7 +486,13 @@ export const modeloRouter = router({
         });
 
       if (perfilConMismoTelefono && perfilConMismoTelefono.length > 0) {
-        if (perfilConMismoTelefono.some((p) => p.telefono === input.telefono)) {
+        if (
+          perfilConMismoTelefono.some(
+            (p) =>
+              p.telefono === input.telefono ||
+              p.telefonoSecundario === input.telefono
+          )
+        ) {
           throw new TRPCError({
             code: 'CONFLICT',
             message: `Ya existe un perfil con el teléfono ${input.telefono}`,
@@ -401,6 +504,18 @@ export const modeloRouter = router({
           throw new TRPCError({
             code: 'CONFLICT',
             message: `Ya existe un perfil con el DNI ${input.dni}`,
+          });
+        } else if (
+          perfilConMismoTelefono.some(
+            (p) =>
+              p.telefonoSecundario === input.telefonoSecundario ||
+              p.telefono === input.telefonoSecundario
+          ) &&
+          input.telefonoSecundario
+        ) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: `Ya existe un perfil con el teléfono secundario ${input.telefonoSecundario}`,
           });
         }
       }
@@ -422,6 +537,10 @@ export const modeloRouter = router({
         });
       }
 
+      const connectResidencia =
+        input.residenciaLatitud !== undefined &&
+        input.residenciaLongitud !== undefined;
+
       return await ctx.prisma.perfil.update({
         where: {
           id: input.id,
@@ -431,6 +550,7 @@ export const modeloRouter = router({
           idLegible: input.idLegible,
           nombrePila: nombrePila,
           telefono: input.telefono,
+          telefonoSecundario: input.telefonoSecundario,
           genero: input.genero,
           fotoUrl: input.fotoUrl,
           fechaNacimiento: input.fechaNacimiento
@@ -458,6 +578,26 @@ export const modeloRouter = router({
               : input.fechaPapelera
                 ? new Date(input.fechaPapelera)
                 : undefined,
+          paisNacimiento: input.paisNacimiento ?? null,
+          provinciaNacimiento: input.provinciaNacimiento ?? null,
+          residencia: {
+            connectOrCreate: connectResidencia
+              ? {
+                  where: {
+                    latitud_longitud: {
+                      latitud: input.residenciaLatitud ?? 0,
+                      longitud: input.residenciaLongitud ?? 0,
+                    },
+                  },
+                  create: {
+                    latitud: input.residenciaLatitud ?? 0,
+                    longitud: input.residenciaLongitud ?? 0,
+                    localidad: input.localidadResidencia ?? '',
+                    provincia: input.provinciaResidencia ?? '',
+                  },
+                }
+              : undefined,
+          },
         },
       });
     }),

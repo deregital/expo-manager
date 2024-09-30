@@ -7,7 +7,7 @@ import EventIcon from '../icons/EventIcon';
 import { useRouter } from 'next/navigation';
 
 interface EventoListTriggerProps {
-  evento: RouterOutputs['evento']['getAll'][number];
+  evento: RouterOutputs['evento']['getAll']['sinCarpetas'][number];
 }
 
 const EventoListTrigger = ({ evento }: EventoListTriggerProps) => {
@@ -23,7 +23,7 @@ const EventoListTrigger = ({ evento }: EventoListTriggerProps) => {
         <p className='whitespace-nowrap text-start'>{evento.nombre}</p>
 
         <div className='flex w-full items-center gap-x-1'>
-          <p className='text-xs text-white/70'>
+          <p className='text-xs text-inherit opacity-70'>
             {format(evento.fecha, 'dd/MM/yyyy HH:mm')}
             {' - '}
             {evento.ubicacion}

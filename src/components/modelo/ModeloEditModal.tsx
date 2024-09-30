@@ -14,10 +14,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { trpc } from '@/lib/trpc';
+import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
+import { Country, State } from 'country-state-city';
 import { differenceInYears } from 'date-fns';
 import { TrashIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 
@@ -34,7 +36,18 @@ interface ModeloModalData {
   mail: string | undefined;
   dni: string | undefined;
   telefono: string | undefined;
+  telefonoSecundario: string | null | undefined;
   nombreCompleto: string | undefined;
+  paisNacimiento: string | undefined;
+  provinciaNacimiento: string | undefined;
+  residencia:
+    | {
+        latitud?: number | undefined;
+        longitud?: number | undefined;
+        provincia: string | undefined;
+        localidad: string | undefined;
+      }
+    | undefined;
 }
 
 export function edadFromFechaNacimiento(fechaNacimiento: string) {
@@ -50,7 +63,16 @@ const useModeloModalData = create<ModeloModalData>(() => ({
   mail: undefined,
   dni: undefined,
   telefono: undefined,
+  telefonoSecundario: undefined,
   nombreCompleto: undefined,
+  paisNacimiento: undefined,
+  provinciaNacimiento: undefined,
+  residencia: {
+    latitud: undefined,
+    longitud: undefined,
+    provincia: undefined,
+    localidad: undefined,
+  },
 }));
 
 const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
@@ -63,11 +85,20 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     mail,
     dni,
     telefono,
+    telefonoSecundario,
     nombreCompleto,
+    paisNacimiento,
+    provinciaNacimiento,
+    residencia,
   } = useModeloModalData();
   const [openSelect, setOpenSelect] = useState(false);
   const [error, setError] = useState('');
   const utils = trpc.useUtils();
+
+  const [openCountrySelect, setOpenCountrySelect] = useState(false);
+  const [openStateSelect, setOpenStateSelect] = useState(false);
+  const [openProvinceSelect, setOpenProvinceSelect] = useState(false);
+  const [openCitySelect, setOpenCitySelect] = useState(false);
 
   useEffect(() => {
     useModeloModalData.setState({
@@ -79,17 +110,18 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       mail: modelo.mail ?? undefined,
       dni: modelo.dni ?? undefined,
       telefono: modelo.telefono ?? undefined,
+      telefonoSecundario: modelo.telefonoSecundario,
       nombreCompleto: modelo.nombreCompleto ?? undefined,
+      paisNacimiento: modelo.paisNacimiento ?? '',
+      provinciaNacimiento: modelo.provinciaNacimiento ?? '',
+      residencia: {
+        latitud: modelo.residencia?.latitud,
+        longitud: modelo.residencia?.longitud,
+        provincia: modelo.residencia?.provincia ?? '',
+        localidad: modelo.residencia?.localidad ?? '',
+      },
     });
-  }, [
-    modelo.fechaNacimiento,
-    modelo.nombresAlternativos,
-    modelo.instagram,
-    modelo.mail,
-    modelo.dni,
-    modelo.telefono,
-    modelo.nombreCompleto,
-  ]);
+  }, [modelo]);
 
   const editModelo = trpc.modelo.edit.useMutation({
     onSuccess: () => {
@@ -125,32 +157,42 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     },
   });
 
-  const addNickname = () => {
+  function addNickname() {
     useModeloModalData.setState({
       nombresAlternativos: [...nombresAlternativos, ''],
     });
-  };
+  }
 
-  const removeNickname = (index: number) => {
+  function removeNickname(index: number) {
     useModeloModalData.setState({
       nombresAlternativos: nombresAlternativos.filter((_, i) => i !== index),
     });
-  };
+  }
 
-  const handleNicknameChange = (index: number, value: string) => {
+  function handleNicknameChange(index: number, value: string) {
     const newNombresAlternativos = [...nombresAlternativos];
     newNombresAlternativos[index] = value;
     useModeloModalData.setState({
       nombresAlternativos: newNombresAlternativos,
     });
-  };
+  }
+
+  function intercambiarNumeros() {
+    if (!telefono || !telefonoSecundario) return;
+    useModeloModalData.setState((state) => {
+      if (!state.telefonoSecundario) return {};
+      return {
+        telefono: state.telefonoSecundario,
+        telefonoSecundario: state.telefono,
+      };
+    });
+  }
 
   async function edit() {
-    // if (!genero || !fechaNacimiento || !nombreCompleto) {
-    //   setError('Debe ingresar un género, una fecha de nacimiento y un nombre');
-    //   return;
-    // }
-
+    if (!telefono) {
+      setError('El teléfono es requerido');
+      return;
+    }
     try {
       return await editModelo.mutateAsync({
         id: modelo.id,
@@ -165,7 +207,14 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
         mail: mail ?? null,
         dni: dni ?? null,
         telefono: telefono ?? undefined,
+        telefonoSecundario: telefonoSecundario,
         nombreCompleto: nombreCompleto ?? undefined,
+        paisNacimiento: paisNacimiento ?? '',
+        provinciaNacimiento: provinciaNacimiento ?? '',
+        residenciaLatitud: residencia?.latitud,
+        residenciaLongitud: residencia?.longitud,
+        provinciaResidencia: residencia?.provincia,
+        localidadResidencia: residencia?.localidad,
       });
     } catch (error) {}
   }
@@ -176,11 +225,49 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       fechaNacimiento: modelo.fechaNacimiento
         ? new Date(modelo.fechaNacimiento)
         : undefined,
+      paisNacimiento: modelo.paisNacimiento ?? '',
+      provinciaNacimiento: modelo.provinciaNacimiento ?? '',
+      residencia: {
+        latitud: modelo.residencia?.latitud,
+        longitud: modelo.residencia?.longitud,
+        provincia: modelo.residencia?.provincia ?? '',
+        localidad: modelo.residencia?.localidad ?? '',
+      },
       open: false,
     });
     setOpenSelect(false);
     setError('');
   }
+
+  const allCountries = useMemo(
+    () =>
+      Country.getAllCountries().filter(
+        (country) => country.name !== 'Palestinian Territory Occupied'
+      ),
+    []
+  );
+  const statesBySelectedCountry = useMemo(() => {
+    if (!paisNacimiento) return [];
+    const countryCode = allCountries.find(
+      (country) => country.name === paisNacimiento
+    )?.isoCode;
+
+    return State.getStatesOfCountry(countryCode);
+  }, [allCountries, paisNacimiento]);
+
+  const provinces = useMemo(() => {
+    return State.getStatesOfCountry('AR');
+  }, []);
+
+  const { data: citiesData } = trpc.mapa.getLocalidadesByProvincia.useQuery(
+    residencia?.provincia ?? '',
+    {
+      enabled: !!residencia?.provincia,
+    }
+  );
+  const telefonoSecundarioExists = useMemo(() => {
+    return telefonoSecundario !== null && telefonoSecundario !== undefined;
+  }, [telefonoSecundario]);
 
   return (
     <Dialog
@@ -206,6 +293,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               mail: modelo.mail ?? undefined,
               dni: modelo.dni ?? undefined,
               telefono: modelo.telefono ?? undefined,
+              telefonoSecundario: modelo.telefonoSecundario ?? undefined,
               nombreCompleto: modelo.nombreCompleto ?? undefined,
             });
           }}
@@ -334,17 +422,84 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           </div>
           <div className='w-full'>
             <Label htmlFor='telefono'>Teléfono</Label>
-            <Input
-              type='text'
-              name='telefono'
-              id='telefono'
-              value={telefono ?? ''}
-              onChange={(e) => {
-                useModeloModalData.setState({
-                  telefono: e.currentTarget.value || undefined,
-                });
-              }}
-            />
+            <div
+              className={cn(
+                'flex items-center',
+                telefonoSecundarioExists && 'flex-col'
+              )}
+            >
+              <div className='flex w-full items-center gap-x-2'>
+                <Input
+                  type='text'
+                  name='telefono'
+                  id='telefono'
+                  value={telefono ?? ''}
+                  onChange={(e) => {
+                    useModeloModalData.setState({
+                      telefono: e.currentTarget.value || undefined,
+                    });
+                  }}
+                />
+                {!telefonoSecundarioExists && (
+                  <Button
+                    variant='secondary'
+                    className='bg-black p-2 text-white hover:bg-gray-700'
+                    title='Agregar Teléfono Secundario'
+                    onClick={() => {
+                      useModeloModalData.setState({
+                        telefonoSecundario: '',
+                      });
+                    }}
+                  >
+                    +
+                  </Button>
+                )}
+              </div>
+
+              {telefonoSecundarioExists && (
+                <div className='mt-2 w-full'>
+                  <Label htmlFor='telefonoSecundario'>
+                    Teléfono Secundario
+                  </Label>
+                  <div className='flex items-center gap-x-2'>
+                    <Input
+                      type='text'
+                      name='telefonoSecundario'
+                      id='telefonoSecundario'
+                      value={telefonoSecundario ?? ''}
+                      onChange={(e) => {
+                        useModeloModalData.setState({
+                          telefonoSecundario: e.currentTarget.value,
+                        });
+                      }}
+                    />
+                    <Button
+                      onClick={() => {
+                        useModeloModalData.setState({
+                          telefonoSecundario: null,
+                        });
+                      }}
+                      className='w-8 p-1'
+                      variant={'destructive'}
+                    >
+                      <TrashIcon className='w-full' />
+                    </Button>
+                  </div>
+                  {telefonoSecundario &&
+                    telefonoSecundario.length > 0 &&
+                    telefono &&
+                    telefono.length > 0 && (
+                      <Button
+                        variant='secondary'
+                        className='mt-2 bg-blue-800 p-2 text-white hover:bg-blue-900'
+                        onClick={intercambiarNumeros}
+                      >
+                        Intercambiar Teléfonos
+                      </Button>
+                    )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className='flex flex-col gap-y-2'>
@@ -377,7 +532,124 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             <CirclePlus className='h-6 w-6' />
           </Button>
         </div>
+        <Label>Lugar de nacimiento:</Label>
+        <div className='flex items-center justify-between gap-x-4 pb-3'>
+          <Select
+            open={openCountrySelect}
+            onOpenChange={setOpenCountrySelect}
+            onValueChange={(value) => {
+              useModeloModalData.setState({
+                paisNacimiento: value as string,
+              });
+            }}
+            defaultValue={paisNacimiento}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder='País' />
+            </SelectTrigger>
+            <SelectContent>
+              {allCountries.map((country) => (
+                <SelectItem key={country.isoCode} value={country.name}>
+                  {country.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            open={openStateSelect}
+            onOpenChange={setOpenStateSelect}
+            onValueChange={(value) => {
+              useModeloModalData.setState({
+                provinciaNacimiento: value as string,
+              });
+            }}
+            disabled={!paisNacimiento}
+            defaultValue={provinciaNacimiento}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder='Provincia' />
+            </SelectTrigger>
+            <SelectContent>
+              {statesBySelectedCountry.map((state) => (
+                <SelectItem key={state.isoCode} value={state.name}>
+                  {state.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Label>Lugar de residencia:</Label>
+        <div className='flex items-center justify-between gap-x-4 pb-3'>
+          <Select
+            open={openProvinceSelect}
+            onOpenChange={setOpenProvinceSelect}
+            onValueChange={(value) => {
+              useModeloModalData.setState({
+                residencia: {
+                  ...residencia,
+                  localidad: residencia?.localidad,
+                  provincia: value as string,
+                },
+              });
+            }}
+            defaultValue={residencia?.provincia}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder='Provincia' />
+            </SelectTrigger>
+            <SelectContent>
+              {provinces.map((province) => (
+                <SelectItem key={province.name} value={province.name}>
+                  {province.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            open={openCitySelect}
+            onOpenChange={setOpenCitySelect}
+            onValueChange={(value) => {
+              const city = JSON.parse(value as string) as {
+                latitud: number;
+                longitud: number;
+                nombre: string;
+              };
 
+              useModeloModalData.setState({
+                residencia: {
+                  localidad: city.nombre as string,
+                  provincia: residencia?.provincia,
+                  latitud: city.latitud,
+                  longitud: city.longitud,
+                },
+              });
+            }}
+            defaultValue={JSON.stringify({
+              latitud: residencia?.latitud,
+              longitud: residencia?.longitud,
+              nombre: residencia?.localidad,
+            })}
+            disabled={!residencia?.provincia}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder='Localidad' />
+            </SelectTrigger>
+            <SelectContent>
+              {citiesData?.map((city) => (
+                <SelectItem
+                  key={city.nombre}
+                  value={JSON.stringify({
+                    latitud: city.centroide.lat,
+                    longitud: city.centroide.lon,
+                    nombre: city.nombre,
+                  })}
+                >
+                  {city.nombre}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         {editModelo.isError || error !== '' ? (
           <p className='text-sm font-semibold text-red-500'>
             {error ??

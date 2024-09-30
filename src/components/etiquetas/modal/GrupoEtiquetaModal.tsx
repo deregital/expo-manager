@@ -319,7 +319,14 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
                   />
                 )}
 
-                <ColorPicker />
+                <ColorPicker
+                  color={modalData.color}
+                  setColor={(color) => {
+                    useGrupoEtiquetaModalData.setState({
+                      color: color,
+                    });
+                  }}
+                />
               </div>
             </div>
           </div>

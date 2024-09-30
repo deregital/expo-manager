@@ -17,15 +17,31 @@ export const modeloSchemaCrearOEditar = z.object({
   etiquetas: z.array(z.string().uuid()).optional(),
   apodos: z.array(z.string()).optional(),
   dni: z.string().optional(),
-  mail: z.union([
-    z.literal(''),
-    z.string().email('El mail debe tener un formato válido'),
-  ]),
+  mail: z.string().email('El mail debe tener un formato válido').optional(),
   instagram: z
     .string()
     .regex(
       /^[\w](?!.*?\.{2})[\w.]{1,28}[\w]$/,
       'El instagram no es válido. No debe comenzar con @'
+    )
+    .optional(),
+  paisNacimiento: z
+    .string()
+    .min(1, 'El país de nacimiento es un campo obligatorio')
+    .optional(),
+  provinciaNacimiento: z
+    .string()
+    .min(1, 'La provincia de nacimiento es un campo obligatorio')
+    .optional(),
+  provinciaResidencia: z.string().optional(),
+  localidadResidencia: z.string().optional(),
+  residenciaLatitud: z.number().min(-90).max(90).optional(),
+  residenciaLongitud: z.number().min(-180).max(180).optional(),
+  telefonoSecundario: z
+    .string()
+    .regex(
+      /^\+?549(11|[2368]\d)\d{8}$/,
+      'El número de teléfono secundario debe tener 10 dígitos. Puede empezar con 549'
     )
     .optional(),
 });
