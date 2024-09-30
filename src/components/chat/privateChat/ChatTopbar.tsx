@@ -35,7 +35,7 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
                 url={perfil.fotoUrl}
               />
               <p className='font-bold'>{perfil.nombreCompleto}</p>
-              <p className='text-nowrap  text-gray-500'>
+              <p className='text-nowrap text-gray-500'>
                 ID: {perfil.idLegible}
               </p>
             </div>
@@ -47,24 +47,26 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
               >
                 <ModeloFillIcon className='size-5' />
               </Link>
-              {/* Ícono de WhatsApp */}
-              <Link
-                title='Enviar mensaje por WhatsApp'
-                href={`https://wa.me/${perfil.telefono}`}
-                target='_blank'
-                rel='noreferrer'
-                className='flex items-center justify-center rounded bg-gray-200 p-1'
-              >
-                <WhatsappIcon className='size-5 fill-lime-600' />
-              </Link>
             </div>
           </div>
-          <p className='ml-2 text-nowrap'>
-            <span>{formatTelefono(perfil.telefono)}</span>
-            <span className='ml-2 hidden text-gray-400 md:inline-block'>
-              {inChat ? 'Activo' : 'Inactivo'}
-            </span>
-          </p>
+          <div className='flex items-center gap-x-1'>
+            {}
+            <Link
+              title='Enviar mensaje por WhatsApp'
+              href={`https://wa.me/${perfil.telefono}`}
+              target='_blank'
+              rel='noreferrer'
+              className='flex items-center justify-center rounded bg-gray-200 p-1'
+            >
+              <WhatsappIcon className='size-5 fill-lime-600' />
+            </Link>
+            <p className='text-nowrap'>
+              <span>{formatTelefono(perfil.telefono)}</span>
+              <span className='ml-2 hidden text-gray-400 md:inline-block'>
+                {inChat ? 'Activo' : 'Inactivo'}
+              </span>
+            </p>
+          </div>
         </div>
       )}
     </div>
