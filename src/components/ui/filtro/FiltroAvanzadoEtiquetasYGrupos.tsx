@@ -50,6 +50,7 @@ const FiltroAvanzadoEtiquetasYGrupos =
 
     function handleAddGrupo(id: string) {
       if (grupoId === id) {
+        setEtiquetaId(undefined);
         setGrupoEtiqueta(undefined);
         return;
       }

@@ -88,6 +88,7 @@ const Filtro = ({
   function editarGrupoEtiq(grupoEtiq: string) {
     if (grupoId === grupoEtiq) {
       useFiltro.setState({
+        etiquetas: filtro.etiquetas.slice(1, filtro.etiquetas.length),
         grupos: filtro.grupos.slice(1, filtro.grupos.length),
       });
       setGrupoId(undefined);
