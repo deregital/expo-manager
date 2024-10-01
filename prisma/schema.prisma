@@ -84,8 +84,7 @@ model Comentario {
   perfilId  String @map("perfil_id")
   perfil    Perfil @relation(fields: [perfilId], references: [id], onDelete: Cascade)
 
-  comentarioResolubleId String? @map("comentario_resoluble_id")
-  comentarioResoluble ComentarioResoluble? @relation(fields: [comentarioResolubleId], references: [id], onDelete: Cascade)
+  comentarioResoluble ComentarioResoluble[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -96,7 +95,8 @@ model Comentario {
 model ComentarioResoluble {
   id        String @id @default(uuid())
   isSolved  Boolean @default(false)
-  comentarios Comentario[]
+  comentarioId String @map("comentario_id")
+  comentarios Comentario @relation(fields: [comentarioId], references: [id])
   solvedBy    String? @map("solved_by")
   cuenta      Cuenta? @relation(fields: [solvedBy], references: [id])
   solvedAt    DateTime? @map("solved_at")
