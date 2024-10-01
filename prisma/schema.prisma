@@ -24,6 +24,8 @@ model Cuenta {
 
   fcmToken String[] @map("fcm_token")
 
+  comentariosResolubles ComentarioResoluble[]
+
   @@map("CUENTA")
 }
 
@@ -56,7 +58,7 @@ model Perfil {
   provinciaNacimiento String?      @map("provincia_nacimiento")
   residencialatitud Float?
   residencialongitud Float?
-  residencia          Residencia? @relation(fields: [residencialatitud, residencialongitud], references: [latitud, longitud])
+  residencia          Residencia? @relation(fields: [residencialatitud, residencialongitud], references: [latitud, longitud])  
   
   @@map("PERFIL")
 }
@@ -82,12 +84,28 @@ model Comentario {
   perfilId  String @map("perfil_id")
   perfil    Perfil @relation(fields: [perfilId], references: [id], onDelete: Cascade)
 
+  comentarioResolubleId String? @map("comentario_resoluble_id")
+  comentarioResoluble ComentarioResoluble? @relation(fields: [comentarioResolubleId], references: [id], onDelete: Cascade)
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   @@map("COMENTARIO")
 }
 
+model ComentarioResoluble {
+  id        String @id @default(uuid())
+  isSolved  Boolean @default(false)
+  comentarios Comentario[]
+  solvedBy    String? @map("solved_by")
+  cuenta      Cuenta? @relation(fields: [solvedBy], references: [id])
+  solvedAt    DateTime? @map("solved_at")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("COMENTARIO_RESOLUBLE")
+}
 model Etiqueta {
   id      String        @id @default(uuid())
   nombre  String
