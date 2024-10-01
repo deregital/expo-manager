@@ -20,7 +20,7 @@ model Cuenta {
   comentarios      Comentario[]
   etiquetas        Etiqueta[]   @relation("CUENTA_X_ETIQUETA")
   filtroBase       Etiqueta[]   @relation("FILTRO_BASE_X_ETIQUETA")
-
+  comentarioResoluble ComentarioResoluble[]
   @@map("CUENTA")
 }
 
@@ -76,10 +76,24 @@ model Comentario {
   updated_at DateTime @updatedAt
   cuenta     Cuenta   @relation(fields: [creadoPor], references: [id])
   perfil     Perfil   @relation(fields: [perfilId], references: [id], onDelete: Cascade)
+  comentarioResoluble ComentarioResoluble[]
 
   @@map("COMENTARIO")
 }
+model ComentarioResoluble {
+  id        String @id @default(uuid())
+  isSolved  Boolean @default(false)
+  comentarioId String @map("comentario_id")
+  comentarios Comentario @relation(fields: [comentarioId], references: [id])
+  solvedBy    String? @map("solved_by")
+  cuenta      Cuenta? @relation(fields: [solvedBy], references: [id])
+  solvedAt    DateTime? @map("solved_at")
 
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("COMENTARIO_RESOLUBLE")
+}
 model Etiqueta {
   id                 String        @id @default(uuid())
   nombre             String
