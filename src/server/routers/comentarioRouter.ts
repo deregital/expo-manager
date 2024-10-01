@@ -26,18 +26,9 @@ export const comentarioRouter = router({
           perfilId: input.perfilId,
           creadoPor: userId,
           isSolvable: input.isSolvable,
+          isSolved: false,
         },
       });
-      if (input.isSolvable) {
-        await ctx.prisma.comentarioResoluble.create({
-          data: {
-            comentarioId: comentario.id,
-            isSolved: false,
-            solvedBy: null,
-            solvedAt: null,
-          },
-        });
-      }
       return comentario;
     }),
 
@@ -80,7 +71,8 @@ export const comentarioRouter = router({
     .input(
       z.object({
         id: z.string().uuid(), // Se requiere el ID del comentario a actualizar
-        contenido: z.string().min(1),
+        contenido: z.string().min(1).optional(),
+        isSolved: z.boolean().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -114,6 +106,9 @@ export const comentarioRouter = router({
         },
         data: {
           contenido: input.contenido,
+          isSolved: input.isSolved,
+          solvedAt: input.isSolved ? new Date() : null,
+          solvedById: input.isSolved ? userId : null,
         },
       });
     }),

@@ -20,7 +20,7 @@ model Cuenta {
   comentarios      Comentario[]
   etiquetas        Etiqueta[]   @relation("CUENTA_X_ETIQUETA")
   filtroBase       Etiqueta[]   @relation("FILTRO_BASE_X_ETIQUETA")
-  comentarioResoluble ComentarioResoluble[]
+  comentarioResoluble Comentario[] @relation("ACCOUNT_X_SOLVED_COMMENT")
   @@map("CUENTA")
 }
 
@@ -70,30 +70,20 @@ model Residencia {
 model Comentario {
   id         String   @id @default(uuid())
   contenido  String
-  isSolvable Boolean @default(false) @map("is_solvable")
   perfilId   String   @map("perfil_id")
   creadoPor  String   @map("creado_por")
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  isSolvable Boolean @default(false) @map("is_solvable")
+  isSolved   Boolean   @default(false) @map("is_solved")
+  solvedAt   DateTime? @map("solved_at")
+
+  solvedById String?  @map("solved_by")
+  solvedBy   Cuenta? @relation("ACCOUNT_X_SOLVED_COMMENT", fields: [solvedById], references: [id])
   cuenta     Cuenta   @relation(fields: [creadoPor], references: [id])
   perfil     Perfil   @relation(fields: [perfilId], references: [id], onDelete: Cascade)
-  comentarioResoluble ComentarioResoluble[]
 
   @@map("COMENTARIO")
-}
-model ComentarioResoluble {
-  id        String @id @default(uuid())
-  isSolved  Boolean @default(false)
-  comentarioId String @map("comentario_id")
-  comentarios Comentario @relation(fields: [comentarioId], references: [id])
-  solvedBy    String? @map("solved_by")
-  cuenta      Cuenta? @relation(fields: [solvedBy], references: [id])
-  solvedAt    DateTime? @map("solved_at")
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("COMENTARIO_RESOLUBLE")
 }
 model Etiqueta {
   id                 String        @id @default(uuid())
