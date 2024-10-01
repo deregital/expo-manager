@@ -8,6 +8,7 @@ export const comentarioRouter = router({
       z.object({
         contenido: z.string().min(1),
         perfilId: z.string().uuid(),
+        isSolvable: z.boolean().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -19,13 +20,25 @@ export const comentarioRouter = router({
         });
       }
 
-      return await ctx.prisma.comentario.create({
+      const comentario = await ctx.prisma.comentario.create({
         data: {
           contenido: input.contenido,
           perfilId: input.perfilId,
           creadoPor: userId,
+          isSolvable: input.isSolvable,
         },
       });
+      if (input.isSolvable) {
+        await ctx.prisma.comentarioResoluble.create({
+          data: {
+            comentarioId: comentario.id,
+            isSolved: false,
+            solvedBy: null,
+            solvedAt: null,
+          },
+        });
+      }
+      return comentario;
     }),
 
   getByPerfilId: protectedProcedure
