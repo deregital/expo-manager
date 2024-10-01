@@ -70,6 +70,7 @@ model Residencia {
 model Comentario {
   id         String   @id @default(uuid())
   contenido  String
+  isSolvable Boolean @default(false) @map("is_solvable")
   perfilId   String   @map("perfil_id")
   creadoPor  String   @map("creado_por")
   created_at DateTime @default(now())
