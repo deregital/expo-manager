@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
+import RespuestasList from './RespuestasList';
 
 interface EnviarMensajeUIProps {
   telefono: string;
@@ -12,6 +13,10 @@ const EnviarMensajeUI = ({ telefono, inChat }: EnviarMensajeUIProps) => {
   const utils = trpc.useUtils();
   const sendMessage = trpc.whatsapp.sendMessageToTelefono.useMutation();
   const [message, setMessage] = useState('');
+
+  const handleSelectRespuesta = (descripcion: string) => {
+    setMessage(descripcion);
+  };
 
   return (
     <form
@@ -33,6 +38,9 @@ const EnviarMensajeUI = ({ telefono, inChat }: EnviarMensajeUIProps) => {
           });
       }}
     >
+      {}
+      <RespuestasList onSelect={handleSelectRespuesta} />
+
       <input
         disabled={!inChat || sendMessage.isLoading}
         value={message}
