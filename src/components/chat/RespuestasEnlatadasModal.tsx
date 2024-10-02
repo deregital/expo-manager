@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
+import { Label } from '@/components/ui/label';
+import EditFillIcon from '@/components/icons/EditFillIcon';
 
 interface RespuestasEnlatadasModalProps {
   action: 'EDIT' | 'CREATE';
@@ -41,6 +43,7 @@ const RespuestasEnlatadasModal = ({
   const createRespuesta = trpc.respuestasEnlatadas.create.useMutation();
   const editRespuesta = trpc.respuestasEnlatadas.update.useMutation();
   const deleteRespuesta = trpc.respuestasEnlatadas.delete.useMutation();
+  const utils = trpc.useUtils();
 
   function onClose() {
     useRespuestasEnlatadasModalData.setState({
@@ -61,6 +64,7 @@ const RespuestasEnlatadasModal = ({
           setOpen(false);
           onClose();
           toast.success('Respuesta enlatada creada con éxito');
+          utils.respuestasEnlatadas.getAll.invalidate();
         })
         .catch(() => toast.error('Error al crear la respuesta enlatada'));
     } else if (tipo === 'EDIT') {
@@ -84,6 +88,7 @@ const RespuestasEnlatadasModal = ({
           setOpen(false);
           onClose();
           toast.success('Respuesta enlatada eliminada con éxito');
+          utils.respuestasEnlatadas.getAll.invalidate();
         })
         .catch(() => toast.error('Error al eliminar la respuesta enlatada'));
     }
@@ -102,8 +107,9 @@ const RespuestasEnlatadasModal = ({
       >
         <DialogTrigger asChild>
           <Button
-            className='mx-3'
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
+
               setOpen(true);
               useRespuestasEnlatadasModalData.setState({
                 tipo: action,
@@ -113,13 +119,18 @@ const RespuestasEnlatadasModal = ({
               });
             }}
           >
-            {action === 'CREATE' ? 'Crear Respuesta enlatada' : 'Editar '}
+            {action === 'CREATE' ? (
+              'Crear Respuesta enlatada'
+            ) : (
+              <EditFillIcon />
+            )}
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogTitle>
             {action === 'CREATE' ? 'Crear Respuesta enlatada' : 'Editar'}
           </DialogTitle>
+          <Label>Nombre</Label>
           <Input
             placeholder='Nombre'
             value={modalData.nombre}
@@ -129,8 +140,9 @@ const RespuestasEnlatadasModal = ({
               })
             }
           />
+          <Label>Texto</Label>
           <Input
-            placeholder='Descripción'
+            placeholder='Texto'
             value={modalData.descripcion}
             onChange={(e) =>
               useRespuestasEnlatadasModalData.setState({

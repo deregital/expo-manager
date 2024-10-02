@@ -123,7 +123,9 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
             },
           ]}
         />
-        <RespuestasEnlatadasModal action='CREATE' />
+        <div className='px-4 [&>button]:w-full'>
+          <RespuestasEnlatadasModal action='CREATE' />
+        </div>
       </aside>
     )
   );
