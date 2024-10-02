@@ -113,6 +113,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
           localidadResidencia: modalModelo.modelo.residencia?.localidad,
           residenciaLatitud: modalModelo.modelo.residencia?.latitud,
           residenciaLongitud: modalModelo.modelo.residencia?.longitud,
+          comentarios: modalModelo.modelo.comentarios,
         },
         similarity: similarity,
       })

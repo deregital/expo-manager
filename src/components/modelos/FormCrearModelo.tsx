@@ -20,6 +20,8 @@ import { RouterOutputs } from '@/server';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { Country, State } from 'country-state-city';
+import { Button } from '../ui/button';
+import { Switch } from '../ui/switch';
 
 interface FormCrearModeloProps {
   inputRef: React.RefObject<HTMLInputElement>;
@@ -141,7 +143,42 @@ const FormCrearModelo = ({
       enabled: !!modalModelo.modelo.residencia?.provincia,
     }
   );
+  const [esResoluble, setEsResoluble] = useState(false);
 
+  const handleAddComentario = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const target = e.target as typeof e.target & {
+      comentario: { value: string };
+    };
+    const comentario = target.comentario.value;
+    const isSolvable = esResoluble;
+    if (!comentario || comentario === '') return;
+    e.currentTarget.reset();
+    setEsResoluble(false);
+    useCrearModeloModal.setState({
+      modelo: {
+        ...modalModelo.modelo,
+        comentarios: [
+          ...modalModelo.modelo.comentarios,
+          {
+            contenido: comentario,
+            isSolvable: isSolvable,
+          },
+        ],
+      },
+    });
+  };
+
+  const handleDeleteComentario = (index: number) => {
+    const newComentarios = modalModelo.modelo.comentarios;
+    newComentarios.splice(index, 1);
+    useCrearModeloModal.setState({
+      modelo: {
+        ...modalModelo.modelo,
+        comentarios: newComentarios,
+      },
+    });
+  };
   return (
     <>
       <Label className='text-sm'>Nombre completo: (obligatorio)</Label>
@@ -545,6 +582,52 @@ const FormCrearModelo = ({
             ))}
           </SelectContent>
         </Select>
+      </div>
+      <div className='flex flex-col gap-y-2'>
+        <Label className='pt-2 text-sm'>Comentarios:</Label>
+        <form
+          onSubmit={handleAddComentario}
+          className='flex items-end gap-x-4 rounded-lg bg-gray-300 px-3 pb-3 pt-2'
+        >
+          <Input
+            autoComplete='off'
+            name='comentario'
+            className='flex-grow'
+            placeholder='Añadir un comentario'
+          />
+          <div className='flex flex-col items-center'>
+            <span className='mb-1 whitespace-nowrap text-sm'>S/R</span>
+            <Switch checked={esResoluble} onCheckedChange={setEsResoluble} />
+          </div>
+          <Button type='submit'>+</Button>
+        </form>
+        <Label className='pt-2 text-xs'>Comentarios agregados:</Label>
+        <div className='flex flex-col gap-y-2'>
+          {modalModelo.modelo.comentarios?.map((comentario, index) => {
+            return (
+              <div
+                key={index}
+                className='flex items-center gap-x-4 rounded-lg bg-gray-300 p-2'
+              >
+                <Input
+                  autoComplete='off'
+                  name='comentario'
+                  value={comentario.contenido}
+                  disabled
+                  className='flex-grow'
+                />
+                <div className='flex flex-col items-center'>
+                  <span className='mb-1 whitespace-nowrap text-sm'>S/R</span>
+                  <Switch checked={comentario.isSolvable} disabled />
+                </div>
+                <TrashIcon
+                  onClick={() => handleDeleteComentario(index)}
+                  className='h-6 w-6 cursor-pointer'
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
     </>
   );

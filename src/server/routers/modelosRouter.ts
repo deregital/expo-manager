@@ -367,6 +367,15 @@ export const modeloRouter = router({
                 }
               : undefined,
           },
+          comentarios: {
+            create: [input.modelo.comentarios ?? []].map((comentario) => {
+              return {
+                contenido: comentario[0].contenido,
+                isSolvable: comentario[0].isSolvable,
+                creadoPor: ctx.session!.user!.id,
+              };
+            }),
+          },
         },
         select: {
           id: true,
