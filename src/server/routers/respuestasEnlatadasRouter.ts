@@ -46,4 +46,13 @@ export const respuestasEnlatadasRouter = router({
       });
       return { success: true };
     }),
+
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    const respuestasEnlatadas = await ctx.prisma.respuestasEnlatadas.findMany({
+      orderBy: {
+        created_at: 'asc',
+      },
+    });
+    return respuestasEnlatadas;
+  }),
 });
