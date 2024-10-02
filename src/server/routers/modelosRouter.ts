@@ -367,6 +367,15 @@ export const modeloRouter = router({
                 }
               : undefined,
           },
+          comentarios: {
+            createMany: {
+              data: [...(input.modelo.comentarios ?? [])].map((comentario) => ({
+                contenido: comentario.contenido,
+                isSolvable: comentario.isSolvable,
+                creadoPor: ctx.session!.user!.id,
+              })),
+            },
+          },
         },
         select: {
           id: true,
