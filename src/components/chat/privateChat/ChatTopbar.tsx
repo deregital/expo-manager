@@ -33,13 +33,8 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
               url={perfil.fotoUrl}
             />
             <div className='ml-2 flex items-center'>
-              {}
               <p className='font-bold'>{perfil.nombreCompleto}</p>
-
-              {}
               <p className='ml-2 text-gray-500'>{`ID: ${perfil.idLegible}`}</p>
-
-              {}
               <span className='ml-2 flex items-center justify-center rounded bg-gray-200 p-1'>
                 <Link
                   href={`/modelo/${perfil.id}`}
@@ -51,7 +46,6 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
             </div>
           </div>
           <div className='flex items-center'>
-            {}
             <a
               className='mr-2 cursor-pointer rounded-md bg-lime-600 p-2'
               title='Enviar mensaje por WhatsApp'
@@ -63,7 +57,6 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
             </a>
             <p>
               <span>{formatTelefono(perfil.telefono)}</span>
-              {}
               <span className='ml-4 text-gray-400'>
                 {inChat ? 'Activo' : 'Inactivo'}
               </span>

@@ -51,8 +51,6 @@ const Greeting = () => {
         />
         <button onClick={handleCrearEvento}>Crear Evento</button>
       </div>
-
-      {}
     </>
   );
 };

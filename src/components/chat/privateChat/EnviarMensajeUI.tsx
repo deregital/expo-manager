@@ -38,9 +38,7 @@ const EnviarMensajeUI = ({ telefono, inChat }: EnviarMensajeUIProps) => {
           });
       }}
     >
-      {}
       <RespuestasList onSelect={handleSelectRespuesta} />
-
       <input
         disabled={!inChat || sendMessage.isLoading}
         value={message}
