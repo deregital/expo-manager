@@ -22,6 +22,12 @@ import { toast } from 'sonner';
 import { Country, State } from 'country-state-city';
 import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface FormCrearModeloProps {
   inputRef: React.RefObject<HTMLInputElement>;
@@ -596,10 +602,21 @@ const FormCrearModelo = ({
             placeholder='Añadir un comentario'
           />
           <div className='flex flex-col items-center'>
-            <span className='mb-1 whitespace-nowrap text-sm'>S/R</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <span className='mb-1 whitespace-nowrap text-sm'>S/R</span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Simple / Resoluble</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <Switch checked={esResoluble} onCheckedChange={setEsResoluble} />
           </div>
-          <Button type='submit'>+</Button>
+          <Button className='p-2' type='submit'>
+            +
+          </Button>
         </form>
         <Label className='pt-2 text-xs'>Comentarios agregados:</Label>
         <div className='flex flex-col gap-y-2'>
@@ -617,13 +634,26 @@ const FormCrearModelo = ({
                   className='flex-grow'
                 />
                 <div className='flex flex-col items-center'>
-                  <span className='mb-1 whitespace-nowrap text-sm'>S/R</span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <span className='mb-1 whitespace-nowrap text-sm'>
+                          S/R
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Simple / Resoluble</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                   <Switch checked={comentario.isSolvable} disabled />
                 </div>
-                <TrashIcon
-                  onClick={() => handleDeleteComentario(index)}
-                  className='h-6 w-6 cursor-pointer'
-                />
+                <Button className='p-2'>
+                  <TrashIcon
+                    onClick={() => handleDeleteComentario(index)}
+                    className='h-4 w-4 cursor-pointer'
+                  />
+                </Button>
               </div>
             );
           })}
