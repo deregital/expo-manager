@@ -113,16 +113,12 @@ const RespuestasEnlatadasModal = ({
               });
             }}
           >
-            {action === 'CREATE'
-              ? 'Crear Respuesta enlatada'
-              : 'Editar Respuesta'}
+            {action === 'CREATE' ? 'Crear Respuesta enlatada' : 'Editar '}
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogTitle>
-            {action === 'CREATE'
-              ? 'Crear Respuesta enlatada'
-              : 'Editar Respuesta enlatada'}
+            {action === 'CREATE' ? 'Crear Respuesta enlatada' : 'Editar'}
           </DialogTitle>
           <Input
             placeholder='Nombre'

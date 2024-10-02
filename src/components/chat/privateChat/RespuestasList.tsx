@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import IconQuestionAnswerLine from '@/components/icons/RespuestasEnlatadasIcon';
+import RespuestasEnlatadasModal from '../RespuestasEnlatadasModal';
 
 interface RespuestasListProps {
   onSelect: (descripcion: string) => void;
@@ -36,13 +37,27 @@ const RespuestasList = ({ onSelect }: RespuestasListProps) => {
             {respuestas.map((respuesta) => (
               <li
                 key={respuesta.id}
-                className='cursor-pointer p-2 hover:bg-gray-100'
-                onClick={() => {
-                  onSelect(respuesta.descripcion);
-                  setIsOpen(false);
-                }}
+                className='flex cursor-pointer items-center justify-between p-2 hover:bg-gray-100'
               >
-                {respuesta.nombre}
+                {}
+                <span
+                  onClick={() => {
+                    onSelect(respuesta.descripcion);
+                    setIsOpen(false);
+                  }}
+                >
+                  {respuesta.nombre}
+                </span>
+
+                {}
+                <RespuestasEnlatadasModal
+                  action='EDIT'
+                  respuestaEnlatada={{
+                    id: respuesta.id,
+                    nombre: respuesta.nombre,
+                    descripcion: respuesta.descripcion,
+                  }}
+                />
               </li>
             ))}
           </ul>
