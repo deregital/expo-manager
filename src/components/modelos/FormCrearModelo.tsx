@@ -596,7 +596,7 @@ const FormCrearModelo = ({
           handleAddComentario={handleAddComentario}
           esResoluble={esResoluble}
           setEsResoluble={setEsResoluble}
-          type='creacion_participante'
+          textSubmit='+'
         />
         <Label className='pt-2 text-xs'>Comentarios agregados:</Label>
         <div className='flex flex-col gap-y-2'>

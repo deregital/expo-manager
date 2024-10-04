@@ -15,14 +15,14 @@ interface CrearComentarioProps {
   createComentario?: {
     isLoading: boolean;
   };
-  type: 'creacion_participante' | 'vista_particular';
+  textSubmit: string;
 }
 const CrearComentario = ({
   handleAddComentario,
   esResoluble,
   setEsResoluble,
   createComentario,
-  type,
+  textSubmit,
 }: CrearComentarioProps) => {
   return (
     <form
@@ -49,13 +49,11 @@ const CrearComentario = ({
         <Switch checked={esResoluble} onCheckedChange={setEsResoluble} />
       </div>
       <Button
-        className={`${type === 'creacion_participante' ? 'p-2' : ''}`}
-        disabled={
-          type === 'vista_particular' ? createComentario?.isLoading : false
-        }
+        className={`p-2`}
+        disabled={createComentario ? createComentario?.isLoading : false}
         type='submit'
       >
-        {type === 'creacion_participante' ? '+' : 'Enviar'}
+        {textSubmit}
       </Button>
     </form>
   );
