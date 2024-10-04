@@ -113,7 +113,10 @@ const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
                 <div className='flex items-center justify-center gap-x-2 rounded-t-lg border-[1px] border-b-0 border-black/50 bg-zinc-200 p-2 text-sm'>
                   <Checkbox
                     checked={comentario.isSolved}
-                    disabled={session.data?.user?.id !== comentario.creadoPor}
+                    disabled={
+                      !session.data?.user?.esAdmin &&
+                      session.data?.user?.id !== comentario.creadoPor
+                    }
                     onCheckedChange={(checked) => {
                       handleResueltoChange(comentario.id, !!checked);
                     }}
