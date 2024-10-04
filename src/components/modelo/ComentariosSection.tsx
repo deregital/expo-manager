@@ -100,7 +100,7 @@ const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
         esResoluble={esResoluble}
         setEsResoluble={setEsResoluble}
         createComentario={createComentario}
-        type='vista_particular'
+        textSubmit='Enviar'
       />
       {comentariosData?.map((comentario) => (
         <div key={comentario.id} className='my-2 flex flex-col'>
