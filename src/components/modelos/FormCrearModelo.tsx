@@ -28,6 +28,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import CrearComentario from '../modelo/CrearComentario';
 
 interface FormCrearModeloProps {
   inputRef: React.RefObject<HTMLInputElement>;
@@ -591,33 +592,12 @@ const FormCrearModelo = ({
       </div>
       <div className='flex flex-col gap-y-2'>
         <Label className='pt-2 text-sm'>Comentarios:</Label>
-        <form
-          onSubmit={handleAddComentario}
-          className='flex items-end gap-x-4 rounded-lg bg-gray-300 px-3 pb-3 pt-2'
-        >
-          <Input
-            autoComplete='off'
-            name='comentario'
-            className='flex-grow'
-            placeholder='Añadir un comentario'
-          />
-          <div className='flex flex-col items-center'>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <span className='mb-1 whitespace-nowrap text-sm'>S/R</span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Simple / Resoluble</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <Switch checked={esResoluble} onCheckedChange={setEsResoluble} />
-          </div>
-          <Button className='p-2' type='submit'>
-            +
-          </Button>
-        </form>
+        <CrearComentario
+          handleAddComentario={handleAddComentario}
+          esResoluble={esResoluble}
+          setEsResoluble={setEsResoluble}
+          type='creacion_participante'
+        />
         <Label className='pt-2 text-xs'>Comentarios agregados:</Label>
         <div className='flex flex-col gap-y-2'>
           {modalModelo.modelo.comentarios?.map((comentario, index) => {

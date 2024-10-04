@@ -1,12 +1,11 @@
 import { useModeloData } from '@/components/modelo/ModeloPageContent';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { useSession } from 'next-auth/react';
 import React, { FormEvent, useState } from 'react';
-import { Switch } from '@/components/ui/switch'; // Asegúrate de tener un componente Switch adecuado
+// Asegúrate de tener un componente Switch adecuado
 import { Checkbox } from '../ui/checkbox';
 import { toast } from 'sonner';
+import CrearComentario from './CrearComentario';
 
 interface ComentariosSectionProps {
   modeloId: string;
@@ -96,26 +95,13 @@ const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
 
   return (
     <section className='mt-1 flex flex-col gap-y-4'>
-      <form
-        onSubmit={handleAddComentario}
-        className='flex items-end gap-x-4 rounded-lg bg-gray-300 px-3 pb-3 pt-2'
-      >
-        <Input
-          autoComplete='off'
-          name='comentario'
-          className='flex-grow'
-          placeholder='Añadir un comentario'
-        />
-        <div className='flex flex-col items-center'>
-          <span className='mb-1 whitespace-nowrap text-sm'>
-            Simple / Resoluble
-          </span>
-          <Switch checked={esResoluble} onCheckedChange={setEsResoluble} />
-        </div>
-        <Button disabled={createComentario.isLoading} type='submit'>
-          Enviar
-        </Button>
-      </form>
+      <CrearComentario
+        handleAddComentario={handleAddComentario}
+        esResoluble={esResoluble}
+        setEsResoluble={setEsResoluble}
+        createComentario={createComentario}
+        type='vista_particular'
+      />
       {comentariosData?.map((comentario) => (
         <div key={comentario.id} className='my-2 flex flex-col'>
           <div className='flex justify-between'>
