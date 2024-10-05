@@ -8,6 +8,7 @@ import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React, { useMemo } from 'react';
+import RespuestasEnlatadasModal from '../RespuestasEnlatadasModal';
 
 type ChatSidebarProps = {
   filtro: Filtro;
@@ -24,7 +25,6 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
     if (!contactos) {
       return [];
     }
-
     return filterModelos(contactos, filtro);
   }, [contactos, filtro]);
 
@@ -87,7 +87,7 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
 
   return (
     contactos && (
-      <aside className='grid h-full grid-cols-1 grid-rows-[auto,1fr]'>
+      <aside className='grid h-full grid-cols-1 grid-rows-[auto,1fr] pb-4'>
         <div>
           {contactosNoLeidos.map((contacto) => (
             <Link
@@ -123,6 +123,9 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
             },
           ]}
         />
+        <div className='px-4 [&>button]:w-full'>
+          <RespuestasEnlatadasModal action='CREATE' />
+        </div>
       </aside>
     )
   );

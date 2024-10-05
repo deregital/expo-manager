@@ -26,8 +26,6 @@ const SidebarLinkMensajes = ({}: SidebarLinkMensajesProps) => {
 
   return (
     <div className='max-h-[400px] overflow-y-auto'>
-      {' '}
-      {}
       <SidebarLink
         to='/mensajes'
         icon={<ChatIcon height={24} width={24} />}
