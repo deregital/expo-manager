@@ -4,7 +4,7 @@
 
 Este es un dashboard en donde se van a poder visualizar los datos de los usuarios que se encuentran en la base de datos de la aplicación Expo Manager.
 
-## Instalación
+## Instalación.
 
 Para poder instalar el proyecto se debe de clonar el repositorio y correr el siguiente comando:
 
