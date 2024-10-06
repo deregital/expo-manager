@@ -6,6 +6,23 @@ import {
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '@/server/db';
+import { fetchClient } from '@/server/fetchClient';
+import { Role } from 'expo-backend-types';
+
+declare module 'next-auth/jwt' {
+  // eslint-disable-next-line no-unused-vars
+  interface JWT {
+    user: {
+      id: string;
+      username: string;
+      esAdmin: boolean;
+    };
+    backendTokens: {
+      accessToken: string;
+      refreshToken: string;
+    };
+  }
+}
 
 declare module 'next-auth' {
   // eslint-disable-next-line no-unused-vars
@@ -25,6 +42,9 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     session: ({ session, token }) => ({
       ...session,
+      backendTokens: {
+        ...token.backendTokens,
+      },
       user: {
         ...session.user,
         id: token.sub,
@@ -35,10 +55,7 @@ export const authOptions: NextAuthOptions = {
 
     jwt({ user, token }) {
       if (user) {
-        token.id = user.id;
-
-        if ('username' in user) token.username = user.username;
-        if ('esAdmin' in user) token.esAdmin = user.esAdmin;
+        return { ...user, ...token };
       }
       return token;
     },
@@ -57,21 +74,29 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const user = await prisma?.cuenta.findFirst({
-          where: {
-            nombreUsuario: credentials.username,
-            contrasena: credentials.password,
-          },
+        const { response, data } = await fetchClient.POST('/auth/login', {
+          body: credentials,
         });
 
-        if (!user) {
+        if (response.status === 401 || !data || !data.user) {
           return null;
         }
 
+        fetchClient.use({
+          onRequest: ({ request }) => {
+            request.headers.set(
+              'Authorization',
+              `Bearer ${data.backendTokens.accessToken}`
+            );
+            return request;
+          },
+        });
+
         return {
-          id: user.id,
-          username: user.nombreUsuario,
-          esAdmin: user.esAdmin,
+          id: data.user.id!,
+          username: data.user.username!,
+          esAdmin: data.user.role === Role.ADMIN,
+          backendTokens: data.backendTokens,
         };
       },
     }),
