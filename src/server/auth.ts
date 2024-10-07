@@ -40,18 +40,29 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    session: ({ session, token }) => ({
-      ...session,
-      backendTokens: {
-        ...token.backendTokens,
-      },
-      user: {
-        ...session.user,
-        id: token.sub,
-        username: token.username,
-        esAdmin: token.esAdmin,
-      },
-    }),
+    session: ({ session, token }) => {
+      fetchClient.use({
+        onRequest: ({ request }) => {
+          request.headers.set(
+            'Authorization',
+            `Bearer ${token.backendTokens.accessToken}`
+          );
+          return request;
+        },
+      });
+      return {
+        ...session,
+        backendTokens: {
+          ...token.backendTokens,
+        },
+        user: {
+          ...session.user,
+          id: token.sub,
+          username: token.username,
+          esAdmin: token.esAdmin,
+        },
+      };
+    },
 
     jwt({ user, token }) {
       if (user) {
@@ -81,16 +92,6 @@ export const authOptions: NextAuthOptions = {
         if (response.status === 401 || !data || !data.user) {
           return null;
         }
-
-        fetchClient.use({
-          onRequest: ({ request }) => {
-            request.headers.set(
-              'Authorization',
-              `Bearer ${data.backendTokens.accessToken}`
-            );
-            return request;
-          },
-        });
 
         return {
           id: data.user.id!,

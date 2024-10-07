@@ -39,7 +39,7 @@
     "country-state-city": "^3.2.1",
     "date-fns": "^3.6.0",
     "exceljs": "^4.4.0",
-    "expo-backend-types": "^0.4.0-EXPO-212.2",
+    "expo-backend-types": "^0.4.0-EXPO-248-EB-GrupoEtiqueta.7",
     "fast-csv": "^5.0.1",
     "firebase": "^10.13.0",
     "firebase-admin": "^12.3.1",
