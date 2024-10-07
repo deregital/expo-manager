@@ -101,16 +101,16 @@ const GrupoEtiquetaModal = ({ action, group }: GrupoEtiquetaModalProps) => {
     if (tipo === 'CREATE') {
       await createGrupoEtiqueta
         .mutateAsync({
-          nombre: nombre,
+          name: nombre,
           color: color,
-          esExclusivo: esExclusivo,
+          isExclusive: esExclusivo,
         })
         .then(() => {
           setOpen(false);
           utils.grupoEtiqueta.getAll.invalidate();
           toast.success('Grupo de etiquetas creado con éxito');
         })
-        .catch(() => {
+        .catch((e) => {
           setOpen(true);
           toast.error(
             'Error al crear el grupo de etiquetas, asegúrese de poner un nombre y un color'

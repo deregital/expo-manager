@@ -1,31 +1,16 @@
 import { protectedProcedure, router } from '@/server/trpc';
+import { createTagGroupSchema } from 'expo-backend-types';
 import { z } from 'zod';
 
 export const grupoEtiquetaRouter = router({
   create: protectedProcedure
-    .input(
-      z.object({
-        nombre: z.string().min(1, {
-          message: 'El nombre debe tener al menos 1 caracter',
-        }),
-        color: z
-          .string()
-          .length(7)
-          .startsWith('#', {
-            message: 'El color debe tener el formato #ABCDEF',
-          })
-          .toLowerCase(),
-        esExclusivo: z.boolean(),
-      })
-    )
+    .input(createTagGroupSchema)
     .mutation(async ({ input, ctx }) => {
-      return await ctx.prisma.etiquetaGrupo.create({
-        data: {
-          nombre: input.nombre,
-          color: input.color,
-          esExclusivo: input.esExclusivo,
-        },
+      const { data } = await ctx.fetch.POST('/tag-group/create', {
+        body: input,
       });
+
+      return data;
     }),
   getAll: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.prisma.etiquetaGrupo.findMany({

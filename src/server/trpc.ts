@@ -32,11 +32,20 @@ export const router = t.router;
 export const publicProcedure = t.procedure;
 
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user) {
+  if (!ctx.session || !ctx.session.user || !('backendTokens' in ctx.session)) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
 
-  const { data: user } = await fetchClient.GET('/account/me');
+  const backendTokens = ctx.session.backendTokens as {
+    accessToken: string;
+    refreshToken: string;
+  };
+
+  const { data: user } = await fetchClient.GET('/account/me', {
+    headers: {
+      Authorization: `Bearer ${backendTokens.accessToken}`,
+    },
+  });
 
   if (!user) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
