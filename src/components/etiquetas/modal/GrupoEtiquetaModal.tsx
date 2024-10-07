@@ -14,13 +14,11 @@ import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
 import { RouterOutputs } from '@/server';
 import ModelosConflict from '@/components/etiquetas/modal/ModelosConflict';
+import { GrupoConMatch } from '@/components/etiquetas/list/EtiquetasList';
 
 interface GrupoEtiquetaModalProps {
   action: 'EDIT' | 'CREATE';
-  grupo?: Omit<
-    RouterOutputs['etiqueta']['getByNombre'][number],
-    'created_at' | 'updated_at'
-  >;
+  group?: GrupoConMatch;
 }
 
 type GrupoEtiquetaModalData = {
@@ -39,7 +37,7 @@ export const useGrupoEtiquetaModalData = create<GrupoEtiquetaModalData>(() => ({
   esExclusivo: false,
 }));
 
-const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
+const GrupoEtiquetaModal = ({ action, group }: GrupoEtiquetaModalProps) => {
   const [open, setOpen] = useState(false);
   const [quiereEliminar, setQuiereEliminar] = useState(false);
   const [conflict, setConflict] = useState<
@@ -51,8 +49,8 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
   const deleteGrupoEtiqueta = trpc.grupoEtiqueta.delete.useMutation();
 
   const { data: modelosGrupo, isLoading: modelosGrupoLoading } =
-    trpc.modelo.getByGrupoEtiqueta.useQuery([grupo?.id ?? ''], {
-      enabled: action === 'EDIT' && grupo?.id !== undefined,
+    trpc.modelo.getByGrupoEtiqueta.useQuery([group?.id ?? ''], {
+      enabled: action === 'EDIT' && group?.id !== undefined,
       onSuccess(data) {
         if (action === 'CREATE') return;
         if (conflict === undefined) return;
@@ -62,13 +60,13 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
             .filter(
               (modelo) =>
                 modelo.etiquetas.filter(
-                  (etiqueta) => etiqueta.grupoId === grupo?.id
+                  (etiqueta) => etiqueta.grupoId === group?.id
                 ).length > 1
             )
             .map((modelo) => ({
               ...modelo,
               etiquetas: modelo.etiquetas.filter(
-                (etiqueta) => etiqueta.grupoId === grupo?.id
+                (etiqueta) => etiqueta.grupoId === group?.id
               ),
             }))
         );
@@ -83,7 +81,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
     esExclusivo: state.esExclusivo,
   }));
 
-  const puedeEliminar = grupo?._count.etiquetas === 0;
+  const puedeEliminar = group?._count.tags === 0;
 
   async function handleCancel() {
     useGrupoEtiquetaModalData.setState({
@@ -119,7 +117,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
           );
         });
     } else if (tipo === 'EDIT') {
-      if (esExclusivo === true && grupo?.esExclusivo === false) {
+      if (esExclusivo === true && group?.isExclusive === false) {
         const conflict =
           modelosGrupo &&
           modelosGrupo
@@ -158,8 +156,8 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
         .then(() => {
           setOpen(false);
           utils.grupoEtiqueta.getAll.invalidate();
-          if (grupo) {
-            utils.modelo.getByGrupoEtiqueta.invalidate([grupo.id]);
+          if (group) {
+            utils.modelo.getByGrupoEtiqueta.invalidate([group.id]);
           }
           toast.success('Grupo de etiquetas editado con éxito');
         })
@@ -185,7 +183,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
   async function handleDelete() {
     if (quiereEliminar) {
       await deleteGrupoEtiqueta
-        .mutateAsync(grupo?.id ?? '')
+        .mutateAsync(group?.id ?? '')
         .then(() => {
           setOpen(false);
           utils.etiqueta.getByNombre.invalidate();
@@ -249,10 +247,10 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
                 setOpen(true);
                 useGrupoEtiquetaModalData.setState({
                   tipo: 'EDIT',
-                  grupoId: grupo?.id ?? '',
-                  nombre: grupo?.nombre ?? '',
-                  color: grupo?.color ?? '',
-                  esExclusivo: grupo?.esExclusivo ?? false,
+                  grupoId: group?.id ?? '',
+                  nombre: group?.name ?? '',
+                  color: group?.color ?? '',
+                  esExclusivo: group?.isExclusive ?? false,
                 });
               }}
               className={cn(

@@ -105,64 +105,11 @@ export const etiquetaRouter = router({
         },
       });
     }),
-  getByNombre: protectedProcedure
-    .input(z.string().optional())
-    .query(async ({ input, ctx }) => {
-      const gruposMatch = await ctx.prisma.etiquetaGrupo.findMany({
-        where: {
-          OR: [
-            {
-              etiquetas: {
-                none: {},
-              },
-            },
-            {
-              etiquetas: {
-                some: {
-                  id: { in: ctx.etiquetasVisibles },
-                },
-              },
-            },
-          ],
-        },
-        select: {
-          etiquetas: {
-            where: {
-              id: { in: ctx.etiquetasVisibles },
-            },
-            include: {
-              _count: true,
-            },
-            orderBy: {
-              nombre: 'asc',
-            },
-          },
-          _count: {
-            select: {
-              etiquetas: true,
-            },
-          },
-          color: true,
-          esExclusivo: true,
-          nombre: true,
-          id: true,
-        },
-        orderBy: [
-          {
-            etiquetas: {
-              _count: 'desc',
-            },
-          },
-          { created_at: 'desc' },
-        ],
-      });
+  getByNombre: protectedProcedure.query(async ({ input, ctx }) => {
+    const { data } = await ctx.fetch.GET('/tag/all-grouped');
 
-      if (input === '') {
-        return gruposMatch;
-      } else {
-        return gruposMatch;
-      }
-    }),
+    return data?.groups;
+  }),
   setMasivo: protectedProcedure
     .input(
       z.object({

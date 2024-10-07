@@ -15,12 +15,12 @@ import EditFillIcon from '@/components/icons/EditFillIcon';
 import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
 import { cn } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
+import { type FindAllGroupedTagResponseDto } from 'expo-backend-types';
 
 interface EtiquetaModalProps {
   action: 'CREATE' | 'EDIT';
-  etiqueta?: Omit<
-    RouterOutputs['etiqueta']['getByNombre'][number]['etiquetas'][number],
+  tag?: Omit<
+    FindAllGroupedTagResponseDto['groups'][number]['tags'][number],
     'created_at' | 'updated_at'
   >;
 }
@@ -39,7 +39,7 @@ export const useEtiquetaModalData = create<ModalData>(() => ({
   etiquetaId: '',
 }));
 
-const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
+const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
   const { data: getGrupoEtiquetas, isLoading } =
     trpc.grupoEtiqueta.getAll.useQuery();
 
@@ -169,9 +169,9 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
                   setOpen(true);
                   useEtiquetaModalData.setState({
                     tipo: 'EDIT',
-                    etiquetaId: etiqueta?.id ?? '',
-                    nombre: etiqueta?.nombre ?? '',
-                    grupoId: etiqueta?.grupoId ?? '',
+                    etiquetaId: tag?.id ?? '',
+                    nombre: tag?.name ?? '',
+                    grupoId: tag?.groupId ?? '',
                   });
                 }}
               >
@@ -245,11 +245,11 @@ const EtiquetaModal = ({ action, etiqueta }: EtiquetaModalProps) => {
                   })}
                   onClick={handleDelete}
                   disabled={
-                    etiqueta?._count.perfiles !== undefined &&
-                    etiqueta._count.perfiles > 0
+                    tag?._count.profiles !== undefined &&
+                    tag._count.profiles > 0
                   }
                 >
-                  {etiqueta?._count.perfiles === 0
+                  {tag?._count.profiles === 0
                     ? quiereEliminar
                       ? '¿Estás seguro?'
                       : 'Eliminar'

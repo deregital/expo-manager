@@ -16,63 +16,55 @@ import ExpandContractEtiquetas, {
 import { ModalTriggerCreate } from '@/components/etiquetas/modal/ModalTrigger';
 import Link from 'next/link';
 import StampIcon from '@/components/icons/StampIcon';
-import { TipoEtiqueta } from '@prisma/client';
 import SwitchEventos from '@/components/ui/SwitchEventos';
 import { XIcon } from 'lucide-react';
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useState('');
-  const { data: grupos, isLoading } = trpc.etiqueta.getByNombre.useQuery();
+  const { data: groups, isLoading } = trpc.etiqueta.getByNombre.useQuery();
   const {
     state: expandState,
     none: setNone,
     showEventos,
   } = useEtiquetasSettings();
 
-  const gruposFiltrados = useMemo(() => {
-    if (!grupos) return [];
+  const filteredGroups = useMemo(() => {
+    if (!groups) return [];
 
     let g = showEventos
-      ? grupos
-      : grupos.filter((grupo) => {
-          return grupo.etiquetas.some(
-            (etiqueta) => etiqueta.tipo !== TipoEtiqueta.EVENTO
-          );
+      ? groups
+      : groups.filter((group) => {
+          return group.tags.some((tag) => tag.type !== 'EVENT');
         });
 
     if (search !== '') {
-      g = g.filter((grupo) => {
+      g = g.filter((group) => {
         return (
-          grupo.etiquetas.some((etiqueta) =>
-            searchNormalize(etiqueta.nombre, search)
-          ) || searchNormalize(grupo.nombre, search)
+          group.tags.some((tag) => searchNormalize(tag.name, search)) ||
+          searchNormalize(group.name, search)
         );
       });
 
       if (!g) return [];
     }
 
-    return g.map((grupo) => {
+    return g.map((group) => {
       return {
-        ...grupo,
+        ...group,
         match:
           search.length > 0 &&
-          (normalize(grupo.nombre)
-            .toLowerCase()
-            .includes(search.toLowerCase()) ||
-            grupo.nombre.toLowerCase().includes(search.toLowerCase())),
-        etiquetas: grupo.etiquetas.map((etiqueta) => ({
-          ...etiqueta,
+          (normalize(group.name).toLowerCase().includes(search.toLowerCase()) ||
+            group.name.toLowerCase().includes(search.toLowerCase())),
+        tags: group.tags.map((tag) => ({
+          ...tag,
           match:
             search.length > 0 &&
-            (normalize(etiqueta.nombre)
-              .toLowerCase()
-              .includes(search.toLowerCase()) ||
-              etiqueta.nombre.toLowerCase().includes(search.toLowerCase())),
+            (normalize(tag.name).toLowerCase().includes(search.toLowerCase()) ||
+              tag.name.toLowerCase().includes(search.toLowerCase())),
         })),
       };
     });
-  }, [grupos, search, showEventos]);
+  }, [groups, search, showEventos]);
 
   return (
     <>
@@ -124,7 +116,7 @@ const EtiquetasPage = () => {
             <Loader />
           </div>
         ) : (
-          <EtiquetasList grupos={gruposFiltrados ?? ([] as GrupoConMatch[])} />
+          <EtiquetasList groups={(filteredGroups ?? []) as GrupoConMatch[]} />
         )}
       </div>
     </>
