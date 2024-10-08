@@ -44,4 +44,12 @@ export const modeloSchemaCrearOEditar = z.object({
       'El número de teléfono secundario debe tener 10 dígitos. Puede empezar con 549'
     )
     .optional(),
+  comentarios: z
+    .array(
+      z.object({
+        contenido: z.string(),
+        isSolvable: z.boolean(),
+      })
+    )
+    .optional(),
 });
