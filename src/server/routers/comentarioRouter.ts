@@ -60,9 +60,14 @@ export const comentarioRouter = router({
             },
           },
         },
-        orderBy: {
-          created_at: 'desc',
-        },
+        orderBy: [
+          {
+            created_at: 'desc',
+          },
+          {
+            id: 'desc',
+          },
+        ],
       });
       return comentarios;
     }),
@@ -93,10 +98,10 @@ export const comentarioRouter = router({
         },
       });
 
-      if (!comentario || comentario.creadoPor !== userId) {
+      if (!comentario) {
         throw new TRPCError({
           code: 'FORBIDDEN',
-          message: 'No tienes permiso para actualizar este comentario',
+          message: 'No hay comentario para actualizar',
         });
       }
 
