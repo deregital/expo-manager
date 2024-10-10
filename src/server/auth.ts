@@ -7,7 +7,7 @@ import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '@/server/db';
 import { fetchClient } from '@/server/fetchClient';
-import { Role } from 'expo-backend-types';
+import { JWT } from 'next-auth/jwt';
 
 declare module 'next-auth/jwt' {
   // eslint-disable-next-line no-unused-vars
@@ -20,6 +20,7 @@ declare module 'next-auth/jwt' {
     backendTokens: {
       accessToken: string;
       refreshToken: string;
+      expiresIn: number;
     };
   }
 }
@@ -34,6 +35,19 @@ declare module 'next-auth' {
       esAdmin: boolean;
     } & DefaultSession['user'];
   }
+}
+
+async function refreshToken(token: JWT): Promise<JWT> {
+  const { data } = await fetchClient.POST('/auth/refresh', {
+    headers: {
+      authorization: `Refresh ${token.backendTokens.refreshToken}`,
+    },
+  });
+
+  return {
+    ...token,
+    backendTokens: data!,
+  };
 }
 
 export const authOptions: NextAuthOptions = {
@@ -64,11 +78,15 @@ export const authOptions: NextAuthOptions = {
       };
     },
 
-    jwt({ user, token }) {
+    async jwt({ user, token }) {
       if (user) {
         return { ...user, ...token };
       }
-      return token;
+      if (new Date().getTime() < token.backendTokens.expiresIn) {
+        return token;
+      }
+
+      return await refreshToken(token);
     },
   },
   providers: [
@@ -85,18 +103,24 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const { response, data } = await fetchClient.POST('/auth/login', {
-          body: credentials,
-        });
+        const { response, data, error } = await fetchClient.POST(
+          '/auth/login',
+          {
+            body: credentials,
+          }
+        );
 
-        if (response.status === 401 || !data || !data.user) {
-          return null;
+        if (response.status !== 201 || !data?.user) {
+          const message =
+            ((error as any).message as string) || 'Error desconocido';
+
+          throw new Error(message);
         }
 
         return {
           id: data.user.id!,
           username: data.user.username!,
-          esAdmin: data.user.role === Role.ADMIN,
+          esAdmin: data.user.role === 'ADMIN',
           backendTokens: data.backendTokens,
         };
       },

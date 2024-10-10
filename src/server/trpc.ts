@@ -2,7 +2,6 @@ import { getServerAuthSession } from '@/server/auth';
 import { prisma } from '@/server/db';
 import { fetchClient } from '@/server/fetchClient';
 import { TRPCError, initTRPC } from '@trpc/server';
-import { Role } from 'expo-backend-types';
 import { ZodError } from 'zod';
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
@@ -60,7 +59,7 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   });
 
   const etiquetasVisibles =
-    user.role === Role.ADMIN
+    user.role === 'ADMIN'
       ? etiquetasTotales.map((e) => e.id)
       : etiquetasNoAdmin.map((e) => e.id);
 
