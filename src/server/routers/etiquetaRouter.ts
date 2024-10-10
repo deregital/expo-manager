@@ -106,7 +106,7 @@ export const etiquetaRouter = router({
       });
     }),
   getByNombre: protectedProcedure.query(async ({ input, ctx }) => {
-    const { data } = await ctx.fetch.GET('/tag/all-grouped');
+    const { data } = await ctx.fetch.GET('/tag-group/all-with-tags');
 
     return data?.groups;
   }),

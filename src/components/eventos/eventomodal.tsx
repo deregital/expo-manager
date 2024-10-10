@@ -25,10 +25,7 @@ import {
 
 interface EventoModalProps {
   action: 'CREATE' | 'EDIT';
-  evento?: Omit<
-    RouterOutputs['evento']['getAll']['sinCarpetas'][number],
-    'created_at' | 'updated_at'
-  >;
+  evento?: RouterOutputs['evento']['getAll']['sinCarpetas'][number];
 }
 
 type ModalData = {
@@ -82,8 +79,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
   const createEvento = trpc.evento.create.useMutation();
   const deleteEvento = trpc.evento.delete.useMutation();
   const editEvento = trpc.evento.update.useMutation();
-  const { data: carpetas, isLoading: loadingCarpetas } =
-    trpc.carpetaEventos.getAll.useQuery();
+  const { data: carpetas } = trpc.carpetaEventos.getAll.useQuery();
 
   async function sendEvento() {
     if (modalData.tipo === 'CREATE') {

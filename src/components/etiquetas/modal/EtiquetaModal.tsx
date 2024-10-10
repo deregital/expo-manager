@@ -15,14 +15,11 @@ import EditFillIcon from '@/components/icons/EditFillIcon';
 import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
 import { cn } from '@/lib/utils';
-import { type FindAllGroupedTagResponseDto } from 'expo-backend-types';
+import { type FindAllWithTagsResponseDto } from 'expo-backend-types';
 
 interface EtiquetaModalProps {
   action: 'CREATE' | 'EDIT';
-  tag?: Omit<
-    FindAllGroupedTagResponseDto['groups'][number]['tags'][number],
-    'created_at' | 'updated_at'
-  >;
+  tag?: FindAllWithTagsResponseDto['groups'][number]['tags'][number];
 }
 
 type ModalData = {

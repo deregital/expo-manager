@@ -8,18 +8,15 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { getTextColorByBg } from '@/lib/utils';
-import { type FindAllGroupedTagResponseDto } from 'expo-backend-types';
+import { type FindAllWithTagsResponseDto } from 'expo-backend-types';
 import React, { useEffect, useState } from 'react';
 
 export type GrupoConMatch = Omit<
-  FindAllGroupedTagResponseDto['groups'][number],
-  'tags' | 'created_at' | 'updated_at'
+  FindAllWithTagsResponseDto['groups'][number],
+  'tags'
 > & {
   match: boolean;
-  tags: (Omit<
-    FindAllGroupedTagResponseDto['groups'][number]['tags'][number],
-    'created_at' | 'updated_at'
-  > & {
+  tags: (FindAllWithTagsResponseDto['groups'][number]['tags'][number] & {
     match: boolean;
   })[];
 };
