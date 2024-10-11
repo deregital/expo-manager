@@ -12,37 +12,37 @@ interface ModelosComboYListProps {
 
 export const asignacionComboBoxOpens = create<{
   modelos: boolean;
-  grupos: boolean;
+  groups: boolean;
   etiquetas: boolean;
   setModelosOpen: (open: boolean) => void;
-  setGruposOpen: (open: boolean) => void;
+  setGroupsOpen: (open: boolean) => void;
   setEtiquetasOpen: (open: boolean) => void;
 }>((set) => ({
   modelos: false,
-  grupos: false,
+  groups: false,
   etiquetas: false,
   setModelosOpen: (open: boolean) => set({ modelos: open }),
-  setGruposOpen: (open: boolean) => set({ grupos: open }),
+  setGroupsOpen: (open: boolean) => set({ groups: open }),
   setEtiquetasOpen: (open: boolean) => set({ etiquetas: open }),
 }));
 
 export const asignacionSelectedData = create<{
   modelos: RouterOutputs['modelo']['getAll'];
   etiquetas: RouterOutputs['etiqueta']['getAll'];
-  grupo: RouterOutputs['grupoEtiqueta']['getAll'][number] | undefined;
+  group: RouterOutputs['grupoEtiqueta']['getAll'][number] | undefined;
   setModelos: (modelos: RouterOutputs['modelo']['getAll'][number]) => void;
   setEtiquetas: (
     etiquetas: RouterOutputs['etiqueta']['getAll'][number]
   ) => void;
-  setGrupo: (grupo: RouterOutputs['grupoEtiqueta']['getAll'][number]) => void;
+  setGroup: (group: RouterOutputs['grupoEtiqueta']['getAll'][number]) => void;
   clearModelos: () => void;
   clearEtiquetas: () => void;
-  clearGrupo: () => void;
+  clearGroup: () => void;
 }>((set, get) => ({
   modelos: [],
   etiquetas: [],
   etiquetasList: [],
-  grupo: undefined,
+  group: undefined,
   setModelos: (modelos) => {
     if (get().modelos.find((m) => m.id === modelos.id)) {
       set({
@@ -67,20 +67,20 @@ export const asignacionSelectedData = create<{
       });
     }
   },
-  setGrupo: (grupo) => {
-    if (get().grupo === grupo) {
+  setGroup: (group) => {
+    if (get().group === group) {
       set({
-        grupo: undefined,
+        group: undefined,
       });
     } else {
       set({
-        grupo,
+        group: group,
       });
     }
   },
   clearModelos: () => set({ modelos: [] }),
   clearEtiquetas: () => set({ etiquetas: [] }),
-  clearGrupo: () => set({ grupo: undefined }),
+  clearGroup: () => set({ group: undefined }),
 }));
 
 const ModelosComboYList = ({

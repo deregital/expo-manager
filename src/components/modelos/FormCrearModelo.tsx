@@ -38,20 +38,19 @@ const FormCrearModelo = ({
 
   const [openSelect, setOpenSelect] = useState(false);
   const [addEtiquetaOpen, setAddEtiquetaOpen] = useState(false);
-  const [comboBoxGrupoOpen, setComboBoxGrupoOpen] = useState(false);
+  const [comboBoxGroupOpen, setComboBoxGroupOpen] = useState(false);
   const [comboBoxEtiquetaOpen, setComboBoxEtiquetaOpen] = useState(false);
-  const { data: grupoEtiquetas } = trpc.grupoEtiqueta.getAll.useQuery();
-  const [grupoEtiquetaSelected, setGrupoEtiquetaSelected] =
-    useState<string>('');
+  const { data: tagGroups } = trpc.grupoEtiqueta.getAll.useQuery();
+  const [selectedTagGroup, setSelectedTagGroup] = useState<string>('');
   const [etiquetaSelected, setEtiquetaSelected] = useState<string>('');
-  const { data: etiquetasGrupo } =
-    grupoEtiquetaSelected === ''
+  const { data: tagsFromGroup } =
+    selectedTagGroup === ''
       ? trpc.etiqueta.getAll.useQuery()
-      : trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoEtiquetaSelected);
+      : trpc.etiqueta.getByGrupoEtiqueta.useQuery(selectedTagGroup);
 
-  const currentGrupo = useMemo(() => {
-    return grupoEtiquetas?.find((g) => g.id === grupoEtiquetaSelected);
-  }, [grupoEtiquetas, grupoEtiquetaSelected]);
+  const currentGroup = useMemo(() => {
+    return tagGroups?.find((g) => g.id === selectedTagGroup);
+  }, [tagGroups, selectedTagGroup]);
 
   async function handleDeleteEtiqueta(
     etiqueta: NonNullable<RouterOutputs['etiqueta']['getById']>
@@ -79,7 +78,7 @@ const FormCrearModelo = ({
   async function handleAddEtiqueta(etiquetaSelected: string) {
     setEtiquetaSelected(etiquetaSelected);
     if (etiquetaSelected === '') return;
-    const etiqueta = etiquetasGrupo?.find((e) => e.id === etiquetaSelected);
+    const etiqueta = tagsFromGroup?.find((e) => e.id === etiquetaSelected);
     if (
       useCrearModeloModal
         .getState()
@@ -109,7 +108,7 @@ const FormCrearModelo = ({
       },
     });
     setEtiquetaSelected('');
-    setGrupoEtiquetaSelected('');
+    setSelectedTagGroup('');
     setComboBoxEtiquetaOpen(false);
     setAddEtiquetaOpen(false);
   }
@@ -334,35 +333,33 @@ const FormCrearModelo = ({
       {addEtiquetaOpen && (
         <div className='flex flex-wrap gap-x-2 gap-y-1'>
           <ComboBox
-            open={comboBoxGrupoOpen}
-            setOpen={setComboBoxGrupoOpen}
-            value='nombre'
+            open={comboBoxGroupOpen}
+            setOpen={setComboBoxGroupOpen}
+            value='name'
             id={'id'}
-            data={grupoEtiquetas ?? []}
+            data={tagGroups ?? []}
             onSelect={(selectedItem) => {
-              if (selectedItem === grupoEtiquetaSelected) {
-                setGrupoEtiquetaSelected('');
-                setComboBoxGrupoOpen(false);
+              if (selectedItem === selectedTagGroup) {
+                setSelectedTagGroup('');
+                setComboBoxGroupOpen(false);
               } else {
-                setGrupoEtiquetaSelected(selectedItem);
-                setComboBoxGrupoOpen(false);
+                setSelectedTagGroup(selectedItem);
+                setComboBoxGroupOpen(false);
               }
             }}
             wFullMobile
-            selectedIf={grupoEtiquetaSelected ? grupoEtiquetaSelected : ''}
+            selectedIf={selectedTagGroup ? selectedTagGroup : ''}
             triggerChildren={
               <>
                 <span className='max-w-[calc(100%-30px)] truncate'>
-                  {grupoEtiquetaSelected
-                    ? currentGrupo?.nombre
-                    : 'Buscar grupo...'}
+                  {selectedTagGroup ? currentGroup?.name : 'Buscar grupo...'}
                 </span>
                 <EtiquetasFillIcon className='h-5 w-5' />
               </>
             }
           />
           <ComboBox
-            data={etiquetasGrupo ?? []}
+            data={tagsFromGroup ?? []}
             id={'id'}
             value='nombre'
             wFullMobile
@@ -376,7 +373,7 @@ const FormCrearModelo = ({
               <>
                 <span className='truncate'>
                   {etiquetaSelected !== ''
-                    ? (etiquetasGrupo?.find(
+                    ? (tagsFromGroup?.find(
                         (etiqueta) => etiqueta.id === etiquetaSelected
                       )?.nombre ?? 'Buscar etiqueta...')
                     : 'Buscar etiqueta...'}

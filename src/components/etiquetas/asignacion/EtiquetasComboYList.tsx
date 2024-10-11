@@ -13,7 +13,7 @@ import React, { useMemo } from 'react';
 interface EtiquetasComboYListProps {}
 
 const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
-  const { data: grupoEtiquetasData, isLoading: grupoEtiquetaLoading } =
+  const { data: tagGroupsData, isLoading: tagGroupLoading } =
     trpc.grupoEtiqueta.getAll.useQuery();
   const { data: etiquetasData, isLoading: etiquetasLoading } =
     trpc.etiqueta.getAll.useQuery();
@@ -21,13 +21,13 @@ const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
   const {
     etiquetas: etiquetasList,
     setEtiquetas,
-    grupo: currentGrupo,
-    setGrupo: setCurrentGrupo,
+    group: currentGroup,
+    setGroup: setCurrentGroup,
   } = asignacionSelectedData();
 
   const {
-    grupos: gruposOpen,
-    setGruposOpen,
+    groups: openGroups,
+    setGroupsOpen: setOpenGroups,
     etiquetas: etiquetasOpen,
     setEtiquetasOpen,
   } = asignacionComboBoxOpens();
@@ -35,16 +35,16 @@ const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
   const etiquetasParaElegir = useMemo(() => {
     const etPosibles = etiquetasData?.filter((et) => {
       if (et.tipo !== TipoEtiqueta.PERSONAL) return false;
-      if (!currentGrupo)
+      if (!currentGroup)
         return !etiquetasList.find(
           (e) =>
             e.id === et.id || (et.grupo.esExclusivo && e.grupoId === et.grupoId)
         );
 
-      return et.grupoId === currentGrupo.id;
+      return et.grupoId === currentGroup.id;
     });
 
-    if (!currentGrupo) {
+    if (!currentGroup) {
       return etPosibles?.filter(
         (et) => !etiquetasList.find((e) => e.id === et.id)
       );
@@ -52,43 +52,43 @@ const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
 
     return etPosibles?.filter(
       (etiqueta) =>
-        etiqueta.grupoId === currentGrupo.id &&
+        etiqueta.grupoId === currentGroup.id &&
         !etiquetasList.some(
           (e) => e.grupoId === etiqueta.grupoId && etiqueta.grupo.esExclusivo
         ) &&
         !etiquetasList.find((e) => e.id === etiqueta.id)
     );
-  }, [currentGrupo, etiquetasData, etiquetasList]);
+  }, [currentGroup, etiquetasData, etiquetasList]);
 
-  const gruposParaElegir = useMemo(() => {
-    return grupoEtiquetasData?.filter((g) =>
-      g.etiquetas.some((et) => et.tipo === TipoEtiqueta.PERSONAL)
+  const choosableGroups = useMemo(() => {
+    return tagGroupsData?.filter((g) =>
+      g.tags.some((tag) => tag.type === 'PARTICIPANT')
     );
-  }, [grupoEtiquetasData]);
+  }, [tagGroupsData]);
 
   return (
     <>
       <div className='flex flex-col gap-4 sm:flex-row'>
         <ComboBox
-          open={gruposOpen}
-          setOpen={setGruposOpen}
-          isLoading={grupoEtiquetaLoading}
-          triggerChildren={<p>{currentGrupo?.nombre ?? 'Grupos'}</p>}
+          open={openGroups}
+          setOpen={setOpenGroups}
+          isLoading={tagGroupLoading}
+          triggerChildren={<p>{currentGroup?.name ?? 'Grupos'}</p>}
           notFoundText='No hay grupos disponibles'
           placeholder='Buscar grupos...'
-          data={gruposParaElegir ?? []}
+          data={choosableGroups ?? []}
           id='id'
-          value='nombre'
+          value='name'
           wFullMobile
           onSelect={(value) => {
-            setCurrentGrupo(
-              grupoEtiquetasData!.find(
-                (g) => g.id === value
+            setCurrentGroup(
+              tagGroupsData!.find(
+                (group) => group.id === value
               ) as RouterOutputs['grupoEtiqueta']['getAll'][number]
             );
-            setGruposOpen(false);
+            setOpenGroups(false);
           }}
-          selectedIf={currentGrupo?.id ?? ''}
+          selectedIf={currentGroup?.id ?? ''}
         />
         <ComboBox
           data={etiquetasParaElegir ?? []}

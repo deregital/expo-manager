@@ -18,19 +18,19 @@ interface PageClientProps {}
 export const useDashboardData = create<{
   from: Date;
   to: Date;
-  grupoEtiquetaId: string;
+  tagGroupId: string;
   etiquetaId: string;
   resetFilters: () => void;
 }>((set) => ({
   from: startOfMonth(new Date()),
   to: new Date(),
-  grupoEtiquetaId: '',
+  tagGroupId: '',
   etiquetaId: '',
   resetFilters: () => {
     set({
       from: startOfMonth(new Date()),
       to: new Date(),
-      grupoEtiquetaId: '',
+      tagGroupId: '',
       etiquetaId: '',
     });
   },
@@ -38,9 +38,9 @@ export const useDashboardData = create<{
 
 function filterModelos(
   modelos: RouterOutputs['modelo']['getByDateRange'][string],
-  search: { etiquetaId?: string; grupoId?: string }
+  search: { etiquetaId?: string; groupId?: string }
 ) {
-  if (search.etiquetaId === '' && search.grupoId === '') return modelos;
+  if (search.etiquetaId === '' && search.groupId === '') return modelos;
   // @ts-ignore
   const mod = modelos.filter((modelo) => {
     return (
@@ -48,9 +48,9 @@ function filterModelos(
         modelo.etiquetas.some(
           (etiqueta) => etiqueta.id === search.etiquetaId
         )) &&
-      (search.grupoId === '' ||
+      (search.groupId === '' ||
         modelo.etiquetas.some(
-          (etiqueta) => etiqueta.grupoId === search.grupoId
+          (etiqueta) => etiqueta.grupoId === search.groupId
         ))
     );
   });
@@ -58,13 +58,20 @@ function filterModelos(
 }
 
 const PageClient = ({}: PageClientProps) => {
-  const { from, to, etiquetaId, grupoEtiquetaId, resetFilters } =
-    useDashboardData();
+  const { from, to, etiquetaId, tagGroupId, resetFilters } = useDashboardData(
+    (s) => ({
+      from: s.from,
+      to: s.to,
+      etiquetaId: s.etiquetaId,
+      tagGroupId: s.tagGroupId,
+      resetFilters: s.resetFilters,
+    })
+  );
 
-  const [grupoOpen, setGrupoOpen] = useState(false);
+  const [groupOpen, setGroupOpen] = useState(false);
   const [etiquetaOpen, setEtiquetaOpen] = useState(false);
 
-  const { data: grupoEtiquetasData, isLoading: grupoEtiquetasLoading } =
+  const { data: tagGroupsData, isLoading: tagGroupsLoading } =
     trpc.grupoEtiqueta.getAll.useQuery();
   const { data: etiquetasData, isLoading: etiquetasLoading } =
     trpc.etiqueta.getAll.useQuery();
@@ -74,10 +81,10 @@ const PageClient = ({}: PageClientProps) => {
       end: format(addDays(to, 1), 'yyyy-MM-dd'),
     });
 
-  const currentGrupo = useMemo(() => {
-    if (!grupoEtiquetasData) return;
-    return grupoEtiquetasData.find((grupo) => grupo.id === grupoEtiquetaId);
-  }, [grupoEtiquetasData, grupoEtiquetaId]);
+  const currentGroup = useMemo(() => {
+    if (!tagGroupsData) return;
+    return tagGroupsData.find((group) => group.id === tagGroupId);
+  }, [tagGroupsData, tagGroupId]);
 
   const currentEtiqueta = useMemo(() => {
     if (!etiquetasData) return;
@@ -85,11 +92,11 @@ const PageClient = ({}: PageClientProps) => {
   }, [etiquetasData, etiquetaId]);
 
   const etiquetas = useMemo(() => {
-    if (!currentGrupo) return etiquetasData;
+    if (!currentGroup) return etiquetasData;
     return etiquetasData
-      ? etiquetasData.filter((etiqueta) => etiqueta.grupoId === grupoEtiquetaId)
+      ? etiquetasData.filter((etiqueta) => etiqueta.grupoId === tagGroupId)
       : [];
-  }, [currentGrupo, etiquetasData, grupoEtiquetaId]);
+  }, [currentGroup, etiquetasData, tagGroupId]);
 
   const modelosParaGrafico = useMemo(() => {
     const modReturn: { fecha: string; modelos: number }[] = [];
@@ -98,22 +105,22 @@ const PageClient = ({}: PageClientProps) => {
     for (const [day, modelos] of Object.entries(modelosData)) {
       const modelosFiltradas = filterModelos(modelos, {
         etiquetaId,
-        grupoId: grupoEtiquetaId,
+        groupId: tagGroupId,
       });
 
       modReturn.push({ modelos: modelosFiltradas.length, fecha: day });
     }
     return modReturn;
-  }, [etiquetaId, grupoEtiquetaId, modelosData]);
+  }, [etiquetaId, tagGroupId, modelosData]);
 
   const modelosQueCuentan = useMemo(() => {
     if (!modelosData) return [];
     const mod = Object.values(modelosData ?? {}).flatMap((m) => m);
-    if (!etiquetaId && !grupoEtiquetaId) {
+    if (!etiquetaId && !tagGroupId) {
       return mod;
     }
-    return filterModelos(mod, { etiquetaId, grupoId: grupoEtiquetaId });
-  }, [etiquetaId, grupoEtiquetaId, modelosData]);
+    return filterModelos(mod, { etiquetaId, groupId: tagGroupId });
+  }, [etiquetaId, tagGroupId, modelosData]);
 
   const retencion = useMemo(() => {
     return (
@@ -151,29 +158,29 @@ const PageClient = ({}: PageClientProps) => {
       </section>
       <section className='w-full grid-in-grupo'>
         <ComboBox
-          data={grupoEtiquetasData ?? []}
+          data={tagGroupsData ?? []}
           id='id'
-          open={grupoOpen}
-          setOpen={setGrupoOpen}
+          open={groupOpen}
+          setOpen={setGroupOpen}
           onSelect={(value) => {
-            if (value === grupoEtiquetaId) {
-              useDashboardData.setState({ grupoEtiquetaId: '' });
+            if (value === tagGroupId) {
+              useDashboardData.setState({ tagGroupId: '' });
             } else {
-              useDashboardData.setState({ grupoEtiquetaId: value });
+              useDashboardData.setState({ tagGroupId: value });
               useDashboardData.setState({ etiquetaId: '' });
             }
-            setGrupoOpen(false);
+            setGroupOpen(false);
           }}
-          selectedIf={grupoEtiquetaId}
-          value='nombre'
+          selectedIf={tagGroupId}
+          value='name'
           triggerChildren={
             <>
               <span className='max-w-[calc(100%-30px)] truncate'>
-                {grupoEtiquetaId ? currentGrupo?.nombre : 'Buscar grupo...'}
+                {tagGroupId ? currentGroup?.name : 'Buscar grupo...'}
               </span>
             </>
           }
-          isLoading={grupoEtiquetasLoading}
+          isLoading={tagGroupsLoading}
           wFullMobile
           buttonClassName='w-full sm:min-w-full h-[44px]'
           contentClassName='sm:max-w-[--radix-popper-anchor-width]'

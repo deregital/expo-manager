@@ -24,20 +24,20 @@ interface EtiquetaModalProps {
 
 type ModalData = {
   tipo: 'CREATE' | 'EDIT';
-  grupoId: string;
+  groupId: string;
   nombre: string;
   etiquetaId: string;
 };
 
 export const useEtiquetaModalData = create<ModalData>(() => ({
   tipo: 'CREATE',
-  grupoId: '',
+  groupId: '',
   nombre: '',
   etiquetaId: '',
 }));
 
 const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
-  const { data: getGrupoEtiquetas, isLoading } =
+  const { data: tagGroupsData, isLoading } =
     trpc.grupoEtiqueta.getAll.useQuery();
 
   const utils = trpc.useUtils();
@@ -56,15 +56,14 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
     if (modalData.tipo === 'CREATE') {
       await createEtiqueta
         .mutateAsync({
-          nombre: modalData.nombre,
-          grupoId: useEtiquetaModalData.getState().grupoId,
+          name: modalData.nombre,
+          groupId: useEtiquetaModalData.getState().groupId,
         })
         .then(() => {
           setOpen(!open);
           toast.success('Etiqueta creada con éxito');
         })
         .catch((error) => {
-          console.log(error);
           toast.error(
             'Error al crear la etiqueta, asegúrese de poner un nombre y seleccionar un grupo de etiquetas'
           );
@@ -74,7 +73,7 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
         .mutateAsync({
           id: useEtiquetaModalData.getState().etiquetaId,
           nombre: modalData.nombre,
-          grupoId: useEtiquetaModalData.getState().grupoId,
+          grupoId: useEtiquetaModalData.getState().groupId,
         })
         .then(() => {
           setOpen(!open);
@@ -89,7 +88,7 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
     if (createEtiqueta.isSuccess || editEtiqueta.isSuccess) {
       useEtiquetaModalData.setState({
         tipo: 'CREATE',
-        grupoId: '',
+        groupId: '',
         nombre: '',
         etiquetaId: '',
       });
@@ -101,7 +100,7 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
   async function handleCancel() {
     useEtiquetaModalData.setState({
       tipo: 'CREATE',
-      grupoId: '',
+      groupId: '',
       nombre: '',
       etiquetaId: '',
     });
@@ -125,7 +124,7 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
       if (createEtiqueta.isSuccess || editEtiqueta.isSuccess) {
         useEtiquetaModalData.setState({
           tipo: 'CREATE',
-          grupoId: '',
+          groupId: '',
           nombre: '',
           etiquetaId: '',
         });
@@ -149,7 +148,7 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
                   useEtiquetaModalData.setState({
                     tipo: 'CREATE',
                     nombre: '',
-                    grupoId: '',
+                    groupId: '',
                     etiquetaId: '',
                   });
                 }}
@@ -168,7 +167,7 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
                     tipo: 'EDIT',
                     etiquetaId: tag?.id ?? '',
                     nombre: tag?.name ?? '',
-                    grupoId: tag?.groupId ?? '',
+                    groupId: tag?.groupId ?? '',
                   });
                 }}
               >
@@ -201,7 +200,7 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
               {isLoading ? (
                 <Loader />
               ) : (
-                <GrupoEtiquetaComboBox data={getGrupoEtiquetas ?? []} />
+                <GrupoEtiquetaComboBox data={tagGroupsData ?? []} />
               )}
             </div>
           </div>

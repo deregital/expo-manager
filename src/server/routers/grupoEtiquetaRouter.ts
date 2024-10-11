@@ -13,14 +13,8 @@ export const grupoEtiquetaRouter = router({
       return data;
     }),
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.etiquetaGrupo.findMany({
-      include: {
-        etiquetas: true,
-      },
-      orderBy: {
-        updated_at: 'desc',
-      },
-    });
+    const { data } = await ctx.fetch.GET('/tag-group/all');
+    return data?.tagGroups || [];
   }),
   getById: protectedProcedure
     .input(z.string().uuid())

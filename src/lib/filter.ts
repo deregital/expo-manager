@@ -1,5 +1,6 @@
 import { searchNormalize } from '@/lib/utils';
-import { Etiqueta, EtiquetaGrupo, Perfil } from '@prisma/client';
+import { Etiqueta, Perfil } from '@prisma/client';
+import { type TagGroup } from 'expo-backend-types';
 
 export type Filtro = {
   input: string;
@@ -7,12 +8,12 @@ export type Filtro = {
     etiqueta: Pick<Etiqueta, 'id' | 'nombre'>;
     include: boolean;
   }[];
-  grupos: {
-    grupo: Pick<EtiquetaGrupo, 'id' | 'color' | 'nombre'>;
+  groups: {
+    group: Pick<TagGroup, 'id' | 'color' | 'name'>;
     include: boolean;
   }[];
   condicionalEtiq: 'AND' | 'OR';
-  condicionalGrupo: 'AND' | 'OR';
+  condicionalGroup: 'AND' | 'OR';
   instagram: Perfil['instagram'];
   mail: Perfil['mail'];
   dni: Perfil['dni'];
@@ -20,12 +21,17 @@ export type Filtro = {
   genero: Perfil['genero'];
 };
 
+export type FiltroTraducido = Omit<Filtro, 'groups'> & {
+  grupos: Filtro['groups'];
+  condicionalGrupo: Filtro['condicionalGroup'];
+};
+
 export type FuncionFiltrar = ({
   input,
   etiquetas,
-  grupos,
+  groups,
   condicionalEtiq,
-  condicionalGrupo,
+  condicionalGroup,
   instagram,
   mail,
   dni,
@@ -36,9 +42,9 @@ export type FuncionFiltrar = ({
 export const defaultFilter: Filtro = {
   input: '',
   etiquetas: [],
-  grupos: [],
+  groups: [],
   condicionalEtiq: 'AND',
-  condicionalGrupo: 'AND',
+  condicionalGroup: 'AND',
   instagram: '',
   mail: '',
   dni: '',
@@ -62,8 +68,8 @@ export function filterModelos<
     search.input === undefined &&
     search.etiquetas &&
     search.etiquetas.length === 0 &&
-    search.grupos &&
-    search.grupos.length === 0 &&
+    search.groups &&
+    search.groups.length === 0 &&
     search.instagram === undefined &&
     search.mail === undefined &&
     search.dni === undefined &&
@@ -76,8 +82,8 @@ export function filterModelos<
   const etiquetasNotInclude =
     search.etiquetas?.filter((et) => !et.include) ?? [];
 
-  const gruposInclude = search.grupos?.filter((gr) => gr.include) ?? [];
-  const gruposNotInclude = search.grupos?.filter((gr) => !gr.include) ?? [];
+  const groupsInclude = search.groups?.filter((gr) => gr.include) ?? [];
+  const groupsNotInclude = search.groups?.filter((gr) => !gr.include) ?? [];
 
   const mod = modelos?.filter((modelo) => {
     return (
@@ -114,20 +120,20 @@ export function filterModelos<
             etiquetasNotInclude.some(({ etiqueta }) =>
               modelo.etiquetas.every((et) => et.id !== etiqueta.id)
             ))) &&
-      (search.grupos === undefined ||
-        search.grupos.length === 0 ||
-        (search.condicionalGrupo === 'AND'
-          ? gruposInclude.every(({ grupo }) =>
-              modelo.etiquetas.some((et) => et.grupoId === grupo.id)
+      (search.groups === undefined ||
+        search.groups.length === 0 ||
+        (search.condicionalGroup === 'AND'
+          ? groupsInclude.every(({ group }) =>
+              modelo.etiquetas.some((et) => et.grupoId === group.id)
             ) &&
-            gruposNotInclude.every(({ grupo }) =>
-              modelo.etiquetas.every((et) => et.grupoId !== grupo.id)
+            groupsNotInclude.every(({ group }) =>
+              modelo.etiquetas.every((et) => et.grupoId !== group.id)
             )
-          : gruposInclude.some(({ grupo }) =>
-              modelo.etiquetas.some((et) => et.grupoId === grupo.id)
+          : groupsInclude.some(({ group }) =>
+              modelo.etiquetas.some((et) => et.grupoId === group.id)
             ) &&
-            gruposNotInclude.some(({ grupo }) =>
-              modelo.etiquetas.every((et) => et.grupoId !== grupo.id)
+            groupsNotInclude.some(({ group }) =>
+              modelo.etiquetas.every((et) => et.grupoId !== group.id)
             )))
     );
   });

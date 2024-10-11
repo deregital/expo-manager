@@ -42,13 +42,13 @@ const Filtro = ({
   children,
 }: FiltroProps) => {
   const filtro = useFiltro();
-  const [grupoId, setGrupoId] = useState<string | undefined>(undefined);
+  const [groupId, setGroupId] = useState<string | undefined>(undefined);
   const [etiquetaId, setEtiquetaId] = useState<string | undefined>(undefined);
 
-  const { data: dataGrupoEtiquetas } = trpc.grupoEtiqueta.getAll.useQuery();
+  const { data: tagGroupData } = trpc.grupoEtiqueta.getAll.useQuery();
 
-  const { data: dataEtiquetas } = grupoId
-    ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoId)
+  const { data: dataEtiquetas } = groupId
+    ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(groupId)
     : trpc.etiqueta.getAll.useQuery();
 
   const { toggle: toggleAvanzado, isOpen: isOpenAvanzado } =
@@ -74,8 +74,8 @@ const Filtro = ({
             nombre: etiquetaSeleccionada.nombre,
           },
           include:
-            filtro.grupos.length > 0
-              ? filtro.grupos[0].include
+            filtro.groups.length > 0
+              ? filtro.groups[0].include
               : filtro.etiquetas.length > 0
                 ? filtro.etiquetas[0].include
                 : true,
@@ -85,37 +85,37 @@ const Filtro = ({
     return;
   }
 
-  function editarGrupoEtiq(grupoEtiq: string) {
-    if (grupoId === grupoEtiq) {
+  function editTagGroup(tagGroupId: string) {
+    if (groupId === tagGroupId) {
       useFiltro.setState({
         etiquetas: filtro.etiquetas.slice(1, filtro.etiquetas.length),
-        grupos: filtro.grupos.slice(1, filtro.grupos.length),
+        groups: filtro.groups.slice(1, filtro.groups.length),
       });
-      setGrupoId(undefined);
+      setGroupId(undefined);
       return;
     }
-    const grupo = dataGrupoEtiquetas?.find((grupo) => grupo.id === grupoEtiq);
-    if (!grupo) return;
+    const group = tagGroupData?.find((group) => group.id === tagGroupId);
+    if (!group) return;
 
     useFiltro.setState({
       ...filtro,
-      grupos: [
+      groups: [
         {
-          grupo: {
-            id: grupo.id,
-            nombre: grupo.nombre,
-            color: grupo.color,
+          group: {
+            id: group.id,
+            name: group.name,
+            color: group.color,
           },
           include:
-            filtro.grupos.length > 0
-              ? filtro.grupos[0].include
+            filtro.groups.length > 0
+              ? filtro.groups[0].include
               : filtro.etiquetas.length > 0
                 ? filtro.etiquetas[0].include
                 : true,
         },
       ],
     });
-    setGrupoId(grupoEtiq);
+    setGroupId(tagGroupId);
   }
 
   function editarInput(input: string) {
@@ -124,7 +124,7 @@ const Filtro = ({
 
   function resetFilters() {
     useFiltro.setState(defaultFilter);
-    setGrupoId(undefined);
+    setGroupId(undefined);
     setEtiquetaId(undefined);
   }
 
@@ -145,15 +145,17 @@ const Filtro = ({
         ]
       : [];
 
-    const grupo = dataGrupoEtiquetas?.find((grupo) => grupo.id === grupoBasico);
+    const group = tagGroupData?.find(
+      (tagGroup) => tagGroup.id === primaryGroup
+    );
 
-    const grupoArray = grupo
+    const groupArray: FiltroType['groups'] = group
       ? [
           {
-            grupo: {
-              id: grupo.id,
-              nombre: grupo?.nombre,
-              color: grupo?.color,
+            group: {
+              id: group.id,
+              name: group?.name,
+              color: group?.color,
             },
             include: value,
           },
@@ -165,7 +167,7 @@ const Filtro = ({
         ...etiquetaArray,
         ...filtro.etiquetas.slice(1, filtro.etiquetas.length),
       ],
-      grupos: [...grupoArray, ...filtro.grupos.slice(1, filtro.grupos.length)],
+      groups: [...groupArray, ...filtro.groups.slice(1, filtro.groups.length)],
     });
   }
 
@@ -185,17 +187,17 @@ const Filtro = ({
       : undefined;
   }, [defaultFiltro.etiquetas, filtro.etiquetas]);
 
-  const grupoBasico = useMemo(() => {
+  const primaryGroup = useMemo(() => {
     if (
-      defaultFiltro.grupos &&
-      defaultFiltro.grupos.length > 0 &&
-      filtro.grupos.length === 0
+      defaultFiltro.groups &&
+      defaultFiltro.groups.length > 0 &&
+      filtro.groups.length === 0
     ) {
-      return defaultFiltro.grupos[0].grupo.id;
+      return defaultFiltro.groups[0].group.id;
     }
 
-    return filtro.grupos.length > 0 ? filtro.grupos[0].grupo.id : undefined;
-  }, [defaultFiltro.grupos, filtro.grupos]);
+    return filtro.groups.length > 0 ? filtro.groups[0].group.id : undefined;
+  }, [defaultFiltro.groups, filtro.groups]);
 
   useEffect(() => {
     const filtrar = () => {
@@ -227,15 +229,15 @@ const Filtro = ({
           <FiltroBasicoEtiqueta
             include={
               (filtro.etiquetas.length > 0 && filtro.etiquetas[0].include) ||
-              (filtro.grupos.length > 0 && filtro.grupos[0].include)
+              (filtro.groups.length > 0 && filtro.groups[0].include)
             }
             setInclude={(value) => switchIncludeBasico(value)}
             switchDisabled={
-              filtro.etiquetas.length === 0 && filtro.grupos.length === 0
+              filtro.etiquetas.length === 0 && filtro.groups.length === 0
             }
             editarEtiq={editarEtiq}
-            editarGrupoEtiq={editarGrupoEtiq}
-            grupoId={grupoBasico}
+            editTagGroup={editTagGroup}
+            groupId={primaryGroup}
             etiquetaId={etiquetaBasico}
           />
         )}

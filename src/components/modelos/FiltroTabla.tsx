@@ -4,7 +4,11 @@ import { useModelosTabla } from '@/components/modelos/table/ModelosTable';
 import SwitchEventos from '@/components/ui/SwitchEventos';
 import { create } from 'zustand';
 import Filtro from '@/components/ui/filtro/Filtro';
-import { type Filtro as FiltroType, FuncionFiltrar } from '@/lib/filter';
+import {
+  type Filtro as FiltroType,
+  FuncionFiltrar,
+  type FiltroTraducido,
+} from '@/lib/filter';
 import { useMemo } from 'react';
 
 export const useModelosFiltro = create(() => ({
@@ -22,9 +26,9 @@ const FiltroTabla = () => {
     cantidadDeModelos: s.cantidad,
   }));
 
-  function setAndDeleteSearch<T extends keyof FiltroType>(
+  function setAndDeleteSearch<T extends keyof FiltroTraducido>(
     queryString: T,
-    value: FiltroType[T]
+    value: FiltroTraducido[T]
   ) {
     if (!value || (Array.isArray(value) && value.length === 0)) {
       searchParams.delete(queryString);
@@ -44,9 +48,9 @@ const FiltroTabla = () => {
     [searchParams.get('etiquetas')]
   );
 
-  const defaultGrupos = useMemo(
+  const defaultGroups = useMemo(
     () =>
-      JSON.parse(searchParams.get('grupos') ?? '[]') as FiltroType['grupos'],
+      JSON.parse(searchParams.get('grupos') ?? '[]') as FiltroType['groups'],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [searchParams.get('grupos')]
   );
@@ -54,17 +58,17 @@ const FiltroTabla = () => {
   const filtrar: FuncionFiltrar = ({
     etiquetas,
     input,
-    grupos,
+    groups,
     condicionalEtiq,
-    condicionalGrupo,
+    condicionalGroup,
     dni,
     genero,
     instagram,
     mail,
     telefono,
   }) => {
-    setAndDeleteSearch('grupos', grupos);
-    setAndDeleteSearch('condicionalGrupo', condicionalGrupo);
+    setAndDeleteSearch('grupos', groups);
+    setAndDeleteSearch('condicionalGrupo', condicionalGroup);
     setAndDeleteSearch('condicionalEtiq', condicionalEtiq);
     setAndDeleteSearch('dni', dni);
     setAndDeleteSearch('genero', genero);
@@ -82,7 +86,7 @@ const FiltroTabla = () => {
       <Filtro
         defaultFiltro={{
           etiquetas: defaultEtiquetas,
-          grupos: defaultGrupos,
+          groups: defaultGroups,
         }}
         mostrarInput
         mostrarEtiq

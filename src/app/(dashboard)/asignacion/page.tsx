@@ -35,7 +35,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
     modelos: modelosList,
     clearEtiquetas,
     clearModelos,
-    clearGrupo,
+    clearGroup,
   } = asignacionSelectedData();
 
   const filtrarModelos: FuncionFiltrar = (filter) => {
@@ -89,7 +89,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
         toast.success('Etiquetas asignadas correctamente');
         clearModelos();
         clearEtiquetas();
-        clearGrupo();
+        clearGroup();
         utils.modelo.getAll.invalidate();
       });
   }
@@ -107,7 +107,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
         toast.success('Etiquetas desasignadas correctamente');
         clearModelos();
         clearEtiquetas();
-        clearGrupo();
+        clearGroup();
         utils.modelo.getAll.invalidate();
       });
   }

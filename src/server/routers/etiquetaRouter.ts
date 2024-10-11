@@ -1,28 +1,13 @@
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
 import { z } from 'zod';
+import { createTagSchema } from 'expo-backend-types';
 
 export const etiquetaRouter = router({
-  create: publicProcedure
-    .input(
-      z.object({
-        nombre: z.string().min(1, {
-          message: 'El nombre debe tener al menos 1 caracter',
-        }),
-        grupoId: z.string().uuid({
-          message: 'Debes seleccionar un grupo de etiquetas',
-        }),
-      })
-    )
+  create: protectedProcedure
+    .input(createTagSchema)
     .mutation(async ({ input, ctx }) => {
-      return await ctx.prisma.etiqueta.create({
-        data: {
-          nombre: input.nombre,
-          grupo: {
-            connect: {
-              id: input.grupoId,
-            },
-          },
-        },
+      return await ctx.fetch.POST('/tag/create', {
+        body: input,
       });
     }),
   delete: publicProcedure

@@ -8,8 +8,8 @@ import React, { useState, useMemo } from 'react';
 
 type FiltroBasicoEtiquetaProps = {
   editarEtiq: (etiq: string) => void;
-  editarGrupoEtiq: (grupoEtiq: string) => void;
-  grupoId: string | undefined;
+  editTagGroup: (tagGroup: string) => void;
+  groupId: string | undefined;
   etiquetaId: string | undefined;
   switchDisabled: boolean;
   include: boolean;
@@ -18,8 +18,8 @@ type FiltroBasicoEtiquetaProps = {
 
 const FiltroBasicoEtiqueta = ({
   editarEtiq,
-  editarGrupoEtiq,
-  grupoId,
+  editTagGroup,
+  groupId,
   etiquetaId,
   switchDisabled,
   include,
@@ -28,14 +28,14 @@ const FiltroBasicoEtiqueta = ({
   const { etiquetasFiltro } = useFiltro((s) => ({
     etiquetasFiltro: s.etiquetas,
   }));
-  const [openGrupo, setOpenGrupo] = useState(false);
+  const [openGroup, setOpenGroup] = useState(false);
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
 
-  const { data: dataGrupos, isLoading: isLoadingGrupos } =
+  const { data: tagGroupsData, isLoading: isLoadingGroups } =
     trpc.grupoEtiqueta.getAll.useQuery();
 
-  const { data: dataEtiquetas, isLoading: isLoadingEtiquetas } = grupoId
-    ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoId)
+  const { data: dataEtiquetas, isLoading: isLoadingEtiquetas } = groupId
+    ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(groupId)
     : trpc.etiqueta.getAll.useQuery();
 
   const etiquetasFiltradas = useMemo(() => {
@@ -57,23 +57,23 @@ const FiltroBasicoEtiqueta = ({
         }}
       />
       <ComboBox
-        data={dataGrupos ?? []}
+        data={tagGroupsData ?? []}
         id='id'
-        value='nombre'
+        value='name'
         onSelect={(value) => {
-          setOpenGrupo(false);
-          editarGrupoEtiq(value);
+          setOpenGroup(false);
+          editTagGroup(value);
         }}
-        open={openGrupo}
-        isLoading={isLoadingGrupos}
-        setOpen={setOpenGrupo}
+        open={openGroup}
+        isLoading={isLoadingGroups}
+        setOpen={setOpenGroup}
         wFullMobile
-        selectedIf={grupoId ?? ''}
+        selectedIf={groupId ?? ''}
         triggerChildren={
           <>
             <span className='truncate'>
-              {grupoId
-                ? (dataGrupos?.find((grupo) => grupo.id === grupoId)?.nombre ??
+              {groupId
+                ? (tagGroupsData?.find((group) => group.id === groupId)?.name ??
                   'Buscar grupo...')
                 : 'Buscar grupo...'}
             </span>

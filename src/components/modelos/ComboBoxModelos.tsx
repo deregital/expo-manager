@@ -12,12 +12,12 @@ const ComboBoxModelos = ({
 }) => {
   const [open, setOpen] = useState(false);
   const searchParams = new URLSearchParams(useSearchParams());
-  const [grupoId, setGrupoId] = useState(searchParams.get('grupoId') ?? '');
+  const [groupId, setGroupId] = useState(searchParams.get('grupoId') ?? '');
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    setGrupoId(searchParams.get('grupoId') ?? '');
+    setGroupId(searchParams.get('grupoId') ?? '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.get('grupoId')]);
 
@@ -28,9 +28,9 @@ const ComboBoxModelos = ({
       triggerChildren={
         <>
           <span className='truncate'>
-            {grupoId
-              ? data.find((grupo) => grupo.id === grupoId)?.nombre ??
-                'Buscar grupo...'
+            {groupId
+              ? (data.find((group) => group.id === groupId)?.name ??
+                'Buscar grupo...')
               : 'Buscar grupo...'}
           </span>
           <EtiquetasFillIcon className='h-5 w-5' />
@@ -38,21 +38,21 @@ const ComboBoxModelos = ({
       }
       data={data}
       id='id'
-      value='nombre'
+      value='name'
       onSelect={(value) => {
         setOpen(false);
-        if (value === grupoId) {
-          setGrupoId('');
+        if (value === groupId) {
+          setGroupId('');
           searchParams.delete('etiqueta');
           searchParams.delete('grupoId');
         } else {
-          setGrupoId(value);
+          setGroupId(value);
           searchParams.set('grupoId', value);
           searchParams.delete('etiqueta');
         }
         router.push(`${pathname}?${searchParams.toString()}`);
       }}
-      selectedIf={grupoId}
+      selectedIf={groupId}
       wFullMobile
     />
   );

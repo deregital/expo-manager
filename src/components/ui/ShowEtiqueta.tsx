@@ -2,7 +2,7 @@ import { cn, getTextColorByBg } from '@/lib/utils';
 import { Button } from './button';
 import EtiquetasFillIcon from '../icons/EtiquetasFillIcon';
 import EtiquetaFillIcon from '../icons/EtiquetaFillIcon';
-import { Filtro } from '@/lib/filter';
+import { type Filtro } from '@/lib/filter';
 
 const ShowEtiqueta = ({
   etiqueta,
@@ -11,13 +11,13 @@ const ShowEtiqueta = ({
   buttonStyle,
 }: {
   etiqueta: NonNullable<
-    Filtro['etiquetas'][0]['etiqueta'] | Filtro['grupos'][0]['grupo']
+    Filtro['etiquetas'][0]['etiqueta'] | Filtro['groups'][0]['group']
   >;
   wFullMobile?: boolean;
   buttonClassName?: string;
   buttonStyle?: React.CSSProperties;
 }) => {
-  const isGrupo = 'color' in etiqueta;
+  const isGroup = 'color' in etiqueta;
   return (
     <Button
       variant='outline'
@@ -27,7 +27,7 @@ const ShowEtiqueta = ({
         buttonClassName
       )}
       style={
-        isGrupo
+        isGroup
           ? {
               backgroundColor: etiqueta.color,
               color: getTextColorByBg(etiqueta.color ?? '#ffffff'),
@@ -38,9 +38,9 @@ const ShowEtiqueta = ({
     >
       <>
         <span className='max-w-[calc(100%-30px)] flex-1 truncate'>
-          {etiqueta.nombre}
+          {('nombre' in etiqueta ? etiqueta.nombre : etiqueta.name) ?? ''}
         </span>
-        {isGrupo ? (
+        {isGroup ? (
           <EtiquetasFillIcon className='h-5 w-5' />
         ) : (
           <EtiquetaFillIcon className='h-5 w-5' />

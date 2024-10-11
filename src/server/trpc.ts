@@ -1,7 +1,8 @@
-import { getServerAuthSession } from '@/server/auth';
+import { getServerAuthSession, refreshToken } from '@/server/auth';
 import { prisma } from '@/server/db';
 import { fetchClient } from '@/server/fetchClient';
 import { TRPCError, initTRPC } from '@trpc/server';
+import { JWT } from 'next-auth/jwt';
 import { ZodError } from 'zod';
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
@@ -31,23 +32,33 @@ export const router = t.router;
 export const publicProcedure = t.procedure;
 
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user || !('backendTokens' in ctx.session)) {
+  const session = ctx.session as unknown as JWT | undefined | null;
+  if (!session || !session.user || !session.backendTokens) {
+    console.log('No session');
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
 
-  const backendTokens = ctx.session.backendTokens as {
-    accessToken: string;
-    refreshToken: string;
-  };
+  const backendTokens = session.backendTokens;
 
-  const { data: user } = await fetchClient.GET('/account/me', {
+  let { data: user } = await fetchClient.GET('/account/me', {
     headers: {
       Authorization: `Bearer ${backendTokens.accessToken}`,
     },
   });
 
   if (!user) {
-    throw new TRPCError({ code: 'UNAUTHORIZED' });
+    const refreshed = await refreshToken(session);
+
+    const { data: userRefreshed } = await fetchClient.GET('/account/me', {
+      headers: {
+        Authorization: `Bearer ${refreshed.backendTokens.accessToken}`,
+      },
+    });
+
+    if (!userRefreshed) {
+      throw new TRPCError({ code: 'UNAUTHORIZED' });
+    }
+    user = userRefreshed;
   }
 
   const { tags: etiquetasNoAdmin } = user;
