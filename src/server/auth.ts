@@ -37,12 +37,16 @@ declare module 'next-auth' {
   }
 }
 
-async function refreshToken(token: JWT): Promise<JWT> {
-  const { data } = await fetchClient.POST('/auth/refresh', {
+export async function refreshToken(token: JWT): Promise<JWT> {
+  const { data, response } = await fetchClient.POST('/auth/refresh', {
     headers: {
       authorization: `Refresh ${token.backendTokens.refreshToken}`,
     },
   });
+
+  if (response.status !== 201 || !data) {
+    throw new Error('Error al refrescar el token');
+  }
 
   return {
     ...token,
@@ -110,9 +114,8 @@ export const authOptions: NextAuthOptions = {
           }
         );
 
-        if (response.status !== 201 || !data?.user) {
-          const message =
-            ((error as any).message as string) || 'Error desconocido';
+        if ((response.status !== 201 || !data?.user) && error) {
+          const message = error.message[0] || 'Error desconocido';
 
           throw new Error(message);
         }
