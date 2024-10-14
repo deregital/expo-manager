@@ -4,6 +4,7 @@ import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
 import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
 import WhatsappIcon from '@/components/icons/WhatsappIcon';
+import { parsePhoneNumber } from 'libphonenumber-js';
 
 interface ChatTopbarProps {
   telefono: string;
@@ -16,11 +17,18 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
   });
 
   const formatTelefono = (telefono: string) => {
-    const codigoPais = telefono.slice(0, 2);
-    const codigoArea = telefono.slice(2, 3);
-    const numeroPrincipal = telefono.slice(3);
+    try {
+      const phoneNumber = parsePhoneNumber(telefono, 'AR');
 
-    return `${codigoPais} ${codigoArea} ${numeroPrincipal}`;
+      if (phoneNumber?.isValid()) {
+        return phoneNumber.formatInternational().replace('+', '');
+      }
+
+      return telefono;
+    } catch (error) {
+      console.error('Error al formatear el número:', error);
+      return telefono;
+    }
   };
 
   return (
@@ -50,7 +58,6 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
             </div>
           </div>
           <div className='flex items-center gap-x-1'>
-            {}
             <Link
               title='Enviar mensaje por WhatsApp'
               href={`https://wa.me/${perfil.telefono}`}
