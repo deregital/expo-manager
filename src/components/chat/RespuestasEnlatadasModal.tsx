@@ -75,6 +75,7 @@ const RespuestasEnlatadasModal = ({
           setOpen(false);
           onClose();
           toast.success('Respuesta enlatada editada con éxito');
+          utils.respuestasEnlatadas.getAll.invalidate();
         })
         .catch(() => toast.error('Error al editar la respuesta enlatada'));
     }
