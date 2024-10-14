@@ -53,11 +53,7 @@ const ContactosNoChat = ({ telefonoSelected, items }: ContactosNoChatProps) => {
                   title={title}
                   className='my-2 max-h-full border-0'
                   style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
                     width: '100%',
-
                     transform: `translateY(${virtualRow.start}px)`,
                   }}
                 >
