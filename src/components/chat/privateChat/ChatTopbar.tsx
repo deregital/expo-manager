@@ -18,7 +18,10 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
 
   const formatTelefono = (telefono: string) => {
     try {
-      const phoneNumber = parsePhoneNumber(telefono, 'AR');
+      const numberWithPlus = telefono.startsWith('+')
+        ? telefono
+        : `+${telefono}`;
+      const phoneNumber = parsePhoneNumber(numberWithPlus);
 
       if (phoneNumber?.isValid()) {
         return phoneNumber.formatInternational().replace('+', '');
