@@ -21,7 +21,9 @@ const SidebarFiltroBase = ({}: SidebarFiltroBaseProps) => {
   const [isChecked, setIsChecked] = useState(filtroBaseData?.activo ?? false);
 
   return (
-    <div className='flex items-center justify-between px-2 py-1.5'>
+    <div
+      className={`flex items-center justify-between px-2 py-1.5 ${isChecked ? 'bg-yellow-300' : ''}`}
+    >
       <p className='flex flex-col'>
         <Link href='/configuracion'>
           <span className='underline'>Filtro base</span>
