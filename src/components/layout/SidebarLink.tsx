@@ -4,8 +4,6 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react';
-import { useFiltro } from '../ui/filtro/Filtro';
-import { defaultFilter } from '@/lib/filter';
 
 interface SidebarLinkProps {
   to: string | string[];
@@ -38,7 +36,6 @@ const SidebarLink = ({
       href={href}
       onClick={() => {
         useSidebar.setState({ isOpen: false });
-        useFiltro.setState(defaultFilter);
       }}
       className={cn(
         'flex w-full items-center justify-between px-3 py-2 text-sidebar-foreground transition-colors hover:bg-black/5'
