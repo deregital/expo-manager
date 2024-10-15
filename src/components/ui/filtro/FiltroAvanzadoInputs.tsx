@@ -53,7 +53,6 @@ const FiltroAvanzadoInputs = ({}: FiltroAvanzadoInputsProps) => {
       type: 'select',
       options: [
         { value: 'Todos', label: 'Todos' },
-        { value: 'N/A', label: 'N/A' },
         { value: 'Masculino', label: 'Masculino' },
         { value: 'Femenino', label: 'Femenino' },
         { value: 'Otro', label: 'Otro' },
