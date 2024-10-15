@@ -254,13 +254,15 @@ export const modeloRouter = router({
           message: `Ya existe un perfil con el mismo teléfono o DNI`,
         });
       }
-      const perfilConMismoTelefonoSecundario = await ctx.prisma.perfil.findMany(
-        {
-          where: {
-            telefonoSecundario: input.modelo.telefonoSecundario ?? undefined,
-          },
-        }
-      );
+
+      const perfilConMismoTelefonoSecundario = input.modelo.telefonoSecundario
+        ? await ctx.prisma.perfil.findMany({
+            where: {
+              telefonoSecundario: input.modelo.telefonoSecundario,
+            },
+          })
+        : undefined;
+
       if (
         perfilConMismoTelefonoSecundario &&
         perfilConMismoTelefonoSecundario.length > 0
@@ -366,6 +368,15 @@ export const modeloRouter = router({
                   },
                 }
               : undefined,
+          },
+          comentarios: {
+            createMany: {
+              data: [...(input.modelo.comentarios ?? [])].map((comentario) => ({
+                contenido: comentario.contenido,
+                isSolvable: comentario.isSolvable,
+                creadoPor: ctx.session!.user!.id,
+              })),
+            },
           },
         },
         select: {
