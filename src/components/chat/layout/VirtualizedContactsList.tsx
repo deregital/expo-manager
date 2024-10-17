@@ -90,7 +90,7 @@ const VirtualizedContactsList = ({
               >
                 <FotoModelo url={contacto.fotoUrl} className='h-8 w-8' />
                 <div>
-                  <p className='text-sm font-semibold'>
+                  <p className='truncate text-sm font-semibold'>
                     {contacto.nombreCompleto}
                   </p>
                   <p className='text-xs text-slate-400'>{contacto.telefono}</p>
