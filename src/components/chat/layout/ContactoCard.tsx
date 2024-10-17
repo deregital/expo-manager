@@ -25,10 +25,8 @@ const ContactoCard = ({ contacto, inPage, noLeidos }: ContactoCardProps) => {
           {noLeidos}
         </Badge>
       </div>
-      <div className='flex w-full items-center gap-x-2'>
-        <p className='w-full max-w-[200px] truncate text-left'>
-          {contacto.nombreCompleto}
-        </p>
+      <div className='flex w-full items-center justify-between gap-x-2 overflow-x-hidden'>
+        <p className='truncate'>{contacto.nombreCompleto}</p>
         {contacto.inChat && <ChatFillIcon />}
       </div>
     </div>
