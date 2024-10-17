@@ -249,7 +249,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
   const statesBySelectedCountry = useMemo(() => {
     if (!paisNacimiento) return [];
     const countryCode = allCountries.find(
-      (country) => country.name === paisNacimiento
+      (country) => country.isoCode === paisNacimiento
     )?.isoCode;
 
     return State.getStatesOfCountry(countryCode);
@@ -549,7 +549,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             </SelectTrigger>
             <SelectContent>
               {allCountries.map((country) => (
-                <SelectItem key={country.isoCode} value={country.name}>
+                <SelectItem key={country.isoCode} value={country.isoCode}>
                   {country.name}
                 </SelectItem>
               ))}
@@ -571,7 +571,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             </SelectTrigger>
             <SelectContent>
               {statesBySelectedCountry.map((state) => (
-                <SelectItem key={state.isoCode} value={state.name}>
+                <SelectItem key={state.isoCode} value={state.isoCode}>
                   {state.name}
                 </SelectItem>
               ))}
