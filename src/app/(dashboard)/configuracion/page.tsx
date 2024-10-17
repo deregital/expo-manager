@@ -1,7 +1,7 @@
 'use client';
 import ActualizarFiltroBase from '@/components/configuracion/ActualizarFiltroBase';
 import DescargarDB from '@/components/configuracion/DescargarDB';
-import DispositivoComoNoti from '@/components/configuracion/DispositivoComoNoti';
+//import DispositivoComoNoti from '@/components/configuracion/DispositivoComoNoti';
 
 const ConfiguracionPage = () => {
   return (
@@ -9,7 +9,7 @@ const ConfiguracionPage = () => {
       <p className='text-xl font-bold md:text-3xl'>Configuración</p>
       <DescargarDB />
       <ActualizarFiltroBase />
-      <DispositivoComoNoti />
+      {/* <DispositivoComoNoti /> */}
     </div>
   );
 };

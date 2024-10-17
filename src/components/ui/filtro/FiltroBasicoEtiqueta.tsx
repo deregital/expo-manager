@@ -1,10 +1,11 @@
 import EtiquetaFillIcon from '@/components/icons/EtiquetaFillIcon';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import ComboBox from '@/components/ui/ComboBox';
-import { useFiltro } from '@/components/ui/filtro/Filtro';
+import { useFiltro, useFiltroAvanzado } from '@/components/ui/filtro/Filtro';
 import { Switch } from '@/components/ui/switch';
 import { trpc } from '@/lib/trpc';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 type FiltroBasicoEtiquetaProps = {
   editarEtiq: (etiq: string) => void;
@@ -25,11 +26,13 @@ const FiltroBasicoEtiqueta = ({
   include,
   setInclude,
 }: FiltroBasicoEtiquetaProps) => {
-  const { etiquetasFiltro } = useFiltro((s) => ({
+  const { etiquetasFiltro, reset } = useFiltro((s) => ({
     etiquetasFiltro: s.etiquetas,
+    reset: s.reset,
   }));
   const [openGrupo, setOpenGrupo] = useState(false);
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
+  const pathname = usePathname();
 
   const { data: dataGrupos, isLoading: isLoadingGrupos } =
     trpc.grupoEtiqueta.getAll.useQuery();
@@ -45,6 +48,14 @@ const FiltroBasicoEtiqueta = ({
       );
     });
   }, [dataEtiquetas, etiquetasFiltro]);
+
+  useEffect(() => {
+    if (pathname !== '/modelos') {
+      reset();
+      useFiltroAvanzado.setState({ isOpen: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, reset]);
 
   return (
     <div className='flex w-full flex-col items-center gap-4 md:w-fit md:flex-row'>

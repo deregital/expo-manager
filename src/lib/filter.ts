@@ -98,7 +98,10 @@ export function filterModelos<
         searchNormalize(modelo.telefono, search.telefono)) &&
       (search.genero === undefined ||
         search.genero === null ||
-        searchNormalize(modelo.genero ?? '', search.genero)) &&
+        searchNormalize(
+          modelo.genero ?? '',
+          search.genero !== 'Todos' ? search.genero : ''
+        )) &&
       (search.etiquetas === undefined ||
         search.etiquetas.length === 0 ||
         (search.condicionalEtiq === 'AND'

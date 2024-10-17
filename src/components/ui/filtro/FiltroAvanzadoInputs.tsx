@@ -52,10 +52,10 @@ const FiltroAvanzadoInputs = ({}: FiltroAvanzadoInputsProps) => {
       },
       type: 'select',
       options: [
-        { value: 'N/A', label: 'N/A' },
-        { value: 'M', label: 'Masculino' },
-        { value: 'F', label: 'Femenino' },
-        { value: 'O', label: 'Otro' },
+        { value: 'Todos', label: 'Todos' },
+        { value: 'Masculino', label: 'Masculino' },
+        { value: 'Femenino', label: 'Femenino' },
+        { value: 'Otro', label: 'Otro' },
       ],
       open: openSelectGenero,
       onOpenChange: setOpenSelectGenero,
@@ -94,7 +94,7 @@ const FiltroAvanzadoInputs = ({}: FiltroAvanzadoInputsProps) => {
             onValueChange={(value) => {
               input.onChange(value);
             }}
-            defaultValue={'N/A'}
+            defaultValue={'Todos'}
           >
             <SelectTrigger className='w-full md:max-w-[25%]'>
               <SelectValue placeholder={input.placeholder} />

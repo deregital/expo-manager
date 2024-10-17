@@ -14,7 +14,10 @@ import FiltroBasicoInput from '@/components/ui/filtro/FiltroBasicoInput';
 import FiltroAvanzado from '@/components/ui/filtro/FiltroAvanzado';
 
 // Crear variable de zustand
-export const useFiltro = create<FiltroType>(() => defaultFilter);
+export const useFiltro = create<FiltroType & { reset: () => void }>((set) => ({
+  ...defaultFilter,
+  reset: () => set(defaultFilter),
+}));
 export const useFiltroAvanzado = create<{
   isOpen: boolean;
   toggle: () => void;
