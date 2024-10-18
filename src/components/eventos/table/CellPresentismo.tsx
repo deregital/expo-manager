@@ -16,15 +16,12 @@ export const CellPresentismo = ({
   const etiquetasId = row.original.etiquetas.map(
     (etiqueta: any) => etiqueta.id
   );
-  const { data: etiquetaAsistio } = trpc.etiqueta.getById.useQuery(asistioId, {
+  const { data: etiquetaAsistio } = trpc.tag.getById.useQuery(asistioId, {
     enabled: !!row.original,
   });
-  const { data: etiquetaConfirmo } = trpc.etiqueta.getById.useQuery(
-    confirmoId,
-    {
-      enabled: !!row.original,
-    }
-  );
+  const { data: etiquetaConfirmo } = trpc.tag.getById.useQuery(confirmoId, {
+    enabled: !!row.original,
+  });
   const editModelo = trpc.modelo.edit.useMutation();
   const useUtils = trpc.useUtils();
 

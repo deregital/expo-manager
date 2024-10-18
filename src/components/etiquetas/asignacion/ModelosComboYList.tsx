@@ -13,35 +13,34 @@ interface ModelosComboYListProps {
 export const asignacionComboBoxOpens = create<{
   modelos: boolean;
   groups: boolean;
-  etiquetas: boolean;
+  tags: boolean;
   setModelosOpen: (open: boolean) => void;
   setGroupsOpen: (open: boolean) => void;
-  setEtiquetasOpen: (open: boolean) => void;
+  setTags: (open: boolean) => void;
 }>((set) => ({
   modelos: false,
   groups: false,
-  etiquetas: false,
+  tags: false,
   setModelosOpen: (open: boolean) => set({ modelos: open }),
   setGroupsOpen: (open: boolean) => set({ groups: open }),
-  setEtiquetasOpen: (open: boolean) => set({ etiquetas: open }),
+  setTags: (open: boolean) => set({ tags: open }),
 }));
 
 export const asignacionSelectedData = create<{
   modelos: RouterOutputs['modelo']['getAll'];
-  etiquetas: RouterOutputs['etiqueta']['getAll'];
+  tags: RouterOutputs['tag']['getAll'];
+  tagsList: RouterOutputs['tag']['getAll'];
   group: RouterOutputs['tagGroup']['getAll'][number] | undefined;
   setModelos: (modelos: RouterOutputs['modelo']['getAll'][number]) => void;
-  setEtiquetas: (
-    etiquetas: RouterOutputs['etiqueta']['getAll'][number]
-  ) => void;
+  setTags: (tags: RouterOutputs['tag']['getAll'][number]) => void;
   setGroup: (group: RouterOutputs['tagGroup']['getAll'][number]) => void;
   clearModelos: () => void;
-  clearEtiquetas: () => void;
+  clearTags: () => void;
   clearGroup: () => void;
 }>((set, get) => ({
   modelos: [],
-  etiquetas: [],
-  etiquetasList: [],
+  tags: [],
+  tagsList: [],
   group: undefined,
   setModelos: (modelos) => {
     if (get().modelos.find((m) => m.id === modelos.id)) {
@@ -55,15 +54,15 @@ export const asignacionSelectedData = create<{
       });
     }
   },
-  setEtiquetas: (etiquetas) => {
-    if (get().etiquetas.find((e) => e.id === etiquetas.id)) {
+  setTags: (tag) => {
+    if (get().tags.find((t) => t.id === tag.id)) {
       set({
-        etiquetas: get().etiquetas.filter((e) => e.id !== etiquetas.id),
+        tags: get().tags.filter((t) => t.id !== tag.id),
       });
       return;
     } else {
       set({
-        etiquetas: [...get().etiquetas, etiquetas],
+        tags: [...get().tags, tag],
       });
     }
   },
@@ -79,7 +78,7 @@ export const asignacionSelectedData = create<{
     }
   },
   clearModelos: () => set({ modelos: [] }),
-  clearEtiquetas: () => set({ etiquetas: [] }),
+  clearTags: () => set({ tags: [] }),
   clearGroup: () => set({ group: undefined }),
 }));
 

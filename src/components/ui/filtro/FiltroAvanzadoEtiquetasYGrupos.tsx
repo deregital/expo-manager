@@ -10,27 +10,27 @@ interface FiltroAvanzadoEtiquetasYGruposProps {}
 
 const FiltroAvanzadoEtiquetasYGrupos =
   ({}: FiltroAvanzadoEtiquetasYGruposProps) => {
-    const { etiquetas, groups } = useFiltro();
+    const { tags, groups } = useFiltro();
     const [include, setInclude] = useState(true);
     const [tagGroupId, setTagGroupId] = useState<string | undefined>(undefined);
-    const [etiquetaId, setEtiquetaId] = useState<string | undefined>(undefined);
+    const [tagId, setTagId] = useState<string | undefined>(undefined);
 
     const { data: tagGroupsData } = trpc.tagGroup.getAll.useQuery();
-    const { data: dataEtiquetas } = tagGroupId
-      ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(tagGroupId)
-      : trpc.etiqueta.getAll.useQuery();
+    const { data: tagsData } = tagGroupId
+      ? trpc.tag.getByGroupId.useQuery(tagGroupId)
+      : trpc.tag.getAll.useQuery();
 
-    const etiquetasAvanzadas = useMemo(() => {
-      return etiquetas.length > 1 ? etiquetas.slice(1) : [];
-    }, [etiquetas]);
+    const advancedTags = useMemo(() => {
+      return tags.length > 1 ? tags.slice(1) : [];
+    }, [tags]);
 
     const advancedGroups = useMemo(() => {
       return groups.length > 1 ? groups.slice(1) : [];
     }, [groups]);
 
-    function handleDeleteEtiq(id: string) {
+    function handleDeleteTag(id: string) {
       useFiltro.setState({
-        etiquetas: etiquetas.filter((et) => et.etiqueta.id !== id),
+        tags: tags.filter((tag) => tag.tag.id !== id),
       });
     }
 
@@ -40,17 +40,17 @@ const FiltroAvanzadoEtiquetasYGrupos =
       });
     }
 
-    function handleAddEtiq(id: string) {
-      if (etiquetaId === id) {
-        setEtiquetaId(undefined);
+    function handleAddTag(id: string) {
+      if (tagId === id) {
+        setTagId(undefined);
         return;
       }
-      setEtiquetaId(id);
+      setTagId(id);
     }
 
     function handleAddGroup(id: string) {
       if (tagGroupId === id) {
-        setEtiquetaId(undefined);
+        setTagId(undefined);
         setTagGroupId(undefined);
         return;
       }
@@ -58,23 +58,21 @@ const FiltroAvanzadoEtiquetasYGrupos =
     }
 
     function handleAgregar() {
-      if (etiquetaId === undefined && tagGroupId === undefined) {
+      if (tagId === undefined && tagGroupId === undefined) {
         return;
       }
 
-      const tagOrGroup: 'et' | 'gr' = etiquetaId !== undefined ? 'et' : 'gr';
+      const tagOrGroup: 'et' | 'gr' = tagId !== undefined ? 'et' : 'gr';
 
       if (tagOrGroup === 'et') {
-        const etiquetaAAgregar = dataEtiquetas?.find(
-          (et) => et.id === etiquetaId
-        )!;
+        const tagToAdd = tagsData?.find((et) => et.id === tagId)!;
         useFiltro.setState({
-          etiquetas: [
-            ...etiquetas,
+          tags: [
+            ...tags,
             {
-              etiqueta: {
-                id: etiquetaAAgregar.id,
-                nombre: etiquetaAAgregar.nombre,
+              tag: {
+                id: tagToAdd.id,
+                name: tagToAdd.name,
               },
               include,
             },
@@ -97,22 +95,22 @@ const FiltroAvanzadoEtiquetasYGrupos =
         });
       }
 
-      setEtiquetaId(undefined);
+      setTagId(undefined);
       setTagGroupId(undefined);
     }
 
     return (
       <div className='flex flex-col gap-y-2'>
-        {etiquetasAvanzadas.map((etiqueta, index) => (
+        {advancedTags.map((tag, index) => (
           <div key={index} className='flex items-center space-x-2 pb-2'>
             {/* <p>{etiqueta.include ? 'SI' : 'NO'}</p> */}
             <Switch
               className='data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500 disabled:data-[state=checked]:bg-green-800 disabled:data-[state=unchecked]:bg-red-800'
               disabled
-              checked={etiqueta.include}
+              checked={tag.include}
             />
-            <ShowEtiqueta etiqueta={etiqueta.etiqueta} />
-            <Button onClick={() => handleDeleteEtiq(etiqueta.etiqueta.id)}>
+            <ShowEtiqueta tag={tag.tag} />
+            <Button onClick={() => handleDeleteTag(tag.tag.id)}>
               Eliminar
             </Button>
           </div>
@@ -120,7 +118,7 @@ const FiltroAvanzadoEtiquetasYGrupos =
         {advancedGroups.map((group, index) => (
           <div key={index} className='flex items-center space-x-2 pb-2'>
             <p>{group.include ? 'SI' : 'NO'}</p>
-            <ShowEtiqueta etiqueta={group.group} />
+            <ShowEtiqueta tag={group.group} />
             <Button onClick={() => handleDeleteGroup(group.group.id)}>
               Eliminar
             </Button>
@@ -131,10 +129,10 @@ const FiltroAvanzadoEtiquetasYGrupos =
             switchDisabled={false}
             include={include}
             setInclude={setInclude}
-            editarEtiq={handleAddEtiq}
+            editTag={handleAddTag}
             editTagGroup={handleAddGroup}
             groupId={tagGroupId}
-            etiquetaId={etiquetaId}
+            tagId={tagId}
           />
           <Button onClick={handleAgregar}>Agregar</Button>
         </div>

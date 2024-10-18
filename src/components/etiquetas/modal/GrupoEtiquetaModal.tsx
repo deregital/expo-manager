@@ -177,7 +177,7 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
       });
     }
 
-    utils.etiqueta.getByNombre.invalidate();
+    utils.tag.getByNombre.invalidate();
   }
 
   async function handleDelete() {
@@ -186,7 +186,7 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
         .mutateAsync(group?.id ?? '')
         .then(() => {
           setOpen(false);
-          utils.etiqueta.getByNombre.invalidate();
+          utils.tag.getByNombre.invalidate();
           toast.success('Grupo de etiquetas eliminado con éxito');
         })
         .catch(() => {

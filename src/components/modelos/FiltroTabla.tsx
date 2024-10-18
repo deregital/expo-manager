@@ -41,9 +41,7 @@ const FiltroTabla = () => {
 
   const defaultEtiquetas = useMemo(
     () =>
-      JSON.parse(
-        searchParams.get('etiquetas') ?? '[]'
-      ) as FiltroType['etiquetas'],
+      JSON.parse(searchParams.get('etiquetas') ?? '[]') as FiltroType['tags'],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [searchParams.get('etiquetas')]
   );
@@ -56,10 +54,10 @@ const FiltroTabla = () => {
   );
 
   const filtrar: FuncionFiltrar = ({
-    etiquetas,
+    tags: etiquetas,
     input,
     groups,
-    condicionalEtiq,
+    condicionalTag: condicionalEtiq,
     condicionalGroup,
     dni,
     genero,
@@ -85,11 +83,11 @@ const FiltroTabla = () => {
     <div className='flex items-center justify-between gap-x-4'>
       <Filtro
         defaultFiltro={{
-          etiquetas: defaultEtiquetas,
+          tags: defaultEtiquetas,
           groups: defaultGroups,
         }}
         mostrarInput
-        mostrarEtiq
+        showTag
         funcionFiltrado={filtrar}
       >
         <div className='flex w-full items-center justify-between gap-x-4'>

@@ -9,7 +9,7 @@ import {
 } from '../ui/alert-dialog';
 import Loader from '../ui/loader';
 
-interface EtiquetasProps {
+interface TagProps {
   id: string;
   name: string;
   color?: string;
@@ -17,13 +17,13 @@ interface EtiquetasProps {
 
 export const useTemplateSend = create<{
   open: boolean;
-  etiquetas: EtiquetasProps[];
+  tags: TagProps[];
   plantilla: string;
   modelos: number;
   precio: number;
 }>(() => ({
   open: false,
-  etiquetas: [],
+  tags: [],
   plantilla: '',
   modelos: 0,
   precio: 0,
@@ -35,14 +35,14 @@ const SendTemplateModal = () => {
   async function handleSubmit() {
     const res = await sendTemplate.mutateAsync({
       plantillaName: templateData.plantilla,
-      etiquetas: templateData.etiquetas.map((et) => et.id),
+      etiquetas: templateData.tags.map((et) => et.id),
     });
     if (res === 'Mensajes enviados') {
       toast.success('Plantilla enviada correctamente');
       useTemplateSend.setState({
         open: false,
         plantilla: '',
-        etiquetas: [],
+        tags: [],
         modelos: 0,
         precio: 0,
       });

@@ -20,12 +20,12 @@ const EnviarTemplate = () => {
   const templateData = useTemplateSend((state) => ({
     open: state.open,
     plantilla: state.plantilla,
-    etiquetas: state.etiquetas,
+    tags: state.tags,
   }));
   const { data } = trpc.whatsapp.getTemplates.useQuery();
-  const { data: etiquetas } = trpc.etiqueta.getAll.useQuery();
+  const { data: tags } = trpc.tag.getAll.useQuery();
   const { data: modelos } = trpc.modelo.getByEtiqueta.useQuery(
-    templateData.etiquetas.map((et) => et.id)
+    templateData.tags.map((et) => et.id)
   );
   const { data: template } = trpc.whatsapp.getTemplateById.useQuery(
     templateData.plantilla,
@@ -33,10 +33,9 @@ const EnviarTemplate = () => {
       enabled: templateData.plantilla !== '',
     }
   );
-  // const sendMessage = trpc.whatsapp.sendMessageToEtiqueta.useMutation();
 
   const [openPlantilla, setOpenPlantilla] = useState(false);
-  const [openEtiqueta, setOpenEtiqueta] = useState(false);
+  const [openTag, setOpenTag] = useState(false);
 
   const currentPrecio = useMemo(() => {
     if (templateData.plantilla === '') return 0;
@@ -50,18 +49,18 @@ const EnviarTemplate = () => {
     return precioTemplate[categoria] * (modelos ? modelos.length : 0);
   }, [modelos, template?.data, templateData.plantilla]);
 
-  const currentEtiquetas = useMemo(() => {
-    return etiquetas?.filter(
-      (et) => !templateData.etiquetas.find((etiqueta) => etiqueta.id === et.id)
+  const currentTags = useMemo(() => {
+    return tags?.filter(
+      (et) => !templateData.tags.find((tag) => tag.id === et.id)
     );
-  }, [etiquetas, templateData.etiquetas]);
+  }, [tags, templateData.tags]);
 
   async function handleSubmit() {
     if (templateData.plantilla === '') {
       toast.error('Por favor seleccione una plantilla');
       return;
     }
-    if (templateData.etiquetas.length === 0) {
+    if (templateData.tags.length === 0) {
       toast.error('Por favor seleccione al menos una etiqueta');
       return;
     }
@@ -115,20 +114,18 @@ const EnviarTemplate = () => {
         <div className='flex flex-col gap-y-3'>
           <ComboBox
             data={
-              currentEtiquetas
-                ? currentEtiquetas.sort((a, b) =>
-                    a.nombre.localeCompare(b.nombre)
-                  )
+              currentTags
+                ? currentTags.sort((a, b) => a.name.localeCompare(b.name))
                 : []
             }
             id={'id'}
-            value={'nombre'}
-            open={openEtiqueta}
-            setOpen={setOpenEtiqueta}
+            value={'name'}
+            open={openTag}
+            setOpen={setOpenTag}
             triggerChildren={
               <>
                 <span className='max-w-[calc(100%-30px)] truncate'>
-                  {templateData.etiquetas.length > 0
+                  {templateData.tags.length > 0
                     ? 'Buscar etiqueta...'
                     : 'Buscar etiqueta...'}
                 </span>
@@ -136,45 +133,43 @@ const EnviarTemplate = () => {
               </>
             }
             onSelect={(id) => {
-              if (templateData.etiquetas.find((et) => et.id === id)) {
+              if (templateData.tags.find((et) => et.id === id)) {
                 toast.error('La etiqueta ya ha sido seleccionada');
-                setOpenEtiqueta(false);
+                setOpenTag(false);
                 return;
               }
               useTemplateSend.setState({
-                etiquetas: [
-                  ...templateData.etiquetas,
+                tags: [
+                  ...templateData.tags,
                   {
                     id,
-                    name: etiquetas?.find((et) => et.id === id)?.nombre ?? '',
+                    name: tags?.find((tag) => tag.id === id)?.name ?? '',
                     color:
-                      etiquetas?.find((et) => et.id === id)?.grupo.color ?? '',
+                      tags?.find((tag) => tag.id === id)?.group.color ?? '',
                   },
                 ],
               });
-              setOpenEtiqueta(false);
+              setOpenTag(false);
               toast.success('Etiqueta agregada correctamente');
             }}
             selectedIf={''}
             wFullMobile
           />
           <div className='flex max-h-40 flex-col gap-y-2 overflow-y-auto'>
-            {templateData.etiquetas.map((etiqueta) => (
+            {templateData.tags.map((tag) => (
               <div
-                key={etiqueta.id}
+                key={tag.id}
                 className={`flex w-fit items-center justify-between gap-x-2 rounded-full px-2 py-0.5`}
                 style={{
-                  backgroundColor: etiqueta.color,
-                  color: getTextColorByBg(etiqueta.color ?? ''),
+                  backgroundColor: tag.color,
+                  color: getTextColorByBg(tag.color ?? ''),
                 }}
               >
-                <span className='text-sm'>{etiqueta.name}</span>
+                <span className='text-sm'>{tag.name}</span>
                 <CircleXIcon
                   onClick={() => {
                     useTemplateSend.setState({
-                      etiquetas: templateData.etiquetas.filter(
-                        (et) => et.id !== etiqueta.id
-                      ),
+                      tags: templateData.tags.filter((et) => et.id !== tag.id),
                     });
                   }}
                   className='h-4 w-4 text-white hover:cursor-pointer'

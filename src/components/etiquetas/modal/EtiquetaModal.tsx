@@ -23,40 +23,40 @@ interface EtiquetaModalProps {
 }
 
 type ModalData = {
-  tipo: 'CREATE' | 'EDIT';
+  type: 'CREATE' | 'EDIT';
   groupId: string;
-  nombre: string;
-  etiquetaId: string;
+  name: string;
+  tagId: string;
 };
 
-export const useEtiquetaModalData = create<ModalData>(() => ({
-  tipo: 'CREATE',
+export const useTagModalData = create<ModalData>(() => ({
+  type: 'CREATE',
   groupId: '',
-  nombre: '',
-  etiquetaId: '',
+  name: '',
+  tagId: '',
 }));
 
 const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
   const { data: tagGroupsData, isLoading } = trpc.tagGroup.getAll.useQuery();
 
   const utils = trpc.useUtils();
-  const modalData = useEtiquetaModalData((state) => ({
-    etiquetaId: state.etiquetaId,
-    tipo: state.tipo,
-    nombre: state.nombre,
+  const modalData = useTagModalData((state) => ({
+    tagId: state.tagId,
+    type: state.type,
+    name: state.name,
   }));
   const [open, setOpen] = useState(false);
-  const [quiereEliminar, setQuiereEliminar] = useState(false);
-  const createEtiqueta = trpc.etiqueta.create.useMutation();
-  const editEtiqueta = trpc.etiqueta.edit.useMutation();
-  const deleteEtiqueta = trpc.etiqueta.delete.useMutation();
+  const [shouldDelete, setShouldDelete] = useState(false);
+  const createTag = trpc.tag.create.useMutation();
+  const editTag = trpc.tag.edit.useMutation();
+  const deleteTag = trpc.tag.delete.useMutation();
 
-  async function sendEtiqueta() {
-    if (modalData.tipo === 'CREATE') {
-      await createEtiqueta
+  async function sendTag() {
+    if (modalData.type === 'CREATE') {
+      await createTag
         .mutateAsync({
-          name: modalData.nombre,
-          groupId: useEtiquetaModalData.getState().groupId,
+          name: modalData.name,
+          groupId: useTagModalData.getState().groupId,
         })
         .then(() => {
           setOpen(!open);
@@ -67,12 +67,12 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
             'Error al crear la etiqueta, asegúrese de poner un nombre y seleccionar un grupo de etiquetas'
           );
         });
-    } else if (modalData.tipo === 'EDIT') {
-      await editEtiqueta
+    } else if (modalData.type === 'EDIT') {
+      await editTag
         .mutateAsync({
-          id: useEtiquetaModalData.getState().etiquetaId,
-          nombre: modalData.nombre,
-          grupoId: useEtiquetaModalData.getState().groupId,
+          id: useTagModalData.getState().tagId,
+          name: modalData.name,
+          groupId: useTagModalData.getState().groupId,
         })
         .then(() => {
           setOpen(!open);
@@ -84,33 +84,33 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
         });
     }
 
-    if (createEtiqueta.isSuccess || editEtiqueta.isSuccess) {
-      useEtiquetaModalData.setState({
-        tipo: 'CREATE',
+    if (createTag.isSuccess || editTag.isSuccess) {
+      useTagModalData.setState({
+        type: 'CREATE',
         groupId: '',
-        nombre: '',
-        etiquetaId: '',
+        name: '',
+        tagId: '',
       });
     }
 
-    utils.etiqueta.getByNombre.invalidate();
+    utils.tag.getByNombre.invalidate();
   }
 
   async function handleCancel() {
-    useEtiquetaModalData.setState({
-      tipo: 'CREATE',
+    useTagModalData.setState({
+      type: 'CREATE',
       groupId: '',
-      nombre: '',
-      etiquetaId: '',
+      name: '',
+      tagId: '',
     });
-    createEtiqueta.reset();
-    editEtiqueta.reset();
+    createTag.reset();
+    editTag.reset();
   }
 
   async function handleDelete() {
-    if (quiereEliminar) {
-      await deleteEtiqueta
-        .mutateAsync(modalData.etiquetaId)
+    if (shouldDelete) {
+      await deleteTag
+        .mutateAsync(modalData.tagId)
         .then(() => {
           setOpen(!open);
           toast.success('Etiqueta eliminada con éxito');
@@ -120,18 +120,18 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
           toast.error('Error al eliminar la etiqueta');
         });
 
-      if (createEtiqueta.isSuccess || editEtiqueta.isSuccess) {
-        useEtiquetaModalData.setState({
-          tipo: 'CREATE',
+      if (createTag.isSuccess || editTag.isSuccess) {
+        useTagModalData.setState({
+          type: 'CREATE',
           groupId: '',
-          nombre: '',
-          etiquetaId: '',
+          name: '',
+          tagId: '',
         });
       }
 
-      utils.etiqueta.getByNombre.invalidate();
+      utils.tag.getByNombre.invalidate();
     } else {
-      setQuiereEliminar(true);
+      setShouldDelete(true);
     }
   }
 
@@ -144,11 +144,11 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
               <ModalTriggerCreate
                 onClick={() => {
                   setOpen(true);
-                  useEtiquetaModalData.setState({
-                    tipo: 'CREATE',
-                    nombre: '',
+                  useTagModalData.setState({
+                    type: 'CREATE',
+                    name: '',
                     groupId: '',
-                    etiquetaId: '',
+                    tagId: '',
                   });
                 }}
               >
@@ -162,10 +162,10 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
                 onClick={(e) => {
                   e.preventDefault();
                   setOpen(true);
-                  useEtiquetaModalData.setState({
-                    tipo: 'EDIT',
-                    etiquetaId: tag?.id ?? '',
-                    nombre: tag?.name ?? '',
+                  useTagModalData.setState({
+                    type: 'EDIT',
+                    tagId: tag?.id ?? '',
+                    name: tag?.name ?? '',
                     groupId: tag?.groupId ?? '',
                   });
                 }}
@@ -181,8 +181,8 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
         >
           <div className='flex flex-col gap-y-0.5'>
             <p className='w-fit py-1.5 text-base font-semibold'>
-              {(modalData.tipo === 'CREATE' && 'Crear etiqueta') ||
-                (modalData.tipo === 'EDIT' && 'Editar etiqueta')}
+              {(modalData.type === 'CREATE' && 'Crear etiqueta') ||
+                (modalData.type === 'EDIT' && 'Editar etiqueta')}
             </p>
             <div className='flex gap-x-3'>
               <Input
@@ -191,9 +191,9 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
                 name='etiqueta'
                 id='etiqueta'
                 placeholder='Nombre de la etiqueta'
-                value={modalData.nombre}
+                value={modalData.name}
                 onChange={(e) =>
-                  useEtiquetaModalData.setState({ nombre: e.target.value })
+                  useTagModalData.setState({ name: e.target.value })
                 }
               />
               {isLoading ? (
@@ -203,19 +203,16 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
               )}
             </div>
           </div>
-          {createEtiqueta.isError || editEtiqueta.isError ? (
+          {createTag.isError || editTag.isError ? (
             <p className='text-sm font-semibold text-red-500'>
-              {createEtiqueta.isError
-                ? createEtiqueta.error?.data?.zodError?.fieldErrors
-                    .nombre?.[0] ||
-                  createEtiqueta.error?.data?.zodError?.fieldErrors
-                    .grupoId?.[0] ||
+              {createTag.isError
+                ? createTag.error?.data?.zodError?.fieldErrors.nombre?.[0] ||
+                  createTag.error?.data?.zodError?.fieldErrors.grupoId?.[0] ||
                   'Error al crear la etiqueta, asegúrese de poner un nombre y asignarle un grupo'
                 : ''}
-              {editEtiqueta.isError
-                ? editEtiqueta.error?.data?.zodError?.fieldErrors.nombre?.[0] ||
-                  editEtiqueta.error?.data?.zodError?.fieldErrors
-                    .grupoId?.[0] ||
+              {editTag.isError
+                ? editTag.error?.data?.zodError?.fieldErrors.nombre?.[0] ||
+                  editTag.error?.data?.zodError?.fieldErrors.grupoId?.[0] ||
                   'Error al editar la etiqueta'
                 : ''}
             </p>
@@ -223,20 +220,18 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
           <div className='flex gap-x-4'>
             <Button
               className='w-full max-w-32'
-              onClick={sendEtiqueta}
-              disabled={editEtiqueta.isLoading || createEtiqueta.isLoading}
+              onClick={sendTag}
+              disabled={editTag.isLoading || createTag.isLoading}
             >
-              {((editEtiqueta.isLoading || createEtiqueta.isLoading) && (
-                <Loader />
-              )) ||
-                (modalData.tipo === 'CREATE' ? 'Crear' : 'Editar')}
+              {((editTag.isLoading || createTag.isLoading) && <Loader />) ||
+                (modalData.type === 'CREATE' ? 'Crear' : 'Editar')}
             </Button>
-            {modalData.tipo === 'EDIT' && (
+            {modalData.type === 'EDIT' && (
               <>
                 <Button
                   variant='destructive'
                   className={cn('h-auto text-wrap', {
-                    'bg-red-700 hover:bg-red-500': quiereEliminar,
+                    'bg-red-700 hover:bg-red-500': shouldDelete,
                   })}
                   onClick={handleDelete}
                   disabled={
@@ -245,16 +240,16 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
                   }
                 >
                   {tag?._count.profiles === 0
-                    ? quiereEliminar
+                    ? shouldDelete
                       ? '¿Estás seguro?'
                       : 'Eliminar'
                     : 'No se puede eliminar, la etiqueta tiene participantes asociados'}
                 </Button>
-                {quiereEliminar && (
+                {shouldDelete && (
                   <Button
                     variant='secondary'
                     onClick={() => {
-                      setQuiereEliminar(false);
+                      setShouldDelete(false);
                     }}
                   >
                     Cancelar

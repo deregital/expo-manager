@@ -1,5 +1,5 @@
 import EtiquetasContent from '@/components/etiquetas/list/EtiquetasContent';
-import { useEtiquetasSettings } from '@/components/etiquetas/list/ExpandContractEtiquetas';
+import { useTagsSettings } from '@/components/etiquetas/list/ExpandContractEtiquetas';
 import GrupoTrigger from '@/components/etiquetas/list/GrupoTrigger';
 import {
   Accordion,
@@ -33,7 +33,7 @@ const EtiquetasList = ({ groups }: EtiquetasListProps) => {
     contract: setContract,
     showEventos,
     expand: setExpand,
-  } = useEtiquetasSettings();
+  } = useTagsSettings();
 
   useEffect(() => {
     if (state === 'EXPAND') {
@@ -103,10 +103,10 @@ const EtiquetasList = ({ groups }: EtiquetasListProps) => {
             <GrupoTrigger group={group} />
           </AccordionTrigger>
           <AccordionContent className='pb-0 pl-2'>
-            {group.tags.map((etiqueta) => (
+            {group.tags.map((tag) => (
               <EtiquetasContent
-                key={etiqueta.id}
-                tag={etiqueta}
+                key={tag.id}
+                tag={tag}
                 background={group.color}
               />
             ))}

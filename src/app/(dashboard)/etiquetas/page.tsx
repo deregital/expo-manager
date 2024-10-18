@@ -10,8 +10,8 @@ import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal'
 import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
 import Loader from '@/components/ui/loader';
 import { normalize, searchNormalize } from '@/lib/utils';
-import ExpandContractEtiquetas, {
-  useEtiquetasSettings,
+import ExpandContractTags, {
+  useTagsSettings,
 } from '@/components/etiquetas/list/ExpandContractEtiquetas';
 import { ModalTriggerCreate } from '@/components/etiquetas/modal/ModalTrigger';
 import Link from 'next/link';
@@ -21,12 +21,8 @@ import { XIcon } from 'lucide-react';
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useState('');
-  const { data: groups, isLoading } = trpc.etiqueta.getByNombre.useQuery();
-  const {
-    state: expandState,
-    none: setNone,
-    showEventos,
-  } = useEtiquetasSettings();
+  const { data: groups, isLoading } = trpc.tag.getByNombre.useQuery();
+  const { state: expandState, none: setNone, showEventos } = useTagsSettings();
 
   const filteredGroups = useMemo(() => {
     if (!groups) return [];
@@ -86,10 +82,10 @@ const EtiquetasPage = () => {
           <SwitchEventos
             showEventos={showEventos}
             setShowEventos={(value) => {
-              useEtiquetasSettings.setState({ showEventos: value });
+              useTagsSettings.setState({ showEventos: value });
             }}
           />
-          <ExpandContractEtiquetas />
+          <ExpandContractTags />
           <div className='flex items-center gap-x-4'>
             <SearchInput
               value={search}

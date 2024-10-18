@@ -4,25 +4,24 @@ import FiltroAvanzadoInputs from '@/components/ui/filtro/FiltroAvanzadoInputs';
 import React from 'react';
 
 interface FiltroAvanzadoProps {
-  mostrarEtiq?: boolean;
+  showTag?: boolean;
   mostrarInput?: boolean;
 }
 
 const FiltroAvanzado = ({
-  mostrarEtiq = false,
+  showTag = false,
   mostrarInput = false,
 }: FiltroAvanzadoProps) => {
-  const { etiquetasFiltro, filterGroups } = useFiltro((s) => ({
-    etiquetasFiltro: s.etiquetas,
+  const { filterTags, filterGroups } = useFiltro((s) => ({
+    filterTags: s.tags,
     filterGroups: s.groups,
   }));
   return (
     <div className='grid w-full grid-cols-[auto,1fr] grid-rows-1 gap-x-4 border-t border-t-black/10 py-3'>
       <div className='flex h-fit w-full'>
-        {mostrarEtiq &&
-          (etiquetasFiltro.length > 0 || filterGroups.length > 0) && (
-            <FiltroAvanzadoEtiquetasYGrupos />
-          )}
+        {showTag && (filterTags.length > 0 || filterGroups.length > 0) && (
+          <FiltroAvanzadoEtiquetasYGrupos />
+        )}
       </div>
       <div className='flex h-fit w-full'>
         {mostrarInput && <FiltroAvanzadoInputs />}

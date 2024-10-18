@@ -42,18 +42,18 @@ const FormCrearModelo = ({
   const [comboBoxEtiquetaOpen, setComboBoxEtiquetaOpen] = useState(false);
   const { data: tagGroups } = trpc.tagGroup.getAll.useQuery();
   const [selectedTagGroup, setSelectedTagGroup] = useState<string>('');
-  const [etiquetaSelected, setEtiquetaSelected] = useState<string>('');
+  const [selectedTag, setSelectedTag] = useState<string>('');
   const { data: tagsFromGroup } =
     selectedTagGroup === ''
-      ? trpc.etiqueta.getAll.useQuery()
-      : trpc.etiqueta.getByGrupoEtiqueta.useQuery(selectedTagGroup);
+      ? trpc.tag.getAll.useQuery()
+      : trpc.tag.getByGroupId.useQuery(selectedTagGroup);
 
   const currentGroup = useMemo(() => {
     return tagGroups?.find((g) => g.id === selectedTagGroup);
   }, [tagGroups, selectedTagGroup]);
 
   async function handleDeleteEtiqueta(
-    etiqueta: NonNullable<RouterOutputs['etiqueta']['getById']>
+    etiqueta: NonNullable<RouterOutputs['tag']['getById']>
   ) {
     useCrearModeloModal.setState({
       modelo: {
@@ -75,27 +75,27 @@ const FormCrearModelo = ({
       },
     });
   }
-  async function handleAddEtiqueta(etiquetaSelected: string) {
-    setEtiquetaSelected(etiquetaSelected);
-    if (etiquetaSelected === '') return;
-    const etiqueta = tagsFromGroup?.find((e) => e.id === etiquetaSelected);
+  async function handleAddEtiqueta(selectedTag: string) {
+    setSelectedTag(selectedTag);
+    if (selectedTag === '') return;
+    const tag = tagsFromGroup?.find((t) => t.id === selectedTag);
     if (
       useCrearModeloModal
         .getState()
-        .modelo.etiquetas.find((e) => e.id === etiqueta?.id)
+        .modelo.etiquetas.find((e) => e.id === tag?.id)
     ) {
       toast.error('La etiqueta ya fue agregada');
       return;
     }
-    if (!etiqueta) return;
+    if (!tag) return;
 
     // Verificar grupo exclusivo o no
     if (
-      etiqueta.grupo.esExclusivo &&
+      tag.group.isExclusive &&
       useCrearModeloModal
         .getState()
         .modelo.etiquetas.find(
-          (e) => e.grupo.id === etiqueta?.grupo.id && e.id !== etiqueta?.id
+          (e) => e.grupo.id === tag?.group.id && e.id !== tag?.id
         )
     ) {
       toast.error('No puedes agregar dos etiquetas exclusivas del mismo grupo');
@@ -104,10 +104,14 @@ const FormCrearModelo = ({
     useCrearModeloModal.setState({
       modelo: {
         ...modalModelo.modelo,
-        etiquetas: [...modalModelo.modelo.etiquetas, etiqueta],
+        etiquetas: [
+          // TODO: Fix this type casting
+          ...(modalModelo.modelo.etiquetas as any),
+          tag,
+        ],
       },
     });
-    setEtiquetaSelected('');
+    setSelectedTag('');
     setSelectedTagGroup('');
     setComboBoxEtiquetaOpen(false);
     setAddEtiquetaOpen(false);
@@ -361,21 +365,20 @@ const FormCrearModelo = ({
           <ComboBox
             data={tagsFromGroup ?? []}
             id={'id'}
-            value='nombre'
+            value='name'
             wFullMobile
             open={comboBoxEtiquetaOpen}
             setOpen={setComboBoxEtiquetaOpen}
             onSelect={(selectedItem) => {
               handleAddEtiqueta(selectedItem);
             }}
-            selectedIf={etiquetaSelected}
+            selectedIf={selectedTag}
             triggerChildren={
               <>
                 <span className='truncate'>
-                  {etiquetaSelected !== ''
-                    ? (tagsFromGroup?.find(
-                        (etiqueta) => etiqueta.id === etiquetaSelected
-                      )?.nombre ?? 'Buscar etiqueta...')
+                  {selectedTag !== ''
+                    ? (tagsFromGroup?.find((tag) => tag.id === selectedTag)
+                        ?.name ?? 'Buscar etiqueta...')
                     : 'Buscar etiqueta...'}
                 </span>
                 <EtiquetasFillIcon className='h-5 w-5' />

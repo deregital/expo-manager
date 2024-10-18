@@ -1,4 +1,4 @@
-import { useEtiquetasFiltroBase } from '@/components/configuracion/ActualizarFiltroBase';
+import { useTagsGlobalFilter } from '@/components/configuracion/ActualizarFiltroBase';
 import AddEtiquetaCombos from '@/components/ui/AddEtiquetaCombos';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
@@ -6,49 +6,43 @@ import React from 'react';
 import { toast } from 'sonner';
 
 interface AgregarEtiquetasAFiltroBaseProps {
-  closeAddEtiqueta: () => void;
-  openAddEtiqueta: () => void;
+  closeAddTag: () => void;
+  openAddTag: () => void;
 }
 
 const AgregarEtiquetasAFiltroBase = ({
-  closeAddEtiqueta,
-  openAddEtiqueta,
+  closeAddTag,
+  openAddTag,
 }: AgregarEtiquetasAFiltroBaseProps) => {
-  const { etiquetas, agregarEtiqueta, eliminarEtiqueta, activo } =
-    useEtiquetasFiltroBase();
-  const agregarEtiquetaMutation = trpc.cuenta.updateFiltroBase.useMutation();
+  const { tags, addTag, removeTag, active } = useTagsGlobalFilter();
+  const addTagMutation = trpc.cuenta.updateFiltroBase.useMutation();
   const utils = trpc.useUtils();
 
-  async function handleAddEtiqueta(
-    addedEtiqueta: NonNullable<
+  async function handleAddTag(
+    addedTag: NonNullable<
       RouterOutputs['modelo']['getById']
     >['etiquetas'][number]
   ) {
-    agregarEtiqueta(addedEtiqueta);
-    closeAddEtiqueta();
-    await agregarEtiquetaMutation
+    addTag(addedTag);
+    closeAddTag();
+    await addTagMutation
       .mutateAsync({
-        activo,
-        etiquetas: etiquetas.map((e) => e.id).concat(addedEtiqueta.id),
+        activo: active,
+        etiquetas: tags.map((e) => e.id).concat(addedTag.id),
       })
       .then(() => {
-        toast.success(`Etiqueta ${addedEtiqueta.nombre} agregada con éxito`);
+        toast.success(`Etiqueta ${addedTag.nombre} agregada con éxito`);
         utils.modelo.invalidate();
         utils.cuenta.getFiltroBase.invalidate();
       })
       .catch(() => {
-        eliminarEtiqueta(addedEtiqueta);
+        removeTag(addedTag);
         toast.error('Error al agregar etiqueta');
-        openAddEtiqueta();
+        openAddTag();
       });
   }
 
-  return (
-    <AddEtiquetaCombos
-      etiquetas={etiquetas}
-      handleAddEtiqueta={handleAddEtiqueta}
-    />
-  );
+  return <AddEtiquetaCombos tags={tags} handleAddTag={handleAddTag} />;
 };
 
 export default AgregarEtiquetasAFiltroBase;

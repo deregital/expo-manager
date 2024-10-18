@@ -19,8 +19,8 @@ interface AsignacionPageProps {}
 
 const AsignacionPage = ({}: AsignacionPageProps) => {
   const utils = trpc.useUtils();
-  const asignar = trpc.etiqueta.setMasivo.useMutation();
-  const desasignar = trpc.etiqueta.unsetMasivo.useMutation();
+  const asignar = trpc.tag.massiveAllocation.useMutation();
+  const desasignar = trpc.tag.masiveDeallocation.useMutation();
   const router = useRouter();
 
   const { data: modelos, isLoading: modelosLoading } =
@@ -31,9 +31,9 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
   >(modelos ?? []);
 
   const {
-    etiquetas: etiquetasList,
+    tagsList,
     modelos: modelosList,
-    clearEtiquetas,
+    clearTags,
     clearModelos,
     clearGroup,
   } = asignacionSelectedData();
@@ -43,37 +43,38 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
     setModelosFiltradas(filterModelos(modelos, filter));
   };
 
-  async function asignarEtiquetas() {
-    const etiquetaIds = etiquetasList.map((e) => e.id);
+  async function allocateTags() {
+    const tagIds = tagsList.map((t) => t.id);
     const modeloIds = modelosList.map((m) => m.id);
 
     // chequeo para no agregar etiquetas bloqueantes a modelos que ya tengan etiquetas bloqueantes
     for (const modelo of modelosList) {
-      const etiquetasNuevas = etiquetasList.filter(
-        (e) => !modelo.etiquetas.find((et) => et.id === e.id)
+      const newTags = tagsList.filter(
+        (t) => !modelo.etiquetas.find((et) => et.id === t.id)
       );
 
-      if (etiquetasNuevas.length === 0) continue;
+      if (newTags.length === 0) continue;
 
-      const etiquetasConMismoGrupo = etiquetasNuevas.filter((e) =>
-        modelo.etiquetas.map((et) => et.grupoId).includes(e.grupoId)
+      const tagsSameGroup = newTags.filter((t) =>
+        modelo.etiquetas.map((tag) => tag.grupoId).includes(t.groupId)
       );
 
-      const etiquetasCoincidentes = [
-        ...etiquetasConMismoGrupo.filter((e) => e.grupo.esExclusivo),
-        ...modelo.etiquetas.filter(
+      const sameTags = [
+        ...tagsSameGroup.filter((e) => e.group.isExclusive),
+        ...(modelo.etiquetas.filter(
           (et) =>
-            etiquetasConMismoGrupo.map((e) => e.grupoId).includes(et.grupoId) &&
+            tagsSameGroup.map((e) => e.groupId).includes(et.grupoId) &&
             et.grupo.esExclusivo
-        ),
+          // TODO: This is a bug, the type of RouterOutputs['tag']['getAll'] is not the same as the type of modelo.etiquetas
+        ) as unknown as RouterOutputs['tag']['getAll']),
       ];
 
-      if (etiquetasCoincidentes.filter((e) => e.grupo.esExclusivo).length > 0) {
+      if (sameTags.filter((t) => t.group.isExclusive).length > 0) {
         toast.error(
           `El participante ${modelo.nombreCompleto} ya tiene asignadas etiquetas exclusivas del mismo grupo: ` +
-            etiquetasCoincidentes
-              .filter((e) => e.grupo.esExclusivo)
-              .map((e) => e.nombre)
+            sameTags
+              .filter((e) => e.group.isExclusive)
+              .map((e) => e.name)
               .join(', ')
         );
         return;
@@ -82,31 +83,31 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
 
     await asignar
       .mutateAsync({
-        etiquetaIds,
-        modeloIds,
+        tagIds,
+        profileIds: modeloIds,
       })
       .then(() => {
         toast.success('Etiquetas asignadas correctamente');
         clearModelos();
-        clearEtiquetas();
+        clearTags();
         clearGroup();
         utils.modelo.getAll.invalidate();
       });
   }
 
   async function desasignarEtiquetas() {
-    const etiquetaIds = etiquetasList.map((e) => e.id);
+    const tagIds = tagsList.map((e) => e.id);
     const modeloIds = modelosList.map((m) => m.id);
 
     await desasignar
       .mutateAsync({
-        etiquetaIds,
-        modeloIds,
+        tagIds,
+        profileIds: modeloIds,
       })
       .then(() => {
         toast.success('Etiquetas desasignadas correctamente');
         clearModelos();
-        clearEtiquetas();
+        clearTags();
         clearGroup();
         utils.modelo.getAll.invalidate();
       });
@@ -126,7 +127,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
       <Filtro
         className='py-1'
         funcionFiltrado={filtrarModelos}
-        mostrarEtiq
+        showTag
         mostrarInput
       />
       <div className='flex h-auto gap-x-2 border-t-[1px] border-t-black/20 p-3 md:p-5 '>
@@ -144,7 +145,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
         </div>
         <div className='flex-1'>
           <EtiquetasComboYList />
-          {etiquetasList.length === 0 && (
+          {tagsList.length === 0 && (
             <p className='mt-2'>
               Seleccione las etiquetas que quiere asignar o desasignar de los
               participantes
@@ -155,9 +156,9 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
       <div className='ml-4 flex gap-x-4'>
         <Button
           className='mt-4'
-          onClick={() => asignarEtiquetas()}
+          onClick={() => allocateTags()}
           disabled={
-            etiquetasList.length === 0 ||
+            tagsList.length === 0 ||
             modelosList.length === 0 ||
             desasignar.isLoading ||
             asignar.isLoading
@@ -169,7 +170,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
           className='mt-4'
           onClick={() => desasignarEtiquetas()}
           disabled={
-            etiquetasList.length === 0 ||
+            tagsList.length === 0 ||
             modelosList.length === 0 ||
             desasignar.isLoading ||
             asignar.isLoading

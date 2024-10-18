@@ -6,13 +6,13 @@ import React from 'react';
 import { toast } from 'sonner';
 
 interface AgregarEtiquetasAModeloProps {
-  closeAddEtiqueta: () => void;
-  openAddEtiqueta: () => void;
+  closeAddTag: () => void;
+  openAddTag: () => void;
 }
 
 const AgregarEtiquetasAModelo = ({
-  closeAddEtiqueta,
-  openAddEtiqueta,
+  closeAddTag,
+  openAddTag,
 }: AgregarEtiquetasAModeloProps) => {
   const { etiquetas, modeloId } = useModeloData((state) => ({
     etiquetas: state.etiquetas,
@@ -30,7 +30,7 @@ const AgregarEtiquetasAModelo = ({
       etiquetas: [...etiquetas, addedEtiqueta],
     });
 
-    closeAddEtiqueta();
+    closeAddTag();
 
     await addEtiqueta
       .mutateAsync({
@@ -63,16 +63,13 @@ const AgregarEtiquetasAModelo = ({
         useModeloData.setState({
           etiquetas: etiquetas.filter((e) => e.id !== addedEtiqueta.id),
         });
-        openAddEtiqueta();
+        openAddTag();
         toast.error('Error al agregar la etiqueta');
       });
   }
 
   return (
-    <AddEtiquetaCombos
-      etiquetas={etiquetas}
-      handleAddEtiqueta={handleAddEtiqueta}
-    />
+    <AddEtiquetaCombos tags={etiquetas} handleAddTag={handleAddEtiqueta} />
   );
 };
 

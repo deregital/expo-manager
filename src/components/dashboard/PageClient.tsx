@@ -19,62 +19,57 @@ export const useDashboardData = create<{
   from: Date;
   to: Date;
   tagGroupId: string;
-  etiquetaId: string;
+  tagId: string;
   resetFilters: () => void;
 }>((set) => ({
   from: startOfMonth(new Date()),
   to: new Date(),
   tagGroupId: '',
-  etiquetaId: '',
+  tagId: '',
   resetFilters: () => {
     set({
       from: startOfMonth(new Date()),
       to: new Date(),
       tagGroupId: '',
-      etiquetaId: '',
+      tagId: '',
     });
   },
 }));
 
 function filterModelos(
   modelos: RouterOutputs['modelo']['getByDateRange'][string],
-  search: { etiquetaId?: string; groupId?: string }
+  search: { tagId?: string; groupId?: string }
 ) {
-  if (search.etiquetaId === '' && search.groupId === '') return modelos;
+  if (search.tagId === '' && search.groupId === '') return modelos;
   // @ts-ignore
   const mod = modelos.filter((modelo) => {
     return (
-      (search.etiquetaId === '' ||
-        modelo.etiquetas.some(
-          (etiqueta) => etiqueta.id === search.etiquetaId
-        )) &&
+      (search.tagId === '' ||
+        modelo.etiquetas.some((tag) => tag.id === search.tagId)) &&
       (search.groupId === '' ||
-        modelo.etiquetas.some(
-          (etiqueta) => etiqueta.grupoId === search.groupId
-        ))
+        modelo.etiquetas.some((tag) => tag.grupoId === search.groupId))
     );
   });
   return mod;
 }
 
 const PageClient = ({}: PageClientProps) => {
-  const { from, to, etiquetaId, tagGroupId, resetFilters } = useDashboardData(
+  const { from, to, tagId, tagGroupId, resetFilters } = useDashboardData(
     (s) => ({
       from: s.from,
       to: s.to,
-      etiquetaId: s.etiquetaId,
+      tagId: s.tagId,
       tagGroupId: s.tagGroupId,
       resetFilters: s.resetFilters,
     })
   );
 
   const [groupOpen, setGroupOpen] = useState(false);
-  const [etiquetaOpen, setEtiquetaOpen] = useState(false);
+  const [tagOpen, setTagOpen] = useState(false);
 
   const { data: tagGroupsData, isLoading: tagGroupsLoading } =
     trpc.tagGroup.getAll.useQuery();
-  const { data: etiquetasData, isLoading: etiquetasLoading } =
-    trpc.etiqueta.getAll.useQuery();
+  const { data: tagsData, isLoading: tagsLoading } = trpc.tag.getAll.useQuery();
   const { data: modelosData, isLoading: modelosLoading } =
     trpc.modelo.getByDateRange.useQuery({
       start: format(from, 'yyyy-MM-dd'),
@@ -86,17 +81,15 @@ const PageClient = ({}: PageClientProps) => {
     return tagGroupsData.find((group) => group.id === tagGroupId);
   }, [tagGroupsData, tagGroupId]);
 
-  const currentEtiqueta = useMemo(() => {
-    if (!etiquetasData) return;
-    return etiquetasData.find((etiqueta) => etiqueta.id === etiquetaId);
-  }, [etiquetasData, etiquetaId]);
+  const currentTag = useMemo(() => {
+    if (!tagsData) return;
+    return tagsData.find((tag) => tag.id === tagId);
+  }, [tagsData, tagId]);
 
-  const etiquetas = useMemo(() => {
-    if (!currentGroup) return etiquetasData;
-    return etiquetasData
-      ? etiquetasData.filter((etiqueta) => etiqueta.grupoId === tagGroupId)
-      : [];
-  }, [currentGroup, etiquetasData, tagGroupId]);
+  const tags = useMemo(() => {
+    if (!currentGroup) return tagsData;
+    return tagsData ? tagsData.filter((tag) => tag.groupId === tagGroupId) : [];
+  }, [currentGroup, tagsData, tagGroupId]);
 
   const modelosParaGrafico = useMemo(() => {
     const modReturn: { fecha: string; modelos: number }[] = [];
@@ -104,23 +97,23 @@ const PageClient = ({}: PageClientProps) => {
 
     for (const [day, modelos] of Object.entries(modelosData)) {
       const modelosFiltradas = filterModelos(modelos, {
-        etiquetaId,
+        tagId,
         groupId: tagGroupId,
       });
 
       modReturn.push({ modelos: modelosFiltradas.length, fecha: day });
     }
     return modReturn;
-  }, [etiquetaId, tagGroupId, modelosData]);
+  }, [modelosData, tagId, tagGroupId]);
 
   const modelosQueCuentan = useMemo(() => {
     if (!modelosData) return [];
     const mod = Object.values(modelosData ?? {}).flatMap((m) => m);
-    if (!etiquetaId && !tagGroupId) {
+    if (!tagId && !tagGroupId) {
       return mod;
     }
-    return filterModelos(mod, { etiquetaId, groupId: tagGroupId });
-  }, [etiquetaId, tagGroupId, modelosData]);
+    return filterModelos(mod, { tagId, groupId: tagGroupId });
+  }, [modelosData, tagId, tagGroupId]);
 
   const retencion = useMemo(() => {
     return (
@@ -167,7 +160,7 @@ const PageClient = ({}: PageClientProps) => {
               useDashboardData.setState({ tagGroupId: '' });
             } else {
               useDashboardData.setState({ tagGroupId: value });
-              useDashboardData.setState({ etiquetaId: '' });
+              useDashboardData.setState({ tagId: '' });
             }
             setGroupOpen(false);
           }}
@@ -188,28 +181,28 @@ const PageClient = ({}: PageClientProps) => {
       </section>
       <section className='flex w-full items-center gap-x-2 self-start grid-in-etiqueta'>
         <ComboBox
-          data={etiquetas ?? []}
+          data={tags ?? []}
           id='id'
-          open={etiquetaOpen}
-          setOpen={setEtiquetaOpen}
+          open={tagOpen}
+          setOpen={setTagOpen}
           onSelect={(value) => {
-            if (value === etiquetaId) {
-              useDashboardData.setState({ etiquetaId: '' });
+            if (value === tagId) {
+              useDashboardData.setState({ tagId: '' });
             } else {
-              useDashboardData.setState({ etiquetaId: value });
+              useDashboardData.setState({ tagId: value });
             }
-            setEtiquetaOpen(false);
+            setTagOpen(false);
           }}
-          selectedIf={etiquetaId ?? ''}
-          value='nombre'
+          selectedIf={tagId ?? ''}
+          value='name'
           triggerChildren={
             <>
               <span className='max-w-[calc(100%-30px)] truncate'>
-                {etiquetaId ? currentEtiqueta?.nombre : 'Buscar etiqueta...'}
+                {tagId ? currentTag?.name : 'Buscar etiqueta...'}
               </span>
             </>
           }
-          isLoading={etiquetasLoading}
+          isLoading={tagsLoading}
           wFullMobile
           buttonClassName='w-full sm:min-w-[calc(100%-2rem)] h-[44px]'
           contentClassName='sm:max-w-[--radix-popper-anchor-width]'

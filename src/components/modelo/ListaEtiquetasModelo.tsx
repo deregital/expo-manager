@@ -55,10 +55,10 @@ const ListaEtiquetasModelo = ({
       handleDelete={handleDelete}
     >
       <AgregarEtiquetasAModelo
-        closeAddEtiqueta={() => {
+        closeAddTag={() => {
           setAddEtiquetaOpen(false);
         }}
-        openAddEtiqueta={() => {
+        openAddTag={() => {
           setAddEtiquetaOpen(true);
         }}
       />

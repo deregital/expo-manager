@@ -15,10 +15,8 @@ export const CellComponent = ({
   confirmoAsistenciaId: string;
   asistioId: string;
 }) => {
-  const etiquetasId = row.original.etiquetas.map(
-    (etiqueta: any) => etiqueta.id
-  );
-  const { data: etiquetaConfirmo } = trpc.etiqueta.getById.useQuery(
+  const tagsId = row.original.etiquetas.map((tag: any) => tag.id);
+  const { data: etiquetaConfirmo } = trpc.tag.getById.useQuery(
     confirmoAsistenciaId,
     {
       enabled: !!row.original,
@@ -63,8 +61,7 @@ export const CellComponent = ({
 
   return (
     <div className='flex flex-wrap items-center justify-center gap-1'>
-      {etiquetasId.includes(confirmoAsistenciaId) ||
-      etiquetasId.includes(asistioId) ? (
+      {tagsId.includes(confirmoAsistenciaId) || tagsId.includes(asistioId) ? (
         <div className='flex items-center justify-center gap-x-2'>
           <p>En presentismo</p>
           <CheckIcon className='h-6 w-6' />

@@ -29,7 +29,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
   const searchParams = new URLSearchParams(useSearchParams());
   const editModelo = trpc.modelo.edit.useMutation();
 
-  const { data: EtiquetaAsistencia } = trpc.etiqueta.getById.useQuery(
+  const { data: assistanceTag } = trpc.tag.getById.useQuery(
     modalPresentismo.evento?.etiquetaAsistioId ?? '',
     {
       enabled: !!modalPresentismo.evento,
@@ -87,10 +87,10 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
 
     const etiquetaAsistio = {
       id: modalPresentismo.evento!.etiquetaAsistioId,
-      nombre: EtiquetaAsistencia!.nombre,
+      nombre: assistanceTag!.nombre,
       grupo: {
-        id: EtiquetaAsistencia!.grupo.id,
-        esExclusivo: EtiquetaAsistencia!.grupo.esExclusivo,
+        id: assistanceTag!.grupo.id,
+        esExclusivo: assistanceTag!.grupo.esExclusivo,
       },
     };
 

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { useEtiquetaModalData } from './EtiquetaModal';
+import { useTagModalData } from './EtiquetaModal';
 import { RouterOutputs } from '@/server';
 import ComboBox from '@/components/ui/ComboBox';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
@@ -10,9 +10,9 @@ const GrupoEtiquetaComboBox = ({
 }: {
   data: RouterOutputs['tagGroup']['getAll'];
 }) => {
-  const modalData = useEtiquetaModalData((state) => ({
-    tipo: state.tipo,
-    nombre: state.nombre,
+  const modalData = useTagModalData((state) => ({
+    tipo: state.type,
+    nombre: state.name,
     groupId: state.groupId,
   }));
   const [open, setOpen] = useState(false);
@@ -39,7 +39,7 @@ const GrupoEtiquetaComboBox = ({
       value='name'
       onSelect={(id) => {
         setOpen(false);
-        useEtiquetaModalData.setState({
+        useTagModalData.setState({
           groupId: id,
         });
       }}
