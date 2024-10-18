@@ -15,7 +15,7 @@ const FiltroAvanzadoEtiquetasYGrupos =
     const [tagGroupId, setTagGroupId] = useState<string | undefined>(undefined);
     const [etiquetaId, setEtiquetaId] = useState<string | undefined>(undefined);
 
-    const { data: tagGroupsData } = trpc.grupoEtiqueta.getAll.useQuery();
+    const { data: tagGroupsData } = trpc.tagGroup.getAll.useQuery();
     const { data: dataEtiquetas } = tagGroupId
       ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(tagGroupId)
       : trpc.etiqueta.getAll.useQuery();

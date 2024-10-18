@@ -37,8 +37,7 @@ export const useEtiquetaModalData = create<ModalData>(() => ({
 }));
 
 const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
-  const { data: tagGroupsData, isLoading } =
-    trpc.grupoEtiqueta.getAll.useQuery();
+  const { data: tagGroupsData, isLoading } = trpc.tagGroup.getAll.useQuery();
 
   const utils = trpc.useUtils();
   const modalData = useEtiquetaModalData((state) => ({

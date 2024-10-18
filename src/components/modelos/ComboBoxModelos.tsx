@@ -8,7 +8,7 @@ import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 const ComboBoxModelos = ({
   data,
 }: {
-  data: RouterOutputs['grupoEtiqueta']['getAll'];
+  data: RouterOutputs['tagGroup']['getAll'];
 }) => {
   const [open, setOpen] = useState(false);
   const searchParams = new URLSearchParams(useSearchParams());

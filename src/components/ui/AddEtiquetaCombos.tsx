@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 
 function availableGroups(
   etiquetas: EtiquetaBaseConGrupoColor[],
-  groupsdata: NonNullable<RouterOutputs['grupoEtiqueta']['getAll']>
+  groupsdata: NonNullable<RouterOutputs['tagGroup']['getAll']>
 ) {
   const internalTagTypes: TagType[] = ['PARTICIPANT', 'NOT_IN_SYSTEM'];
 
@@ -71,7 +71,7 @@ const AddEtiquetaCombos = ({
   const [groupOpen, setGroupOpen] = useState(false);
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
 
-  const { data: tagGroupsData } = trpc.grupoEtiqueta.getAll.useQuery();
+  const { data: tagGroupsData } = trpc.tagGroup.getAll.useQuery();
   const { data: etiquetasData, isLoading: isLoadingEtiquetas } =
     groupId === ''
       ? trpc.etiqueta.getAll.useQuery()

@@ -8,7 +8,7 @@ import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 const GrupoEtiquetaComboBox = ({
   data,
 }: {
-  data: RouterOutputs['grupoEtiqueta']['getAll'];
+  data: RouterOutputs['tagGroup']['getAll'];
 }) => {
   const modalData = useEtiquetaModalData((state) => ({
     tipo: state.tipo,

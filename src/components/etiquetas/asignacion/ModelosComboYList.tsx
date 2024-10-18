@@ -29,12 +29,12 @@ export const asignacionComboBoxOpens = create<{
 export const asignacionSelectedData = create<{
   modelos: RouterOutputs['modelo']['getAll'];
   etiquetas: RouterOutputs['etiqueta']['getAll'];
-  group: RouterOutputs['grupoEtiqueta']['getAll'][number] | undefined;
+  group: RouterOutputs['tagGroup']['getAll'][number] | undefined;
   setModelos: (modelos: RouterOutputs['modelo']['getAll'][number]) => void;
   setEtiquetas: (
     etiquetas: RouterOutputs['etiqueta']['getAll'][number]
   ) => void;
-  setGroup: (group: RouterOutputs['grupoEtiqueta']['getAll'][number]) => void;
+  setGroup: (group: RouterOutputs['tagGroup']['getAll'][number]) => void;
   clearModelos: () => void;
   clearEtiquetas: () => void;
   clearGroup: () => void;

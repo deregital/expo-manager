@@ -45,7 +45,7 @@ const Filtro = ({
   const [groupId, setGroupId] = useState<string | undefined>(undefined);
   const [etiquetaId, setEtiquetaId] = useState<string | undefined>(undefined);
 
-  const { data: tagGroupData } = trpc.grupoEtiqueta.getAll.useQuery();
+  const { data: tagGroupData } = trpc.tagGroup.getAll.useQuery();
 
   const { data: dataEtiquetas } = groupId
     ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(groupId)

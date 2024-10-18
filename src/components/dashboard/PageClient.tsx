@@ -72,7 +72,7 @@ const PageClient = ({}: PageClientProps) => {
   const [etiquetaOpen, setEtiquetaOpen] = useState(false);
 
   const { data: tagGroupsData, isLoading: tagGroupsLoading } =
-    trpc.grupoEtiqueta.getAll.useQuery();
+    trpc.tagGroup.getAll.useQuery();
   const { data: etiquetasData, isLoading: etiquetasLoading } =
     trpc.etiqueta.getAll.useQuery();
   const { data: modelosData, isLoading: modelosLoading } =

@@ -32,7 +32,7 @@ const FiltroBasicoEtiqueta = ({
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
 
   const { data: tagGroupsData, isLoading: isLoadingGroups } =
-    trpc.grupoEtiqueta.getAll.useQuery();
+    trpc.tagGroup.getAll.useQuery();
 
   const { data: dataEtiquetas, isLoading: isLoadingEtiquetas } = groupId
     ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(groupId)

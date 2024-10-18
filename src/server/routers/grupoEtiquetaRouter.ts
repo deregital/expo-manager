@@ -6,7 +6,7 @@ import {
 } from 'expo-backend-types';
 import { z } from 'zod';
 
-export const grupoEtiquetaRouter = router({
+export const tagGroupRouter = router({
   create: protectedProcedure
     .input(createTagGroupSchema)
     .mutation(async ({ input, ctx }) => {
@@ -22,10 +22,11 @@ export const grupoEtiquetaRouter = router({
   }),
   edit: protectedProcedure
     .input(
-      z.object({
-        id: tagGroupSchema.shape.id,
-        dto: updateTagGroupSchema,
-      })
+      updateTagGroupSchema.merge(
+        z.object({
+          id: tagGroupSchema.shape.id,
+        })
+      )
     )
     .mutation(async ({ input, ctx }) => {
       const { data, error } = await ctx.fetch.PATCH('/tag-group/{id}', {
@@ -34,7 +35,11 @@ export const grupoEtiquetaRouter = router({
             id: input.id,
           },
         },
-        body: input.dto,
+        body: {
+          color: input.color,
+          name: input.name,
+          isExclusive: input.isExclusive,
+        },
       });
 
       if (error) {

@@ -14,7 +14,7 @@ interface EtiquetasComboYListProps {}
 
 const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
   const { data: tagGroupsData, isLoading: tagGroupLoading } =
-    trpc.grupoEtiqueta.getAll.useQuery();
+    trpc.tagGroup.getAll.useQuery();
   const { data: etiquetasData, isLoading: etiquetasLoading } =
     trpc.etiqueta.getAll.useQuery();
 
@@ -84,7 +84,7 @@ const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
             setCurrentGroup(
               tagGroupsData!.find(
                 (group) => group.id === value
-              ) as RouterOutputs['grupoEtiqueta']['getAll'][number]
+              ) as RouterOutputs['tagGroup']['getAll'][number]
             );
             setOpenGroups(false);
           }}
