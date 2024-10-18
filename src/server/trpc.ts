@@ -5,6 +5,55 @@ import { TRPCError, initTRPC } from '@trpc/server';
 import { JWT } from 'next-auth/jwt';
 import { ZodError } from 'zod';
 
+export function handleError(error: {
+  message: string[];
+  statusCode: number;
+  error: string;
+}): TRPCError | undefined {
+  const { message, statusCode, error: cause } = error;
+  const messageString = message[0];
+  const errorCode = statusCode as
+    | 200
+    | 400
+    | 401
+    | 403
+    | 404
+    | 408
+    | 409
+    | 412
+    | 413
+    | 405
+    | 499
+    | 500;
+
+  if (errorCode === 200) {
+    return;
+  }
+
+  const errorFromStatusCode = {
+    400: 'BAD_REQUEST',
+    401: 'UNAUTHORIZED',
+    403: 'FORBIDDEN',
+    404: 'NOT_FOUND',
+    408: 'TIMEOUT',
+    409: 'CONFLICT',
+    412: 'PRECONDITION_FAILED',
+    413: 'PAYLOAD_TOO_LARGE',
+    405: 'METHOD_NOT_SUPPORTED',
+    499: 'CLIENT_CLOSED_REQUEST',
+    500: 'INTERNAL_SERVER_ERROR',
+  } as const;
+
+  const code =
+    errorFromStatusCode[errorCode] || ('INTERNAL_SERVER_ERROR' as const);
+
+  return new TRPCError({
+    code,
+    message: messageString,
+    cause,
+  });
+}
+
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getServerAuthSession();
 
