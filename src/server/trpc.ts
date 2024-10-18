@@ -1,4 +1,4 @@
-import { getServerAuthSession, refreshToken } from '@/server/auth';
+import { getServerAuthSession } from '@/server/auth';
 import { prisma } from '@/server/db';
 import { fetchClient } from '@/server/fetchClient';
 import { TRPCError, initTRPC } from '@trpc/server';
@@ -83,50 +83,50 @@ export const publicProcedure = t.procedure;
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   const session = ctx.session as unknown as JWT | undefined | null;
   if (!session || !session.user || !session.backendTokens) {
-    console.log('No session');
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
 
-  const backendTokens = session.backendTokens;
+  // const backendTokens = session.backendTokens;
 
-  let { data: user } = await fetchClient.GET('/account/me', {
-    headers: {
-      Authorization: `Bearer ${backendTokens.accessToken}`,
-    },
-  });
+  // let { data: user } = await fetchClient.GET('/account/me', {
+  //   headers: {
+  //     Authorization: `Bearer ${backendTokens.accessToken}`,
+  //   },
+  // });
+  // if (!user) {
+  //   const refreshed = await refreshToken(session);
 
-  if (!user) {
-    const refreshed = await refreshToken(session);
+  //   console.log('Refreshing token', refreshed.backendTokens.expiresIn);
 
-    const { data: userRefreshed } = await fetchClient.GET('/account/me', {
-      headers: {
-        Authorization: `Bearer ${refreshed.backendTokens.accessToken}`,
-      },
-    });
+  //   const { data: userRefreshed } = await fetchClient.GET('/account/me', {
+  //     headers: {
+  //       Authorization: `Bearer ${refreshed.backendTokens.accessToken}`,
+  //     },
+  //   });
 
-    if (!userRefreshed) {
-      throw new TRPCError({ code: 'UNAUTHORIZED' });
-    }
-    user = userRefreshed;
-  }
+  //   if (!userRefreshed) {
+  //     throw new TRPCError({ code: 'UNAUTHORIZED' });
+  //   }
+  //   user = userRefreshed;
+  // }
 
-  const { tags: etiquetasNoAdmin } = user;
+  // const { tags: etiquetasNoAdmin } = user;
 
-  const etiquetasTotales = await ctx.prisma.etiqueta.findMany({
-    select: {
-      id: true,
-    },
-  });
+  // const etiquetasTotales = await ctx.prisma.etiqueta.findMany({
+  //   select: {
+  //     id: true,
+  //   },
+  // });
 
-  const etiquetasVisibles =
-    user.role === 'ADMIN'
-      ? etiquetasTotales.map((e) => e.id)
-      : etiquetasNoAdmin.map((e) => e.id);
+  // const etiquetasVisibles =
+  //   user.role === 'ADMIN'
+  //     ? etiquetasTotales.map((e) => e.id)
+  //     : etiquetasNoAdmin.map((e) => e.id);
 
-  const filtroBase =
-    user.globalFilter.length > 0 && user.isGlobalFilterActive
-      ? user.globalFilter.map((e) => e.id)
-      : [];
+  // const filtroBase =
+  //   user.globalFilter.length > 0 && user.isGlobalFilterActive
+  //     ? user.globalFilter.map((e) => e.id)
+  //     : [];
 
   // const newPrisma = ctx.prisma.$extends({
   //   query: {
@@ -183,8 +183,8 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
       ...ctx,
       fetch: fetchClient,
       prisma,
-      etiquetasVisibles,
-      filtroBase,
+      etiquetasVisibles: [],
+      filtroBase: [],
     },
   });
 });

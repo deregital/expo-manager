@@ -86,11 +86,15 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         return { ...user, ...token };
       }
-      if (new Date().getTime() < token.backendTokens.expiresIn) {
-        return token;
+
+      const shouldRefresh =
+        token?.backendTokens.expiresIn < new Date().getTime();
+
+      if (shouldRefresh) {
+        return await refreshToken(token);
       }
 
-      return await refreshToken(token);
+      return token;
     },
   },
   providers: [
