@@ -76,7 +76,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
           onChange={setSearch}
           placeholder='Buscar por nombre o ID legible'
         /> */}
-        <Filtro mostrarInput mostrarEtiq funcionFiltrado={filtrar} />
+        <Filtro mostrarInput showTag funcionFiltrado={filtrar} />
       </div>
       <DataTable
         columns={generateColumns(

@@ -6,127 +6,122 @@ import ComboBox from '@/components/ui/ComboBox';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
-import { TipoEtiqueta } from '@prisma/client';
 import { Trash } from 'lucide-react';
 import React, { useMemo } from 'react';
 
 interface EtiquetasComboYListProps {}
 
 const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
-  const { data: grupoEtiquetasData, isLoading: grupoEtiquetaLoading } =
-    trpc.grupoEtiqueta.getAll.useQuery();
-  const { data: etiquetasData, isLoading: etiquetasLoading } =
-    trpc.etiqueta.getAll.useQuery();
+  const { data: tagGroupsData, isLoading: tagGroupLoading } =
+    trpc.tagGroup.getAll.useQuery();
+  const { data: tagsData, isLoading: tagsLoading } = trpc.tag.getAll.useQuery();
 
   const {
-    etiquetas: etiquetasList,
-    setEtiquetas,
-    grupo: currentGrupo,
-    setGrupo: setCurrentGrupo,
+    tags,
+    setTags,
+    group: currentGroup,
+    setGroup: setCurrentGroup,
   } = asignacionSelectedData();
 
   const {
-    grupos: gruposOpen,
-    setGruposOpen,
-    etiquetas: etiquetasOpen,
-    setEtiquetasOpen,
+    groups: openGroups,
+    setGroupsOpen: setOpenGroups,
+    tags: tagsOpen,
+    setTags: setTagsOpen,
   } = asignacionComboBoxOpens();
 
-  const etiquetasParaElegir = useMemo(() => {
-    const etPosibles = etiquetasData?.filter((et) => {
-      if (et.tipo !== TipoEtiqueta.PERSONAL) return false;
-      if (!currentGrupo)
-        return !etiquetasList.find(
-          (e) =>
-            e.id === et.id || (et.grupo.esExclusivo && e.grupoId === et.grupoId)
+  const choosableTags = useMemo(() => {
+    const possibleTags = tagsData?.filter((tag) => {
+      if (tag.type !== 'PARTICIPANT') return false;
+      if (!currentGroup)
+        return !tags.find(
+          (t) =>
+            t.id === tag.id ||
+            (tag.group.isExclusive && t.groupId === tag.groupId)
         );
 
-      return et.grupoId === currentGrupo.id;
+      return tag.groupId === currentGroup.id;
     });
 
-    if (!currentGrupo) {
-      return etPosibles?.filter(
-        (et) => !etiquetasList.find((e) => e.id === et.id)
-      );
+    if (!currentGroup) {
+      return possibleTags?.filter((et) => !tags.find((e) => e.id === et.id));
     }
 
-    return etPosibles?.filter(
-      (etiqueta) =>
-        etiqueta.grupoId === currentGrupo.id &&
-        !etiquetasList.some(
-          (e) => e.grupoId === etiqueta.grupoId && etiqueta.grupo.esExclusivo
-        ) &&
-        !etiquetasList.find((e) => e.id === etiqueta.id)
+    return possibleTags?.filter(
+      (tag) =>
+        tag.groupId === currentGroup.id &&
+        !tags.some((t) => t.groupId === tag.groupId && tag.group.isExclusive) &&
+        !tags.find((t) => t.id === tag.id)
     );
-  }, [currentGrupo, etiquetasData, etiquetasList]);
+  }, [tagsData, currentGroup, tags]);
 
-  const gruposParaElegir = useMemo(() => {
-    return grupoEtiquetasData?.filter((g) =>
-      g.etiquetas.some((et) => et.tipo === TipoEtiqueta.PERSONAL)
+  const choosableGroups = useMemo(() => {
+    return tagGroupsData?.filter((g) =>
+      g.tags.some((tag) => tag.type === 'PARTICIPANT')
     );
-  }, [grupoEtiquetasData]);
+  }, [tagGroupsData]);
 
   return (
     <>
       <div className='flex flex-col gap-4 sm:flex-row'>
         <ComboBox
-          open={gruposOpen}
-          setOpen={setGruposOpen}
-          isLoading={grupoEtiquetaLoading}
-          triggerChildren={<p>{currentGrupo?.nombre ?? 'Grupos'}</p>}
+          open={openGroups}
+          setOpen={setOpenGroups}
+          isLoading={tagGroupLoading}
+          triggerChildren={<p>{currentGroup?.name ?? 'Grupos'}</p>}
           notFoundText='No hay grupos disponibles'
           placeholder='Buscar grupos...'
-          data={gruposParaElegir ?? []}
+          data={choosableGroups ?? []}
           id='id'
-          value='nombre'
+          value='name'
           wFullMobile
           onSelect={(value) => {
-            setCurrentGrupo(
-              grupoEtiquetasData!.find(
-                (g) => g.id === value
-              ) as RouterOutputs['grupoEtiqueta']['getAll'][number]
+            setCurrentGroup(
+              tagGroupsData!.find(
+                (group) => group.id === value
+              ) as RouterOutputs['tagGroup']['getAll'][number]
             );
-            setGruposOpen(false);
+            setOpenGroups(false);
           }}
-          selectedIf={currentGrupo?.id ?? ''}
+          selectedIf={currentGroup?.id ?? ''}
         />
         <ComboBox
-          data={etiquetasParaElegir ?? []}
+          data={choosableTags ?? []}
           id='id'
-          open={etiquetasOpen}
-          setOpen={setEtiquetasOpen}
+          open={tagsOpen}
+          setOpen={setTagsOpen}
           onSelect={(value) => {
-            setEtiquetas(
-              etiquetasData!.find(
-                (e) => e.id === value
-              ) as RouterOutputs['etiqueta']['getAll'][number]
+            setTags(
+              tagsData!.find(
+                (tag) => tag.id === value
+              ) as RouterOutputs['tag']['getAll'][number]
             );
-            setEtiquetasOpen(false);
+            setTagsOpen(false);
           }}
           selectedIf=''
           wFullMobile
-          value='nombre'
+          value='name'
           triggerChildren={<p>Etiquetas</p>}
-          isLoading={etiquetasLoading}
+          isLoading={tagsLoading}
           notFoundText='No hay etiquetas disponibles'
           placeholder='Buscar etiquetas...'
         />
       </div>
       <div
         className={cn(
-          etiquetasList.length > 0 && 'mt-2 rounded-md border border-gray-500'
+          tags.length > 0 && 'mt-2 rounded-md border border-gray-500'
         )}
       >
-        {etiquetasList.map((etiqueta) => (
+        {tags.map((tag) => (
           <div
             className='flex w-full justify-between p-1'
-            style={{ backgroundColor: `${etiqueta.grupo.color}80` }}
-            key={etiqueta.id}
+            style={{ backgroundColor: `${tag.group.color}80` }}
+            key={tag.id}
           >
-            <p>{etiqueta.nombre}</p>
+            <p>{tag.name}</p>
             <Trash
               className='cursor-pointer fill-red-500 text-red-900'
-              onClick={() => setEtiquetas(etiqueta)}
+              onClick={() => setTags(tag)}
             />
           </div>
         ))}

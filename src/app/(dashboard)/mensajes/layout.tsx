@@ -32,7 +32,7 @@ const ChatLayout = ({ children }: ChatLayoutProps) => {
         </div>
         <div className='flex flex-col'>
           <div className='border-b-[3px] border-b-black/20'>
-            <Filtro mostrarEtiq mostrarInput funcionFiltrado={filtrar} />
+            <Filtro showTag mostrarInput funcionFiltrado={filtrar} />
           </div>
           <div className='flex max-h-full flex-grow overflow-y-auto'>
             {children}

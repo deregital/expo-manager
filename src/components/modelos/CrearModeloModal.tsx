@@ -59,7 +59,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       enabled: !!eventoId,
     }
   );
-  const { data: etiquetaAsistio } = trpc.etiqueta.getById.useQuery(
+  const { data: etiquetaAsistio } = trpc.tag.getById.useQuery(
     etiquetaEvento?.etiquetaAsistioId ?? '',
     {
       enabled: !!etiquetaEvento,

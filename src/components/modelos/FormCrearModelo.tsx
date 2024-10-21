@@ -37,31 +37,28 @@ const FormCrearModelo = ({
   const modalModelo = useCrearModeloModal();
 
   const [openSelect, setOpenSelect] = useState(false);
-  const [addEtiquetaOpen, setAddEtiquetaOpen] = useState(false);
-  const [comboBoxGrupoOpen, setComboBoxGrupoOpen] = useState(false);
-  const [comboBoxEtiquetaOpen, setComboBoxEtiquetaOpen] = useState(false);
-  const { data: grupoEtiquetas } = trpc.grupoEtiqueta.getAll.useQuery();
-  const [grupoEtiquetaSelected, setGrupoEtiquetaSelected] =
-    useState<string>('');
-  const [etiquetaSelected, setEtiquetaSelected] = useState<string>('');
-  const { data: etiquetasGrupo } =
-    grupoEtiquetaSelected === ''
-      ? trpc.etiqueta.getAll.useQuery()
-      : trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoEtiquetaSelected);
+  const [addTagOpen, setAddTagOpen] = useState(false);
+  const [comboBoxGroupOpen, setComboBoxGroupOpen] = useState(false);
+  const [comboBoxTagOpen, setComboBoxTagOpen] = useState(false);
+  const { data: tagGroups } = trpc.tagGroup.getAll.useQuery();
+  const [selectedTagGroup, setSelectedTagGroup] = useState<string>('');
+  const [selectedTag, setSelectedTag] = useState<string>('');
+  const { data: tagsFromGroup } =
+    selectedTagGroup === ''
+      ? trpc.tag.getAll.useQuery()
+      : trpc.tag.getByGroupId.useQuery(selectedTagGroup);
 
-  const currentGrupo = useMemo(() => {
-    return grupoEtiquetas?.find((g) => g.id === grupoEtiquetaSelected);
-  }, [grupoEtiquetas, grupoEtiquetaSelected]);
+  const currentGroup = useMemo(() => {
+    return tagGroups?.find((g) => g.id === selectedTagGroup);
+  }, [tagGroups, selectedTagGroup]);
 
-  async function handleDeleteEtiqueta(
-    etiqueta: NonNullable<RouterOutputs['etiqueta']['getById']>
+  async function handleDeleteTag(
+    tag: NonNullable<RouterOutputs['tag']['getById']>
   ) {
     useCrearModeloModal.setState({
       modelo: {
         ...modalModelo.modelo,
-        etiquetas: modalModelo.modelo.etiquetas.filter(
-          (e) => e.id !== etiqueta.id
-        ),
+        etiquetas: modalModelo.modelo.etiquetas.filter((e) => e.id !== tag.id),
       },
     });
   }
@@ -76,27 +73,27 @@ const FormCrearModelo = ({
       },
     });
   }
-  async function handleAddEtiqueta(etiquetaSelected: string) {
-    setEtiquetaSelected(etiquetaSelected);
-    if (etiquetaSelected === '') return;
-    const etiqueta = etiquetasGrupo?.find((e) => e.id === etiquetaSelected);
+  async function handleAddTag(selectedTag: string) {
+    setSelectedTag(selectedTag);
+    if (selectedTag === '') return;
+    const tag = tagsFromGroup?.find((t) => t.id === selectedTag);
     if (
       useCrearModeloModal
         .getState()
-        .modelo.etiquetas.find((e) => e.id === etiqueta?.id)
+        .modelo.etiquetas.find((e) => e.id === tag?.id)
     ) {
       toast.error('La etiqueta ya fue agregada');
       return;
     }
-    if (!etiqueta) return;
+    if (!tag) return;
 
     // Verificar grupo exclusivo o no
     if (
-      etiqueta.grupo.esExclusivo &&
+      tag.group.isExclusive &&
       useCrearModeloModal
         .getState()
         .modelo.etiquetas.find(
-          (e) => e.grupo.id === etiqueta?.grupo.id && e.id !== etiqueta?.id
+          (e) => e.group.id === tag?.group.id && e.id !== tag?.id
         )
     ) {
       toast.error('No puedes agregar dos etiquetas exclusivas del mismo grupo');
@@ -105,13 +102,17 @@ const FormCrearModelo = ({
     useCrearModeloModal.setState({
       modelo: {
         ...modalModelo.modelo,
-        etiquetas: [...modalModelo.modelo.etiquetas, etiqueta],
+        etiquetas: [
+          // TODO: Fix this type casting
+          ...(modalModelo.modelo.etiquetas as any),
+          tag,
+        ],
       },
     });
-    setEtiquetaSelected('');
-    setGrupoEtiquetaSelected('');
-    setComboBoxEtiquetaOpen(false);
-    setAddEtiquetaOpen(false);
+    setSelectedTag('');
+    setSelectedTagGroup('');
+    setComboBoxTagOpen(false);
+    setAddTagOpen(false);
   }
 
   const allCountries = useMemo(
@@ -297,21 +298,21 @@ const FormCrearModelo = ({
       </div>
       <Label className='pt-2 text-sm'>Etiquetas:</Label>
       <div className='flex flex-wrap items-center gap-2'>
-        {modalModelo.modelo.etiquetas?.map((etiqueta) => {
-          if (!etiqueta) return;
+        {modalModelo.modelo.etiquetas?.map((tag) => {
+          if (!tag) return;
           return (
             <Badge
               className='group whitespace-nowrap transition-transform duration-200 ease-in-out hover:shadow-md'
               style={{
-                backgroundColor: etiqueta?.grupo.color,
-                color: getTextColorByBg(etiqueta.grupo.color),
+                backgroundColor: tag?.group.color,
+                color: getTextColorByBg(tag.group.color ?? ''),
               }}
-              key={etiqueta.id}
+              key={tag.id}
             >
-              {etiqueta.nombre}
+              {tag.name}
 
               <CircleXIcon
-                onClick={() => handleDeleteEtiqueta(etiqueta)}
+                onClick={() => handleDeleteTag(tag)}
                 className='invisible w-0 cursor-pointer group-hover:visible group-hover:ml-1 group-hover:w-4'
                 width={16}
                 height={16}
@@ -319,66 +320,63 @@ const FormCrearModelo = ({
             </Badge>
           );
         })}
-        {addEtiquetaOpen ? (
+        {addTagOpen ? (
           <CircleXIcon
-            onClick={() => setAddEtiquetaOpen(false)}
+            onClick={() => setAddTagOpen(false)}
             className='h-5 w-5 cursor-pointer'
           />
         ) : (
           <CirclePlus
             className='h-5 w-5 cursor-pointer'
-            onClick={() => setAddEtiquetaOpen(true)}
+            onClick={() => setAddTagOpen(true)}
           />
         )}
       </div>
-      {addEtiquetaOpen && (
+      {addTagOpen && (
         <div className='flex flex-wrap gap-x-2 gap-y-1'>
           <ComboBox
-            open={comboBoxGrupoOpen}
-            setOpen={setComboBoxGrupoOpen}
-            value='nombre'
+            open={comboBoxGroupOpen}
+            setOpen={setComboBoxGroupOpen}
+            value='name'
             id={'id'}
-            data={grupoEtiquetas ?? []}
+            data={tagGroups ?? []}
             onSelect={(selectedItem) => {
-              if (selectedItem === grupoEtiquetaSelected) {
-                setGrupoEtiquetaSelected('');
-                setComboBoxGrupoOpen(false);
+              if (selectedItem === selectedTagGroup) {
+                setSelectedTagGroup('');
+                setComboBoxGroupOpen(false);
               } else {
-                setGrupoEtiquetaSelected(selectedItem);
-                setComboBoxGrupoOpen(false);
+                setSelectedTagGroup(selectedItem);
+                setComboBoxGroupOpen(false);
               }
             }}
             wFullMobile
-            selectedIf={grupoEtiquetaSelected ? grupoEtiquetaSelected : ''}
+            selectedIf={selectedTagGroup ? selectedTagGroup : ''}
             triggerChildren={
               <>
                 <span className='max-w-[calc(100%-30px)] truncate'>
-                  {grupoEtiquetaSelected
-                    ? currentGrupo?.nombre
-                    : 'Buscar grupo...'}
+                  {selectedTagGroup ? currentGroup?.name : 'Buscar grupo...'}
                 </span>
                 <EtiquetasFillIcon className='h-5 w-5' />
               </>
             }
           />
           <ComboBox
-            data={etiquetasGrupo ?? []}
+            data={tagsFromGroup ?? []}
             id={'id'}
-            value='nombre'
+            value='name'
             wFullMobile
-            open={comboBoxEtiquetaOpen}
-            setOpen={setComboBoxEtiquetaOpen}
+            open={comboBoxTagOpen}
+            setOpen={setComboBoxTagOpen}
             onSelect={(selectedItem) => {
-              handleAddEtiqueta(selectedItem);
+              handleAddTag(selectedItem);
             }}
-            selectedIf={etiquetaSelected}
+            selectedIf={selectedTag}
             triggerChildren={
               <>
                 <span className='truncate'>
-                  {etiquetaSelected !== ''
-                    ? (etiquetasGrupo?.find(
-                        (etiqueta) => etiqueta.id === etiquetaSelected
-                      )?.nombre ?? 'Buscar etiqueta...')
+                  {selectedTag !== ''
+                    ? (tagsFromGroup?.find((tag) => tag.id === selectedTag)
+                        ?.name ?? 'Buscar etiqueta...')
                     : 'Buscar etiqueta...'}
                 </span>
                 <EtiquetasFillIcon className='h-5 w-5' />

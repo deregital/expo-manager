@@ -6,6 +6,24 @@ import {
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '@/server/db';
+import { fetchClient } from '@/server/fetchClient';
+import { JWT } from 'next-auth/jwt';
+
+declare module 'next-auth/jwt' {
+  // eslint-disable-next-line no-unused-vars
+  interface JWT {
+    user: {
+      id: string;
+      username: string;
+      esAdmin: boolean;
+    };
+    backendTokens: {
+      accessToken: string;
+      refreshToken: string;
+      expiresIn: number;
+    };
+  }
+}
 
 declare module 'next-auth' {
   // eslint-disable-next-line no-unused-vars
@@ -19,27 +37,63 @@ declare module 'next-auth' {
   }
 }
 
+export async function refreshToken(token: JWT): Promise<JWT> {
+  const { data, response } = await fetchClient.POST('/auth/refresh', {
+    headers: {
+      authorization: `Refresh ${token.backendTokens.refreshToken}`,
+    },
+  });
+
+  if (response.status !== 201 || !data) {
+    throw new Error('Error al refrescar el token');
+  }
+
+  return {
+    ...token,
+    backendTokens: data!,
+  };
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    session: ({ session, token }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: token.sub,
-        username: token.username,
-        esAdmin: token.esAdmin,
-      },
-    }),
+    session: ({ session, token }) => {
+      fetchClient.use({
+        onRequest: ({ request }) => {
+          request.headers.set(
+            'Authorization',
+            `Bearer ${token.backendTokens.accessToken}`
+          );
+          return request;
+        },
+      });
+      return {
+        ...session,
+        backendTokens: {
+          ...token.backendTokens,
+        },
+        user: {
+          ...session.user,
+          id: token.sub,
+          username: token.username,
+          esAdmin: token.esAdmin,
+        },
+      };
+    },
 
-    jwt({ user, token }) {
+    async jwt({ user, token }) {
       if (user) {
-        token.id = user.id;
-
-        if ('username' in user) token.username = user.username;
-        if ('esAdmin' in user) token.esAdmin = user.esAdmin;
+        return { ...user, ...token };
       }
+
+      const shouldRefresh =
+        token?.backendTokens.expiresIn < new Date().getTime();
+
+      if (shouldRefresh) {
+        return await refreshToken(token);
+      }
+
       return token;
     },
   },
@@ -57,21 +111,24 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const user = await prisma?.cuenta.findFirst({
-          where: {
-            nombreUsuario: credentials.username,
-            contrasena: credentials.password,
-          },
-        });
+        const { response, data, error } = await fetchClient.POST(
+          '/auth/login',
+          {
+            body: credentials,
+          }
+        );
 
-        if (!user) {
-          return null;
+        if ((response.status !== 201 || !data?.user) && error) {
+          const message = error.message[0] || 'Error desconocido';
+
+          throw new Error(message);
         }
 
         return {
-          id: user.id,
-          username: user.nombreUsuario,
-          esAdmin: user.esAdmin,
+          id: data.user.id!,
+          username: data.user.username!,
+          esAdmin: data.user.role === 'ADMIN',
+          backendTokens: data.backendTokens,
         };
       },
     }),

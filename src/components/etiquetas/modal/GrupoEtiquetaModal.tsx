@@ -14,45 +14,43 @@ import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
 import { RouterOutputs } from '@/server';
 import ModelosConflict from '@/components/etiquetas/modal/ModelosConflict';
+import { GrupoConMatch } from '@/components/etiquetas/list/EtiquetasList';
 
-interface GrupoEtiquetaModalProps {
+interface TagGroupModalProps {
   action: 'EDIT' | 'CREATE';
-  grupo?: Omit<
-    RouterOutputs['etiqueta']['getByNombre'][number],
-    'created_at' | 'updated_at'
-  >;
+  group?: GrupoConMatch;
 }
 
 type GrupoEtiquetaModalData = {
-  tipo: 'CREATE' | 'EDIT';
-  nombre: string;
-  grupoId: string;
+  type: 'CREATE' | 'EDIT';
+  name: string;
+  groupId: string;
   color: string;
-  esExclusivo: boolean;
+  isExclusive: boolean;
 };
 
-export const useGrupoEtiquetaModalData = create<GrupoEtiquetaModalData>(() => ({
-  tipo: 'CREATE',
-  nombre: '',
-  grupoId: '',
+export const useTagGroupModalData = create<GrupoEtiquetaModalData>(() => ({
+  type: 'CREATE',
+  name: '',
+  groupId: '',
   color: '',
-  esExclusivo: false,
+  isExclusive: false,
 }));
 
-const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
+const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
   const [open, setOpen] = useState(false);
-  const [quiereEliminar, setQuiereEliminar] = useState(false);
+  const [shouldDelete, setShouldDelete] = useState(false);
   const [conflict, setConflict] = useState<
     RouterOutputs['modelo']['getByGrupoEtiqueta'] | undefined
   >(undefined);
   const utils = trpc.useUtils();
-  const createGrupoEtiqueta = trpc.grupoEtiqueta.create.useMutation();
-  const editGrupoEtiqueta = trpc.grupoEtiqueta.edit.useMutation();
-  const deleteGrupoEtiqueta = trpc.grupoEtiqueta.delete.useMutation();
+  const createTagGroup = trpc.tagGroup.create.useMutation();
+  const editTagGroup = trpc.tagGroup.edit.useMutation();
+  const deleteTagGroup = trpc.tagGroup.delete.useMutation();
 
   const { data: modelosGrupo, isLoading: modelosGrupoLoading } =
-    trpc.modelo.getByGrupoEtiqueta.useQuery([grupo?.id ?? ''], {
-      enabled: action === 'EDIT' && grupo?.id !== undefined,
+    trpc.modelo.getByGrupoEtiqueta.useQuery([group?.id ?? ''], {
+      enabled: action === 'EDIT' && group?.id !== undefined,
       onSuccess(data) {
         if (action === 'CREATE') return;
         if (conflict === undefined) return;
@@ -62,77 +60,77 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
             .filter(
               (modelo) =>
                 modelo.etiquetas.filter(
-                  (etiqueta) => etiqueta.grupoId === grupo?.id
+                  (etiqueta) => etiqueta.grupoId === group?.id
                 ).length > 1
             )
             .map((modelo) => ({
               ...modelo,
               etiquetas: modelo.etiquetas.filter(
-                (etiqueta) => etiqueta.grupoId === grupo?.id
+                (etiqueta) => etiqueta.grupoId === group?.id
               ),
             }))
         );
       },
     });
 
-  const modalData = useGrupoEtiquetaModalData((state) => ({
-    tipo: state.tipo,
-    nombre: state.nombre,
-    grupoId: state.grupoId,
+  const modalData = useTagGroupModalData((state) => ({
+    type: state.type,
+    name: state.name,
+    groupId: state.groupId,
     color: state.color,
-    esExclusivo: state.esExclusivo,
+    isExclusive: state.isExclusive,
   }));
 
-  const puedeEliminar = grupo?._count.etiquetas === 0;
+  const canDelete = group?._count.tags === 0;
 
   async function handleCancel() {
-    useGrupoEtiquetaModalData.setState({
-      tipo: 'CREATE',
-      nombre: '',
-      grupoId: '',
+    useTagGroupModalData.setState({
+      type: 'CREATE',
+      name: '',
+      groupId: '',
       color: randomColor(),
-      esExclusivo: false,
+      isExclusive: false,
     });
-    createGrupoEtiqueta.reset();
-    editGrupoEtiqueta.reset();
+    createTagGroup.reset();
+    editTagGroup.reset();
   }
 
   async function handleSubmit() {
-    const { tipo, nombre, grupoId, color, esExclusivo } =
-      useGrupoEtiquetaModalData.getState();
-    if (tipo === 'CREATE') {
-      await createGrupoEtiqueta
+    const { type, name, groupId, color, isExclusive } =
+      useTagGroupModalData.getState();
+    if (type === 'CREATE') {
+      await createTagGroup
         .mutateAsync({
-          nombre: nombre,
+          name,
           color: color,
-          esExclusivo: esExclusivo,
+          isExclusive,
         })
         .then(() => {
           setOpen(false);
-          utils.grupoEtiqueta.getAll.invalidate();
+          utils.tagGroup.getAll.invalidate();
           toast.success('Grupo de etiquetas creado con éxito');
         })
-        .catch(() => {
+        .catch((e) => {
           setOpen(true);
           toast.error(
             'Error al crear el grupo de etiquetas, asegúrese de poner un nombre y un color'
           );
         });
-    } else if (tipo === 'EDIT') {
-      if (esExclusivo === true && grupo?.esExclusivo === false) {
+    } else if (type === 'EDIT') {
+      if (isExclusive === true && group?.isExclusive === false) {
         const conflict =
           modelosGrupo &&
           modelosGrupo
             .filter(
               (modelo) =>
                 modelo.etiquetas.filter(
-                  (etiqueta) => etiqueta.grupoId === grupoId
+                  (etiqueta) => etiqueta.grupoId === groupId
                 ).length > 1
             )
             .map((modelo) => ({
               ...modelo,
               etiquetas: modelo.etiquetas.filter(
-                (etiqueta) => etiqueta.grupoId === grupoId
+                (etiqueta) => etiqueta.grupoId === groupId
               ),
             }));
 
@@ -148,18 +146,18 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
 
       setConflict(undefined);
 
-      await editGrupoEtiqueta
+      await editTagGroup
         .mutateAsync({
-          id: grupoId,
-          nombre: nombre,
-          color: color,
-          esExclusivo: esExclusivo,
+          id: groupId,
+          name,
+          color,
+          isExclusive,
         })
         .then(() => {
           setOpen(false);
-          utils.grupoEtiqueta.getAll.invalidate();
-          if (grupo) {
-            utils.modelo.getByGrupoEtiqueta.invalidate([grupo.id]);
+          utils.tagGroup.getAll.invalidate();
+          if (group) {
+            utils.modelo.getByGrupoEtiqueta.invalidate([group.id]);
           }
           toast.success('Grupo de etiquetas editado con éxito');
         })
@@ -169,26 +167,26 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
         });
     }
 
-    if (createGrupoEtiqueta.isSuccess || editGrupoEtiqueta.isSuccess) {
-      useGrupoEtiquetaModalData.setState({
-        tipo: 'CREATE',
-        nombre: '',
-        grupoId: '',
+    if (createTagGroup.isSuccess || editTagGroup.isSuccess) {
+      useTagGroupModalData.setState({
+        type: 'CREATE',
+        name: '',
+        groupId: '',
         color: randomColor(),
-        esExclusivo: false,
+        isExclusive: false,
       });
     }
 
-    utils.etiqueta.getByNombre.invalidate();
+    utils.tag.getByNombre.invalidate();
   }
 
   async function handleDelete() {
-    if (quiereEliminar) {
-      await deleteGrupoEtiqueta
-        .mutateAsync(grupo?.id ?? '')
+    if (shouldDelete) {
+      await deleteTagGroup
+        .mutateAsync(group?.id ?? '')
         .then(() => {
           setOpen(false);
-          utils.etiqueta.getByNombre.invalidate();
+          utils.tag.getByNombre.invalidate();
           toast.success('Grupo de etiquetas eliminado con éxito');
         })
         .catch(() => {
@@ -196,25 +194,23 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
           toast.error('Error al eliminar el grupo de etiquetas');
         });
     } else {
-      setQuiereEliminar(true);
+      setShouldDelete(true);
     }
   }
 
   const submitDisabled = useMemo(() => {
-    if (modalData.tipo === 'CREATE') {
-      return createGrupoEtiqueta.isLoading || conflict !== undefined;
+    if (modalData.type === 'CREATE') {
+      return createTagGroup.isLoading || conflict !== undefined;
     } else {
       return (
-        editGrupoEtiqueta.isLoading ||
-        conflict !== undefined ||
-        modelosGrupoLoading
+        editTagGroup.isLoading || conflict !== undefined || modelosGrupoLoading
       );
     }
   }, [
     conflict,
-    createGrupoEtiqueta.isLoading,
-    editGrupoEtiqueta.isLoading,
-    modalData.tipo,
+    createTagGroup.isLoading,
+    editTagGroup.isLoading,
+    modalData.type,
     modelosGrupoLoading,
   ]);
 
@@ -227,12 +223,12 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
               className='rounded-md bg-gray-400 px-5 py-0.5 text-gray-950 hover:bg-gray-300'
               onClick={() => {
                 setOpen(true);
-                useGrupoEtiquetaModalData.setState({
-                  tipo: 'CREATE',
-                  nombre: '',
-                  grupoId: '',
+                useTagGroupModalData.setState({
+                  type: 'CREATE',
+                  name: '',
+                  groupId: '',
                   color: randomColor(),
-                  esExclusivo: false,
+                  isExclusive: false,
                 });
               }}
             >
@@ -247,12 +243,12 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
                 e.preventDefault();
                 e.stopPropagation();
                 setOpen(true);
-                useGrupoEtiquetaModalData.setState({
-                  tipo: 'EDIT',
-                  grupoId: grupo?.id ?? '',
-                  nombre: grupo?.nombre ?? '',
-                  color: grupo?.color ?? '',
-                  esExclusivo: grupo?.esExclusivo ?? false,
+                useTagGroupModalData.setState({
+                  type: 'EDIT',
+                  groupId: group?.id ?? '',
+                  name: group?.name ?? '',
+                  color: group?.color ?? '',
+                  isExclusive: group?.isExclusive ?? false,
                 });
               }}
               className={cn(
@@ -280,29 +276,29 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
         >
           <div className='flex flex-col gap-y-1'>
             <p className='w-fit py-1.5 text-base font-semibold'>
-              {(modalData.tipo === 'CREATE' && 'Crear grupo de etiquetas') ||
-                (modalData.tipo === 'EDIT' && 'Editar grupo de etiquetas')}
+              {(modalData.type === 'CREATE' && 'Crear grupo de etiquetas') ||
+                (modalData.type === 'EDIT' && 'Editar grupo de etiquetas')}
             </p>
             <div className='relative flex items-center gap-x-2'>
               <Input
                 type='text'
-                name='grupo'
-                id='grupo'
+                name='group'
+                id='group'
                 placeholder='Nombre del grupo'
-                value={modalData.nombre}
+                value={modalData.name}
                 onChange={(e) => {
-                  useGrupoEtiquetaModalData.setState({
-                    nombre: e.target.value,
+                  useTagGroupModalData.setState({
+                    name: e.target.value,
                   });
                 }}
               />
               <div className='flex items-center gap-x-2'>
-                {modalData.esExclusivo ? (
+                {modalData.isExclusive ? (
                   <LockIcon
                     onClick={() => {
-                      useGrupoEtiquetaModalData.setState({
-                        esExclusivo:
-                          !useGrupoEtiquetaModalData.getState().esExclusivo,
+                      useTagGroupModalData.setState({
+                        isExclusive:
+                          !useTagGroupModalData.getState().isExclusive,
                       });
                     }}
                     className={cn('h-6 w-6 hover:cursor-pointer')}
@@ -310,9 +306,9 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
                 ) : (
                   <UnlockIcon
                     onClick={() => {
-                      useGrupoEtiquetaModalData.setState({
-                        esExclusivo:
-                          !useGrupoEtiquetaModalData.getState().esExclusivo,
+                      useTagGroupModalData.setState({
+                        isExclusive:
+                          !useTagGroupModalData.getState().isExclusive,
                       });
                     }}
                     className={cn('h-6 w-6 hover:cursor-pointer')}
@@ -322,7 +318,7 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
                 <ColorPicker
                   color={modalData.color}
                   setColor={(color) => {
-                    useGrupoEtiquetaModalData.setState({
+                    useTagGroupModalData.setState({
                       color: color,
                     });
                   }}
@@ -330,20 +326,18 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
               </div>
             </div>
           </div>
-          {createGrupoEtiqueta.isError || editGrupoEtiqueta.isError ? (
+          {createTagGroup.isError || editTagGroup.isError ? (
             <p className='text-sm font-semibold text-red-500'>
-              {createGrupoEtiqueta.isError
-                ? createGrupoEtiqueta.error?.data?.zodError?.fieldErrors
+              {createTagGroup.isError
+                ? createTagGroup.error?.data?.zodError?.fieldErrors
                     .nombre?.[0] ||
-                  createGrupoEtiqueta.error?.data?.zodError?.fieldErrors
+                  createTagGroup.error?.data?.zodError?.fieldErrors
                     .color?.[0] ||
                   'Error al crear el grupo, asegúrese de poner un nombre y un color'
                 : ''}
-              {editGrupoEtiqueta.isError
-                ? editGrupoEtiqueta.error?.data?.zodError?.fieldErrors
-                    .nombre?.[0] ||
-                  editGrupoEtiqueta.error?.data?.zodError?.fieldErrors
-                    .color?.[0] ||
+              {editTagGroup.isError
+                ? editTagGroup.error?.data?.zodError?.fieldErrors.nombre?.[0] ||
+                  editTagGroup.error?.data?.zodError?.fieldErrors.color?.[0] ||
                   'Error al editar el grupo de etiquetas'
                 : ''}
             </p>
@@ -357,31 +351,32 @@ const GrupoEtiquetaModal = ({ action, grupo }: GrupoEtiquetaModalProps) => {
               onClick={handleSubmit}
               disabled={submitDisabled}
             >
-              {((editGrupoEtiqueta.isLoading ||
-                createGrupoEtiqueta.isLoading) && <Loader />) ||
-                (modalData.tipo === 'CREATE' ? 'Crear' : 'Editar')}
+              {((editTagGroup.isLoading || createTagGroup.isLoading) && (
+                <Loader />
+              )) ||
+                (modalData.type === 'CREATE' ? 'Crear' : 'Editar')}
             </Button>
-            {modalData.tipo === 'EDIT' && (
+            {modalData.type === 'EDIT' && (
               <Button
                 variant='destructive'
                 className={cn('h-auto text-wrap', {
-                  'bg-red-700 hover:bg-red-500': quiereEliminar,
+                  'bg-red-700 hover:bg-red-500': shouldDelete,
                 })}
                 onClick={handleDelete}
-                disabled={!puedeEliminar}
+                disabled={!canDelete}
               >
-                {puedeEliminar
-                  ? quiereEliminar
+                {canDelete
+                  ? shouldDelete
                     ? '¿Estás seguro?'
                     : 'Eliminar'
                   : 'No se puede eliminar, el grupo contiene etiquetas'}
               </Button>
             )}
-            {quiereEliminar && (
+            {shouldDelete && (
               <Button
                 variant='secondary'
                 onClick={() => {
-                  setQuiereEliminar(false);
+                  setShouldDelete(false);
                 }}
               >
                 Cancelar

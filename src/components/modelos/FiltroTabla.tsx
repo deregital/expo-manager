@@ -4,7 +4,11 @@ import { useModelosTabla } from '@/components/modelos/table/ModelosTable';
 import SwitchEventos from '@/components/ui/SwitchEventos';
 import { create } from 'zustand';
 import Filtro from '@/components/ui/filtro/Filtro';
-import { type Filtro as FiltroType, FuncionFiltrar } from '@/lib/filter';
+import {
+  type Filtro as FiltroType,
+  FuncionFiltrar,
+  type FiltroTraducido,
+} from '@/lib/filter';
 import { useMemo } from 'react';
 
 export const useModelosFiltro = create(() => ({
@@ -22,9 +26,9 @@ const FiltroTabla = () => {
     cantidadDeModelos: s.cantidad,
   }));
 
-  function setAndDeleteSearch<T extends keyof FiltroType>(
+  function setAndDeleteSearch<T extends keyof FiltroTraducido>(
     queryString: T,
-    value: FiltroType[T]
+    value: FiltroTraducido[T]
   ) {
     if (!value || (Array.isArray(value) && value.length === 0)) {
       searchParams.delete(queryString);
@@ -37,34 +41,32 @@ const FiltroTabla = () => {
 
   const defaultEtiquetas = useMemo(
     () =>
-      JSON.parse(
-        searchParams.get('etiquetas') ?? '[]'
-      ) as FiltroType['etiquetas'],
+      JSON.parse(searchParams.get('etiquetas') ?? '[]') as FiltroType['tags'],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [searchParams.get('etiquetas')]
   );
 
-  const defaultGrupos = useMemo(
+  const defaultGroups = useMemo(
     () =>
-      JSON.parse(searchParams.get('grupos') ?? '[]') as FiltroType['grupos'],
+      JSON.parse(searchParams.get('grupos') ?? '[]') as FiltroType['groups'],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [searchParams.get('grupos')]
   );
 
   const filtrar: FuncionFiltrar = ({
-    etiquetas,
+    tags: etiquetas,
     input,
-    grupos,
-    condicionalEtiq,
-    condicionalGrupo,
+    groups,
+    condicionalTag: condicionalEtiq,
+    condicionalGroup,
     dni,
     genero,
     instagram,
     mail,
     telefono,
   }) => {
-    setAndDeleteSearch('grupos', grupos);
-    setAndDeleteSearch('condicionalGrupo', condicionalGrupo);
+    setAndDeleteSearch('grupos', groups);
+    setAndDeleteSearch('condicionalGrupo', condicionalGroup);
     setAndDeleteSearch('condicionalEtiq', condicionalEtiq);
     setAndDeleteSearch('dni', dni);
     setAndDeleteSearch('genero', genero);
@@ -81,11 +83,11 @@ const FiltroTabla = () => {
     <div className='flex items-center justify-between gap-x-4'>
       <Filtro
         defaultFiltro={{
-          etiquetas: defaultEtiquetas,
-          grupos: defaultGrupos,
+          tags: defaultEtiquetas,
+          groups: defaultGroups,
         }}
         mostrarInput
-        mostrarEtiq
+        showTag
         funcionFiltrado={filtrar}
       >
         <div className='flex w-full items-center justify-between gap-x-4'>
