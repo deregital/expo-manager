@@ -1,10 +1,11 @@
 import EtiquetaFillIcon from '@/components/icons/EtiquetaFillIcon';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import ComboBox from '@/components/ui/ComboBox';
-import { useFiltro } from '@/components/ui/filtro/Filtro';
+import { useFiltro, useFiltroAvanzado } from '@/components/ui/filtro/Filtro';
 import { Switch } from '@/components/ui/switch';
 import { trpc } from '@/lib/trpc';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 type FiltroBasicoEtiquetaProps = {
   editTag: (tag: string) => void;
@@ -25,11 +26,14 @@ const FiltroBasicoEtiqueta = ({
   include,
   setInclude,
 }: FiltroBasicoEtiquetaProps) => {
-  const { filterTags } = useFiltro((s) => ({
+  const { filterTags, reset } = useFiltro((s) => ({
     filterTags: s.tags,
+    reset: s.reset,
   }));
   const [openGroup, setOpenGroup] = useState(false);
   const [openTag, setOpenTag] = useState(false);
+  const pathname = usePathname();
+  const basePath = pathname.split('/')[1];
 
   const { data: tagGroupsData, isLoading: isLoadingGroups } =
     trpc.tagGroup.getAll.useQuery();
@@ -43,6 +47,14 @@ const FiltroBasicoEtiqueta = ({
       return !filterTags.find((filterTag) => filterTag.tag.id === tag.id);
     });
   }, [tagsData, filterTags]);
+
+  useEffect(() => {
+    if (basePath !== 'modelos') {
+      reset();
+      useFiltroAvanzado.setState({ isOpen: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [basePath, reset]);
 
   return (
     <div className='flex w-full flex-col items-center gap-4 md:w-fit md:flex-row'>

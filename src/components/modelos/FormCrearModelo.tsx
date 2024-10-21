@@ -20,6 +20,15 @@ import { RouterOutputs } from '@/server';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { Country, State } from 'country-state-city';
+import { Button } from '../ui/button';
+import { Switch } from '../ui/switch';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import CrearComentario from '../modelo/CrearComentario';
 
 interface FormCrearModeloProps {
   inputRef: React.RefObject<HTMLInputElement>;
@@ -126,7 +135,7 @@ const FormCrearModelo = ({
     if (!modalModelo.modelo.paisNacimiento) return [];
 
     const countryCode = allCountries.find(
-      (country) => country.name === modalModelo.modelo.paisNacimiento
+      (country) => country.isoCode === modalModelo.modelo.paisNacimiento
     )?.isoCode;
 
     return State.getStatesOfCountry(countryCode);
@@ -142,7 +151,42 @@ const FormCrearModelo = ({
       enabled: !!modalModelo.modelo.residencia?.provincia,
     }
   );
+  const [esResoluble, setEsResoluble] = useState(false);
 
+  const handleAddComentario = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const target = e.target as typeof e.target & {
+      comentario: { value: string };
+    };
+    const comentario = target.comentario.value;
+    const isSolvable = esResoluble;
+    if (!comentario || comentario === '') return;
+    e.currentTarget.reset();
+    setEsResoluble(false);
+    useCrearModeloModal.setState({
+      modelo: {
+        ...modalModelo.modelo,
+        comentarios: [
+          ...modalModelo.modelo.comentarios,
+          {
+            contenido: comentario,
+            isSolvable: isSolvable,
+          },
+        ],
+      },
+    });
+  };
+
+  const handleDeleteComentario = (index: number) => {
+    const newComentarios = modalModelo.modelo.comentarios;
+    newComentarios.splice(index, 1);
+    useCrearModeloModal.setState({
+      modelo: {
+        ...modalModelo.modelo,
+        comentarios: newComentarios,
+      },
+    });
+  };
   return (
     <>
       <Label className='text-sm'>Nombre completo: (obligatorio)</Label>
@@ -447,7 +491,7 @@ const FormCrearModelo = ({
           </SelectTrigger>
           <SelectContent>
             {allCountries.map((country) => (
-              <SelectItem key={country.isoCode} value={country.name}>
+              <SelectItem key={country.isoCode} value={country.isoCode}>
                 {country.name}
               </SelectItem>
             ))}
@@ -469,7 +513,7 @@ const FormCrearModelo = ({
           </SelectTrigger>
           <SelectContent>
             {statesBySelectedCountry.map((state) => (
-              <SelectItem key={state.isoCode} value={state.name}>
+              <SelectItem key={state.isoCode} value={state.isoCode}>
                 {state.name}
               </SelectItem>
             ))}
@@ -543,6 +587,55 @@ const FormCrearModelo = ({
             ))}
           </SelectContent>
         </Select>
+      </div>
+      <div className='flex flex-col gap-y-2'>
+        <Label className='pt-2 text-sm'>Comentarios:</Label>
+        <CrearComentario
+          handleAddComentario={handleAddComentario}
+          esResoluble={esResoluble}
+          setEsResoluble={setEsResoluble}
+          textSubmit='+'
+        />
+        <Label className='pt-2 text-xs'>Comentarios agregados:</Label>
+        <div className='flex flex-col gap-y-2'>
+          {modalModelo.modelo.comentarios?.map((comentario, index) => {
+            return (
+              <div
+                key={index}
+                className='flex items-center gap-x-4 rounded-lg bg-gray-300 p-2'
+              >
+                <Input
+                  autoComplete='off'
+                  name='comentario'
+                  value={comentario.contenido}
+                  disabled
+                  className='flex-grow'
+                />
+                <div className='flex flex-col items-center'>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <span className='mb-1 whitespace-nowrap text-sm'>
+                          S/R
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Simple / Resoluble</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <Switch checked={comentario.isSolvable} disabled />
+                </div>
+                <Button className='p-2'>
+                  <TrashIcon
+                    onClick={() => handleDeleteComentario(index)}
+                    className='h-4 w-4 cursor-pointer'
+                  />
+                </Button>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </>
   );

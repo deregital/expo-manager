@@ -29,6 +29,10 @@ type ModeloModal = {
           localidad: string | undefined;
         }
       | undefined;
+    comentarios: {
+      contenido: string;
+      isSolvable: boolean;
+    }[];
   };
   resetModelo: () => void;
 };
@@ -52,6 +56,7 @@ const defaultModelo = {
     provincia: undefined,
     localidad: undefined,
   },
+  comentarios: [],
 };
 
 export const useCrearModeloModal = create<ModeloModal>((set) => ({
