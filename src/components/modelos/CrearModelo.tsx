@@ -14,7 +14,7 @@ type ModeloModal = {
     telefonoSecundario?: string;
     fechaNacimiento: Date | undefined;
     genero: string;
-    etiquetas: NonNullable<RouterOutputs['etiqueta']['getById']>[];
+    etiquetas: NonNullable<RouterOutputs['tag']['getById']>[];
     apodos: string[];
     dni: string | undefined;
     mail: string | undefined;

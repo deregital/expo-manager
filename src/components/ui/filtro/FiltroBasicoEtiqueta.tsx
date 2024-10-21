@@ -8,47 +8,45 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 type FiltroBasicoEtiquetaProps = {
-  editarEtiq: (etiq: string) => void;
-  editarGrupoEtiq: (grupoEtiq: string) => void;
-  grupoId: string | undefined;
-  etiquetaId: string | undefined;
+  editTag: (tag: string) => void;
+  editTagGroup: (tagGroup: string) => void;
+  groupId: string | undefined;
+  tagId: string | undefined;
   switchDisabled: boolean;
   include: boolean;
   setInclude: (value: boolean) => void;
 };
 
 const FiltroBasicoEtiqueta = ({
-  editarEtiq,
-  editarGrupoEtiq,
-  grupoId,
-  etiquetaId,
+  editTag,
+  editTagGroup,
+  groupId,
+  tagId,
   switchDisabled,
   include,
   setInclude,
 }: FiltroBasicoEtiquetaProps) => {
-  const { etiquetasFiltro, reset } = useFiltro((s) => ({
-    etiquetasFiltro: s.etiquetas,
+  const { filterTags, reset } = useFiltro((s) => ({
+    filterTags: s.tags,
     reset: s.reset,
   }));
-  const [openGrupo, setOpenGrupo] = useState(false);
-  const [openEtiqueta, setOpenEtiqueta] = useState(false);
+  const [openGroup, setOpenGroup] = useState(false);
+  const [openTag, setOpenTag] = useState(false);
   const pathname = usePathname();
   const basePath = pathname.split('/')[1];
 
-  const { data: dataGrupos, isLoading: isLoadingGrupos } =
-    trpc.grupoEtiqueta.getAll.useQuery();
+  const { data: tagGroupsData, isLoading: isLoadingGroups } =
+    trpc.tagGroup.getAll.useQuery();
 
-  const { data: dataEtiquetas, isLoading: isLoadingEtiquetas } = grupoId
-    ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoId)
-    : trpc.etiqueta.getAll.useQuery();
+  const { data: tagsData, isLoading: isLoadingTags } = groupId
+    ? trpc.tag.getByGroupId.useQuery(groupId)
+    : trpc.tag.getAll.useQuery();
 
-  const etiquetasFiltradas = useMemo(() => {
-    return dataEtiquetas?.filter((etiqueta) => {
-      return !etiquetasFiltro.find(
-        (etiquetaFiltro) => etiquetaFiltro.etiqueta.id === etiqueta.id
-      );
+  const filteredTags = useMemo(() => {
+    return tagsData?.filter((tag) => {
+      return !filterTags.find((filterTag) => filterTag.tag.id === tag.id);
     });
-  }, [dataEtiquetas, etiquetasFiltro]);
+  }, [tagsData, filterTags]);
 
   useEffect(() => {
     if (basePath !== 'modelos') {
@@ -69,23 +67,23 @@ const FiltroBasicoEtiqueta = ({
         }}
       />
       <ComboBox
-        data={dataGrupos ?? []}
+        data={tagGroupsData ?? []}
         id='id'
-        value='nombre'
+        value='name'
         onSelect={(value) => {
-          setOpenGrupo(false);
-          editarGrupoEtiq(value);
+          setOpenGroup(false);
+          editTagGroup(value);
         }}
-        open={openGrupo}
-        isLoading={isLoadingGrupos}
-        setOpen={setOpenGrupo}
+        open={openGroup}
+        isLoading={isLoadingGroups}
+        setOpen={setOpenGroup}
         wFullMobile
-        selectedIf={grupoId ?? ''}
+        selectedIf={groupId ?? ''}
         triggerChildren={
           <>
             <span className='truncate'>
-              {grupoId
-                ? (dataGrupos?.find((grupo) => grupo.id === grupoId)?.nombre ??
+              {groupId
+                ? (tagGroupsData?.find((group) => group.id === groupId)?.name ??
                   'Buscar grupo...')
                 : 'Buscar grupo...'}
             </span>
@@ -94,25 +92,25 @@ const FiltroBasicoEtiqueta = ({
         }
       />
       <ComboBox
-        data={dataEtiquetas ?? []}
-        filteredData={etiquetasFiltradas}
+        data={tagsData ?? []}
+        filteredData={filteredTags}
         id='id'
-        value='nombre'
+        value='name'
         onSelect={(value) => {
-          setOpenEtiqueta(false);
-          editarEtiq(value);
+          setOpenTag(false);
+          editTag(value);
         }}
-        open={openEtiqueta}
+        open={openTag}
         wFullMobile
-        isLoading={isLoadingEtiquetas}
-        setOpen={setOpenEtiqueta}
-        selectedIf={etiquetaId ?? ''}
+        isLoading={isLoadingTags}
+        setOpen={setOpenTag}
+        selectedIf={tagId ?? ''}
         triggerChildren={
           <>
             <span className='truncate'>
-              {etiquetaId
-                ? (dataEtiquetas?.find((etiqueta) => etiqueta.id === etiquetaId)
-                    ?.nombre ?? 'Buscar etiqueta...')
+              {tagId
+                ? (tagsData?.find((tag) => tag.id === tagId)?.name ??
+                  'Buscar etiqueta...')
                 : 'Buscar etiqueta...'}
             </span>
             <EtiquetaFillIcon className='h-5 w-5' />

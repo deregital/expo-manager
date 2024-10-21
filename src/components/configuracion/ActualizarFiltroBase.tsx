@@ -10,22 +10,22 @@ import { create } from 'zustand';
 
 interface ActualizarFiltroBaseProps {}
 
-export const useEtiquetasFiltroBase = create<{
-  etiquetas: EtiquetaBaseConGrupoColor[];
-  activo: boolean;
-  agregarEtiqueta: (etiqueta: EtiquetaBaseConGrupoColor) => void;
-  eliminarEtiqueta: (etiqueta: EtiquetaBaseConGrupoColor) => void;
+export const useTagsGlobalFilter = create<{
+  tags: EtiquetaBaseConGrupoColor[];
+  active: boolean;
+  addTag: (tag: EtiquetaBaseConGrupoColor) => void;
+  removeTag: (tag: EtiquetaBaseConGrupoColor) => void;
 }>((set) => ({
-  etiquetas: [],
-  activo: false,
-  agregarEtiqueta: (etiqueta: EtiquetaBaseConGrupoColor) => {
+  tags: [],
+  active: false,
+  addTag: (tag: EtiquetaBaseConGrupoColor) => {
     set((state) => ({
-      etiquetas: [...state.etiquetas, etiqueta],
+      tags: [...state.tags, tag],
     }));
   },
-  eliminarEtiqueta: (etiqueta: EtiquetaBaseConGrupoColor) => {
+  removeTag: (tag: EtiquetaBaseConGrupoColor) => {
     set((state) => ({
-      etiquetas: state.etiquetas.filter((e) => e.id !== etiqueta.id),
+      tags: state.tags.filter((e) => e.id !== tag.id),
     }));
   },
 }));
@@ -36,32 +36,31 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
   const { data: filtroBaseData, isLoading: filtroBaseLoading } =
     trpc.cuenta.getFiltroBase.useQuery(undefined, {
       onSuccess: (data) => {
-        useEtiquetasFiltroBase.setState({
-          activo: data.activo,
-          etiquetas: data.etiquetas,
+        useTagsGlobalFilter.setState({
+          active: data.activo,
+          tags: data.etiquetas,
         });
       },
     });
   const [open, setOpen] = useState(false);
-  const { eliminarEtiqueta, etiquetas, agregarEtiqueta, activo } =
-    useEtiquetasFiltroBase();
+  const { removeTag, tags, addTag, active } = useTagsGlobalFilter();
 
-  async function handleDelete(etiqueta: EtiquetaBaseConGrupoColor) {
-    eliminarEtiqueta(etiqueta);
+  async function handleDelete(tag: EtiquetaBaseConGrupoColor) {
+    removeTag(tag);
     await filtroBaseMutation
       .mutateAsync({
-        activo,
+        activo: active,
         etiquetas: filtroBaseData?.etiquetas
-          ?.filter((e) => e.id !== etiqueta.id)
+          ?.filter((e) => e.id !== tag.id)
           .map((e) => e.id),
       })
       .then(() => {
-        toast.success(`Etiqueta ${etiqueta.nombre} eliminada`);
+        toast.success(`Etiqueta ${tag.nombre} eliminada`);
         utils.modelo.invalidate();
         utils.cuenta.getFiltroBase.invalidate();
       })
       .catch(() => {
-        agregarEtiqueta(etiqueta);
+        addTag(tag);
         toast.error('Error al eliminar etiqueta');
       });
   }
@@ -73,16 +72,16 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
           <h1 className='text-2xl font-bold'>Filtro base</h1>
           <Switch
             disabled={filtroBaseLoading}
-            checked={activo}
+            checked={active}
             onCheckedChange={async (checked: boolean | 'indeterminate') => {
               // if (checked === 'indeterminate') return;
-              useEtiquetasFiltroBase.setState({
-                activo: checked === 'indeterminate' ? activo : checked,
+              useTagsGlobalFilter.setState({
+                active: checked === 'indeterminate' ? active : checked,
               });
               await filtroBaseMutation
                 .mutateAsync({
                   activo: checked === 'indeterminate' ? false : checked,
-                  etiquetas: etiquetas.map((e) => e.id),
+                  etiquetas: tags.map((e) => e.id),
                 })
                 .then(() => {
                   utils.cuenta.getFiltroBase.invalidate();
@@ -102,11 +101,11 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
               open={open}
               setOpen={setOpen}
               handleDelete={handleDelete}
-              etiquetas={etiquetas}
+              etiquetas={tags}
             >
               <AgregarEtiquetasAFiltroBase
-                closeAddEtiqueta={() => setOpen(false)}
-                openAddEtiqueta={() => setOpen(true)}
+                closeAddTag={() => setOpen(false)}
+                openAddTag={() => setOpen(true)}
               />
             </ListaEtiquetas>
           )

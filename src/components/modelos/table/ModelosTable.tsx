@@ -24,8 +24,8 @@ const ModelosTable = () => {
   }));
 
   const inputQuery = useSearchQuery(searchParams, 'input');
-  const etiquetaQuery = useSearchQuery(searchParams, 'etiquetas');
-  const grupoEtiquetaQuery = useSearchQuery(searchParams, 'grupos');
+  const tagQuery = useSearchQuery(searchParams, 'etiquetas');
+  const tagGroupQuery = useSearchQuery(searchParams, 'grupos');
   const instagramQuery = useSearchQuery(searchParams, 'instagram');
   const mailQuery = useSearchQuery(searchParams, 'mail');
   const dniQuery = useSearchQuery(searchParams, 'dni');
@@ -34,10 +34,10 @@ const ModelosTable = () => {
 
   const [search, setSearch] = useState<Filtro>({
     input: inputQuery ?? '',
-    etiquetas: etiquetaQuery ?? [],
-    grupos: grupoEtiquetaQuery ?? [],
-    condicionalEtiq: 'AND',
-    condicionalGrupo: 'AND',
+    tags: tagQuery ?? [],
+    groups: tagGroupQuery ?? [],
+    condicionalTag: 'AND',
+    condicionalGroup: 'AND',
     instagram: instagramQuery,
     mail: mailQuery,
     dni: dniQuery,
@@ -58,10 +58,10 @@ const ModelosTable = () => {
   useEffect(() => {
     setSearch({
       input: inputQuery ?? '',
-      etiquetas: etiquetaQuery ?? [],
-      grupos: grupoEtiquetaQuery ?? [],
-      condicionalEtiq: 'AND',
-      condicionalGrupo: 'AND',
+      tags: tagQuery ?? [],
+      groups: tagGroupQuery ?? [],
+      condicionalTag: 'AND',
+      condicionalGroup: 'AND',
       instagram: instagramQuery,
       mail: mailQuery,
       dni: dniQuery,
@@ -70,9 +70,9 @@ const ModelosTable = () => {
     });
   }, [
     dniQuery,
-    etiquetaQuery,
+    tagQuery,
     generoQuery,
-    grupoEtiquetaQuery,
+    tagGroupQuery,
     inputQuery,
     instagramQuery,
     mailQuery,

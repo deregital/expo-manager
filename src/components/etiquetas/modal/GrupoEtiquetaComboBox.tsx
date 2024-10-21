@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { useEtiquetaModalData } from './EtiquetaModal';
+import { useTagModalData } from './EtiquetaModal';
 import { RouterOutputs } from '@/server';
 import ComboBox from '@/components/ui/ComboBox';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
@@ -8,18 +8,18 @@ import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 const GrupoEtiquetaComboBox = ({
   data,
 }: {
-  data: RouterOutputs['grupoEtiqueta']['getAll'];
+  data: RouterOutputs['tagGroup']['getAll'];
 }) => {
-  const modalData = useEtiquetaModalData((state) => ({
-    tipo: state.tipo,
-    nombre: state.nombre,
-    grupoId: state.grupoId,
+  const modalData = useTagModalData((state) => ({
+    tipo: state.type,
+    nombre: state.name,
+    groupId: state.groupId,
   }));
   const [open, setOpen] = useState(false);
 
-  const currentGrupo = useMemo(() => {
-    return data.find((grupo) => grupo.id === modalData.grupoId);
-  }, [data, modalData.grupoId]);
+  const currentGroup = useMemo(() => {
+    return data.find((group) => group.id === modalData.groupId);
+  }, [data, modalData.groupId]);
 
   return (
     <ComboBox
@@ -30,20 +30,20 @@ const GrupoEtiquetaComboBox = ({
       triggerChildren={
         <>
           <span className='max-w-[calc(100%-30px)] truncate'>
-            {modalData.grupoId ? currentGrupo?.nombre : 'Buscar grupo...'}
+            {modalData.groupId ? currentGroup?.name : 'Buscar grupo...'}
           </span>
           <EtiquetasFillIcon className='h-5 w-5' />
         </>
       }
       id='id'
-      value='nombre'
+      value='name'
       onSelect={(id) => {
         setOpen(false);
-        useEtiquetaModalData.setState({
-          grupoId: id,
+        useTagModalData.setState({
+          groupId: id,
         });
       }}
-      selectedIf={modalData.grupoId}
+      selectedIf={modalData.groupId}
     />
   );
 };

@@ -30,7 +30,7 @@ export const useFiltroAvanzado = create<{
 
 type FiltroProps = PropsWithChildren<{
   funcionFiltrado: FuncionFiltrar;
-  mostrarEtiq?: boolean;
+  showTag?: boolean;
   mostrarInput?: boolean;
   className?: string;
   defaultFiltro?: Partial<FiltroType>;
@@ -40,47 +40,47 @@ const Filtro = ({
   funcionFiltrado,
   className,
   defaultFiltro = defaultFilter,
-  mostrarEtiq = false,
+  showTag = false,
   mostrarInput = false,
   children,
 }: FiltroProps) => {
   const filtro = useFiltro();
-  const [grupoId, setGrupoId] = useState<string | undefined>(undefined);
-  const [etiquetaId, setEtiquetaId] = useState<string | undefined>(undefined);
+  const [groupId, setGroupId] = useState<string | undefined>(undefined);
+  const [tagId, setTagId] = useState<string | undefined>(undefined);
 
-  const { data: dataGrupoEtiquetas } = trpc.grupoEtiqueta.getAll.useQuery();
+  const { data: tagGroupData } = trpc.tagGroup.getAll.useQuery();
 
-  const { data: dataEtiquetas } = grupoId
-    ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoId)
-    : trpc.etiqueta.getAll.useQuery();
+  const { data: tagsData } = groupId
+    ? trpc.tag.getByGroupId.useQuery(groupId)
+    : trpc.tag.getAll.useQuery();
 
   const { toggle: toggleAvanzado, isOpen: isOpenAvanzado } =
     useFiltroAvanzado();
 
-  function editarEtiq(etiqId: string) {
-    const etiquetaSeleccionada = dataEtiquetas?.find((et) => et.id === etiqId)!;
+  function editTag(id: string) {
+    const selectedTag = tagsData?.find((tag) => tag.id === id)!;
 
-    if (etiquetaId === etiqId) {
+    if (tagId === id) {
       useFiltro.setState({
-        etiquetas: filtro.etiquetas.slice(1, filtro.etiquetas.length),
+        tags: filtro.tags.slice(1, filtro.tags.length),
       });
-      setEtiquetaId(undefined);
+      setTagId(undefined);
       return;
     }
-    setEtiquetaId(etiqId);
+    setTagId(id);
     useFiltro.setState({
       ...filtro,
-      etiquetas: [
+      tags: [
         {
-          etiqueta: {
-            id: etiquetaSeleccionada.id,
-            nombre: etiquetaSeleccionada.nombre,
+          tag: {
+            id: selectedTag.id,
+            name: selectedTag.name,
           },
           include:
-            filtro.grupos.length > 0
-              ? filtro.grupos[0].include
-              : filtro.etiquetas.length > 0
-                ? filtro.etiquetas[0].include
+            filtro.groups.length > 0
+              ? filtro.groups[0].include
+              : filtro.tags.length > 0
+                ? filtro.tags[0].include
                 : true,
         },
       ],
@@ -88,37 +88,37 @@ const Filtro = ({
     return;
   }
 
-  function editarGrupoEtiq(grupoEtiq: string) {
-    if (grupoId === grupoEtiq) {
+  function editTagGroup(tagGroupId: string) {
+    if (groupId === tagGroupId) {
       useFiltro.setState({
-        etiquetas: filtro.etiquetas.slice(1, filtro.etiquetas.length),
-        grupos: filtro.grupos.slice(1, filtro.grupos.length),
+        tags: filtro.tags.slice(1, filtro.tags.length),
+        groups: filtro.groups.slice(1, filtro.groups.length),
       });
-      setGrupoId(undefined);
+      setGroupId(undefined);
       return;
     }
-    const grupo = dataGrupoEtiquetas?.find((grupo) => grupo.id === grupoEtiq);
-    if (!grupo) return;
+    const group = tagGroupData?.find((group) => group.id === tagGroupId);
+    if (!group) return;
 
     useFiltro.setState({
       ...filtro,
-      grupos: [
+      groups: [
         {
-          grupo: {
-            id: grupo.id,
-            nombre: grupo.nombre,
-            color: grupo.color,
+          group: {
+            id: group.id,
+            name: group.name,
+            color: group.color,
           },
           include:
-            filtro.grupos.length > 0
-              ? filtro.grupos[0].include
-              : filtro.etiquetas.length > 0
-                ? filtro.etiquetas[0].include
+            filtro.groups.length > 0
+              ? filtro.groups[0].include
+              : filtro.tags.length > 0
+                ? filtro.tags[0].include
                 : true,
         },
       ],
     });
-    setGrupoId(grupoEtiq);
+    setGroupId(tagGroupId);
   }
 
   function editarInput(input: string) {
@@ -127,36 +127,36 @@ const Filtro = ({
 
   function resetFilters() {
     useFiltro.setState(defaultFilter);
-    setGrupoId(undefined);
-    setEtiquetaId(undefined);
+    setGroupId(undefined);
+    setTagId(undefined);
   }
 
   function switchIncludeBasico(value: boolean) {
-    const etiqueta = dataEtiquetas?.find(
-      (etiqueta) => etiqueta.id === etiquetaBasico
-    );
+    const tag = tagsData?.find((t) => t.id === basicTag);
 
-    const etiquetaArray = etiqueta
+    const tagArray: FiltroType['tags'] = tag
       ? [
           {
-            etiqueta: {
-              id: etiqueta.id,
-              nombre: etiqueta.nombre,
+            tag: {
+              id: tag.id,
+              name: tag.name,
             },
             include: value,
           },
         ]
       : [];
 
-    const grupo = dataGrupoEtiquetas?.find((grupo) => grupo.id === grupoBasico);
+    const group = tagGroupData?.find(
+      (tagGroup) => tagGroup.id === primaryGroup
+    );
 
-    const grupoArray = grupo
+    const groupArray: FiltroType['groups'] = group
       ? [
           {
-            grupo: {
-              id: grupo.id,
-              nombre: grupo?.nombre,
-              color: grupo?.color,
+            group: {
+              id: group.id,
+              name: group?.name,
+              color: group?.color,
             },
             include: value,
           },
@@ -164,41 +164,36 @@ const Filtro = ({
       : [];
 
     useFiltro.setState({
-      etiquetas: [
-        ...etiquetaArray,
-        ...filtro.etiquetas.slice(1, filtro.etiquetas.length),
-      ],
-      grupos: [...grupoArray, ...filtro.grupos.slice(1, filtro.grupos.length)],
+      tags: [...tagArray, ...filtro.tags.slice(1, filtro.tags.length)],
+      groups: [...groupArray, ...filtro.groups.slice(1, filtro.groups.length)],
     });
   }
 
-  const etiquetaBasico = useMemo(() => {
+  const basicTag = useMemo(() => {
     if (
-      defaultFiltro.etiquetas &&
-      defaultFiltro.etiquetas.length > 0 &&
-      filtro.etiquetas.length === 0
+      defaultFiltro.tags &&
+      defaultFiltro.tags.length > 0 &&
+      filtro.tags.length === 0
     ) {
-      return defaultFiltro.etiquetas[0].etiqueta.id;
+      return defaultFiltro.tags[0].tag.id;
     }
 
-    if (!filtro.etiquetas || filtro.etiquetas.length === 0) return undefined;
+    if (!filtro.tags || filtro.tags.length === 0) return undefined;
 
-    return filtro.etiquetas.length > 0
-      ? filtro.etiquetas[0].etiqueta.id
-      : undefined;
-  }, [defaultFiltro.etiquetas, filtro.etiquetas]);
+    return filtro.tags.length > 0 ? filtro.tags[0].tag.id : undefined;
+  }, [defaultFiltro.tags, filtro.tags]);
 
-  const grupoBasico = useMemo(() => {
+  const primaryGroup = useMemo(() => {
     if (
-      defaultFiltro.grupos &&
-      defaultFiltro.grupos.length > 0 &&
-      filtro.grupos.length === 0
+      defaultFiltro.groups &&
+      defaultFiltro.groups.length > 0 &&
+      filtro.groups.length === 0
     ) {
-      return defaultFiltro.grupos[0].grupo.id;
+      return defaultFiltro.groups[0].group.id;
     }
 
-    return filtro.grupos.length > 0 ? filtro.grupos[0].grupo.id : undefined;
-  }, [defaultFiltro.grupos, filtro.grupos]);
+    return filtro.groups.length > 0 ? filtro.groups[0].group.id : undefined;
+  }, [defaultFiltro.groups, filtro.groups]);
 
   useEffect(() => {
     const filtrar = () => {
@@ -213,7 +208,7 @@ const Filtro = ({
         onClick={toggleAvanzado}
         className={cn(
           'flex w-full cursor-pointer text-sm text-gray-700 underline',
-          !mostrarEtiq && 'justify-end'
+          !showTag && 'justify-end'
         )}
       >
         {isOpenAvanzado
@@ -226,20 +221,20 @@ const Filtro = ({
           className
         )}
       >
-        {mostrarEtiq && (
+        {showTag && (
           <FiltroBasicoEtiqueta
             include={
-              (filtro.etiquetas.length > 0 && filtro.etiquetas[0].include) ||
-              (filtro.grupos.length > 0 && filtro.grupos[0].include)
+              (filtro.tags.length > 0 && filtro.tags[0].include) ||
+              (filtro.groups.length > 0 && filtro.groups[0].include)
             }
             setInclude={(value) => switchIncludeBasico(value)}
             switchDisabled={
-              filtro.etiquetas.length === 0 && filtro.grupos.length === 0
+              filtro.tags.length === 0 && filtro.groups.length === 0
             }
-            editarEtiq={editarEtiq}
-            editarGrupoEtiq={editarGrupoEtiq}
-            grupoId={grupoBasico}
-            etiquetaId={etiquetaBasico}
+            editTag={editTag}
+            editTagGroup={editTagGroup}
+            groupId={primaryGroup}
+            tagId={basicTag}
           />
         )}
         <div className='order-10 flex w-full flex-1 md:order-2'>{children}</div>
@@ -257,7 +252,7 @@ const Filtro = ({
         </div>
       </div>
       {isOpenAvanzado && (
-        <FiltroAvanzado mostrarInput={mostrarInput} mostrarEtiq={mostrarEtiq} />
+        <FiltroAvanzado mostrarInput={mostrarInput} showTag={showTag} />
       )}
     </div>
   );

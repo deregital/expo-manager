@@ -1,5 +1,5 @@
 import EtiquetasContent from '@/components/etiquetas/list/EtiquetasContent';
-import { useEtiquetasSettings } from '@/components/etiquetas/list/ExpandContractEtiquetas';
+import { useTagsSettings } from '@/components/etiquetas/list/ExpandContractEtiquetas';
 import GrupoTrigger from '@/components/etiquetas/list/GrupoTrigger';
 import {
   Accordion,
@@ -8,24 +8,24 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { getTextColorByBg } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
+import { type FindAllWithTagsResponseDto } from 'expo-backend-types';
 import React, { useEffect, useState } from 'react';
 
 export type GrupoConMatch = Omit<
-  RouterOutputs['etiqueta']['getByNombre'][number],
-  'etiquetas'
+  FindAllWithTagsResponseDto['groups'][number],
+  'tags'
 > & {
   match: boolean;
-  etiquetas: (RouterOutputs['etiqueta']['getByNombre'][number]['etiquetas'][number] & {
+  tags: (FindAllWithTagsResponseDto['groups'][number]['tags'][number] & {
     match: boolean;
   })[];
 };
 
 interface EtiquetasListProps {
-  grupos: GrupoConMatch[];
+  groups: GrupoConMatch[];
 }
 
-const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
+const EtiquetasList = ({ groups }: EtiquetasListProps) => {
   const [active, setActive] = useState<string[]>([]);
   const [prevShowEvento, setPrevShowEvento] = useState<boolean>(false);
   const {
@@ -33,15 +33,15 @@ const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
     contract: setContract,
     showEventos,
     expand: setExpand,
-  } = useEtiquetasSettings();
+  } = useTagsSettings();
 
   useEffect(() => {
     if (state === 'EXPAND') {
-      setActive(grupos.map((grupo) => grupo.id));
+      setActive(groups.map((group) => group.id));
     } else if (state === 'NONE') {
       setActive(
-        grupos
-          .filter((grupo) => grupo.etiquetas.some((e) => e.match))
+        groups
+          .filter((group) => group.tags.some((tag) => tag.match))
           .map((g) => g.id)
       );
     } else {
@@ -52,9 +52,9 @@ const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
       setActive([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [grupos, state]);
+  }, [groups, state]);
 
-  if (grupos.length === 0) {
+  if (groups.length === 0) {
     return (
       <div className='flex h-96 flex-col items-center justify-center gap-y-2'>
         <h3 className='text-xl text-slate-500'>No hay etiquetas</h3>
@@ -72,23 +72,23 @@ const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
       defaultValue={active}
       value={active}
     >
-      {grupos.map((grupo) => (
+      {groups.map((group) => (
         <AccordionItem
-          value={grupo.id}
-          key={grupo.id}
-          title={grupo.nombre}
+          value={group.id}
+          key={group.id}
+          title={group.name}
           className='my-2 border-0'
         >
           <AccordionTrigger
             onClick={() => {
-              if (active.includes(grupo.id)) {
-                setActive(active.filter((id) => id !== grupo.id));
+              if (active.includes(group.id)) {
+                setActive(active.filter((id) => id !== group.id));
                 if (active.length === 1) {
                   setContract();
                 }
               } else {
-                const newActive = [...active, grupo.id];
-                if (newActive.length === grupos.length) {
+                const newActive = [...active, group.id];
+                if (newActive.length === groups.length) {
                   setExpand();
                 }
                 setActive(newActive);
@@ -96,18 +96,18 @@ const EtiquetasList = ({ grupos }: EtiquetasListProps) => {
             }}
             className='rounded-xl px-2 py-1.5'
             style={{
-              backgroundColor: grupo.color,
-              color: getTextColorByBg(grupo.color),
+              backgroundColor: group.color,
+              color: getTextColorByBg(group.color),
             }}
           >
-            <GrupoTrigger grupo={grupo} />
+            <GrupoTrigger group={group} />
           </AccordionTrigger>
           <AccordionContent className='pb-0 pl-2'>
-            {grupo.etiquetas.map((etiqueta) => (
+            {group.tags.map((tag) => (
               <EtiquetasContent
-                key={etiqueta.id}
-                etiqueta={etiqueta}
-                background={grupo.color}
+                key={tag.id}
+                tag={tag}
+                background={group.color}
               />
             ))}
           </AccordionContent>

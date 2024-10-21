@@ -3,7 +3,7 @@ import ExpandIcon from '@/components/icons/ExpandIcon';
 import React from 'react';
 import { create } from 'zustand';
 
-export const useEtiquetasSettings = create<{
+export const useTagsSettings = create<{
   state: 'EXPAND' | 'CONTRACT' | 'NONE';
   showEventos: boolean;
   expand: () => void;
@@ -17,8 +17,8 @@ export const useEtiquetasSettings = create<{
   none: () => set({ state: 'NONE' }),
 }));
 
-const ExpandContractEtiquetas = () => {
-  const { state, contract, expand } = useEtiquetasSettings((s) => ({
+const ExpandContractTags = () => {
+  const { state, contract, expand } = useTagsSettings((s) => ({
     state: s.state,
     contract: s.contract,
     expand: s.expand,
@@ -41,4 +41,4 @@ const ExpandContractEtiquetas = () => {
   );
 };
 
-export default ExpandContractEtiquetas;
+export default ExpandContractTags;

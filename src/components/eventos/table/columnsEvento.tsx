@@ -6,7 +6,10 @@ import { ColumnDef, SortDirection } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import CellComponent from './CellComponent';
 
-export function generateColumns(idConfirmo: string, idAsistio: string) {
+export function generateColumns(
+  confirmedAssitanceId: string,
+  assistedId: string
+) {
   const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
     {
       accessorKey: 'idLegible',
@@ -90,8 +93,8 @@ export function generateColumns(idConfirmo: string, idAsistio: string) {
       cell: ({ row }) => (
         <CellComponent
           row={row}
-          asistioId={idAsistio}
-          confirmoAsistenciaId={idConfirmo}
+          assistedId={assistedId}
+          confirmedAssistanceId={confirmedAssitanceId}
         />
       ),
       size: 100,
@@ -99,14 +102,16 @@ export function generateColumns(idConfirmo: string, idAsistio: string) {
       minSize: 100,
       sortingFn: (rowA, rowB) => {
         // This is a custom sorting function that sorts rows that contain id in etiquetas first
-        const a = rowA.original.etiquetas.map((etiqueta) => etiqueta.id);
-        const b = rowB.original.etiquetas.map((etiqueta) => etiqueta.id);
+        const a = rowA.original.etiquetas.map((tag) => tag.id);
+        const b = rowB.original.etiquetas.map((tag) => tag.id);
 
-        const hasEtiquetaA = a.includes(idConfirmo) || a.includes(idAsistio);
-        const hasEtiquetaB = b.includes(idConfirmo) || b.includes(idAsistio);
+        const hasTagA =
+          a.includes(confirmedAssitanceId) || a.includes(assistedId);
+        const hasTagB =
+          b.includes(confirmedAssitanceId) || b.includes(assistedId);
 
-        if (hasEtiquetaA && !hasEtiquetaB) return -1;
-        if (!hasEtiquetaA && hasEtiquetaB) return 1;
+        if (hasTagA && !hasTagB) return -1;
+        if (!hasTagA && hasTagB) return 1;
         return 0;
       },
       header: ({ column }) => {

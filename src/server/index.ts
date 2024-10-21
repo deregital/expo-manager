@@ -1,8 +1,8 @@
 import { router } from './trpc';
 import { modeloRouter } from '@/server/routers/modelosRouter';
-import { etiquetaRouter } from '@/server/routers/etiquetaRouter';
+import { tagRouter } from '@/server/routers/tagRouter';
 import { whatsappRouter } from '@/server/routers/whatsappRouter';
-import { grupoEtiquetaRouter } from '@/server/routers/grupoEtiquetaRouter';
+import { tagGroupRouter } from '@/server/routers/tagGroupRouter';
 import { comentarioRouter } from '@/server/routers/comentarioRouter';
 import { inferRouterOutputs } from '@trpc/server';
 import { csvRouter } from '@/server/routers/csvRouter';
@@ -15,9 +15,9 @@ import { respuestasEnlatadasRouter } from '@/server/routers/respuestasEnlatadasR
 
 export const appRouter = router({
   modelo: modeloRouter,
-  etiqueta: etiquetaRouter,
+  tag: tagRouter,
   whatsapp: whatsappRouter,
-  grupoEtiqueta: grupoEtiquetaRouter,
+  tagGroup: tagGroupRouter,
   comentario: comentarioRouter,
   csv: csvRouter,
   evento: eventoRouter,
