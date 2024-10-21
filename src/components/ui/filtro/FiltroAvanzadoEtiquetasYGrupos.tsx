@@ -50,6 +50,7 @@ const FiltroAvanzadoEtiquetasYGrupos =
 
     function handleAddGrupo(id: string) {
       if (grupoId === id) {
+        setEtiquetaId(undefined);
         setGrupoEtiqueta(undefined);
         return;
       }
@@ -106,7 +107,11 @@ const FiltroAvanzadoEtiquetasYGrupos =
         {etiquetasAvanzadas.map((etiqueta, index) => (
           <div key={index} className='flex items-center space-x-2 pb-2'>
             {/* <p>{etiqueta.include ? 'SI' : 'NO'}</p> */}
-            <Switch disabled checked={etiqueta.include} />
+            <Switch
+              className='data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500 disabled:data-[state=checked]:bg-green-800 disabled:data-[state=unchecked]:bg-red-800'
+              disabled
+              checked={etiqueta.include}
+            />
             <ShowEtiqueta etiqueta={etiqueta.etiqueta} />
             <Button onClick={() => handleDeleteEtiq(etiqueta.etiqueta.id)}>
               Eliminar
@@ -123,13 +128,10 @@ const FiltroAvanzadoEtiquetasYGrupos =
           </div>
         ))}
         <div className='flex items-center gap-x-4'>
-          <Switch
-            checked={include}
-            onCheckedChange={(e) => {
-              setInclude(e);
-            }}
-          />
           <FiltroBasicoEtiqueta
+            switchDisabled={false}
+            include={include}
+            setInclude={setInclude}
             editarEtiq={handleAddEtiq}
             editarGrupoEtiq={handleAddGrupo}
             grupoId={grupoId}

@@ -1,14 +1,20 @@
 import EtiquetaFillIcon from '@/components/icons/EtiquetaFillIcon';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import ComboBox from '@/components/ui/ComboBox';
+import { useFiltro, useFiltroAvanzado } from '@/components/ui/filtro/Filtro';
+import { Switch } from '@/components/ui/switch';
 import { trpc } from '@/lib/trpc';
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 type FiltroBasicoEtiquetaProps = {
   editarEtiq: (etiq: string) => void;
   editarGrupoEtiq: (grupoEtiq: string) => void;
   grupoId: string | undefined;
   etiquetaId: string | undefined;
+  switchDisabled: boolean;
+  include: boolean;
+  setInclude: (value: boolean) => void;
 };
 
 const FiltroBasicoEtiqueta = ({
@@ -16,9 +22,18 @@ const FiltroBasicoEtiqueta = ({
   editarGrupoEtiq,
   grupoId,
   etiquetaId,
+  switchDisabled,
+  include,
+  setInclude,
 }: FiltroBasicoEtiquetaProps) => {
+  const { etiquetasFiltro, reset } = useFiltro((s) => ({
+    etiquetasFiltro: s.etiquetas,
+    reset: s.reset,
+  }));
   const [openGrupo, setOpenGrupo] = useState(false);
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
+  const pathname = usePathname();
+  const basePath = pathname.split('/')[1];
 
   const { data: dataGrupos, isLoading: isLoadingGrupos } =
     trpc.grupoEtiqueta.getAll.useQuery();
@@ -27,8 +42,32 @@ const FiltroBasicoEtiqueta = ({
     ? trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoId)
     : trpc.etiqueta.getAll.useQuery();
 
+  const etiquetasFiltradas = useMemo(() => {
+    return dataEtiquetas?.filter((etiqueta) => {
+      return !etiquetasFiltro.find(
+        (etiquetaFiltro) => etiquetaFiltro.etiqueta.id === etiqueta.id
+      );
+    });
+  }, [dataEtiquetas, etiquetasFiltro]);
+
+  useEffect(() => {
+    if (basePath !== 'modelos') {
+      reset();
+      useFiltroAvanzado.setState({ isOpen: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [basePath, reset]);
+
   return (
     <div className='flex w-full flex-col items-center gap-4 md:w-fit md:flex-row'>
+      <Switch
+        className='data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500 disabled:data-[state=checked]:bg-green-800 disabled:data-[state=unchecked]:bg-red-800'
+        disabled={switchDisabled}
+        checked={include}
+        onCheckedChange={(e) => {
+          setInclude(e);
+        }}
+      />
       <ComboBox
         data={dataGrupos ?? []}
         id='id'
@@ -56,6 +95,7 @@ const FiltroBasicoEtiqueta = ({
       />
       <ComboBox
         data={dataEtiquetas ?? []}
+        filteredData={etiquetasFiltradas}
         id='id'
         value='nombre'
         onSelect={(value) => {

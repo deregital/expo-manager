@@ -19,6 +19,16 @@ import React, { useMemo, useState } from 'react';
 import { RouterOutputs } from '@/server';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
+import { Country, State } from 'country-state-city';
+import { Button } from '../ui/button';
+import { Switch } from '../ui/switch';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import CrearComentario from '../modelo/CrearComentario';
 
 interface FormCrearModeloProps {
   inputRef: React.RefObject<HTMLInputElement>;
@@ -47,6 +57,7 @@ const FormCrearModelo = ({
     grupoEtiquetaSelected === ''
       ? trpc.etiqueta.getAll.useQuery()
       : trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoEtiquetaSelected);
+
   const currentGrupo = useMemo(() => {
     return grupoEtiquetas?.find((g) => g.id === grupoEtiquetaSelected);
   }, [grupoEtiquetas, grupoEtiquetaSelected]);
@@ -112,6 +123,69 @@ const FormCrearModelo = ({
     setAddEtiquetaOpen(false);
   }
 
+  const allCountries = useMemo(
+    () =>
+      Country.getAllCountries().filter(
+        (country) => country.name !== 'Palestinian Territory Occupied'
+      ),
+    []
+  );
+  const statesBySelectedCountry = useMemo(() => {
+    if (!modalModelo.modelo.paisNacimiento) return [];
+
+    const countryCode = allCountries.find(
+      (country) => country.name === modalModelo.modelo.paisNacimiento
+    )?.isoCode;
+
+    return State.getStatesOfCountry(countryCode);
+  }, [allCountries, modalModelo.modelo.paisNacimiento]);
+
+  const provinces = useMemo(() => {
+    return State.getStatesOfCountry('AR');
+  }, []);
+
+  const { data: citiesData } = trpc.mapa.getLocalidadesByProvincia.useQuery(
+    modalModelo.modelo.residencia?.provincia ?? '',
+    {
+      enabled: !!modalModelo.modelo.residencia?.provincia,
+    }
+  );
+  const [esResoluble, setEsResoluble] = useState(false);
+
+  const handleAddComentario = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const target = e.target as typeof e.target & {
+      comentario: { value: string };
+    };
+    const comentario = target.comentario.value;
+    const isSolvable = esResoluble;
+    if (!comentario || comentario === '') return;
+    e.currentTarget.reset();
+    setEsResoluble(false);
+    useCrearModeloModal.setState({
+      modelo: {
+        ...modalModelo.modelo,
+        comentarios: [
+          ...modalModelo.modelo.comentarios,
+          {
+            contenido: comentario,
+            isSolvable: isSolvable,
+          },
+        ],
+      },
+    });
+  };
+
+  const handleDeleteComentario = (index: number) => {
+    const newComentarios = modalModelo.modelo.comentarios;
+    newComentarios.splice(index, 1);
+    useCrearModeloModal.setState({
+      modelo: {
+        ...modalModelo.modelo,
+        comentarios: newComentarios,
+      },
+    });
+  };
   return (
     <>
       <Label className='text-sm'>Nombre completo: (obligatorio)</Label>
@@ -401,6 +475,169 @@ const FormCrearModelo = ({
             });
           }}
         />
+      </div>
+      <div className='flex flex-col gap-y-2'>
+        <Label className='pt-2 text-sm'>Nacionalidad:</Label>
+        <Select
+          onValueChange={(value) => {
+            useCrearModeloModal.setState({
+              modelo: {
+                ...modalModelo.modelo,
+                paisNacimiento: value as string,
+              },
+            });
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder='Selecciona tu país' />
+          </SelectTrigger>
+          <SelectContent>
+            {allCountries.map((country) => (
+              <SelectItem key={country.isoCode} value={country.name}>
+                {country.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          disabled={!modalModelo.modelo.paisNacimiento}
+          onValueChange={(value) => {
+            useCrearModeloModal.setState({
+              modelo: {
+                ...modalModelo.modelo,
+                provinciaNacimiento: value,
+              },
+            });
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder='Selecciona tu provincia' />
+          </SelectTrigger>
+          <SelectContent>
+            {statesBySelectedCountry.map((state) => (
+              <SelectItem key={state.isoCode} value={state.name}>
+                {state.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className='flex flex-col gap-y-2 pb-2'>
+        <Label className='pt-2 text-sm'>Lugar de residencia (Argentina):</Label>
+        <Select
+          onValueChange={(value) => {
+            useCrearModeloModal.setState({
+              modelo: {
+                ...modalModelo.modelo,
+                residencia: {
+                  localidad: modalModelo.modelo.residencia?.localidad,
+                  latitud: modalModelo.modelo.residencia?.latitud,
+                  longitud: modalModelo.modelo.residencia?.longitud,
+                  provincia: value,
+                },
+              },
+            });
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder='Selecciona tu provincia' />
+          </SelectTrigger>
+          <SelectContent>
+            {provinces.map((province) => (
+              <SelectItem key={province.isoCode} value={province.name}>
+                {province.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          disabled={!modalModelo.modelo.residencia?.provincia}
+          onValueChange={(value) => {
+            const city = JSON.parse(value as string) as {
+              latitud: number;
+              longitud: number;
+              nombre: string;
+            };
+            useCrearModeloModal.setState({
+              modelo: {
+                ...modalModelo.modelo,
+                residencia: {
+                  localidad: city.nombre,
+                  latitud: city.latitud,
+                  longitud: city.longitud,
+                  provincia: modalModelo.modelo.residencia?.provincia,
+                },
+              },
+            });
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder='Selecciona tu localidad' />
+          </SelectTrigger>
+          <SelectContent>
+            {citiesData?.map((city) => (
+              <SelectItem
+                key={city.id}
+                value={JSON.stringify({
+                  latitud: city.centroide.lat,
+                  longitud: city.centroide.lon,
+                  nombre: city.nombre,
+                })}
+              >
+                {city.nombre}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className='flex flex-col gap-y-2'>
+        <Label className='pt-2 text-sm'>Comentarios:</Label>
+        <CrearComentario
+          handleAddComentario={handleAddComentario}
+          esResoluble={esResoluble}
+          setEsResoluble={setEsResoluble}
+          textSubmit='+'
+        />
+        <Label className='pt-2 text-xs'>Comentarios agregados:</Label>
+        <div className='flex flex-col gap-y-2'>
+          {modalModelo.modelo.comentarios?.map((comentario, index) => {
+            return (
+              <div
+                key={index}
+                className='flex items-center gap-x-4 rounded-lg bg-gray-300 p-2'
+              >
+                <Input
+                  autoComplete='off'
+                  name='comentario'
+                  value={comentario.contenido}
+                  disabled
+                  className='flex-grow'
+                />
+                <div className='flex flex-col items-center'>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <span className='mb-1 whitespace-nowrap text-sm'>
+                          S/R
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Simple / Resoluble</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <Switch checked={comentario.isSolvable} disabled />
+                </div>
+                <Button className='p-2'>
+                  <TrashIcon
+                    onClick={() => handleDeleteComentario(index)}
+                    className='h-4 w-4 cursor-pointer'
+                  />
+                </Button>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </>
   );

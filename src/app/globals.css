@@ -86,3 +86,11 @@
     scrollbar-width: none; /* Firefox */
   }
 }
+
+.leaflet-container {
+  height: calc(100vh - 4rem);
+}
+
+.leaflet-control-attribution {
+  display: none;
+}

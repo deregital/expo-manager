@@ -8,6 +8,7 @@ export const comentarioRouter = router({
       z.object({
         contenido: z.string().min(1),
         perfilId: z.string().uuid(),
+        isSolvable: z.boolean().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -19,13 +20,16 @@ export const comentarioRouter = router({
         });
       }
 
-      return await ctx.prisma.comentario.create({
+      const comentario = await ctx.prisma.comentario.create({
         data: {
           contenido: input.contenido,
           perfilId: input.perfilId,
           creadoPor: userId,
+          isSolvable: input.isSolvable,
+          isSolved: false,
         },
       });
+      return comentario;
     }),
 
   getByPerfilId: protectedProcedure
@@ -56,9 +60,14 @@ export const comentarioRouter = router({
             },
           },
         },
-        orderBy: {
-          created_at: 'desc',
-        },
+        orderBy: [
+          {
+            created_at: 'desc',
+          },
+          {
+            id: 'desc',
+          },
+        ],
       });
       return comentarios;
     }),
@@ -67,7 +76,8 @@ export const comentarioRouter = router({
     .input(
       z.object({
         id: z.string().uuid(), // Se requiere el ID del comentario a actualizar
-        contenido: z.string().min(1),
+        contenido: z.string().min(1).optional(),
+        isSolved: z.boolean().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -88,10 +98,10 @@ export const comentarioRouter = router({
         },
       });
 
-      if (!comentario || comentario.creadoPor !== userId) {
+      if (!comentario) {
         throw new TRPCError({
           code: 'FORBIDDEN',
-          message: 'No tienes permiso para actualizar este comentario',
+          message: 'No hay comentario para actualizar',
         });
       }
 
@@ -101,6 +111,9 @@ export const comentarioRouter = router({
         },
         data: {
           contenido: input.contenido,
+          isSolved: input.isSolved,
+          solvedAt: input.isSolved ? new Date() : null,
+          solvedById: input.isSolved ? userId : null,
         },
       });
     }),

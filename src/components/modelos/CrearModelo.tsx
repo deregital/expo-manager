@@ -16,26 +16,53 @@ type ModeloModal = {
     genero: string;
     etiquetas: NonNullable<RouterOutputs['etiqueta']['getById']>[];
     apodos: string[];
-    dni: string;
-    mail: string;
-    instagram: string;
+    dni: string | undefined;
+    mail: string | undefined;
+    instagram: string | undefined;
+    paisNacimiento: string | undefined;
+    provinciaNacimiento: string | undefined;
+    residencia:
+      | {
+          latitud?: number | undefined;
+          longitud?: number | undefined;
+          provincia: string | undefined;
+          localidad: string | undefined;
+        }
+      | undefined;
+    comentarios: {
+      contenido: string;
+      isSolvable: boolean;
+    }[];
   };
+  resetModelo: () => void;
 };
 
-export const useCrearModeloModal = create<ModeloModal>(() => ({
-  open: false,
-  modelo: {
-    nombreCompleto: '',
-    telefono: '',
-    telefonoSecundario: '',
-    fechaNacimiento: undefined,
-    genero: 'N/A',
-    etiquetas: [],
-    apodos: [],
-    dni: '',
-    mail: '',
-    instagram: '',
+const defaultModelo = {
+  nombreCompleto: '',
+  telefono: '',
+  telefonoSecundario: undefined,
+  fechaNacimiento: undefined,
+  genero: 'N/A',
+  etiquetas: [],
+  apodos: [],
+  dni: undefined,
+  mail: undefined,
+  instagram: undefined,
+  paisNacimiento: undefined,
+  provinciaNacimiento: undefined,
+  residencia: {
+    latitud: undefined,
+    longitud: undefined,
+    provincia: undefined,
+    localidad: undefined,
   },
+  comentarios: [],
+};
+
+export const useCrearModeloModal = create<ModeloModal>((set) => ({
+  open: false,
+  modelo: defaultModelo,
+  resetModelo: () => set({ modelo: defaultModelo }),
 }));
 
 const CrearModelo = () => {
