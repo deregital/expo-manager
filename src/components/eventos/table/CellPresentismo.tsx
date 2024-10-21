@@ -6,20 +6,18 @@ import { toast } from 'sonner';
 
 export const CellPresentismo = ({
   row,
-  confirmoId,
-  asistioId,
+  confirmedId,
+  assistedId,
 }: {
   row: Row<RouterOutputs['modelo']['getByEtiqueta'][number]>;
-  confirmoId: string;
-  asistioId: string;
+  confirmedId: string;
+  assistedId: string;
 }) => {
-  const etiquetasId = row.original.etiquetas.map(
-    (etiqueta: any) => etiqueta.id
-  );
-  const { data: etiquetaAsistio } = trpc.tag.getById.useQuery(asistioId, {
+  const tagsId = row.original.etiquetas.map((tag: any) => tag.id);
+  const { data: tagAssisted } = trpc.tag.getById.useQuery(assistedId, {
     enabled: !!row.original,
   });
-  const { data: etiquetaConfirmo } = trpc.tag.getById.useQuery(confirmoId, {
+  const { data: tagConfirmed } = trpc.tag.getById.useQuery(confirmedId, {
     enabled: !!row.original,
   });
   const editModelo = trpc.modelo.edit.useMutation();
@@ -29,7 +27,7 @@ export const CellPresentismo = ({
     modelo: RouterOutputs['modelo']['getByEtiqueta'][number]
   ) {
     toast.loading('Confirmando asistencia');
-    const etiquetasId = modelo.etiquetas
+    const tagsId = modelo.etiquetas
       .map((etiqueta) => {
         return {
           id: etiqueta.id,
@@ -40,19 +38,20 @@ export const CellPresentismo = ({
           nombre: etiqueta.nombre,
         };
       })
-      .filter((et) => et.id !== confirmoId);
+      .filter((et) => et.id !== confirmedId);
 
     await editModelo.mutateAsync({
       id: modelo.id,
       etiquetas: [
-        ...etiquetasId,
+        ...tagsId,
         {
-          id: etiquetaAsistio!.id,
+          id: tagAssisted!.id,
           grupo: {
-            id: etiquetaAsistio!.grupo.id,
-            esExclusivo: etiquetaAsistio!.grupo.esExclusivo,
+            // TODO: Fix this
+            id: tagAssisted!.group.id as string,
+            esExclusivo: tagAssisted!.group.isExclusive as boolean,
           },
-          nombre: etiquetaAsistio!.nombre,
+          nombre: tagAssisted!.name,
         },
       ],
     });
@@ -76,19 +75,20 @@ export const CellPresentismo = ({
           nombre: etiqueta.nombre,
         };
       })
-      .filter((et) => et.id !== asistioId);
+      .filter((et) => et.id !== assistedId);
 
     await editModelo.mutateAsync({
       id: modelo.id,
       etiquetas: [
         ...etiquetasId,
         {
-          id: confirmoId,
+          id: confirmedId,
           grupo: {
-            id: etiquetaConfirmo!.grupo.id,
-            esExclusivo: etiquetaConfirmo!.grupo.esExclusivo,
+            // TODO: Fix this
+            id: tagConfirmed!.group.id as string,
+            esExclusivo: tagConfirmed!.group.isExclusive as boolean,
           },
-          nombre: etiquetaConfirmo!.nombre,
+          nombre: tagConfirmed!.name,
         },
       ],
     });
@@ -103,9 +103,9 @@ export const CellPresentismo = ({
         type='checkbox'
         disabled={editModelo.isLoading}
         className='h-6 w-6'
-        checked={etiquetasId.includes(asistioId)}
+        checked={tagsId.includes(assistedId)}
         onChange={() =>
-          etiquetasId.includes(asistioId)
+          tagsId.includes(assistedId)
             ? deleteAsistencia(row.original)
             : addAsistencia(row.original)
         }

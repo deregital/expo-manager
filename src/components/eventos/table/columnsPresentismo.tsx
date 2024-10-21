@@ -101,20 +101,20 @@ export function generateColumnsPresentismo({
         cell: ({ row }) => (
           <CellPresentismo
             row={row}
-            confirmoId={confirmoId}
-            asistioId={asistenciaId}
+            confirmedId={confirmoId}
+            assistedId={asistenciaId}
           />
         ),
         sortingFn: (rowA, rowB) => {
           // This is a custom sorting function that sorts rows that contain id in etiquetas first
-          const a = rowA.original.etiquetas.map((etiqueta) => etiqueta.id);
-          const b = rowB.original.etiquetas.map((etiqueta) => etiqueta.id);
+          const a = rowA.original.etiquetas.map((tag) => tag.id);
+          const b = rowB.original.etiquetas.map((tag) => tag.id);
 
-          const hasEtiquetaA = a.includes(asistenciaId);
-          const hasEtiquetaB = b.includes(asistenciaId);
+          const hasTagA = a.includes(asistenciaId);
+          const hasTagB = b.includes(asistenciaId);
 
-          if (hasEtiquetaA && !hasEtiquetaB) return -1;
-          if (!hasEtiquetaA && hasEtiquetaB) return 1;
+          if (hasTagA && !hasTagB) return -1;
+          if (!hasTagA && hasTagB) return 1;
           return 0;
         },
         header: ({ column }) => {

@@ -8,16 +8,16 @@ import { toast } from 'sonner';
 
 export const CellComponent = ({
   row,
-  confirmoAsistenciaId,
-  asistioId,
+  confirmedAssistanceId,
+  assistedId,
 }: {
   row: Row<RouterOutputs['modelo']['getAll'][number]>;
-  confirmoAsistenciaId: string;
-  asistioId: string;
+  confirmedAssistanceId: string;
+  assistedId: string;
 }) => {
   const tagsId = row.original.etiquetas.map((tag: any) => tag.id);
-  const { data: etiquetaConfirmo } = trpc.tag.getById.useQuery(
-    confirmoAsistenciaId,
+  const { data: tagConfirmed } = trpc.tag.getById.useQuery(
+    confirmedAssistanceId,
     {
       enabled: !!row.original,
     }
@@ -29,27 +29,28 @@ export const CellComponent = ({
     modelo: RouterOutputs['modelo']['getAll'][number]
   ) {
     toast.loading('Agregando al presentismo');
-    const etiquetasId = modelo.etiquetas.map((etiqueta) => {
+    const tagsId = modelo.etiquetas.map((tag) => {
       return {
-        id: etiqueta.id,
+        id: tag.id,
         grupo: {
-          id: etiqueta.grupoId,
-          esExclusivo: etiqueta.grupo.esExclusivo,
+          id: tag.grupoId,
+          esExclusivo: tag.grupo.esExclusivo,
         },
-        nombre: etiqueta.nombre,
+        nombre: tag.nombre,
       };
     });
     await editModelo.mutateAsync({
       id: modelo.id,
       etiquetas: [
-        ...etiquetasId,
+        ...tagsId,
         {
-          id: etiquetaConfirmo!.id,
+          id: tagConfirmed!.id,
           grupo: {
-            id: etiquetaConfirmo!.grupo.id,
-            esExclusivo: etiquetaConfirmo!.grupo.esExclusivo,
+            // TODO: Fix this
+            id: tagConfirmed!.group.id as string,
+            esExclusivo: tagConfirmed!.group.isExclusive as boolean,
           },
-          nombre: etiquetaConfirmo!.nombre,
+          nombre: tagConfirmed!.name,
         },
       ],
     });
@@ -61,7 +62,7 @@ export const CellComponent = ({
 
   return (
     <div className='flex flex-wrap items-center justify-center gap-1'>
-      {tagsId.includes(confirmoAsistenciaId) || tagsId.includes(asistioId) ? (
+      {tagsId.includes(confirmedAssistanceId) || tagsId.includes(assistedId) ? (
         <div className='flex items-center justify-center gap-x-2'>
           <p>En presentismo</p>
           <CheckIcon className='h-6 w-6' />

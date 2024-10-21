@@ -41,9 +41,9 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
     return modelos
       .filter((modelo) =>
         modelo.etiquetas.every(
-          (etiqueta) =>
-            etiqueta.id !== modalPresentismo.evento?.etiquetaAsistioId &&
-            etiqueta.id !== modalPresentismo.evento?.etiquetaConfirmoId
+          (tag) =>
+            tag.id !== modalPresentismo.evento?.etiquetaAsistioId &&
+            tag.id !== modalPresentismo.evento?.etiquetaConfirmoId
         )
       )
       .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
@@ -71,32 +71,30 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
       return;
     }
 
-    const etiquetasModelo = modelo?.etiquetas
-      .map((etiqueta) => ({
-        id: etiqueta.id,
-        nombre: etiqueta.nombre,
+    const participantTags = modelo?.etiquetas
+      .map((tag) => ({
+        id: tag.id,
+        nombre: tag.nombre,
         grupo: {
-          id: etiqueta.grupoId,
-          esExclusivo: etiqueta.grupo.esExclusivo,
+          id: tag.grupoId,
+          esExclusivo: tag.grupo.esExclusivo,
         },
       }))
-      .filter(
-        (etiqueta) =>
-          etiqueta.id !== modalPresentismo.evento?.etiquetaConfirmoId
-      );
+      .filter((tag) => tag.id !== modalPresentismo.evento?.etiquetaConfirmoId);
 
-    const etiquetaAsistio = {
+    const tagAssisted = {
       id: modalPresentismo.evento!.etiquetaAsistioId,
-      nombre: assistanceTag!.nombre,
+      nombre: assistanceTag!.name,
       grupo: {
-        id: assistanceTag!.grupo.id,
-        esExclusivo: assistanceTag!.grupo.esExclusivo,
+        id: assistanceTag!.group.id,
+        esExclusivo: assistanceTag!.group.isExclusive,
       },
     };
 
     await editModelo.mutateAsync({
       id: modalPresentismo.modeloId,
-      etiquetas: [...etiquetasModelo!, etiquetaAsistio],
+      // TODO: Fix this type
+      etiquetas: [...participantTags!, tagAssisted] as any,
     });
     toast.success('Participante añadido correctamente');
     utils.modelo.getByEtiqueta.invalidate();

@@ -68,19 +68,21 @@ export const tagRouter = router({
     return data?.tags || [];
   }),
   getById: protectedProcedure
-    .input(z.string().uuid())
+    .input(tagSchema.shape.id)
     .query(async ({ input, ctx }) => {
-      return await ctx.prisma.etiqueta.findUnique({
-        where: {
-          id: input,
-          AND: {
-            id: { in: ctx.etiquetasVisibles },
+      const { data, error } = await ctx.fetch.GET('/tag/{id}', {
+        params: {
+          path: {
+            id: input,
           },
         },
-        include: {
-          grupo: true,
-        },
       });
+
+      if (error) {
+        throw handleError(error);
+      }
+
+      return data;
     }),
   getByGroupId: protectedProcedure
     .input(tagGroupSchema.shape.id)
