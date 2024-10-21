@@ -1,6 +1,7 @@
 'use client';
 import { Switch } from '@/components/ui/switch';
 import { trpc } from '@/lib/trpc';
+import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
@@ -21,22 +22,34 @@ const SidebarFiltroBase = ({}: SidebarFiltroBaseProps) => {
   const [isChecked, setIsChecked] = useState(filtroBaseData?.activo ?? false);
 
   return (
-    <div className='flex items-center justify-between px-2 py-1.5'>
-      <p className='flex flex-col'>
+    <div
+      className={cn(
+        'flex items-center justify-between px-2 py-1.5',
+        isChecked && 'bg-yellow-300'
+      )}
+    >
+      <div className='flex flex-col'>
         <Link href='/configuracion'>
           <span className='underline'>Filtro base</span>
         </Link>
-        {filtroBaseData?.etiquetas?.length ? (
-          filtroBaseData?.etiquetas?.length > 0 && (
-            <span className='text-xs text-gray-400'>
-              {filtroBaseData?.etiquetas?.length}{' '}
-              {`etiqueta${filtroBaseData?.etiquetas?.length > 1 ? 's' : ''}`}
-            </span>
-          )
-        ) : (
-          <span className='text-xs text-gray-400'>Sin etiquetas</span>
-        )}
-      </p>
+        <p
+          className={cn(
+            'text-xs',
+            isChecked ? 'text-black/85' : 'text-gray-400'
+          )}
+        >
+          {filtroBaseData?.etiquetas?.length ? (
+            filtroBaseData?.etiquetas?.length > 0 && (
+              <span>
+                {filtroBaseData?.etiquetas?.length}{' '}
+                {`etiqueta${filtroBaseData?.etiquetas?.length > 1 ? 's' : ''}`}
+              </span>
+            )
+          ) : (
+            <span>Sin etiquetas</span>
+          )}
+        </p>
+      </div>
       <Switch
         disabled={filtroBaseLoading}
         checked={isChecked}

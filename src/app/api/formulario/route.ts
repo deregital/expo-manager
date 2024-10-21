@@ -156,6 +156,24 @@ export async function POST(req: NextRequest, res: NextResponse) {
       ...(telefonoSecundarioSinSeparaciones && {
         telefonoSecundario: telefonoSecundarioSinSeparaciones,
       }),
+      paisNacimiento: pais,
+      provinciaNacimiento: provincia,
+      residencia: {
+        connectOrCreate: {
+          where: {
+            latitud_longitud: {
+              latitud: localidad.latitud,
+              longitud: localidad.longitud,
+            },
+          },
+          create: {
+            latitud: localidad.latitud,
+            longitud: localidad.longitud,
+            localidad: localidad.nombre,
+            provincia: provinciaArgentina,
+          },
+        },
+      },
     };
 
     const response = await prisma.perfil.upsert({

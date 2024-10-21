@@ -24,27 +24,7 @@ const MapaClient = ({}: MapaClientProps) => {
         return 'fill-gray-500'; // Default color if no conditions are met
     }
   }
-  // const markers =
-  //   locations &&
-  //   locations.reduce(
-  //     (acc, location) => {
-  //       const key = `${location.latitud}-${location.longitud}`;
-  //       if (acc[key]) {
-  //         acc[key].count += 1;
-  //       } else {
-  //         acc[key] = {
-  //           name: location.localidad,
-  //           position: [location.latitud, location.longitud],
-  //           count: 1,
-  //         };
-  //       }
-  //       return acc;
-  //     },
-  //     {} as Record<
-  //       string,
-  //       { name: string; position: [number, number]; count: number }
-  //     >
-  //   );
+
   return (
     <>
       {isLoading ? (
