@@ -9,82 +9,89 @@ datasource db {
 }
 
 model Cuenta {
-  id               String       @id @default(uuid())
-  nombreUsuario    String       @unique @map("nombre_usuario")
-  contrasena       String
-  esAdmin          Boolean      @default(false) @map("es_admin")
-  created_at       DateTime     @default(now())
-  updated_at       DateTime     @updatedAt
-  filtroBaseActivo Boolean      @default(false) @map("filtro_base_activo")
-  fcmToken         String[]     @map("fcm_token")
-  comentarios      Comentario[]
-  etiquetas        Etiqueta[]   @relation("CUENTA_X_ETIQUETA")
-  filtroBase       Etiqueta[]   @relation("FILTRO_BASE_X_ETIQUETA")
+  id                  String       @id @default(uuid())
+  nombreUsuario       String       @unique @map("nombre_usuario")
+  contrasena          String
+  esAdmin             Boolean      @default(false) @map("es_admin")
+  created_at          DateTime     @default(now())
+  updated_at          DateTime     @updatedAt
+  filtroBaseActivo    Boolean      @default(false) @map("filtro_base_activo")
+  fcmToken            String[]     @map("fcm_token")
+  comentarios         Comentario[]
+  etiquetas           Etiqueta[]   @relation("CUENTA_X_ETIQUETA")
+  filtroBase          Etiqueta[]   @relation("FILTRO_BASE_X_ETIQUETA")
   comentarioResoluble Comentario[] @relation("ACCOUNT_X_SOLVED_COMMENT")
+
   @@map("CUENTA")
 }
 
 model Perfil {
-  id                  String       @id @default(uuid())
-  telefono            String       @unique
-  nombreCompleto      String       @map("nombre_completo")
-  nombrePila          String?      @map("nombre_pila")
+  id                  String    @id @default(uuid())
+  telefono            String    @unique
+  nombreCompleto      String    @map("nombre_completo")
+  nombrePila          String?   @map("nombre_pila")
   genero              String?
-  fotoUrl             String?      @map("foto_url")
-  created_at          DateTime     @default(now())
-  updated_at          DateTime     @updatedAt
-  idLegible           Int          @map("id_legible")
-  fechaNacimiento     DateTime?    @map("fecha_nacimiento")
+  fotoUrl             String?   @map("foto_url")
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+  idLegible           Int       @map("id_legible")
+  fechaNacimiento     DateTime? @map("fecha_nacimiento")
   dni                 String?
   instagram           String?
   mail                String?
-  nombresAlternativos String[]     @map("nombres_alternativos")
-  esPapelera          Boolean      @default(false)
-  fechaPapelera       DateTime?    @map("fecha_papelera")
-  telefonoSecundario  String?      @unique
-  residencialatitud   Float?
-  residencialongitud  Float?
-  paisNacimiento      String?      @map("pais_nacimiento")
-  provinciaNacimiento String?      @map("provincia_nacimiento")
-  comentarios         Comentario[]
-  mensajes            Mensaje[]    @relation("PERFIL_X_MENSAJE")
-  residencia          Residencia?  @relation(fields: [residencialatitud, residencialongitud], references: [latitud, longitud])
-  etiquetas           Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
+  nombresAlternativos String[]  @map("nombres_alternativos")
+  esPapelera          Boolean   @default(false)
+  fechaPapelera       DateTime? @map("fecha_papelera")
+  telefonoSecundario  String?   @unique
+  paisNacimiento      String?   @map("pais_nacimiento")
+  provinciaNacimiento String?   @map("provincia_nacimiento")
+
+  residencialongitud Float?
+  residencialatitud  Float?
+  residencia         Residencia? @relation(fields: [residencialatitud, residencialongitud], references: [latitud, longitud])
+
+  comentarios Comentario[]
+  mensajes    Mensaje[]    @relation("PERFIL_X_MENSAJE")
+  etiquetas   Etiqueta[]   @relation("PERFIL_X_ETIQUETA")
 
   @@map("PERFIL")
 }
 
 model Residencia {
-  provincia  String
-  localidad  String
+  provincia String
+  localidad String
+
+  latitud  Float
+  longitud Float
+
+  perfiles Perfil[]
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  latitud    Float
-  longitud   Float
-  perfiles   Perfil[]
 
   @@id([latitud, longitud])
   @@map("RESIDENCIA")
 }
 
 model Comentario {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   contenido  String
-  perfilId   String   @map("perfil_id")
-  creadoPor  String   @map("creado_por")
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  isSolvable Boolean @default(false) @map("is_solvable")
+  perfilId   String    @map("perfil_id")
+  creadoPor  String    @map("creado_por")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  isSolvable Boolean   @default(false) @map("is_solvable")
   isSolved   Boolean   @default(false) @map("is_solved")
   solvedAt   DateTime? @map("solved_at")
 
-  solvedById String?  @map("solved_by")
+  solvedById String? @map("solved_by")
   solvedBy   Cuenta? @relation("ACCOUNT_X_SOLVED_COMMENT", fields: [solvedById], references: [id])
-  cuenta     Cuenta   @relation(fields: [creadoPor], references: [id])
-  perfil     Perfil   @relation(fields: [perfilId], references: [id], onDelete: Cascade)
+  cuenta     Cuenta  @relation(fields: [creadoPor], references: [id])
+  perfil     Perfil  @relation(fields: [perfilId], references: [id], onDelete: Cascade)
 
   @@map("COMENTARIO")
 }
+
 model Etiqueta {
   id                 String        @id @default(uuid())
   nombre             String
@@ -160,18 +167,21 @@ model Mensaje {
   @@map("MENSAJE")
 }
 
+model RespuestasEnlatadas {
+  id          String @id @default(uuid())
+  nombre      String
+  descripcion String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("RESPUESTAS_ENLATADAS")
+}
+
 model Enums {
   id                 String             @id
   EstadoPlantilla    EstadoPlantilla
   CategoriaPlantilla CategoriaPlantilla
-}
-
-model RESPUESTAS_ENLATADAS {
-  id          String   @id
-  nombre      String
-  descripcion String
-  created_at  DateTime @default(now())
-  updated_at  DateTime
 }
 
 enum EstadoPlantilla {

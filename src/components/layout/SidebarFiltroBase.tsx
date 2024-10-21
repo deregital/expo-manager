@@ -28,7 +28,7 @@ const SidebarFiltroBase = ({}: SidebarFiltroBaseProps) => {
         isChecked && 'bg-yellow-300'
       )}
     >
-      <p className='flex flex-col'>
+      <div className='flex flex-col'>
         <Link href='/configuracion'>
           <span className='underline'>Filtro base</span>
         </Link>
@@ -49,7 +49,7 @@ const SidebarFiltroBase = ({}: SidebarFiltroBaseProps) => {
             <span>Sin etiquetas</span>
           )}
         </p>
-      </p>
+      </div>
       <Switch
         disabled={filtroBaseLoading}
         checked={isChecked}

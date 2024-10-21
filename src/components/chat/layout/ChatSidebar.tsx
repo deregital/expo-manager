@@ -8,6 +8,7 @@ import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React, { useMemo } from 'react';
+import RespuestasEnlatadasModal from '../RespuestasEnlatadasModal';
 
 type ChatSidebarProps = {
   filtro: Filtro;
@@ -24,7 +25,6 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
     if (!contactos) {
       return [];
     }
-
     return filterModelos(contactos, filtro);
   }, [contactos, filtro]);
 
@@ -47,16 +47,34 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
       : contactosFiltrados;
   }, [contactosFiltrados, contactosNoLeidos]);
 
+  const getUltimaFechaMensaje = (contacto: any) => {
+    const ultimoMensaje =
+      contacto.mensajes.length > 0
+        ? contacto.mensajes[contacto.mensajes.length - 1]
+        : null;
+    return ultimoMensaje
+      ? new Date(ultimoMensaje.message.timestamp)
+      : new Date(0);
+  };
+
   const contactosActivos = useMemo(() => {
     return contactosLeidos
       .filter((c) => c.inChat)
-      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
+      .sort((a, b) => {
+        const fechaA = getUltimaFechaMensaje(a);
+        const fechaB = getUltimaFechaMensaje(b);
+        return fechaB.getTime() - fechaA.getTime();
+      });
   }, [contactosLeidos]);
 
   const contactosInactivos = useMemo(() => {
     return contactosLeidos
       .filter((c) => !c.inChat)
-      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
+      .sort((a, b) => {
+        const fechaA = getUltimaFechaMensaje(a);
+        const fechaB = getUltimaFechaMensaje(b);
+        return fechaB.getTime() - fechaA.getTime();
+      });
   }, [contactosLeidos]);
 
   if (contactosLoading) {
@@ -69,8 +87,8 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
 
   return (
     contactos && (
-      <aside className='grid h-full grid-cols-1 grid-rows-[auto,1fr]'>
-        <div>
+      <aside className='grid h-full grid-cols-1 grid-rows-[auto,1fr] gap-y-2 pb-4'>
+        <div className='max-h-80 overflow-y-auto'>
           {contactosNoLeidos.map((contacto) => (
             <Link
               href={`/mensajes/${contacto.telefono}`}
@@ -105,6 +123,9 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
             },
           ]}
         />
+        <div className='px-4 [&>button]:w-full'>
+          <RespuestasEnlatadasModal action='CREATE' />
+        </div>
       </aside>
     )
   );

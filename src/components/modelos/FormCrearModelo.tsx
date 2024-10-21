@@ -134,7 +134,7 @@ const FormCrearModelo = ({
     if (!modalModelo.modelo.paisNacimiento) return [];
 
     const countryCode = allCountries.find(
-      (country) => country.name === modalModelo.modelo.paisNacimiento
+      (country) => country.isoCode === modalModelo.modelo.paisNacimiento
     )?.isoCode;
 
     return State.getStatesOfCountry(countryCode);
@@ -493,7 +493,7 @@ const FormCrearModelo = ({
           </SelectTrigger>
           <SelectContent>
             {allCountries.map((country) => (
-              <SelectItem key={country.isoCode} value={country.name}>
+              <SelectItem key={country.isoCode} value={country.isoCode}>
                 {country.name}
               </SelectItem>
             ))}
@@ -515,7 +515,7 @@ const FormCrearModelo = ({
           </SelectTrigger>
           <SelectContent>
             {statesBySelectedCountry.map((state) => (
-              <SelectItem key={state.isoCode} value={state.name}>
+              <SelectItem key={state.isoCode} value={state.isoCode}>
                 {state.name}
               </SelectItem>
             ))}

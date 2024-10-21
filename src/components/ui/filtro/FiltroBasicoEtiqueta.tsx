@@ -33,6 +33,7 @@ const FiltroBasicoEtiqueta = ({
   const [openGrupo, setOpenGrupo] = useState(false);
   const [openEtiqueta, setOpenEtiqueta] = useState(false);
   const pathname = usePathname();
+  const basePath = pathname.split('/')[1];
 
   const { data: dataGrupos, isLoading: isLoadingGrupos } =
     trpc.grupoEtiqueta.getAll.useQuery();
@@ -50,12 +51,12 @@ const FiltroBasicoEtiqueta = ({
   }, [dataEtiquetas, etiquetasFiltro]);
 
   useEffect(() => {
-    if (pathname !== '/modelos') {
+    if (basePath !== 'modelos') {
       reset();
       useFiltroAvanzado.setState({ isOpen: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, reset]);
+  }, [basePath, reset]);
 
   return (
     <div className='flex w-full flex-col items-center gap-4 md:w-fit md:flex-row'>

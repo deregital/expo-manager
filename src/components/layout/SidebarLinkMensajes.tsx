@@ -25,22 +25,24 @@ const SidebarLinkMensajes = ({}: SidebarLinkMensajesProps) => {
   }, [data]);
 
   return (
-    <SidebarLink
-      to='/mensajes'
-      icon={<ChatIcon height={24} width={24} />}
-      iconActive={<ChatFillIcon height={24} width={24} />}
-      endDecorator={
-        mensajesNoLeidos > 0 ? (
-          <Badge className='flex aspect-square h-6 w-6 items-center justify-center bg-red-500 text-xs hover:bg-red-500'>
-            {mensajesNoLeidos}
-          </Badge>
-        ) : (
-          <></>
-        )
-      }
-    >
-      <span>Mensajes</span>
-    </SidebarLink>
+    <div className='max-h-[400px] overflow-y-auto'>
+      <SidebarLink
+        to='/mensajes'
+        icon={<ChatIcon height={24} width={24} />}
+        iconActive={<ChatFillIcon height={24} width={24} />}
+        endDecorator={
+          mensajesNoLeidos > 0 ? (
+            <Badge className='flex aspect-square h-6 w-6 items-center justify-center bg-red-500 text-xs hover:bg-red-500'>
+              {mensajesNoLeidos}
+            </Badge>
+          ) : (
+            <></>
+          )
+        }
+      >
+        <span>Mensajes</span>
+      </SidebarLink>
+    </div>
   );
 };
 
