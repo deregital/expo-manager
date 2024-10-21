@@ -97,19 +97,12 @@ const RespuestasEnlatadasModal = ({
 
   return (
     <>
-      <Dialog
-        open={open}
-        onOpenChange={(isOpen) => {
-          setOpen(isOpen);
-          if (!isOpen) {
-            onClose();
-          }
-        }}
-      >
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button
             onClick={(e) => {
               e.stopPropagation();
+              e.preventDefault();
 
               setOpen(true);
               useRespuestasEnlatadasModalData.setState({
@@ -127,7 +120,12 @@ const RespuestasEnlatadasModal = ({
             )}
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+        >
           <DialogTitle>
             {action === 'CREATE' ? 'Crear Respuesta enlatada' : 'Editar'}
           </DialogTitle>
@@ -135,11 +133,13 @@ const RespuestasEnlatadasModal = ({
           <Input
             placeholder='Nombre'
             value={modalData.nombre}
-            onChange={(e) =>
+            onChange={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
               useRespuestasEnlatadasModalData.setState({
                 nombre: e.target.value,
-              })
-            }
+              });
+            }}
           />
           <Label>Texto</Label>
           <Input
