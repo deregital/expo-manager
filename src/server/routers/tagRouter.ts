@@ -13,9 +13,15 @@ export const tagRouter = router({
   create: protectedProcedure
     .input(createTagSchema)
     .mutation(async ({ input, ctx }) => {
-      return await ctx.fetch.POST('/tag/create', {
+      const { data, error } = await ctx.fetch.POST('/tag/create', {
         body: input,
       });
+
+      if (error) {
+        throw handleError(error);
+      }
+
+      return data;
     }),
   delete: protectedProcedure
     .input(tagSchema.shape.id)
