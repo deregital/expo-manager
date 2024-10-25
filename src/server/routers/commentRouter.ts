@@ -1,9 +1,5 @@
 import { handleError, protectedProcedure, router } from '@/server/trpc';
-import {
-  accountSchema,
-  commentSchema,
-  createCommentSchema,
-} from 'expo-backend-types';
+import { commentSchema, createCommentSchema } from 'expo-backend-types';
 import { z } from 'zod';
 
 export const commentRouter = router({
@@ -41,7 +37,6 @@ export const commentRouter = router({
     .input(
       z.object({
         id: commentSchema.shape.id,
-        account: accountSchema.omit({ password: true }),
       })
     )
     .mutation(async ({ input, ctx }) => {
