@@ -2,7 +2,7 @@ import { RouterOutputs } from '@/server';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ListaEtiquetasModelo from '@/components/modelo/ListaEtiquetasModelo';
 import { create } from 'zustand';
-import ComentariosSection from '@/components/modelo/ComentariosSection';
+import CommentsSection from '@/components/modelo/CommentsSection';
 import { Button } from '../ui/button';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
@@ -30,7 +30,7 @@ interface ModeloPageContentProps {
 type ModeloData = {
   id: string;
   etiquetas: EtiquetaBaseConGrupoColor[];
-  comentarios: GetByProfileCommentResponseDto['comments'] | undefined;
+  comments: GetByProfileCommentResponseDto['comments'] | undefined;
 };
 type ModeloFoto = {
   id: string;
@@ -39,7 +39,7 @@ type ModeloFoto = {
 export const useModeloData = create<ModeloData>(() => ({
   id: '',
   etiquetas: [],
-  comentarios: undefined,
+  comments: undefined,
 }));
 export const useModeloFoto = create<ModeloFoto>(() => ({
   id: '',
@@ -283,7 +283,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       </div>
       <div className='mt-5'>
         <h2 className='text-xl font-bold md:text-2xl'>Comentarios</h2>
-        <ComentariosSection modeloId={modelo.id} />
+        <CommentsSection profileId={modelo.id} />
       </div>
     </>
   );

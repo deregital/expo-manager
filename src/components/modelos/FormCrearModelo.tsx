@@ -28,7 +28,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import CrearComentario from '../modelo/CrearComentario';
+import CrearComentario from '../modelo/CreateComment';
 
 interface FormCrearModeloProps {
   inputRef: React.RefObject<HTMLInputElement>;
@@ -591,9 +591,9 @@ const FormCrearModelo = ({
       <div className='flex flex-col gap-y-2'>
         <Label className='pt-2 text-sm'>Comentarios:</Label>
         <CrearComentario
-          handleAddComentario={handleAddComentario}
-          esResoluble={esResoluble}
-          setEsResoluble={setEsResoluble}
+          handleAddComment={handleAddComentario}
+          isSolvable={esResoluble}
+          setIsSolvable={setEsResoluble}
           textSubmit='+'
         />
         <Label className='pt-2 text-xs'>Comentarios agregados:</Label>

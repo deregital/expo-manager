@@ -5,24 +5,24 @@ import React, { FormEvent, useState } from 'react';
 // Asegúrate de tener un componente Switch adecuado
 import { Checkbox } from '../ui/checkbox';
 import { toast } from 'sonner';
-import CrearComentario from './CrearComentario';
+import CrearComentario from './CreateComment';
 import { GetByProfileCommentResponseDto } from 'expo-backend-types';
 
-interface ComentariosSectionProps {
-  modeloId: string;
+interface CommentsSectionProps {
+  profileId: string;
 }
 
-const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
+const CommentsSection = ({ profileId }: CommentsSectionProps) => {
   const createComment = trpc.comment.create.useMutation();
   const updateComment = trpc.comment.toggleSolve.useMutation();
   const session = useSession();
   const utils = trpc.useUtils();
 
-  const { comentarios: comentariosData } = useModeloData((state) => ({
-    comentarios: state.comentarios,
+  const { comments: commentsData } = useModeloData((state) => ({
+    comments: state.comments,
   }));
   // Estado para manejar el switch de Simple o Resoluble
-  const [esResoluble, setEsResoluble] = useState(false);
+  const [isSolvable, setIsSolvable] = useState(false);
 
   const handleResueltoChange = async (commentId: string) => {
     try {
@@ -30,7 +30,7 @@ const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
       await updateComment.mutateAsync({
         id: commentId,
       });
-      utils.comment.getById.invalidate(modeloId);
+      utils.comment.getById.invalidate(profileId);
       toast.success('Comentario actualizado');
     } catch (error) {
       console.error('Error al actualizar el estado del comentario:', error);
@@ -38,54 +38,52 @@ const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
     }
     toast.dismiss();
   };
-  async function handleAddComentario(e: FormEvent<HTMLFormElement>) {
+  async function handleAddComment(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const target = e.target as typeof e.target & {
-      comentario: { value: string };
+      comment: { value: string };
     };
-    const comentario = target.comentario.value;
-    const isSolvable = esResoluble;
+    const commentContent = target.comment.value;
+    const isSolvableComment = isSolvable;
 
-    if (!comentario || comentario === '') return;
+    if (!commentContent || commentContent === '') return;
     e.currentTarget.reset();
-    setEsResoluble(false);
+    setIsSolvable(false);
 
     useModeloData.setState({
-      comentarios: [
+      comments: [
         {
           id: 'temp',
-          content: comentario,
-          isSolvable: isSolvable,
+          content: commentContent,
+          isSolvable: isSolvableComment,
           created_at: new Date().toISOString(),
           account: {
             username: session.data?.user?.username as string,
           },
           createdBy: session.data?.user?.id as string,
-          profileId: modeloId,
+          profileId: profileId,
           updated_at: new Date().toISOString(),
           isSolved: false,
           solvedAt: null,
           solvedBy: undefined,
         },
-        ...(comentariosData || []),
+        ...(commentsData || []),
       ],
     });
 
     createComment
       .mutateAsync({
-        content: comentario as string,
-        isSolvable: isSolvable,
-        profileId: modeloId,
+        content: commentContent as string,
+        isSolvable: isSolvableComment,
+        profileId: profileId,
       })
       .then(() => {
-        utils.comment.getById.invalidate(modeloId);
+        utils.comment.getById.invalidate(profileId);
       })
       .catch(() => {
-        target.comentario.value = comentario;
+        target.comment.value = commentContent;
         useModeloData.setState({
-          comentarios: comentariosData?.filter(
-            (comentario) => comentario.id !== 'temp'
-          ),
+          comments: commentsData?.filter((comment) => comment.id !== 'temp'),
         });
       });
   }
@@ -93,13 +91,13 @@ const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
   return (
     <section className='mt-1 flex flex-col gap-y-4'>
       <CrearComentario
-        handleAddComment={handleAddComentario}
-        isSolvable={esResoluble}
-        setIsSolvable={setEsResoluble}
+        handleAddComment={handleAddComment}
+        isSolvable={isSolvable}
+        setIsSolvable={setIsSolvable}
         createComment={createComment}
         textSubmit='Enviar'
       />
-      {comentariosData?.map(
+      {commentsData?.map(
         (comment: GetByProfileCommentResponseDto['comments'][number]) => (
           <div key={comment.id} className='my-2 flex flex-col'>
             <div className='flex justify-between'>
@@ -139,4 +137,4 @@ const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
   );
 };
 
-export default ComentariosSection;
+export default CommentsSection;

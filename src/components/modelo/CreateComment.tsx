@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from '../ui/tooltip';
 
-interface CrearComentarioProps {
+interface CrearCommentProps {
   handleAddComment: (e: React.FormEvent<HTMLFormElement>) => void;
   isSolvable: boolean;
   setIsSolvable: (esResoluble: boolean) => void;
@@ -23,7 +23,7 @@ const CrearComentario = ({
   setIsSolvable,
   createComment,
   textSubmit,
-}: CrearComentarioProps) => {
+}: CrearCommentProps) => {
   return (
     <form
       onSubmit={handleAddComment}
@@ -31,7 +31,7 @@ const CrearComentario = ({
     >
       <Input
         autoComplete='off'
-        name='comentario'
+        name='comment'
         className='flex-grow'
         placeholder='Añadir un comentario'
       />
