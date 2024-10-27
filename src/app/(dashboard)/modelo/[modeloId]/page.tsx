@@ -21,7 +21,7 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
     data: comentarios,
     isLoading: isLoadingComentarios,
     isRefetching: isRefetchingComentarios,
-  } = trpc.comentario.getByPerfilId.useQuery({ perfilId: params.modeloId });
+  } = trpc.comment.getById.useQuery(params.modeloId);
 
   const router = useRouter();
 
@@ -34,7 +34,7 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
     useModeloData.setState({
       id: modelo.id,
       etiquetas: modelo.etiquetas,
-      comentarios: comentarios,
+      comentarios: comentarios.comments,
     });
   }, [
     modelo,

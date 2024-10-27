@@ -22,6 +22,7 @@ import MailIcon from '@/components/icons/MailIcon';
 import DNIIcon from '@/components/icons/DNIIcon';
 import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
 import BotonesPapelera from '@/components/papelera/BotonesPapelera';
+import { GetByProfileCommentResponseDto } from 'expo-backend-types';
 
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
@@ -29,7 +30,7 @@ interface ModeloPageContentProps {
 type ModeloData = {
   id: string;
   etiquetas: EtiquetaBaseConGrupoColor[];
-  comentarios: RouterOutputs['comentario']['getByPerfilId'] | undefined;
+  comentarios: GetByProfileCommentResponseDto['comments'] | undefined;
 };
 type ModeloFoto = {
   id: string;

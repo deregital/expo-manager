@@ -6,14 +6,15 @@ import React, { FormEvent, useState } from 'react';
 import { Checkbox } from '../ui/checkbox';
 import { toast } from 'sonner';
 import CrearComentario from './CrearComentario';
+import { GetByProfileCommentResponseDto } from 'expo-backend-types';
 
 interface ComentariosSectionProps {
   modeloId: string;
 }
 
 const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
-  const createComentario = trpc.comentario.create.useMutation();
-  const updateComentario = trpc.comentario.update.useMutation();
+  const createComment = trpc.comment.create.useMutation();
+  const updateComment = trpc.comment.toggleSolve.useMutation();
   const session = useSession();
   const utils = trpc.useUtils();
 
@@ -23,21 +24,17 @@ const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
   // Estado para manejar el switch de Simple o Resoluble
   const [esResoluble, setEsResoluble] = useState(false);
 
-  const handleResueltoChange = async (
-    comentarioId: string,
-    isResuelto: boolean
-  ) => {
+  const handleResueltoChange = async (commentId: string) => {
     try {
       toast.loading('Actualizando comentario...');
-      await updateComentario.mutateAsync({
-        id: comentarioId,
-        isSolved: isResuelto,
+      await updateComment.mutateAsync({
+        id: commentId,
       });
-      utils.comentario.getByPerfilId.invalidate({ perfilId: modeloId });
+      utils.comment.getById.invalidate(modeloId);
       toast.success('Comentario actualizado');
     } catch (error) {
       console.error('Error al actualizar el estado del comentario:', error);
-      toast.error('Error al actualizar el estado del comentario');
+      toast.error(error as string);
     }
     toast.dismiss();
   };
@@ -57,31 +54,31 @@ const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
       comentarios: [
         {
           id: 'temp',
-          contenido: comentario,
+          content: comentario,
           isSolvable: isSolvable,
           created_at: new Date().toISOString(),
-          cuenta: {
-            nombreUsuario: session.data?.user?.username as string,
+          account: {
+            username: session.data?.user?.username as string,
           },
-          creadoPor: session.data?.user?.id as string,
-          perfilId: modeloId,
+          createdBy: session.data?.user?.id as string,
+          profileId: modeloId,
           updated_at: new Date().toISOString(),
           isSolved: false,
           solvedAt: null,
-          solvedById: null,
+          solvedBy: undefined,
         },
         ...(comentariosData || []),
       ],
     });
 
-    createComentario
+    createComment
       .mutateAsync({
-        contenido: comentario as string,
+        content: comentario as string,
         isSolvable: isSolvable,
-        perfilId: modeloId,
+        profileId: modeloId,
       })
       .then(() => {
-        utils.comentario.getByPerfilId.invalidate({ perfilId: modeloId });
+        utils.comment.getById.invalidate(modeloId);
       })
       .catch(() => {
         target.comentario.value = comentario;
@@ -96,46 +93,48 @@ const ComentariosSection = ({ modeloId }: ComentariosSectionProps) => {
   return (
     <section className='mt-1 flex flex-col gap-y-4'>
       <CrearComentario
-        handleAddComentario={handleAddComentario}
-        esResoluble={esResoluble}
-        setEsResoluble={setEsResoluble}
-        createComentario={createComentario}
+        handleAddComment={handleAddComentario}
+        isSolvable={esResoluble}
+        setIsSolvable={setEsResoluble}
+        createComment={createComment}
         textSubmit='Enviar'
       />
-      {comentariosData?.map((comentario) => (
-        <div key={comentario.id} className='my-2 flex flex-col'>
-          <div className='flex justify-between'>
-            <p className='rounded-t-lg border-[1px] border-b-0 border-black/50 bg-zinc-200 p-2 text-sm'>
-              {new Date(comentario.created_at).toLocaleString('es-AR')}
-            </p>
-            <div className='flex items-center justify-center gap-x-2'>
-              {comentario.isSolvable && (
+      {comentariosData?.map(
+        (comment: GetByProfileCommentResponseDto['comments'][number]) => (
+          <div key={comment.id} className='my-2 flex flex-col'>
+            <div className='flex justify-between'>
+              <p className='rounded-t-lg border-[1px] border-b-0 border-black/50 bg-zinc-200 p-2 text-sm'>
+                {new Date(comment.created_at).toLocaleString('es-AR')}
+              </p>
+              <div className='flex items-center justify-center gap-x-2'>
+                {comment.isSolvable && (
+                  <div className='flex items-center justify-center gap-x-2 rounded-t-lg border-[1px] border-b-0 border-black/50 bg-zinc-200 p-2 text-sm'>
+                    <Checkbox
+                      checked={comment.isSolved}
+                      disabled={
+                        !session.data?.user?.esAdmin &&
+                        session.data?.user?.id !== comment.createdBy
+                      }
+                      onCheckedChange={() => {
+                        handleResueltoChange(comment.id);
+                      }}
+                    />
+                    <p className='text-sm'>
+                      {comment.isSolved ? 'Resuelto' : 'No resuelto'}
+                    </p>
+                  </div>
+                )}
                 <div className='flex items-center justify-center gap-x-2 rounded-t-lg border-[1px] border-b-0 border-black/50 bg-zinc-200 p-2 text-sm'>
-                  <Checkbox
-                    checked={comentario.isSolved}
-                    disabled={
-                      !session.data?.user?.esAdmin &&
-                      session.data?.user?.id !== comentario.creadoPor
-                    }
-                    onCheckedChange={(checked) => {
-                      handleResueltoChange(comentario.id, !!checked);
-                    }}
-                  />
-                  <p className='text-sm'>
-                    {comentario.isSolved ? 'Resuelto' : 'No resuelto'}
-                  </p>
+                  <p className=''>{comment.account.username}</p>
                 </div>
-              )}
-              <div className='flex items-center justify-center gap-x-2 rounded-t-lg border-[1px] border-b-0 border-black/50 bg-zinc-200 p-2 text-sm'>
-                <p className=''>{comentario.cuenta.nombreUsuario}</p>
               </div>
             </div>
+            <div className='rounded-b-lg border-[1px] border-black/50 p-2'>
+              <p>{comment.content}</p>
+            </div>
           </div>
-          <div className='rounded-b-lg border-[1px] border-black/50 p-2'>
-            <p>{comentario.contenido}</p>
-          </div>
-        </div>
-      ))}
+        )
+      )}
     </section>
   );
 };

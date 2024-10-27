@@ -9,24 +9,24 @@ import {
 } from '../ui/tooltip';
 
 interface CrearComentarioProps {
-  handleAddComentario: (e: React.FormEvent<HTMLFormElement>) => void;
-  esResoluble: boolean;
-  setEsResoluble: (esResoluble: boolean) => void;
-  createComentario?: {
+  handleAddComment: (e: React.FormEvent<HTMLFormElement>) => void;
+  isSolvable: boolean;
+  setIsSolvable: (esResoluble: boolean) => void;
+  createComment?: {
     isLoading: boolean;
   };
   textSubmit: string;
 }
 const CrearComentario = ({
-  handleAddComentario,
-  esResoluble,
-  setEsResoluble,
-  createComentario,
+  handleAddComment,
+  isSolvable,
+  setIsSolvable,
+  createComment,
   textSubmit,
 }: CrearComentarioProps) => {
   return (
     <form
-      onSubmit={handleAddComentario}
+      onSubmit={handleAddComment}
       className='flex items-end gap-x-4 rounded-lg bg-gray-300 px-3 pb-3 pt-2'
     >
       <Input
@@ -46,11 +46,11 @@ const CrearComentario = ({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <Switch checked={esResoluble} onCheckedChange={setEsResoluble} />
+        <Switch checked={isSolvable} onCheckedChange={setIsSolvable} />
       </div>
       <Button
         className={`p-2`}
-        disabled={createComentario ? createComentario?.isLoading : false}
+        disabled={createComment ? createComment?.isLoading : false}
         type='submit'
       >
         {textSubmit}
