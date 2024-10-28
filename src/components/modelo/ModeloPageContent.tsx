@@ -2,7 +2,7 @@ import { RouterOutputs } from '@/server';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ListaEtiquetasModelo from '@/components/modelo/ListaEtiquetasModelo';
 import { create } from 'zustand';
-import ComentariosSection from '@/components/modelo/ComentariosSection';
+import CommentsSection from '@/components/modelo/CommentsSection';
 import { Button } from '../ui/button';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
@@ -22,6 +22,7 @@ import MailIcon from '@/components/icons/MailIcon';
 import DNIIcon from '@/components/icons/DNIIcon';
 import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
 import BotonesPapelera from '@/components/papelera/BotonesPapelera';
+import { GetByProfileCommentResponseDto } from 'expo-backend-types';
 
 interface ModeloPageContentProps {
   modelo: NonNullable<RouterOutputs['modelo']['getById']>;
@@ -29,7 +30,7 @@ interface ModeloPageContentProps {
 type ModeloData = {
   id: string;
   etiquetas: EtiquetaBaseConGrupoColor[];
-  comentarios: RouterOutputs['comentario']['getByPerfilId'] | undefined;
+  comments: GetByProfileCommentResponseDto['comments'] | undefined;
 };
 type ModeloFoto = {
   id: string;
@@ -38,7 +39,7 @@ type ModeloFoto = {
 export const useModeloData = create<ModeloData>(() => ({
   id: '',
   etiquetas: [],
-  comentarios: undefined,
+  comments: undefined,
 }));
 export const useModeloFoto = create<ModeloFoto>(() => ({
   id: '',
@@ -282,7 +283,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       </div>
       <div className='mt-5'>
         <h2 className='text-xl font-bold md:text-2xl'>Comentarios</h2>
-        <ComentariosSection modeloId={modelo.id} />
+        <CommentsSection profileId={modelo.id} />
       </div>
     </>
   );

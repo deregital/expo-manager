@@ -18,30 +18,30 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
   const { data: modelo, isLoading: isLoadingModelo } =
     trpc.modelo.getById.useQuery(params.modeloId);
   const {
-    data: comentarios,
-    isLoading: isLoadingComentarios,
-    isRefetching: isRefetchingComentarios,
-  } = trpc.comentario.getByPerfilId.useQuery({ perfilId: params.modeloId });
+    data: comments,
+    isLoading: isLoadingComments,
+    isRefetching: isRefetchingComments,
+  } = trpc.comment.getByProfileId.useQuery(params.modeloId);
 
   const router = useRouter();
 
   useEffect(() => {
-    if (isRefetchingComentarios) return;
-    if (isLoadingModelo || isLoadingComentarios) return;
+    if (isRefetchingComments) return;
+    if (isLoadingModelo || isLoadingComments) return;
 
-    if (!modelo || !comentarios) return;
+    if (!modelo || !comments) return;
 
     useModeloData.setState({
       id: modelo.id,
       etiquetas: modelo.etiquetas,
-      comentarios: comentarios,
+      comments: comments.comments,
     });
   }, [
     modelo,
     isLoadingModelo,
-    isLoadingComentarios,
-    comentarios,
-    isRefetchingComentarios,
+    isLoadingComments,
+    comments,
+    isRefetchingComments,
   ]);
 
   return (
@@ -54,7 +54,7 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
           }}
         />
       </div>
-      {isLoadingModelo || isLoadingComentarios || !modelo || !comentarios ? (
+      {isLoadingModelo || isLoadingComments || !modelo || !comments ? (
         <div className='flex h-full w-full items-center justify-center'>
           <Loader />
         </div>

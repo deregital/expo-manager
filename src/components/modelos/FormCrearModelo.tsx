@@ -28,7 +28,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import CrearComentario from '../modelo/CrearComentario';
+import CreateComment from '../modelo/CreateComment';
 
 interface FormCrearModeloProps {
   inputRef: React.RefObject<HTMLInputElement>;
@@ -151,39 +151,39 @@ const FormCrearModelo = ({
       enabled: !!modalModelo.modelo.residencia?.provincia,
     }
   );
-  const [esResoluble, setEsResoluble] = useState(false);
+  const [isSolvable, setIsSolvable] = useState(false);
 
-  const handleAddComentario = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAddComment = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const target = e.target as typeof e.target & {
-      comentario: { value: string };
+      comment: { value: string };
     };
-    const comentario = target.comentario.value;
-    const isSolvable = esResoluble;
-    if (!comentario || comentario === '') return;
+    const comment = target.comment.value;
+    const isSolvableComment = isSolvable;
+    if (!comment || comment === '') return;
     e.currentTarget.reset();
-    setEsResoluble(false);
+    setIsSolvable(false);
     useCrearModeloModal.setState({
       modelo: {
         ...modalModelo.modelo,
         comentarios: [
           ...modalModelo.modelo.comentarios,
           {
-            contenido: comentario,
-            isSolvable: isSolvable,
+            contenido: comment,
+            isSolvable: isSolvableComment,
           },
         ],
       },
     });
   };
 
-  const handleDeleteComentario = (index: number) => {
-    const newComentarios = modalModelo.modelo.comentarios;
-    newComentarios.splice(index, 1);
+  const handleDeleteComment = (index: number) => {
+    const newComments = modalModelo.modelo.comentarios;
+    newComments.splice(index, 1);
     useCrearModeloModal.setState({
       modelo: {
         ...modalModelo.modelo,
-        comentarios: newComentarios,
+        comentarios: newComments,
       },
     });
   };
@@ -590,15 +590,15 @@ const FormCrearModelo = ({
       </div>
       <div className='flex flex-col gap-y-2'>
         <Label className='pt-2 text-sm'>Comentarios:</Label>
-        <CrearComentario
-          handleAddComentario={handleAddComentario}
-          esResoluble={esResoluble}
-          setEsResoluble={setEsResoluble}
+        <CreateComment
+          handleAddComment={handleAddComment}
+          isSolvable={isSolvable}
+          setIsSolvable={setIsSolvable}
           textSubmit='+'
         />
         <Label className='pt-2 text-xs'>Comentarios agregados:</Label>
         <div className='flex flex-col gap-y-2'>
-          {modalModelo.modelo.comentarios?.map((comentario, index) => {
+          {modalModelo.modelo.comentarios?.map((comment, index) => {
             return (
               <div
                 key={index}
@@ -606,8 +606,8 @@ const FormCrearModelo = ({
               >
                 <Input
                   autoComplete='off'
-                  name='comentario'
-                  value={comentario.contenido}
+                  name='comment'
+                  value={comment.contenido}
                   disabled
                   className='flex-grow'
                 />
@@ -624,11 +624,11 @@ const FormCrearModelo = ({
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
-                  <Switch checked={comentario.isSolvable} disabled />
+                  <Switch checked={comment.isSolvable} disabled />
                 </div>
                 <Button className='p-2'>
                   <TrashIcon
-                    onClick={() => handleDeleteComentario(index)}
+                    onClick={() => handleDeleteComment(index)}
                     className='h-4 w-4 cursor-pointer'
                   />
                 </Button>
