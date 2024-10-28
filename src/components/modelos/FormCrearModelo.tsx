@@ -156,11 +156,11 @@ const FormCrearModelo = ({
   const handleAddComment = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const target = e.target as typeof e.target & {
-      comentario: { value: string };
+      comment: { value: string };
     };
-    const comentario = target.comentario.value;
+    const comment = target.comment.value;
     const isSolvableComment = isSolvable;
-    if (!comentario || comentario === '') return;
+    if (!comment || comment === '') return;
     e.currentTarget.reset();
     setIsSolvable(false);
     useCrearModeloModal.setState({
@@ -169,7 +169,7 @@ const FormCrearModelo = ({
         comentarios: [
           ...modalModelo.modelo.comentarios,
           {
-            contenido: comentario,
+            contenido: comment,
             isSolvable: isSolvableComment,
           },
         ],
@@ -177,13 +177,13 @@ const FormCrearModelo = ({
     });
   };
 
-  const handleDeleteComentario = (index: number) => {
-    const newComentarios = modalModelo.modelo.comentarios;
-    newComentarios.splice(index, 1);
+  const handleDeleteComment = (index: number) => {
+    const newComments = modalModelo.modelo.comentarios;
+    newComments.splice(index, 1);
     useCrearModeloModal.setState({
       modelo: {
         ...modalModelo.modelo,
-        comentarios: newComentarios,
+        comentarios: newComments,
       },
     });
   };
@@ -598,7 +598,7 @@ const FormCrearModelo = ({
         />
         <Label className='pt-2 text-xs'>Comentarios agregados:</Label>
         <div className='flex flex-col gap-y-2'>
-          {modalModelo.modelo.comentarios?.map((comentario, index) => {
+          {modalModelo.modelo.comentarios?.map((comment, index) => {
             return (
               <div
                 key={index}
@@ -606,8 +606,8 @@ const FormCrearModelo = ({
               >
                 <Input
                   autoComplete='off'
-                  name='comentario'
-                  value={comentario.contenido}
+                  name='comment'
+                  value={comment.contenido}
                   disabled
                   className='flex-grow'
                 />
@@ -624,11 +624,11 @@ const FormCrearModelo = ({
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
-                  <Switch checked={comentario.isSolvable} disabled />
+                  <Switch checked={comment.isSolvable} disabled />
                 </div>
                 <Button className='p-2'>
                   <TrashIcon
-                    onClick={() => handleDeleteComentario(index)}
+                    onClick={() => handleDeleteComment(index)}
                     className='h-4 w-4 cursor-pointer'
                   />
                 </Button>

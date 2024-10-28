@@ -5,7 +5,7 @@ import React, { FormEvent, useState } from 'react';
 // Asegúrate de tener un componente Switch adecuado
 import { Checkbox } from '../ui/checkbox';
 import { toast } from 'sonner';
-import CrearComentario from './CreateComment';
+import CreateComment from './CreateComment';
 import { GetByProfileCommentResponseDto } from 'expo-backend-types';
 
 interface CommentsSectionProps {
@@ -88,7 +88,7 @@ const CommentsSection = ({ profileId }: CommentsSectionProps) => {
 
   return (
     <section className='mt-1 flex flex-col gap-y-4'>
-      <CrearComentario
+      <CreateComment
         handleAddComment={handleAddComment}
         isSolvable={isSolvable}
         setIsSolvable={setIsSolvable}
