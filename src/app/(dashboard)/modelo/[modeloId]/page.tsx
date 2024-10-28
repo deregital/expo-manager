@@ -21,7 +21,7 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
     data: comments,
     isLoading: isLoadingComments,
     isRefetching: isRefetchingComments,
-  } = trpc.comment.getById.useQuery(params.modeloId);
+  } = trpc.comment.getByProfileId.useQuery(params.modeloId);
 
   const router = useRouter();
 

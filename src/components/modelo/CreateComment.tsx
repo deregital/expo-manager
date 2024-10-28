@@ -17,7 +17,7 @@ interface CrearCommentProps {
   };
   textSubmit: string;
 }
-const CrearComentario = ({
+const CreateComment = ({
   handleAddComment,
   isSolvable,
   setIsSolvable,
@@ -59,4 +59,4 @@ const CrearComentario = ({
   );
 };
 
-export default CrearComentario;
+export default CreateComment;

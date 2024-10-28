@@ -28,7 +28,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import CrearComentario from '../modelo/CreateComment';
+import CreateComment from '../modelo/CreateComment';
 
 interface FormCrearModeloProps {
   inputRef: React.RefObject<HTMLInputElement>;
@@ -151,18 +151,18 @@ const FormCrearModelo = ({
       enabled: !!modalModelo.modelo.residencia?.provincia,
     }
   );
-  const [esResoluble, setEsResoluble] = useState(false);
+  const [isSolvable, setIsSolvable] = useState(false);
 
-  const handleAddComentario = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAddComment = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const target = e.target as typeof e.target & {
       comentario: { value: string };
     };
     const comentario = target.comentario.value;
-    const isSolvable = esResoluble;
+    const isSolvableComment = isSolvable;
     if (!comentario || comentario === '') return;
     e.currentTarget.reset();
-    setEsResoluble(false);
+    setIsSolvable(false);
     useCrearModeloModal.setState({
       modelo: {
         ...modalModelo.modelo,
@@ -170,7 +170,7 @@ const FormCrearModelo = ({
           ...modalModelo.modelo.comentarios,
           {
             contenido: comentario,
-            isSolvable: isSolvable,
+            isSolvable: isSolvableComment,
           },
         ],
       },
@@ -590,10 +590,10 @@ const FormCrearModelo = ({
       </div>
       <div className='flex flex-col gap-y-2'>
         <Label className='pt-2 text-sm'>Comentarios:</Label>
-        <CrearComentario
-          handleAddComment={handleAddComentario}
-          isSolvable={esResoluble}
-          setIsSolvable={setEsResoluble}
+        <CreateComment
+          handleAddComment={handleAddComment}
+          isSolvable={isSolvable}
+          setIsSolvable={setIsSolvable}
           textSubmit='+'
         />
         <Label className='pt-2 text-xs'>Comentarios agregados:</Label>

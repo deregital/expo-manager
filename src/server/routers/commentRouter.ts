@@ -1,6 +1,5 @@
 import { handleError, protectedProcedure, router } from '@/server/trpc';
 import { commentSchema, createCommentSchema } from 'expo-backend-types';
-import { z } from 'zod';
 
 export const commentRouter = router({
   create: protectedProcedure
@@ -14,7 +13,7 @@ export const commentRouter = router({
       }
       return data;
     }),
-  getById: protectedProcedure
+  getByProfileId: protectedProcedure
     .input(commentSchema.shape.id)
     .query(async ({ input, ctx }) => {
       const { data, error } = await ctx.fetch.GET(
@@ -34,18 +33,14 @@ export const commentRouter = router({
       return data;
     }),
   toggleSolve: protectedProcedure
-    .input(
-      z.object({
-        id: commentSchema.shape.id,
-      })
-    )
+    .input(commentSchema.shape.id)
     .mutation(async ({ input, ctx }) => {
       const { data, error } = await ctx.fetch.PATCH(
         '/comment/toggle-solve/{id}',
         {
           params: {
             path: {
-              id: input.id,
+              id: input,
             },
           },
         }

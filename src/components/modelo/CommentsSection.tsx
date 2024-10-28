@@ -27,10 +27,8 @@ const CommentsSection = ({ profileId }: CommentsSectionProps) => {
   const handleResueltoChange = async (commentId: string) => {
     try {
       toast.loading('Actualizando comentario...');
-      await updateComment.mutateAsync({
-        id: commentId,
-      });
-      utils.comment.getById.invalidate(profileId);
+      await updateComment.mutateAsync(commentId);
+      utils.comment.getByProfileId.invalidate(profileId);
       toast.success('Comentario actualizado');
     } catch (error) {
       console.error('Error al actualizar el estado del comentario:', error);
@@ -78,7 +76,7 @@ const CommentsSection = ({ profileId }: CommentsSectionProps) => {
         profileId: profileId,
       })
       .then(() => {
-        utils.comment.getById.invalidate(profileId);
+        utils.comment.getByProfileId.invalidate(profileId);
       })
       .catch(() => {
         target.comment.value = commentContent;
