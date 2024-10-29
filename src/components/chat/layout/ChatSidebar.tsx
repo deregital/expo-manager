@@ -8,7 +8,7 @@ import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React, { useMemo } from 'react';
-import RespuestasEnlatadasModal from '../RespuestasEnlatadasModal';
+import RespuestasEnlatadasModal from '../CannedResponsesModal';
 
 type ChatSidebarProps = {
   filtro: Filtro;

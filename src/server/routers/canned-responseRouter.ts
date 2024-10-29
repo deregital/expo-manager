@@ -10,7 +10,7 @@ export const cannedResponseRouter = router({
   create: protectedProcedure
     .input(createCannedResponseSchema)
     .mutation(async ({ input, ctx }) => {
-      const { data, error } = await ctx.fetch.POST('/cannedresponse/create', {
+      const { data, error } = await ctx.fetch.POST('/canned-response/create', {
         body: input,
       });
       if (error) {
@@ -28,7 +28,7 @@ export const cannedResponseRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { id, ...body } = input;
       const { data, error } = await ctx.fetch.PATCH(
-        '/cannedresponse/update/{id}',
+        '/canned-response/update/{id}',
         {
           params: {
             path: {
@@ -48,7 +48,7 @@ export const cannedResponseRouter = router({
     .input(cannedResponseSchema.shape.id)
     .mutation(async ({ input, ctx }) => {
       const { data, error } = await ctx.fetch.DELETE(
-        '/cannedresponse/delete/{id}',
+        '/canned-response/delete/{id}',
         {
           params: {
             path: {
@@ -64,10 +64,10 @@ export const cannedResponseRouter = router({
     }),
 
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    const { data, error } = await ctx.fetch.GET('/cannedresponse/get-all');
+    const { data, error } = await ctx.fetch.GET('/canned-response/all');
     if (error) {
       throw handleError(error);
     }
-    return data;
+    return data.cannedResponses;
   }),
 });

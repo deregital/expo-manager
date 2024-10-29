@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import RespuestasList from './RespuestasList';
+import ResponsesList from './ResponsesList';
 
 interface EnviarMensajeUIProps {
   telefono: string;
@@ -38,7 +38,7 @@ const EnviarMensajeUI = ({ telefono, inChat }: EnviarMensajeUIProps) => {
           });
       }}
     >
-      <RespuestasList isActive={inChat} onSelect={handleSelectRespuesta} />
+      <ResponsesList isActive={inChat} onSelect={handleSelectRespuesta} />
       <input
         disabled={!inChat || sendMessage.isLoading}
         value={message}

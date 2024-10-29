@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import IconQuestionAnswerLine from '@/components/icons/RespuestasEnlatadasIcon';
-import RespuestasEnlatadasModal from '../RespuestasEnlatadasModal';
+import CannedResponsesModal from '../CannedResponsesModal';
 import {
   Popover,
   PopoverContent,
@@ -10,30 +10,27 @@ import {
 } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 
-interface RespuestasListProps {
-  onSelect: (descripcion: string) => void;
+interface ResponsesListProps {
+  onSelect: (content: string) => void;
   isActive?: boolean;
 }
 
-const RespuestasList = ({
-  onSelect,
-  isActive = false,
-}: RespuestasListProps) => {
+const ResponsesList = ({ onSelect, isActive = false }: ResponsesListProps) => {
   const {
-    data: respuestas,
+    data: responses,
     isLoading,
     error,
-  } = trpc.respuestasEnlatadas.getAll.useQuery();
+  } = trpc.cannedResponse.getAll.useQuery();
   const [search, setSearch] = useState('');
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const cannedResponsesFiltered = useMemo(() => {
-    if (!respuestas) return [];
-    if (!search) return respuestas;
-    return respuestas.filter((respuesta) =>
-      respuesta.nombre.toLowerCase().includes(search.toLowerCase())
+    if (!responses) return [];
+    if (!search) return responses;
+    return responses.filter((response) =>
+      response.name.toLowerCase().includes(search.toLowerCase())
     );
-  }, [respuestas, search]);
+  }, [responses, search]);
 
   return (
     <Popover
@@ -63,24 +60,24 @@ const RespuestasList = ({
               No se encontraron respuestas enlatadas
             </li>
           ) : (
-            cannedResponsesFiltered?.map((respuesta) => (
+            cannedResponsesFiltered?.map((response) => (
               <li
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  onSelect(respuesta.descripcion);
+                  onSelect(response.content);
                   setPopoverOpen(false);
                 }}
-                key={respuesta.id}
+                key={response.id}
                 className='flex cursor-pointer items-center justify-between px-2 py-2 hover:bg-gray-100'
               >
-                <span>{respuesta.nombre}</span>
-                <RespuestasEnlatadasModal
+                <span>{response.name}</span>
+                <CannedResponsesModal
                   action='EDIT'
-                  respuestaEnlatada={{
-                    id: respuesta.id,
-                    nombre: respuesta.nombre,
-                    descripcion: respuesta.descripcion,
+                  cannedResponse={{
+                    id: response.id,
+                    name: response.name,
+                    content: response.content,
                   }}
                 />
               </li>
@@ -92,4 +89,4 @@ const RespuestasList = ({
   );
 };
 
-export default RespuestasList;
+export default ResponsesList;
