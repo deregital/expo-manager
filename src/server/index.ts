@@ -24,7 +24,7 @@ export const appRouter = router({
   cuenta: cuentaRouter,
   notificacion: notificacionRouter,
   location: locationRouter,
-  cannedResponse: cannedResponseRouter
+  cannedResponse: cannedResponseRouter,
   comment: commentRouter,
 });
 // export type definition of API
