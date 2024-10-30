@@ -493,12 +493,19 @@ const FormCrearModelo = ({
         <Select
           disabled={!modalModelo.modelo.birth.country}
           onValueChange={(value) => {
+            const state = JSON.parse(value) as {
+              latitude: number;
+              longitude: number;
+              name: string;
+            };
             useCrearModeloModal.setState({
               modelo: {
                 ...modalModelo.modelo,
                 birth: {
                   ...modalModelo.modelo.birth,
-                  state: value,
+                  latitude: state.latitude,
+                  longitude: state.longitude,
+                  state: state.name,
                 },
               },
             });
@@ -509,7 +516,14 @@ const FormCrearModelo = ({
           </SelectTrigger>
           <SelectContent>
             {statesBySelectedCountry?.map((state) => (
-              <SelectItem key={state.isoCode} value={state.isoCode}>
+              <SelectItem
+                key={state.isoCode}
+                value={JSON.stringify({
+                  latitude: state.latitude,
+                  longitude: state.longitude,
+                  name: state.name,
+                })}
+              >
                 {state.name}
               </SelectItem>
             ))}
@@ -520,14 +534,11 @@ const FormCrearModelo = ({
         <Label className='pt-2 text-sm'>Lugar de residencia (Argentina):</Label>
         <Select
           onValueChange={(value) => {
-            console.log('residence state changed', value);
             useCrearModeloModal.setState({
               modelo: {
                 ...modalModelo.modelo,
                 residence: {
-                  city: modalModelo.modelo.residence?.city,
-                  latitude: modalModelo.modelo.residence?.latitude,
-                  longitude: modalModelo.modelo.residence?.longitude,
+                  ...modalModelo.modelo.residence,
                   state: value,
                 },
               },
@@ -548,21 +559,20 @@ const FormCrearModelo = ({
         <Select
           disabled={!modalModelo.modelo.residence?.state}
           onValueChange={(value) => {
-            console.log('residence city changed', value);
-
-            const city = JSON.parse(value as string) as {
-              latitud: number;
-              longitud: number;
-              nombre: string;
+            const city = JSON.parse(value) as {
+              latitude: number;
+              longitude: number;
+              name: string;
             };
+
             useCrearModeloModal.setState({
               modelo: {
                 ...modalModelo.modelo,
                 residence: {
-                  city: city.nombre,
-                  latitude: city.latitud,
-                  longitude: city.longitud,
-                  state: modalModelo.modelo.residence?.state,
+                  ...modalModelo.modelo.residence,
+                  city: city.name,
+                  latitude: city.latitude,
+                  longitude: city.longitude,
                 },
               },
             });
@@ -576,9 +586,9 @@ const FormCrearModelo = ({
               <SelectItem
                 key={city.id}
                 value={JSON.stringify({
-                  latitud: city.centroid.lat,
-                  longitud: city.centroid.lon,
-                  nombre: city.name,
+                  latitude: city.centroid.lat,
+                  longitude: city.centroid.lon,
+                  name: city.name,
                 })}
               >
                 {city.name}

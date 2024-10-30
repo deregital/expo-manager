@@ -564,10 +564,17 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             open={openStateSelect}
             onOpenChange={setOpenStateSelect}
             onValueChange={(value) => {
+              const state = JSON.parse(value) as {
+                latitude: number;
+                longitude: number;
+                name: string;
+              };
               useModeloModalData.setState({
                 birth: {
                   ...birth,
-                  state: value as string,
+                  latitude: state.latitude,
+                  longitude: state.longitude,
+                  state: state.name,
                 },
               });
             }}
@@ -579,7 +586,14 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             </SelectTrigger>
             <SelectContent>
               {statesBySelectedCountry?.map((state) => (
-                <SelectItem key={state.isoCode} value={state.isoCode}>
+                <SelectItem
+                  key={state.isoCode}
+                  value={JSON.stringify({
+                    latitude: state.latitude,
+                    longitude: state.longitude,
+                    name: state.name,
+                  })}
+                >
                   {state.name}
                 </SelectItem>
               ))}
