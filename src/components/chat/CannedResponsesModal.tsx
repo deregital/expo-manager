@@ -99,7 +99,11 @@ const CannedResponsesModal = ({
           toast.success('Respuesta enlatada eliminada con éxito');
           utils.cannedResponse.getAll.invalidate();
         })
-        .catch(() => toast.error(deleteResponse.error?.message));
+        .catch((e) => {
+          const errorMessage = JSON.parse(e.message)[0].message;
+
+          toast.error(errorMessage);
+        });
     }
   };
 
