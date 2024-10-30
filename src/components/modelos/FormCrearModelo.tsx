@@ -19,7 +19,6 @@ import React, { useMemo, useState } from 'react';
 import { RouterOutputs } from '@/server';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
-import { Country, State } from 'country-state-city';
 import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
 import {
@@ -124,31 +123,22 @@ const FormCrearModelo = ({
     setAddTagOpen(false);
   }
 
-  const allCountries = useMemo(
-    () =>
-      Country.getAllCountries().filter(
-        (country) => country.name !== 'Palestinian Territory Occupied'
-      ),
-    []
-  );
-  const statesBySelectedCountry = useMemo(() => {
-    if (!modalModelo.modelo.paisNacimiento) return [];
+  const { data: allCountries } = trpc.location.getCountries.useQuery();
 
-    const countryCode = allCountries.find(
-      (country) => country.isoCode === modalModelo.modelo.paisNacimiento
-    )?.isoCode;
+  const { data: statesBySelectedCountry } =
+    trpc.location.getStateByCountry.useQuery(
+      modalModelo.modelo.birth.country ?? '',
+      {
+        enabled: !!modalModelo.modelo.birth.country,
+      }
+    );
 
-    return State.getStatesOfCountry(countryCode);
-  }, [allCountries, modalModelo.modelo.paisNacimiento]);
+  const { data: argStates } = trpc.location.getArgStates.useQuery();
 
-  const provinces = useMemo(() => {
-    return State.getStatesOfCountry('AR');
-  }, []);
-
-  const { data: citiesData } = trpc.mapa.getLocalidadesByProvincia.useQuery(
-    modalModelo.modelo.residencia?.provincia ?? '',
+  const { data: citiesData } = trpc.location.getCitiesByArgState.useQuery(
+    modalModelo.modelo.residence?.state ?? '',
     {
-      enabled: !!modalModelo.modelo.residencia?.provincia,
+      enabled: !!modalModelo.modelo.residence?.state,
     }
   );
   const [isSolvable, setIsSolvable] = useState(false);
@@ -166,10 +156,10 @@ const FormCrearModelo = ({
     useCrearModeloModal.setState({
       modelo: {
         ...modalModelo.modelo,
-        comentarios: [
-          ...modalModelo.modelo.comentarios,
+        comments: [
+          ...modalModelo.modelo.comments,
           {
-            contenido: comment,
+            content: comment,
             isSolvable: isSolvableComment,
           },
         ],
@@ -178,12 +168,12 @@ const FormCrearModelo = ({
   };
 
   const handleDeleteComment = (index: number) => {
-    const newComments = modalModelo.modelo.comentarios;
+    const newComments = modalModelo.modelo.comments;
     newComments.splice(index, 1);
     useCrearModeloModal.setState({
       modelo: {
         ...modalModelo.modelo,
-        comentarios: newComments,
+        comments: newComments,
       },
     });
   };
@@ -481,7 +471,10 @@ const FormCrearModelo = ({
             useCrearModeloModal.setState({
               modelo: {
                 ...modalModelo.modelo,
-                paisNacimiento: value as string,
+                birth: {
+                  ...modalModelo.modelo.birth,
+                  country: value,
+                },
               },
             });
           }}
@@ -490,7 +483,7 @@ const FormCrearModelo = ({
             <SelectValue placeholder='Selecciona tu país' />
           </SelectTrigger>
           <SelectContent>
-            {allCountries.map((country) => (
+            {allCountries?.map((country) => (
               <SelectItem key={country.isoCode} value={country.isoCode}>
                 {country.name}
               </SelectItem>
@@ -498,12 +491,15 @@ const FormCrearModelo = ({
           </SelectContent>
         </Select>
         <Select
-          disabled={!modalModelo.modelo.paisNacimiento}
+          disabled={!modalModelo.modelo.birth.country}
           onValueChange={(value) => {
             useCrearModeloModal.setState({
               modelo: {
                 ...modalModelo.modelo,
-                provinciaNacimiento: value,
+                birth: {
+                  ...modalModelo.modelo.birth,
+                  state: value,
+                },
               },
             });
           }}
@@ -512,7 +508,7 @@ const FormCrearModelo = ({
             <SelectValue placeholder='Selecciona tu provincia' />
           </SelectTrigger>
           <SelectContent>
-            {statesBySelectedCountry.map((state) => (
+            {statesBySelectedCountry?.map((state) => (
               <SelectItem key={state.isoCode} value={state.isoCode}>
                 {state.name}
               </SelectItem>
@@ -524,14 +520,15 @@ const FormCrearModelo = ({
         <Label className='pt-2 text-sm'>Lugar de residencia (Argentina):</Label>
         <Select
           onValueChange={(value) => {
+            console.log('residence state changed', value);
             useCrearModeloModal.setState({
               modelo: {
                 ...modalModelo.modelo,
-                residencia: {
-                  localidad: modalModelo.modelo.residencia?.localidad,
-                  latitud: modalModelo.modelo.residencia?.latitud,
-                  longitud: modalModelo.modelo.residencia?.longitud,
-                  provincia: value,
+                residence: {
+                  city: modalModelo.modelo.residence?.city,
+                  latitude: modalModelo.modelo.residence?.latitude,
+                  longitude: modalModelo.modelo.residence?.longitude,
+                  state: value,
                 },
               },
             });
@@ -541,16 +538,18 @@ const FormCrearModelo = ({
             <SelectValue placeholder='Selecciona tu provincia' />
           </SelectTrigger>
           <SelectContent>
-            {provinces.map((province) => (
-              <SelectItem key={province.isoCode} value={province.name}>
-                {province.name}
+            {argStates?.map((state) => (
+              <SelectItem key={state} value={state}>
+                {state}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select
-          disabled={!modalModelo.modelo.residencia?.provincia}
+          disabled={!modalModelo.modelo.residence?.state}
           onValueChange={(value) => {
+            console.log('residence city changed', value);
+
             const city = JSON.parse(value as string) as {
               latitud: number;
               longitud: number;
@@ -559,11 +558,11 @@ const FormCrearModelo = ({
             useCrearModeloModal.setState({
               modelo: {
                 ...modalModelo.modelo,
-                residencia: {
-                  localidad: city.nombre,
-                  latitud: city.latitud,
-                  longitud: city.longitud,
-                  provincia: modalModelo.modelo.residencia?.provincia,
+                residence: {
+                  city: city.nombre,
+                  latitude: city.latitud,
+                  longitude: city.longitud,
+                  state: modalModelo.modelo.residence?.state,
                 },
               },
             });
@@ -577,12 +576,12 @@ const FormCrearModelo = ({
               <SelectItem
                 key={city.id}
                 value={JSON.stringify({
-                  latitud: city.centroide.lat,
-                  longitud: city.centroide.lon,
-                  nombre: city.nombre,
+                  latitud: city.centroid.lat,
+                  longitud: city.centroid.lon,
+                  nombre: city.name,
                 })}
               >
-                {city.nombre}
+                {city.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -598,7 +597,7 @@ const FormCrearModelo = ({
         />
         <Label className='pt-2 text-xs'>Comentarios agregados:</Label>
         <div className='flex flex-col gap-y-2'>
-          {modalModelo.modelo.comentarios?.map((comment, index) => {
+          {modalModelo.modelo.comments?.map((comment, index) => {
             return (
               <div
                 key={index}
@@ -607,7 +606,7 @@ const FormCrearModelo = ({
                 <Input
                   autoComplete='off'
                   name='comment'
-                  value={comment.contenido}
+                  value={comment.content}
                   disabled
                   className='flex-grow'
                 />

@@ -8,7 +8,7 @@ import { csvRouter } from '@/server/routers/csvRouter';
 import { eventoRouter } from '@/server/routers/eventoRouter';
 import { cuentaRouter } from '@/server/routers/cuentaRouter';
 import { notificacionRouter } from '@/server/routers/notificacionRouter';
-import { mapaRouter } from '@/server/routers/mapaRouter';
+import { locationRouter } from '@/server/routers/locationRouter';
 import { carpetaEventosRouter } from '@/server/routers/carpetaEventosRouter';
 import { respuestasEnlatadasRouter } from '@/server/routers/respuestasEnlatadasRouter';
 import { commentRouter } from '@/server/routers/commentRouter';
@@ -24,7 +24,7 @@ export const appRouter = router({
   cuenta: cuentaRouter,
   notificacion: notificacionRouter,
   respuestasEnlatadas: respuestasEnlatadasRouter,
-  mapa: mapaRouter,
+  location: locationRouter,
   comment: commentRouter,
 });
 // export type definition of API

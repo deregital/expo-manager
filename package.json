@@ -38,7 +38,6 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^0.2.1",
-    "country-state-city": "^3.2.1",
     "date-fns": "^3.6.0",
     "exceljs": "^4.4.0",
     "expo-backend-types": "^0.7.0",

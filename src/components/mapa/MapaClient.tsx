@@ -28,7 +28,7 @@ const MapaClient = ({}: MapaClientProps) => {
   const [selectedLocation, setSelectedLocation] = React.useState<
     'residence' | 'birth' | 'none' | 'all'
   >('all');
-  const { data: locations, isLoading } = trpc.mapa.getLocations.useQuery();
+  const { data: locations, isLoading } = trpc.location.getLocations.useQuery();
 
   const { birthLocations, residenceLocations } = locations || {};
 

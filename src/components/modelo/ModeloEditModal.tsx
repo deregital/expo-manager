@@ -16,7 +16,6 @@ import {
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
-import { Country, State } from 'country-state-city';
 import { differenceInYears } from 'date-fns';
 import { TrashIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -38,16 +37,18 @@ interface ModeloModalData {
   telefono: string | undefined;
   telefonoSecundario: string | null | undefined;
   nombreCompleto: string | undefined;
-  paisNacimiento: string | undefined;
-  provinciaNacimiento: string | undefined;
-  residencia:
-    | {
-        latitud?: number | undefined;
-        longitud?: number | undefined;
-        provincia: string | undefined;
-        localidad: string | undefined;
-      }
-    | undefined;
+  birth: {
+    country: string | undefined;
+    state: string | undefined;
+    latitude: number | undefined;
+    longitude: number | undefined;
+  };
+  residence: {
+    latitude: number | undefined;
+    longitude: number | undefined;
+    state: string | undefined;
+    city: string | undefined;
+  };
 }
 
 export function edadFromFechaNacimiento(fechaNacimiento: string) {
@@ -65,13 +66,17 @@ const useModeloModalData = create<ModeloModalData>(() => ({
   telefono: undefined,
   telefonoSecundario: undefined,
   nombreCompleto: undefined,
-  paisNacimiento: undefined,
-  provinciaNacimiento: undefined,
-  residencia: {
-    latitud: undefined,
-    longitud: undefined,
-    provincia: undefined,
-    localidad: undefined,
+  birth: {
+    country: undefined,
+    state: undefined,
+    latitude: undefined,
+    longitude: undefined,
+  },
+  residence: {
+    latitude: undefined,
+    longitude: undefined,
+    state: undefined,
+    city: undefined,
   },
 }));
 
@@ -87,9 +92,8 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     telefono,
     telefonoSecundario,
     nombreCompleto,
-    paisNacimiento,
-    provinciaNacimiento,
-    residencia,
+    birth,
+    residence,
   } = useModeloModalData();
   const [openSelect, setOpenSelect] = useState(false);
   const [error, setError] = useState('');
@@ -112,13 +116,18 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       telefono: modelo.telefono ?? undefined,
       telefonoSecundario: modelo.telefonoSecundario,
       nombreCompleto: modelo.nombreCompleto ?? undefined,
-      paisNacimiento: modelo.paisNacimiento ?? '',
-      provinciaNacimiento: modelo.provinciaNacimiento ?? '',
-      residencia: {
-        latitud: modelo.residencia?.latitud,
-        longitud: modelo.residencia?.longitud,
-        provincia: modelo.residencia?.provincia ?? '',
-        localidad: modelo.residencia?.localidad ?? '',
+      birth: {
+        country: modelo.paisNacimiento ?? '',
+        state: modelo.provinciaNacimiento ?? '',
+        // TODO: Add latitud and longitud to the modelo
+        latitude: /*modelo.nacimiento?.latitud*/ undefined,
+        longitude: /*modelo.nacimiento?.longitud*/ undefined,
+      },
+      residence: {
+        latitude: modelo.residencia?.latitud,
+        longitude: modelo.residencia?.longitud,
+        state: modelo.residencia?.provincia ?? '',
+        city: modelo.residencia?.localidad ?? '',
       },
     });
   }, [modelo]);
@@ -209,12 +218,12 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
         telefono: telefono ?? undefined,
         telefonoSecundario: telefonoSecundario,
         nombreCompleto: nombreCompleto ?? undefined,
-        paisNacimiento: paisNacimiento ?? '',
-        provinciaNacimiento: provinciaNacimiento ?? '',
-        residenciaLatitud: residencia?.latitud,
-        residenciaLongitud: residencia?.longitud,
-        provinciaResidencia: residencia?.provincia,
-        localidadResidencia: residencia?.localidad,
+        paisNacimiento: birth.country ?? '',
+        provinciaNacimiento: birth.state ?? '',
+        residenciaLatitud: residence?.latitude,
+        residenciaLongitud: residence?.longitude,
+        provinciaResidencia: residence?.state,
+        localidadResidencia: residence?.city,
       });
     } catch (error) {}
   }
@@ -225,13 +234,18 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
       fechaNacimiento: modelo.fechaNacimiento
         ? new Date(modelo.fechaNacimiento)
         : undefined,
-      paisNacimiento: modelo.paisNacimiento ?? '',
-      provinciaNacimiento: modelo.provinciaNacimiento ?? '',
-      residencia: {
-        latitud: modelo.residencia?.latitud,
-        longitud: modelo.residencia?.longitud,
-        provincia: modelo.residencia?.provincia ?? '',
-        localidad: modelo.residencia?.localidad ?? '',
+      birth: {
+        country: modelo.paisNacimiento ?? '',
+        state: modelo.provinciaNacimiento ?? '',
+        // TODO: Add latitud and longitud to the modelo
+        latitude: /*modelo.nacimiento?.latitud*/ undefined,
+        longitude: /*modelo.nacimiento?.longitud*/ undefined,
+      },
+      residence: {
+        latitude: modelo.residencia?.latitud,
+        longitude: modelo.residencia?.longitud,
+        state: modelo.residencia?.provincia ?? '',
+        city: modelo.residencia?.localidad ?? '',
       },
       open: false,
     });
@@ -239,30 +253,18 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     setError('');
   }
 
-  const allCountries = useMemo(
-    () =>
-      Country.getAllCountries().filter(
-        (country) => country.name !== 'Palestinian Territory Occupied'
-      ),
-    []
-  );
-  const statesBySelectedCountry = useMemo(() => {
-    if (!paisNacimiento) return [];
-    const countryCode = allCountries.find(
-      (country) => country.isoCode === paisNacimiento
-    )?.isoCode;
+  const { data: allCountries } = trpc.location.getCountries.useQuery();
+  const { data: statesBySelectedCountry } =
+    trpc.location.getStateByCountry.useQuery(birth.country ?? '', {
+      enabled: !!birth.country,
+    });
 
-    return State.getStatesOfCountry(countryCode);
-  }, [allCountries, paisNacimiento]);
+  const { data: argStates } = trpc.location.getArgStates.useQuery();
 
-  const provinces = useMemo(() => {
-    return State.getStatesOfCountry('AR');
-  }, []);
-
-  const { data: citiesData } = trpc.mapa.getLocalidadesByProvincia.useQuery(
-    residencia?.provincia ?? '',
+  const { data: citiesData } = trpc.location.getCitiesByArgState.useQuery(
+    residence?.state ?? '',
     {
-      enabled: !!residencia?.provincia,
+      enabled: !!residence?.state,
     }
   );
   const telefonoSecundarioExists = useMemo(() => {
@@ -539,16 +541,19 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             onOpenChange={setOpenCountrySelect}
             onValueChange={(value) => {
               useModeloModalData.setState({
-                paisNacimiento: value as string,
+                birth: {
+                  ...birth,
+                  country: value as string,
+                },
               });
             }}
-            defaultValue={paisNacimiento}
+            defaultValue={birth.country}
           >
             <SelectTrigger>
               <SelectValue placeholder='País' />
             </SelectTrigger>
             <SelectContent>
-              {allCountries.map((country) => (
+              {allCountries?.map((country) => (
                 <SelectItem key={country.isoCode} value={country.isoCode}>
                   {country.name}
                 </SelectItem>
@@ -560,17 +565,20 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             onOpenChange={setOpenStateSelect}
             onValueChange={(value) => {
               useModeloModalData.setState({
-                provinciaNacimiento: value as string,
+                birth: {
+                  ...birth,
+                  state: value as string,
+                },
               });
             }}
-            disabled={!paisNacimiento}
-            defaultValue={provinciaNacimiento}
+            disabled={!birth.country}
+            defaultValue={birth.state}
           >
             <SelectTrigger>
               <SelectValue placeholder='Provincia' />
             </SelectTrigger>
             <SelectContent>
-              {statesBySelectedCountry.map((state) => (
+              {statesBySelectedCountry?.map((state) => (
                 <SelectItem key={state.isoCode} value={state.isoCode}>
                   {state.name}
                 </SelectItem>
@@ -585,22 +593,21 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             onOpenChange={setOpenProvinceSelect}
             onValueChange={(value) => {
               useModeloModalData.setState({
-                residencia: {
-                  ...residencia,
-                  localidad: residencia?.localidad,
-                  provincia: value as string,
+                residence: {
+                  ...residence,
+                  state: value as string,
                 },
               });
             }}
-            defaultValue={residencia?.provincia}
+            defaultValue={residence?.state}
           >
             <SelectTrigger>
               <SelectValue placeholder='Provincia' />
             </SelectTrigger>
             <SelectContent>
-              {provinces.map((province) => (
-                <SelectItem key={province.name} value={province.name}>
-                  {province.name}
+              {argStates?.map((state) => (
+                <SelectItem key={state} value={state}>
+                  {state}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -616,20 +623,20 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               };
 
               useModeloModalData.setState({
-                residencia: {
-                  localidad: city.nombre as string,
-                  provincia: residencia?.provincia,
-                  latitud: city.latitud,
-                  longitud: city.longitud,
+                residence: {
+                  city: city.nombre as string,
+                  state: residence?.state,
+                  latitude: city.latitud,
+                  longitude: city.longitud,
                 },
               });
             }}
             defaultValue={JSON.stringify({
-              latitud: residencia?.latitud,
-              longitud: residencia?.longitud,
-              nombre: residencia?.localidad,
+              latitud: residence?.latitude,
+              longitud: residence?.longitude,
+              nombre: residence?.city,
             })}
-            disabled={!residencia?.provincia}
+            disabled={!residence?.state}
           >
             <SelectTrigger>
               <SelectValue placeholder='Localidad' />
@@ -637,14 +644,14 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             <SelectContent>
               {citiesData?.map((city) => (
                 <SelectItem
-                  key={city.nombre}
+                  key={city.name}
                   value={JSON.stringify({
-                    latitud: city.centroide.lat,
-                    longitud: city.centroide.lon,
-                    nombre: city.nombre,
+                    latitud: city.centroid.lat,
+                    longitud: city.centroid.lon,
+                    nombre: city.name,
                   })}
                 >
-                  {city.nombre}
+                  {city.name}
                 </SelectItem>
               ))}
             </SelectContent>
