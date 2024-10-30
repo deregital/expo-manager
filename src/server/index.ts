@@ -10,7 +10,7 @@ import { cuentaRouter } from '@/server/routers/cuentaRouter';
 import { notificacionRouter } from '@/server/routers/notificacionRouter';
 import { locationRouter } from '@/server/routers/locationRouter';
 import { carpetaEventosRouter } from '@/server/routers/carpetaEventosRouter';
-import { respuestasEnlatadasRouter } from '@/server/routers/respuestasEnlatadasRouter';
+import { cannedResponseRouter } from '@/server/routers/canned-responseRouter';
 import { commentRouter } from '@/server/routers/commentRouter';
 
 export const appRouter = router({
@@ -23,8 +23,8 @@ export const appRouter = router({
   carpetaEventos: carpetaEventosRouter,
   cuenta: cuentaRouter,
   notificacion: notificacionRouter,
-  respuestasEnlatadas: respuestasEnlatadasRouter,
   location: locationRouter,
+  cannedResponse: cannedResponseRouter
   comment: commentRouter,
 });
 // export type definition of API

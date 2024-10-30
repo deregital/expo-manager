@@ -15,83 +15,95 @@ import Loader from '@/components/ui/loader';
 import { Label } from '@/components/ui/label';
 import EditFillIcon from '@/components/icons/EditFillIcon';
 
-interface RespuestasEnlatadasModalProps {
+interface CannedResponsesModalProps {
   action: 'EDIT' | 'CREATE';
-  respuestaEnlatada?: { id: string; nombre: string; descripcion: string };
+  cannedResponse?: { id: string; name: string; content: string };
 }
 
-type RespuestaEnlatadaModalData = {
-  tipo: 'CREATE' | 'EDIT';
+type CannedResponseModalData = {
+  type: 'CREATE' | 'EDIT';
   id?: string;
-  nombre: string;
-  descripcion: string;
+  name: string;
+  content: string;
 };
 
-export const useRespuestasEnlatadasModalData =
-  create<RespuestaEnlatadaModalData>(() => ({
-    tipo: 'CREATE',
-    nombre: '',
-    descripcion: '',
-  }));
+export const useCannedResponsesModalData = create<CannedResponseModalData>(
+  () => ({
+    type: 'CREATE',
+    name: '',
+    content: '',
+  })
+);
 
-const RespuestasEnlatadasModal = ({
+const CannedResponsesModal = ({
   action,
-  respuestaEnlatada,
-}: RespuestasEnlatadasModalProps) => {
+  cannedResponse,
+}: CannedResponsesModalProps) => {
   const [open, setOpen] = useState(false);
-  const modalData = useRespuestasEnlatadasModalData();
-  const createRespuesta = trpc.respuestasEnlatadas.create.useMutation();
-  const editRespuesta = trpc.respuestasEnlatadas.update.useMutation();
-  const deleteRespuesta = trpc.respuestasEnlatadas.delete.useMutation();
+  const modalData = useCannedResponsesModalData();
+  const createResponse = trpc.cannedResponse.create.useMutation();
+  const editResponse = trpc.cannedResponse.update.useMutation();
+  const deleteResponse = trpc.cannedResponse.delete.useMutation();
   const utils = trpc.useUtils();
 
   function onClose() {
-    useRespuestasEnlatadasModalData.setState({
-      tipo: 'CREATE',
-      nombre: '',
-      descripcion: '',
+    useCannedResponsesModalData.setState({
+      type: 'CREATE',
+      name: '',
+      content: '',
     });
     setOpen(false);
   }
 
   const handleSubmit = async () => {
-    const { tipo, id, nombre, descripcion } =
-      useRespuestasEnlatadasModalData.getState();
-    if (tipo === 'CREATE') {
-      await createRespuesta
-        .mutateAsync({ nombre, descripcion })
+    const { type, id, name, content } = useCannedResponsesModalData.getState();
+    if (type === 'CREATE') {
+      await createResponse
+        .mutateAsync({ name, content })
         .then(() => {
           setOpen(false);
           onClose();
           toast.success('Respuesta enlatada creada con éxito');
-          utils.respuestasEnlatadas.getAll.invalidate();
+          utils.cannedResponse.getAll.invalidate();
         })
-        .catch(() => toast.error('Error al crear la respuesta enlatada'));
-    } else if (tipo === 'EDIT') {
+        .catch((e) => {
+          const errorMessage = JSON.parse(e.message)[0].message;
+
+          toast.error(errorMessage);
+        });
+    } else if (type === 'EDIT') {
       if (!id) return;
-      await editRespuesta
-        .mutateAsync({ id, nombre, descripcion })
+      await editResponse
+        .mutateAsync({ id, name, content })
         .then(() => {
           setOpen(false);
           onClose();
           toast.success('Respuesta enlatada editada con éxito');
-          utils.respuestasEnlatadas.getAll.invalidate();
+          utils.cannedResponse.getAll.invalidate();
         })
-        .catch(() => toast.error('Error al editar la respuesta enlatada'));
+        .catch((e) => {
+          const errorMessage = JSON.parse(e.message)[0].message;
+
+          toast.error(errorMessage);
+        });
     }
   };
 
   const handleDelete = async () => {
-    if (respuestaEnlatada) {
-      await deleteRespuesta
-        .mutateAsync({ id: respuestaEnlatada.id })
+    if (cannedResponse) {
+      await deleteResponse
+        .mutateAsync(cannedResponse.id)
         .then(() => {
           setOpen(false);
           onClose();
           toast.success('Respuesta enlatada eliminada con éxito');
-          utils.respuestasEnlatadas.getAll.invalidate();
+          utils.cannedResponse.getAll.invalidate();
         })
-        .catch(() => toast.error('Error al eliminar la respuesta enlatada'));
+        .catch((e) => {
+          const errorMessage = JSON.parse(e.message)[0].message;
+
+          toast.error(errorMessage);
+        });
     }
   };
 
@@ -105,11 +117,11 @@ const RespuestasEnlatadasModal = ({
               e.preventDefault();
 
               setOpen(true);
-              useRespuestasEnlatadasModalData.setState({
-                tipo: action,
-                id: respuestaEnlatada?.id || '',
-                nombre: respuestaEnlatada?.nombre || '',
-                descripcion: respuestaEnlatada?.descripcion || '',
+              useCannedResponsesModalData.setState({
+                type: action,
+                id: cannedResponse?.id || '',
+                name: cannedResponse?.name || '',
+                content: cannedResponse?.content || '',
               });
             }}
           >
@@ -132,27 +144,27 @@ const RespuestasEnlatadasModal = ({
           <Label>Nombre</Label>
           <Input
             placeholder='Nombre'
-            value={modalData.nombre}
+            value={modalData.name}
             onChange={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              useRespuestasEnlatadasModalData.setState({
-                nombre: e.target.value,
+              useCannedResponsesModalData.setState({
+                name: e.target.value,
               });
             }}
           />
           <Label>Texto</Label>
           <Input
             placeholder='Texto'
-            value={modalData.descripcion}
+            value={modalData.content}
             onChange={(e) =>
-              useRespuestasEnlatadasModalData.setState({
-                descripcion: e.target.value,
+              useCannedResponsesModalData.setState({
+                content: e.target.value,
               })
             }
           />
           <Button onClick={handleSubmit}>
-            {createRespuesta.isLoading || editRespuesta.isLoading ? (
+            {createResponse.isLoading || editResponse.isLoading ? (
               <Loader />
             ) : action === 'CREATE' ? (
               'Crear'
@@ -160,7 +172,7 @@ const RespuestasEnlatadasModal = ({
               'Editar'
             )}
           </Button>
-          {action === 'EDIT' && respuestaEnlatada && (
+          {action === 'EDIT' && cannedResponse && (
             <Button variant='destructive' onClick={handleDelete}>
               Eliminar
             </Button>
@@ -171,4 +183,4 @@ const RespuestasEnlatadasModal = ({
   );
 };
 
-export default RespuestasEnlatadasModal;
+export default CannedResponsesModal;
