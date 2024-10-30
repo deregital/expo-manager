@@ -18,7 +18,6 @@ export const cannedResponseRouter = router({
       }
       return data;
     }),
-
   update: protectedProcedure
     .input(
       updateCannedResponseSchema.merge(
@@ -43,7 +42,6 @@ export const cannedResponseRouter = router({
       }
       return data;
     }),
-
   delete: protectedProcedure
     .input(cannedResponseSchema.shape.id)
     .mutation(async ({ input, ctx }) => {
@@ -62,7 +60,6 @@ export const cannedResponseRouter = router({
       }
       return data;
     }),
-
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const { data, error } = await ctx.fetch.GET('/canned-response/all');
     if (error) {
