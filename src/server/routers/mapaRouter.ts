@@ -1,4 +1,4 @@
-import { protectedProcedure, router } from '@/server/trpc';
+import { handleError, protectedProcedure, router } from '@/server/trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
@@ -36,26 +36,13 @@ export type LocalidadesJson = {
 
 export const mapaRouter = router({
   getLocations: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.residencia.findMany({
-      where: {
-        // where it has some perfil associated
-        perfiles: {
-          some: {
-            esPapelera: false,
-          },
-        },
-      },
-      select: {
-        latitud: true,
-        longitud: true,
-        localidad: true,
-        _count: {
-          select: {
-            perfiles: true,
-          },
-        },
-      },
-    });
+    const { data, error } = await ctx.fetch.GET('/location/all');
+
+    if (error) {
+      handleError(error);
+    }
+
+    return data;
   }),
   getLocalidadesByProvincia: protectedProcedure
     .input(z.string())
