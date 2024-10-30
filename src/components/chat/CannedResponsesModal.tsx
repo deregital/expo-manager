@@ -66,7 +66,11 @@ const CannedResponsesModal = ({
           toast.success('Respuesta enlatada creada con éxito');
           utils.cannedResponse.getAll.invalidate();
         })
-        .catch(() => toast.error(createResponse.error?.message));
+        .catch((e) => {
+          const errorMessage = JSON.parse(e.message)[0].message;
+
+          toast.error(errorMessage);
+        });
     } else if (type === 'EDIT') {
       if (!id) return;
       await editResponse
@@ -77,7 +81,11 @@ const CannedResponsesModal = ({
           toast.success('Respuesta enlatada editada con éxito');
           utils.cannedResponse.getAll.invalidate();
         })
-        .catch(() => toast.error(editResponse.error?.message));
+        .catch((e) => {
+          const errorMessage = JSON.parse(e.message)[0].message;
+
+          toast.error(errorMessage);
+        });
     }
   };
 

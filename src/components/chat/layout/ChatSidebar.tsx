@@ -8,7 +8,7 @@ import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React, { useMemo } from 'react';
-import RespuestasEnlatadasModal from '../CannedResponsesModal';
+import CannedResponsesModal from '../CannedResponsesModal';
 
 type ChatSidebarProps = {
   filtro: Filtro;
@@ -124,7 +124,7 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
           ]}
         />
         <div className='px-4 [&>button]:w-full'>
-          <RespuestasEnlatadasModal action='CREATE' />
+          <CannedResponsesModal action='CREATE' />
         </div>
       </aside>
     )

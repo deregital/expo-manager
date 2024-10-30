@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
-import IconQuestionAnswerLine from '@/components/icons/RespuestasEnlatadasIcon';
+import IconQuestionAnswerLine from '@/components/icons/CannedResponsesIcon';
 import CannedResponsesModal from '../CannedResponsesModal';
 import {
   Popover,
