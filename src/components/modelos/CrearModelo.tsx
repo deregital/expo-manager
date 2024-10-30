@@ -19,18 +19,20 @@ type ModeloModal = {
     dni: string | undefined;
     mail: string | undefined;
     instagram: string | undefined;
-    paisNacimiento: string | undefined;
-    provinciaNacimiento: string | undefined;
-    residencia:
-      | {
-          latitud?: number | undefined;
-          longitud?: number | undefined;
-          provincia: string | undefined;
-          localidad: string | undefined;
-        }
-      | undefined;
-    comentarios: {
-      contenido: string;
+    birth: {
+      country: string | undefined;
+      state: string | undefined;
+      longitude: number | undefined;
+      latitude: number | undefined;
+    };
+    residence: {
+      latitude: number | undefined;
+      longitude: number | undefined;
+      state: string | undefined;
+      city: string | undefined;
+    };
+    comments: {
+      content: string;
       isSolvable: boolean;
     }[];
   };
@@ -48,15 +50,19 @@ const defaultModelo = {
   dni: undefined,
   mail: undefined,
   instagram: undefined,
-  paisNacimiento: undefined,
-  provinciaNacimiento: undefined,
-  residencia: {
-    latitud: undefined,
-    longitud: undefined,
-    provincia: undefined,
-    localidad: undefined,
+  birth: {
+    country: undefined,
+    state: undefined,
+    longitude: undefined,
+    latitude: undefined,
   },
-  comentarios: [],
+  residence: {
+    latitude: undefined,
+    longitude: undefined,
+    state: undefined,
+    city: undefined,
+  },
+  comments: [],
 };
 
 export const useCrearModeloModal = create<ModeloModal>((set) => ({

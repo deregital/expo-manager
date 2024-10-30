@@ -11,6 +11,13 @@ const config = {
     './src/**/*.{ts,tsx}',
   ],
   prefix: '',
+  safelist: [
+    'text-red-500',
+    'text-green-500',
+    'text-orange-500',
+    'text-gray-500',
+    'text-yellow-500',
+  ],
   theme: {
     container: {
       center: true,
