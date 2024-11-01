@@ -13,78 +13,75 @@ import { cn, randomColor } from '@/lib/utils';
 import FolderIcon from '@/components/icons/FolderIcon';
 import { RouterOutputs } from '@/server';
 
-interface EventosCarpetaModalProps {
+interface EventsFolderModalProps {
   action: 'EDIT' | 'CREATE';
-  eventosCarpeta?: RouterOutputs['evento']['getAll']['carpetas'][number];
+  eventsFolder?: RouterOutputs['evento']['getAll']['carpetas'][number];
 }
 
-type EventosCarpetaModalData = {
-  tipo: 'CREATE' | 'EDIT';
-  nombre: string;
-  carpetaId: string;
+type EventsFolderModalData = {
+  type: 'CREATE' | 'EDIT';
+  name: string;
+  folderId: string;
   color: string;
 };
 
-export const useEventosCarpetaModalData = create<EventosCarpetaModalData>(
-  () => ({
-    tipo: 'CREATE',
-    nombre: '',
-    carpetaId: '',
-    color: randomColor(),
-  })
-);
+export const useEventsFolderModalData = create<EventsFolderModalData>(() => ({
+  type: 'CREATE',
+  name: '',
+  folderId: '',
+  color: randomColor(),
+}));
 
-const EventosCarpetaModal = ({
+const EventsFolderModal = ({
   action,
-  eventosCarpeta,
-}: EventosCarpetaModalProps) => {
+  eventsFolder,
+}: EventsFolderModalProps) => {
   const [open, setOpen] = useState(false);
   const utils = trpc.useUtils();
-  const createEventosCarpeta = trpc.carpetaEventos.create.useMutation();
-  const editEventosCarpeta = trpc.carpetaEventos.edit.useMutation();
-  const deleteEventosCarpeta = trpc.carpetaEventos.delete.useMutation();
+  const createEventFolder = trpc.eventFolder.create.useMutation();
+  const updateEventFolder = trpc.eventFolder.update.useMutation();
+  const deleteEventFolder = trpc.eventFolder.delete.useMutation();
 
-  const modalData = useEventosCarpetaModalData((state) => ({
-    tipo: state.tipo,
-    nombre: state.nombre,
-    carpetaId: state.carpetaId,
+  const modalData = useEventsFolderModalData((state) => ({
+    type: state.type,
+    name: state.name,
+    folderId: state.folderId,
     color: state.color,
   }));
 
   async function handleCancel() {
-    useEventosCarpetaModalData.setState({
-      tipo: 'CREATE',
-      nombre: '',
-      carpetaId: '',
+    useEventsFolderModalData.setState({
+      type: 'CREATE',
+      name: '',
+      folderId: '',
       color: randomColor(),
     });
-    createEventosCarpeta.reset();
-    editEventosCarpeta.reset();
+    createEventFolder.reset();
+    updateEventFolder.reset();
   }
 
   async function handleSubmit() {
-    const { tipo, nombre, carpetaId, color } =
-      useEventosCarpetaModalData.getState();
-    if (tipo === 'CREATE') {
-      await createEventosCarpeta
-        .mutateAsync({ nombre, color })
+    const { type, name, folderId, color } = useEventsFolderModalData.getState();
+    if (type === 'CREATE') {
+      await createEventFolder
+        .mutateAsync({ name, color })
         .then(() => {
           setOpen(false);
           utils.evento.getAll.invalidate();
-          utils.carpetaEventos.getAll.invalidate();
+          utils.eventFolder.getAll.invalidate();
           toast.success('Carpeta de eventos creada con éxito');
         })
         .catch(() => {
           setOpen(true);
           toast.error('Error al crear la carpeta de eventos');
         });
-    } else if (tipo === 'EDIT') {
-      await editEventosCarpeta
-        .mutateAsync({ id: carpetaId, nombre, color })
+    } else if (type === 'EDIT') {
+      await updateEventFolder
+        .mutateAsync({ id: folderId, name, color })
         .then(() => {
           setOpen(false);
           utils.evento.getAll.invalidate();
-          utils.carpetaEventos.getAll.invalidate();
+          utils.eventFolder.getAll.invalidate();
           toast.success('Carpeta de eventos editada con éxito');
         })
         .catch(() => {
@@ -92,28 +89,28 @@ const EventosCarpetaModal = ({
           toast.error('Error al editar la carpeta de eventos');
         });
     }
-    if (createEventosCarpeta.isSuccess || editEventosCarpeta.isSuccess) {
-      useEventosCarpetaModalData.setState({
-        tipo: 'CREATE',
-        nombre: '',
-        carpetaId: '',
+    if (createEventFolder.isSuccess || updateEventFolder.isSuccess) {
+      useEventsFolderModalData.setState({
+        type: 'CREATE',
+        name: '',
+        folderId: '',
         color: randomColor(),
       });
     }
   }
 
   async function handleDelete() {
-    if (eventosCarpeta) {
-      if (eventosCarpeta.eventos && eventosCarpeta.eventos.length > 0) {
+    if (eventsFolder) {
+      if (eventsFolder.eventos && eventsFolder.eventos.length > 0) {
         toast.error('No se puede eliminar la carpeta, contiene eventos.');
         setOpen(true);
         return;
       }
-      await deleteEventosCarpeta
-        .mutateAsync(eventosCarpeta.id)
+      await deleteEventFolder
+        .mutateAsync(eventsFolder.id)
         .then(() => {
           setOpen(false);
-          utils.carpetaEventos.getAll.invalidate();
+          utils.eventFolder.getAll.invalidate();
           toast.success('Carpeta de eventos eliminada con éxito');
         })
         .catch(() => {
@@ -124,15 +121,15 @@ const EventosCarpetaModal = ({
   }
 
   const submitDisabled = useMemo(() => {
-    if (modalData.tipo === 'CREATE') {
-      return createEventosCarpeta.isLoading;
+    if (modalData.type === 'CREATE') {
+      return createEventFolder.isLoading;
     } else {
-      return editEventosCarpeta.isLoading;
+      return updateEventFolder.isLoading;
     }
   }, [
-    createEventosCarpeta.isLoading,
-    editEventosCarpeta.isLoading,
-    modalData.tipo,
+    createEventFolder.isLoading,
+    updateEventFolder.isLoading,
+    modalData.type,
   ]);
 
   return (
@@ -144,10 +141,10 @@ const EventosCarpetaModal = ({
               className='flex items-center gap-x-3 rounded-md bg-gray-400 px-5 py-0.5 text-gray-950 hover:bg-gray-300'
               onClick={() => {
                 setOpen(true);
-                useEventosCarpetaModalData.setState({
-                  tipo: 'CREATE',
-                  nombre: '',
-                  carpetaId: '',
+                useEventsFolderModalData.setState({
+                  type: 'CREATE',
+                  name: '',
+                  folderId: '',
                   color: randomColor(),
                 });
               }}
@@ -161,11 +158,11 @@ const EventosCarpetaModal = ({
                 e.preventDefault();
                 e.stopPropagation();
                 setOpen(true);
-                useEventosCarpetaModalData.setState({
-                  tipo: 'EDIT',
-                  carpetaId: eventosCarpeta?.id ?? '',
-                  nombre: eventosCarpeta?.nombre ?? '',
-                  color: eventosCarpeta?.color ?? '',
+                useEventsFolderModalData.setState({
+                  type: 'EDIT',
+                  folderId: eventsFolder?.id ?? '',
+                  name: eventsFolder?.nombre ?? '',
+                  color: eventsFolder?.color ?? '',
                 });
               }}
               className={cn(
@@ -192,7 +189,7 @@ const EventosCarpetaModal = ({
         >
           <div className='flex flex-col gap-y-1'>
             <p className='w-fit py-1.5 text-base font-semibold'>
-              {modalData.tipo === 'CREATE'
+              {modalData.type === 'CREATE'
                 ? 'Crear carpeta de eventos'
                 : 'Editar carpeta de eventos'}
             </p>
@@ -202,31 +199,31 @@ const EventosCarpetaModal = ({
                 name='nombre'
                 id='nombre'
                 placeholder='Nombre de la carpeta'
-                value={modalData.nombre}
+                value={modalData.name}
                 onChange={(e) => {
-                  useEventosCarpetaModalData.setState({
-                    nombre: e.target.value,
+                  useEventsFolderModalData.setState({
+                    name: e.target.value,
                   });
                 }}
               />
               <ColorPicker
                 color={modalData.color}
                 setColor={(color) => {
-                  useEventosCarpetaModalData.setState({
+                  useEventsFolderModalData.setState({
                     color,
                   });
                 }}
               />
             </div>
           </div>
-          {createEventosCarpeta.isError || editEventosCarpeta.isError ? (
+          {createEventFolder.isError || updateEventFolder.isError ? (
             <p className='text-sm font-semibold text-red-500'>
-              {createEventosCarpeta.isError
-                ? JSON.parse(createEventosCarpeta.error?.message)[0].message ||
+              {createEventFolder.isError
+                ? JSON.parse(createEventFolder.error?.message)[0].message ||
                   'Error al crear la carpeta de eventos'
                 : ''}
-              {editEventosCarpeta.isError
-                ? JSON.parse(editEventosCarpeta.error?.message)[0].message ||
+              {updateEventFolder.isError
+                ? JSON.parse(updateEventFolder.error?.message)[0].message ||
                   'Error al editar la carpeta de eventos'
                 : ''}
             </p>
@@ -238,11 +235,11 @@ const EventosCarpetaModal = ({
               onClick={handleSubmit}
               disabled={submitDisabled}
             >
-              {((editEventosCarpeta.isLoading ||
-                createEventosCarpeta.isLoading) && <Loader />) ||
-                (modalData.tipo === 'CREATE' ? 'Crear' : 'Editar')}
+              {((updateEventFolder.isLoading ||
+                createEventFolder.isLoading) && <Loader />) ||
+                (modalData.type === 'CREATE' ? 'Crear' : 'Editar')}
             </Button>
-            {modalData.tipo === 'EDIT' && eventosCarpeta && (
+            {modalData.type === 'EDIT' && eventsFolder && (
               <Button
                 variant='destructive'
                 className='h-auto text-wrap bg-red-700 hover:bg-red-500'
@@ -258,4 +255,4 @@ const EventosCarpetaModal = ({
   );
 };
 
-export default EventosCarpetaModal;
+export default EventsFolderModal;

@@ -2,14 +2,14 @@
 import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import SearchInput from '@/components/ui/SearchInput';
-import EventoModal from '@/components/eventos/eventomodal';
+import EventoModal from '@/components/eventos/eventmodal';
 import Loader from '@/components/ui/loader';
 import ExpandContractEventos, {
   useExpandEventos,
 } from '@/components/eventos/expandcontracteventos';
 import { searchNormalize } from '@/lib/utils';
 import { XIcon } from 'lucide-react';
-import EventosCarpetaModal from '@/components/eventos/EventosCarpetaModal';
+import EventosCarpetaModal from '@/components/eventos/EventsFolderModal';
 import EventosList from '@/components/eventos/eventoslist';
 
 const EventosPage = () => {

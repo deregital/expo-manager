@@ -79,7 +79,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
   const createEvento = trpc.evento.create.useMutation();
   const deleteEvento = trpc.evento.delete.useMutation();
   const editEvento = trpc.evento.update.useMutation();
-  const { data: carpetas } = trpc.carpetaEventos.getAll.useQuery();
+  const { data: eventFolders } = trpc.eventFolder.getAll.useQuery();
 
   async function sendEvento() {
     if (modalData.tipo === 'CREATE') {
@@ -95,7 +95,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           setOpen(!open);
           toast.success('Evento creado con éxito');
           utils.evento.getAll.invalidate();
-          utils.carpetaEventos.getAll.invalidate();
+          utils.eventFolder.getAll.invalidate();
         })
         .catch((error) => {
           try {
@@ -128,7 +128,7 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
           setOpen(!open);
           toast.success('Evento editado con éxito');
           utils.evento.getAll.invalidate();
-          utils.carpetaEventos.getAll.invalidate();
+          utils.eventFolder.getAll.invalidate();
         })
         .catch((error: any) => {
           console.log(error);
@@ -280,17 +280,18 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     <SelectValue
                       placeholder={
                         modalData.carpetaId
-                          ? carpetas?.find((c) => c.id === modalData.carpetaId)
-                              ?.nombre
+                          ? eventFolders?.find(
+                              (c) => c.id === modalData.carpetaId
+                            )?.name
                           : 'Seleccione carpeta'
                       }
                     />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value='N/A'>Sin carpeta</SelectItem> {}
-                    {carpetas?.map((carpeta) => (
-                      <SelectItem key={carpeta.id} value={carpeta.id}>
-                        {carpeta.nombre}
+                    {eventFolders?.map((folder) => (
+                      <SelectItem key={folder.id} value={folder.id}>
+                        {folder.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

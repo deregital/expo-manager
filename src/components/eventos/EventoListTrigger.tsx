@@ -2,7 +2,7 @@
 import { RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import React from 'react';
-import EventoModal from './eventomodal';
+import EventoModal from './eventmodal';
 import EventIcon from '../icons/EventIcon';
 import { useRouter } from 'next/navigation';
 

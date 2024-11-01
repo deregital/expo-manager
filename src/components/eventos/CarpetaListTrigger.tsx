@@ -1,4 +1,4 @@
-import EventosCarpetaModal from '@/components/eventos/EventosCarpetaModal';
+import EventsFolderModal from '@/components/eventos/EventsFolderModal';
 import FolderIcon from '@/components/icons/FolderIcon';
 import { getTextColorByBg } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
@@ -16,7 +16,7 @@ const CarpetaListTrigger = ({ carpeta }: CarpetaListTriggerProps) => {
         <p className='whitespace-nowrap text-start'>{carpeta.nombre}</p>
       </div>
       <div className='flex items-center justify-center gap-x-2'>
-        <EventosCarpetaModal action='EDIT' eventosCarpeta={carpeta} />
+        <EventsFolderModal action='EDIT' eventsFolder={carpeta} />
       </div>
     </div>
   );
