@@ -38,9 +38,30 @@ const EventsFolderModal = ({
 }: EventsFolderModalProps) => {
   const [open, setOpen] = useState(false);
   const utils = trpc.useUtils();
-  const createEventFolder = trpc.eventFolder.create.useMutation();
-  const updateEventFolder = trpc.eventFolder.update.useMutation();
-  const deleteEventFolder = trpc.eventFolder.delete.useMutation();
+  const createEventFolder = trpc.eventFolder.create.useMutation({
+    onError: (error) => {
+      toast.error(
+        JSON.parse(error.message)[0].message ||
+          'Error al crear la carpeta de eventos'
+      );
+    },
+  });
+  const updateEventFolder = trpc.eventFolder.update.useMutation({
+    onError: (error) => {
+      toast.error(
+        JSON.parse(error.message)[0].message ||
+          'Error al editar la carpeta de eventos'
+      );
+    },
+  });
+  const deleteEventFolder = trpc.eventFolder.delete.useMutation({
+    onError: (error) => {
+      toast.error(
+        JSON.parse(error.message)[0].message ||
+          'Error al eliminar la carpeta de eventos'
+      );
+    },
+  });
 
   const modalData = useEventsFolderModalData((state) => ({
     type: state.type,
@@ -73,7 +94,6 @@ const EventsFolderModal = ({
         })
         .catch(() => {
           setOpen(true);
-          toast.error('Error al crear la carpeta de eventos');
         });
     } else if (type === 'EDIT') {
       await updateEventFolder
@@ -86,7 +106,6 @@ const EventsFolderModal = ({
         })
         .catch(() => {
           setOpen(true);
-          toast.error('Error al editar la carpeta de eventos');
         });
     }
     if (createEventFolder.isSuccess || updateEventFolder.isSuccess) {
@@ -115,7 +134,6 @@ const EventsFolderModal = ({
         })
         .catch(() => {
           setOpen(true);
-          toast.error('Error al eliminar la carpeta de eventos');
         });
     }
   }
@@ -216,7 +234,7 @@ const EventsFolderModal = ({
               />
             </div>
           </div>
-          {createEventFolder.isError || updateEventFolder.isError ? (
+          {/* {createEventFolder.isError || updateEventFolder.isError ? (
             <p className='text-sm font-semibold text-red-500'>
               {createEventFolder.isError
                 ? JSON.parse(createEventFolder.error?.message)[0].message ||
@@ -227,7 +245,7 @@ const EventsFolderModal = ({
                   'Error al editar la carpeta de eventos'
                 : ''}
             </p>
-          ) : null}
+          ) : null} */}
 
           <div className='flex gap-x-4'>
             <Button
