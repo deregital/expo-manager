@@ -12,7 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { cn, getTextColorByBg } from '@/lib/utils';
+import { cn, getTextColorByBg, searchNormalize } from '@/lib/utils';
 import { CheckIcon } from 'lucide-react';
 import React, { useMemo } from 'react';
 
@@ -142,10 +142,8 @@ const ComboBox = <
                 key={item[id] as string}
                 value={item[value] as string}
                 onSelect={(selectedValue) => {
-                  const selectedItem = data.find(
-                    (it) =>
-                      (it[value] as string).toLowerCase() ===
-                      selectedValue.toLowerCase()
+                  const selectedItem = data.find((it) =>
+                    searchNormalize(it[value] as string, selectedValue)
                   );
 
                   if (!selectedItem) return;
