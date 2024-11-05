@@ -2,14 +2,14 @@
 import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import SearchInput from '@/components/ui/SearchInput';
-import EventoModal from '@/components/eventos/eventomodal';
+import EventModal from '@/components/eventos/eventmodal';
 import Loader from '@/components/ui/loader';
 import ExpandContractEventos, {
   useExpandEventos,
 } from '@/components/eventos/expandcontracteventos';
 import { searchNormalize } from '@/lib/utils';
 import { XIcon } from 'lucide-react';
-import EventosCarpetaModal from '@/components/eventos/EventosCarpetaModal';
+import EventsFolderModal from '@/components/eventos/EventsFolderModal';
 import EventosList from '@/components/eventos/eventoslist';
 
 const EventosPage = () => {
@@ -20,17 +20,17 @@ const EventosPage = () => {
     expandState: s.state,
   }));
 
-  const { carpetas, sinCarpetas: eventosSinCarpeta } = isLoading
+  const { carpetas: folders, sinCarpetas: eventsWithoutFolder } = isLoading
     ? { carpetas: [], sinCarpetas: [] }
     : data!;
 
   const eventosFiltrados = useMemo(() => {
     if (isLoading) return { carpetas: [], sinCarpetas: [] };
 
-    let filteredCarpetas = carpetas.filter((carp) => {
+    let filteredFolders = folders.filter((folder) => {
       return (
-        searchNormalize(carp.nombre, search) ||
-        carp.eventos.some((evento) => {
+        searchNormalize(folder.nombre, search) ||
+        folder.eventos.some((evento) => {
           return (
             searchNormalize(evento.nombre, search) ||
             searchNormalize(evento.ubicacion, search) ||
@@ -45,36 +45,36 @@ const EventosPage = () => {
       );
     });
 
-    let filteredEventosSinCarpeta = eventosSinCarpeta.filter((evento) => {
-      return !evento.eventoPadreId;
+    let filteredEventsWithoutFolder = eventsWithoutFolder.filter((event) => {
+      return !event.eventoPadreId;
     });
 
     if (search !== '') {
-      filteredEventosSinCarpeta = eventosSinCarpeta.filter((evento) => {
+      filteredEventsWithoutFolder = eventsWithoutFolder.filter((event) => {
         return (
-          searchNormalize(evento.nombre, search) ||
-          searchNormalize(evento.ubicacion, search) ||
-          evento.subEventos.some((subevento) =>
-            searchNormalize(subevento.nombre, search)
+          searchNormalize(event.nombre, search) ||
+          searchNormalize(event.ubicacion, search) ||
+          event.subEventos.some((subevent) =>
+            searchNormalize(subevent.nombre, search)
           ) ||
-          evento.subEventos.some((subevento) =>
-            searchNormalize(subevento.ubicacion, search)
+          event.subEventos.some((subevent) =>
+            searchNormalize(subevent.ubicacion, search)
           )
         );
       });
     }
 
-    const eventosOrdenados = {
-      carpetas: filteredCarpetas.sort((a, b) => {
+    const orderedEvents = {
+      carpetas: filteredFolders.sort((a, b) => {
         return a.nombre.localeCompare(b.nombre);
       }),
-      sinCarpetas: filteredEventosSinCarpeta.sort((a, b) => {
+      sinCarpetas: filteredEventsWithoutFolder.sort((a, b) => {
         return a.nombre.localeCompare(b.nombre);
       }),
     };
 
-    return eventosOrdenados;
-  }, [carpetas, eventosSinCarpeta, isLoading, search]);
+    return orderedEvents;
+  }, [folders, eventsWithoutFolder, isLoading, search]);
 
   return (
     <>
@@ -83,8 +83,8 @@ const EventosPage = () => {
       </p>
       <div className='flex flex-col justify-between gap-4 px-3 md:flex-row md:px-5'>
         <div className='flex flex-col gap-4 md:flex-row'>
-          <EventoModal action='CREATE' />
-          <EventosCarpetaModal action='CREATE' /> {}
+          <EventModal action='CREATE' />
+          <EventsFolderModal action='CREATE' /> {}
         </div>
         <div className='flex items-center gap-x-2'>
           <ExpandContractEventos />

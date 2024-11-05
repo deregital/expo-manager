@@ -3,7 +3,7 @@ import { Accordion } from '@/components/ui/accordion';
 import React, { useEffect } from 'react';
 import { RouterOutputs } from '@/server';
 import EventoAccordion from '@/components/eventos/EventoAccordion';
-import CarpetaEventoAccordion from '@/components/eventos/CarpetaEventoAccordion';
+import EventFolderAccordion from '@/components/eventos/EventFolderAccordion';
 
 interface EventosListProps {
   eventos: RouterOutputs['evento']['getAll'];
@@ -16,23 +16,23 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
     active: s.active,
   }));
 
-  const { carpetas, sinCarpetas: eventosSinCarpeta } = eventos;
+  const { carpetas: folders, sinCarpetas: eventsWithoutFolder } = eventos;
 
   useEffect(() => {
     if (state === 'EXPAND') {
       setActive(
-        carpetas
-          .map((carpeta) => carpeta.id)
-          .concat(eventosSinCarpeta.map((evento) => evento.id))
+        folders
+          .map((folder) => folder.id)
+          .concat(eventsWithoutFolder.map((event) => event.id))
       );
     } else if (state === 'NONE') {
-      setActive(carpetas.map((carpeta) => carpeta.id));
+      setActive(folders.map((folder) => folder.id));
     } else {
       setActive([]);
     }
-  }, [carpetas, eventos, eventosSinCarpeta, setActive, state]);
+  }, [folders, eventos, eventsWithoutFolder, setActive, state]);
 
-  if (carpetas.length === 0 && eventosSinCarpeta.length === 0) {
+  if (folders.length === 0 && eventsWithoutFolder.length === 0) {
     return (
       <div className='flex h-96 flex-col items-center justify-center gap-y-2'>
         <h3 className='text-xl text-slate-500'>No hay eventos</h3>
@@ -51,14 +51,14 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
         defaultValue={active}
         value={active}
       >
-        {carpetas.map((carpeta) => (
-          <CarpetaEventoAccordion key={carpeta.id} carpeta={carpeta} />
+        {folders.map((folder) => (
+          <EventFolderAccordion key={folder.id} folder={folder} />
         ))}
-        {eventosSinCarpeta.map((evento) => (
+        {eventsWithoutFolder.map((event) => (
           <EventoAccordion
-            isOpen={active.includes(evento.id)}
-            key={evento.id}
-            evento={evento}
+            isOpen={active.includes(event.id)}
+            key={event.id}
+            evento={event}
           />
         ))}
       </Accordion>

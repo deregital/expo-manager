@@ -2,7 +2,7 @@
 import { RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import React from 'react';
-import EventoModal from './eventomodal';
+import EventModal from './eventmodal';
 import EventIcon from '../icons/EventIcon';
 import { useRouter } from 'next/navigation';
 
@@ -38,7 +38,7 @@ const EventoListTrigger = ({ evento }: EventoListTriggerProps) => {
             redirectToEvent();
           }}
         />
-        <EventoModal action='EDIT' evento={evento} />
+        <EventModal action='EDIT' evento={evento} />
       </div>
     </div>
   );

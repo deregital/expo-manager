@@ -9,7 +9,7 @@ import { eventoRouter } from '@/server/routers/eventoRouter';
 import { cuentaRouter } from '@/server/routers/cuentaRouter';
 import { notificacionRouter } from '@/server/routers/notificacionRouter';
 import { locationRouter } from '@/server/routers/locationRouter';
-import { carpetaEventosRouter } from '@/server/routers/carpetaEventosRouter';
+import { eventFolderRouter } from '@/server/routers/event-folderRouter';
 import { cannedResponseRouter } from '@/server/routers/canned-responseRouter';
 import { commentRouter } from '@/server/routers/commentRouter';
 
@@ -20,7 +20,7 @@ export const appRouter = router({
   tagGroup: tagGroupRouter,
   csv: csvRouter,
   evento: eventoRouter,
-  carpetaEventos: carpetaEventosRouter,
+  eventFolder: eventFolderRouter,
   cuenta: cuentaRouter,
   notificacion: notificacionRouter,
   location: locationRouter,
