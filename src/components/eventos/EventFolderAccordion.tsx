@@ -1,4 +1,4 @@
-import CarpetaListTrigger from '@/components/eventos/CarpetaListTrigger';
+import EventFolderListTrigger from '@/components/eventos/EventFolderListTrigger';
 import EventoAccordion from '@/components/eventos/EventoAccordion';
 import { useExpandEventos } from '@/components/eventos/expandcontracteventos';
 import {
@@ -11,11 +11,11 @@ import { cn, getTextColorByBg } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import React, { useState } from 'react';
 
-interface CarpetaEventoAccordionProps {
-  carpeta: RouterOutputs['evento']['getAll']['carpetas'][number];
+interface EventFolderAccordionProps {
+  folder: RouterOutputs['evento']['getAll']['carpetas'][number];
 }
 
-const CarpetaEventoAccordion = ({ carpeta }: CarpetaEventoAccordionProps) => {
+const EventFolderAccordion = ({ folder }: EventFolderAccordionProps) => {
   const [active, setActive] = useState<string[]>([]);
   const { clickTrigger } = useExpandEventos((s) => ({
     clickTrigger: s.clickTrigger,
@@ -23,31 +23,31 @@ const CarpetaEventoAccordion = ({ carpeta }: CarpetaEventoAccordionProps) => {
 
   return (
     <AccordionItem
-      value={carpeta.id}
-      key={carpeta.id}
-      title={carpeta.nombre}
+      value={folder.id}
+      key={folder.id}
+      title={folder.nombre}
       className='my-2 border-0'
     >
       <AccordionTrigger
         className={cn(
           'flex max-w-full justify-between gap-x-2 rounded-xl px-2 py-1.5',
-          carpeta.eventos.length > 0 ? 'cursor-pointer' : 'cursor-default'
+          folder.eventos.length > 0 ? 'cursor-pointer' : 'cursor-default'
         )}
-        showArrow={carpeta.eventos.length > 0}
+        showArrow={folder.eventos.length > 0}
         style={{
-          backgroundColor: carpeta.color,
-          color: getTextColorByBg(carpeta.color),
+          backgroundColor: folder.color,
+          color: getTextColorByBg(folder.color),
         }}
         onClick={() => {
-          if (carpeta.eventos.length === 0) return;
-          clickTrigger(carpeta.id);
+          if (folder.eventos.length === 0) return;
+          clickTrigger(folder.id);
         }}
       >
-        <CarpetaListTrigger carpeta={carpeta} />
+        <EventFolderListTrigger folder={folder} />
       </AccordionTrigger>
       <AccordionContent className='pb-0 pl-2'>
         <Accordion type='multiple' defaultValue={active} value={active}>
-          {carpeta.eventos.map((evento) => (
+          {folder.eventos.map((evento) => (
             <EventoAccordion
               onClick={() => {
                 if (active.includes(evento.id)) {
@@ -56,7 +56,7 @@ const CarpetaEventoAccordion = ({ carpeta }: CarpetaEventoAccordionProps) => {
                   setActive([...active, evento.id]);
                 }
               }}
-              color={carpeta.color}
+              color={folder.color}
               isOpen={active.includes(evento.id)}
               key={evento.id}
               evento={evento}
@@ -68,4 +68,4 @@ const CarpetaEventoAccordion = ({ carpeta }: CarpetaEventoAccordionProps) => {
   );
 };
 
-export default CarpetaEventoAccordion;
+export default EventFolderAccordion;
