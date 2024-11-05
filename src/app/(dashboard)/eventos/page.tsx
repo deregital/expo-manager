@@ -2,14 +2,14 @@
 import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import SearchInput from '@/components/ui/SearchInput';
-import EventoModal from '@/components/eventos/eventmodal';
+import EventModal from '@/components/eventos/eventmodal';
 import Loader from '@/components/ui/loader';
 import ExpandContractEventos, {
   useExpandEventos,
 } from '@/components/eventos/expandcontracteventos';
 import { searchNormalize } from '@/lib/utils';
 import { XIcon } from 'lucide-react';
-import EventosCarpetaModal from '@/components/eventos/EventsFolderModal';
+import EventsFolderModal from '@/components/eventos/EventsFolderModal';
 import EventosList from '@/components/eventos/eventoslist';
 
 const EventosPage = () => {
@@ -83,8 +83,8 @@ const EventosPage = () => {
       </p>
       <div className='flex flex-col justify-between gap-4 px-3 md:flex-row md:px-5'>
         <div className='flex flex-col gap-4 md:flex-row'>
-          <EventoModal action='CREATE' />
-          <EventosCarpetaModal action='CREATE' /> {}
+          <EventModal action='CREATE' />
+          <EventsFolderModal action='CREATE' /> {}
         </div>
         <div className='flex items-center gap-x-2'>
           <ExpandContractEventos />
