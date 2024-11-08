@@ -1,5 +1,5 @@
 import { router } from './trpc';
-import { modeloRouter } from '@/server/routers/modelosRouter';
+import { modeloRouter } from '@/server/routers/profileRouter';
 import { tagRouter } from '@/server/routers/tagRouter';
 import { whatsappRouter } from '@/server/routers/whatsappRouter';
 import { tagGroupRouter } from '@/server/routers/tagGroupRouter';
