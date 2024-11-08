@@ -12,30 +12,9 @@ import { ModelosSimilarity } from '../types/modelos';
 
 export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    const modelos = await ctx.prisma.perfil.findMany({
-      where: {
-        esPapelera: false,
-        etiquetas: {
-          some: {
-            id: { in: ctx.etiquetasVisibles },
-          },
-        },
-      },
-      include: {
-        etiquetas: {
-          include: {
-            grupo: {
-              select: {
-                color: true,
-                esExclusivo: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    const { data } = await ctx.fetch.GET('/profile/all');
 
-    return modelos;
+    return data?.profiles ?? [];
   }),
   getAllWithInChat: protectedProcedure.query(async ({ ctx }) => {
     const modelos = await ctx.prisma

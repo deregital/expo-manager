@@ -1,11 +1,11 @@
 'use client';
 import ChatSidebar from '@/components/chat/layout/ChatSidebar';
 import ChatSidebarMobile from '@/components/chat/layout/ChatSidebarMobile';
-import Filtro from '@/components/ui/filtro/Filtro';
+import Filter from '@/components/ui/filtro/Filtro';
 import {
   type Filtro as FiltroType,
   FuncionFiltrar,
-  defaultFilter,
+  defaultAdvancedFilter,
 } from '@/lib/filter';
 import React, { useState } from 'react';
 
@@ -14,7 +14,7 @@ interface ChatLayoutProps {
 }
 
 const ChatLayout = ({ children }: ChatLayoutProps) => {
-  const [filtro, setFiltro] = useState<FiltroType>(defaultFilter);
+  const [filtro, setFiltro] = useState<FiltroType>(defaultAdvancedFilter);
 
   const filtrar: FuncionFiltrar = (filter) => {
     return setFiltro(filter);
@@ -28,11 +28,11 @@ const ChatLayout = ({ children }: ChatLayoutProps) => {
 
       <div className='grid w-full grid-cols-1 grid-rows-1 sm:grid-cols-[auto,1fr]'>
         <div className='hidden h-full w-80 border-r-[3px] border-black/20 bg-sidebar-background sm:block'>
-          <ChatSidebar filtro={filtro} />
+          <ChatSidebar filter={filtro} />
         </div>
         <div className='flex flex-col'>
           <div className='border-b-[3px] border-b-black/20'>
-            <Filtro showTag mostrarInput funcionFiltrado={filtrar} />
+            <Filter showTag showInput filterFunction={filtrar} />
           </div>
           <div className='flex max-h-full flex-grow overflow-y-auto'>
             {children}

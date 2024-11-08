@@ -1,26 +1,26 @@
-import { useModelosFiltro } from '@/components/modelos/FiltroTabla';
+import { useProfilesFilter } from '@/components/modelos/FiltroTabla';
 import { DataTable } from '@/components/modelos/table/dataTable';
 import { trpc } from '@/lib/trpc';
-import { TipoEtiqueta } from '@prisma/client';
 import { useSearchParams, useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { create } from 'zustand';
 import { generateColumns } from '@/components/modelos/table/columns';
-import { Filtro, filterModelos } from '@/lib/filter';
+import { Filtro, filterProfiles } from '@/lib/filter';
 import { useSearchQuery } from '@/lib/useSearchQuery';
 
-export const useModelosTabla = create<{ cantidad: number; isLoading: boolean }>(
-  () => ({
-    cantidad: 0,
-    isLoading: true,
-  })
-);
+export const useProfilesTable = create<{
+  count: number;
+  isLoading: boolean;
+}>(() => ({
+  count: 0,
+  isLoading: true,
+}));
 
-const ModelosTable = () => {
+const ProfilesTable = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { showEventos } = useModelosFiltro((s) => ({
-    showEventos: s.showEventos,
+  const { showEvents } = useProfilesFilter((s) => ({
+    showEvents: s.showEvents,
   }));
 
   const inputQuery = useSearchQuery(searchParams, 'input');
@@ -29,8 +29,8 @@ const ModelosTable = () => {
   const instagramQuery = useSearchQuery(searchParams, 'instagram');
   const mailQuery = useSearchQuery(searchParams, 'mail');
   const dniQuery = useSearchQuery(searchParams, 'dni');
-  const generoQuery = useSearchQuery(searchParams, 'genero');
-  const telefonoQuery = useSearchQuery(searchParams, 'telefono');
+  const genderQuery = useSearchQuery(searchParams, 'genero');
+  const phoneNumberQuery = useSearchQuery(searchParams, 'telefono');
 
   const [search, setSearch] = useState<Filtro>({
     input: inputQuery ?? '',
@@ -41,8 +41,8 @@ const ModelosTable = () => {
     instagram: instagramQuery,
     mail: mailQuery,
     dni: dniQuery,
-    genero: generoQuery,
-    telefono: telefonoQuery ?? '',
+    gender: genderQuery,
+    phoneNumber: phoneNumberQuery ?? '',
   });
 
   function goToModel(id: string) {
@@ -50,7 +50,7 @@ const ModelosTable = () => {
   }
 
   const {
-    data: modelos,
+    data: profiles,
     isLoading,
     isRefetching,
   } = trpc.modelo.getAll.useQuery();
@@ -65,49 +65,46 @@ const ModelosTable = () => {
       instagram: instagramQuery,
       mail: mailQuery,
       dni: dniQuery,
-      genero: generoQuery,
-      telefono: telefonoQuery ?? '',
+      gender: genderQuery,
+      phoneNumber: phoneNumberQuery ?? '',
     });
   }, [
     dniQuery,
     tagQuery,
-    generoQuery,
+    genderQuery,
     tagGroupQuery,
     inputQuery,
     instagramQuery,
     mailQuery,
     searchParams,
-    telefonoQuery,
+    phoneNumberQuery,
   ]);
 
   const data = useMemo(() => {
-    const filtradas = filterModelos(modelos ?? [], search);
-    return filtradas;
-  }, [search, modelos]);
+    return filterProfiles(profiles ?? [], search);
+  }, [search, profiles]);
 
   useEffect(() => {
-    useModelosTabla.setState({
+    useProfilesTable.setState({
       isLoading,
-      cantidad: data.length,
+      count: data.length,
     });
   }, [isLoading, data]);
 
   return (
     <DataTable
       isLoading={isLoading && !isRefetching}
-      columns={generateColumns(showEventos)}
+      columns={generateColumns(showEvents)}
       data={data.map((modelo) => ({
         ...modelo,
-        etiquetas: modelo.etiquetas.filter(
-          (etiqueta) =>
-            etiqueta.tipo !== TipoEtiqueta.MODELO &&
-            etiqueta.tipo !== TipoEtiqueta.TENTATIVA
+        tags: modelo.tags.filter(
+          (tag) => tag.type !== 'PARTICIPANT' && tag.type !== 'NOT_IN_SYSTEM'
         ),
       }))}
-      initialSortingColumn={{ id: 'idLegible', desc: true }}
+      initialSortingColumn={{ id: 'shortId', desc: true }}
       onClickRow={goToModel}
     />
   );
 };
 
-export default ModelosTable;
+export default ProfilesTable;

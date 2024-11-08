@@ -23,7 +23,7 @@ export const usePresentismoModal = create<PresentismoModal>((set) => ({
 const AsistenciaModal = ({ open }: { open: boolean }) => {
   const modalPresentismo = usePresentismoModal();
   const [openModelos, setOpenModelos] = useState(false);
-  const { data: modelos } = trpc.modelo.getAll.useQuery();
+  const { data: profiles } = trpc.modelo.getAll.useQuery();
   const utils = trpc.useUtils();
   const router = useRouter();
   const searchParams = new URLSearchParams(useSearchParams());
@@ -37,20 +37,20 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
   );
 
   const modelosData = useMemo(() => {
-    if (!modelos) return [];
-    return modelos
-      .filter((modelo) =>
-        modelo.etiquetas.every(
+    if (!profiles) return [];
+    return profiles
+      .filter((profile) =>
+        profile.tags.every(
           (tag) =>
             tag.id !== modalPresentismo.evento?.etiquetaAsistioId &&
             tag.id !== modalPresentismo.evento?.etiquetaConfirmoId
         )
       )
-      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
+      .sort((a, b) => a.fullName.localeCompare(b.fullName));
   }, [
     modalPresentismo.evento?.etiquetaAsistioId,
     modalPresentismo.evento?.etiquetaConfirmoId,
-    modelos,
+    profiles,
   ]);
 
   async function handleSubmit() {
@@ -62,7 +62,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
       toast.error('No se ha encontrado el evento');
     }
 
-    const modelo = modelos?.find(
+    const modelo = profiles?.find(
       (modelo) => modelo.id === modalPresentismo.modeloId
     );
 
@@ -71,30 +71,30 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
       return;
     }
 
-    const participantTags = modelo?.etiquetas
+    const participantTags = modelo?.tags
       .map((tag) => ({
         id: tag.id,
-        nombre: tag.nombre,
-        grupo: {
-          id: tag.grupoId,
-          esExclusivo: tag.grupo.esExclusivo,
+        name: tag.name,
+        group: {
+          id: tag.groupId,
+          isExclusive: tag.group.isExclusive,
         },
       }))
       .filter((tag) => tag.id !== modalPresentismo.evento?.etiquetaConfirmoId);
 
     const tagAssisted = {
       id: modalPresentismo.evento!.etiquetaAsistioId,
-      nombre: assistanceTag!.name,
-      grupo: {
+      name: assistanceTag!.name,
+      group: {
         id: assistanceTag!.group.id,
-        esExclusivo: assistanceTag!.group.isExclusive,
+        isExclusive: assistanceTag!.group.isExclusive,
       },
     };
 
     await editModelo.mutateAsync({
       id: modalPresentismo.modeloId,
-      // TODO: Fix this type
-      etiquetas: [...participantTags!, tagAssisted] as any,
+      // @ts-expect-error TODO: Fix this
+      tags: [...participantTags!, tagAssisted] as any[],
     });
     toast.success('Participante añadido correctamente');
     utils.modelo.getByEtiqueta.invalidate();
@@ -124,7 +124,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
               contentClassName='sm:max-w-[--radix-popover-trigger-width]'
               data={modelosData}
               id={'id'}
-              value='nombreCompleto'
+              value='fullName'
               open={openModelos}
               setOpen={setOpenModelos}
               wFullMobile
@@ -132,9 +132,9 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
                 <>
                   <span className='max-w-[calc(100%-30px)] truncate'>
                     {modalPresentismo.modeloId !== ''
-                      ? modelos?.find(
+                      ? profiles?.find(
                           (modelo) => modelo.id === modalPresentismo.modeloId
-                        )?.nombreCompleto
+                        )?.fullName
                       : 'Buscar participante...'}
                   </span>
                 </>

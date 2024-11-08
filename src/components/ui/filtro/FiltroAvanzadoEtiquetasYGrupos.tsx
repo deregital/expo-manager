@@ -1,4 +1,4 @@
-import { useFiltro } from '@/components/ui/filtro/Filtro';
+import { useFilter } from '@/components/ui/filtro/Filtro';
 import FiltroBasicoEtiqueta from '@/components/ui/filtro/FiltroBasicoEtiqueta';
 import ShowEtiqueta from '@/components/ui/ShowEtiqueta';
 import React, { useMemo, useState } from 'react';
@@ -10,7 +10,7 @@ interface FiltroAvanzadoEtiquetasYGruposProps {}
 
 const FiltroAvanzadoEtiquetasYGrupos =
   ({}: FiltroAvanzadoEtiquetasYGruposProps) => {
-    const { tags, groups } = useFiltro();
+    const { tags, groups } = useFilter();
     const [include, setInclude] = useState(true);
     const [tagGroupId, setTagGroupId] = useState<string | undefined>(undefined);
     const [tagId, setTagId] = useState<string | undefined>(undefined);
@@ -29,13 +29,13 @@ const FiltroAvanzadoEtiquetasYGrupos =
     }, [groups]);
 
     function handleDeleteTag(id: string) {
-      useFiltro.setState({
+      useFilter.setState({
         tags: tags.filter((tag) => tag.tag.id !== id),
       });
     }
 
     function handleDeleteGroup(id: string) {
-      useFiltro.setState({
+      useFilter.setState({
         groups: groups.filter((gr) => gr.group.id !== id),
       });
     }
@@ -66,7 +66,7 @@ const FiltroAvanzadoEtiquetasYGrupos =
 
       if (tagOrGroup === 'et') {
         const tagToAdd = tagsData?.find((et) => et.id === tagId)!;
-        useFiltro.setState({
+        useFilter.setState({
           tags: [
             ...tags,
             {
@@ -80,7 +80,7 @@ const FiltroAvanzadoEtiquetasYGrupos =
         });
       } else {
         const groupToAdd = tagGroupsData?.find((gr) => gr.id === tagGroupId)!;
-        useFiltro.setState({
+        useFilter.setState({
           groups: [
             ...groups,
             {

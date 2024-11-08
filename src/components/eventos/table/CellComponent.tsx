@@ -15,7 +15,7 @@ export const CellComponent = ({
   confirmedAssistanceId: string;
   assistedId: string;
 }) => {
-  const tagsId = row.original.etiquetas.map((tag: any) => tag.id);
+  const tagsId = row.original.tags.map((tag) => tag.id);
   const { data: tagConfirmed } = trpc.tag.getById.useQuery(
     confirmedAssistanceId,
     {
@@ -29,28 +29,29 @@ export const CellComponent = ({
     modelo: RouterOutputs['modelo']['getAll'][number]
   ) {
     toast.loading('Agregando al presentismo');
-    const tagsId = modelo.etiquetas.map((tag) => {
+    const tagsId = modelo.tags.map((tag) => {
       return {
         id: tag.id,
-        grupo: {
-          id: tag.grupoId,
-          esExclusivo: tag.grupo.esExclusivo,
+        group: {
+          id: tag.groupId,
+          isExclusive: tag.group.isExclusive,
         },
-        nombre: tag.nombre,
+        name: tag.name,
       };
     });
     await editModelo.mutateAsync({
       id: modelo.id,
       etiquetas: [
+        // @ts-expect-error TODO: Fix this
         ...tagsId,
         {
           id: tagConfirmed!.id,
-          grupo: {
-            // TODO: Fix this
+          // @ts-expect-error TODO: Fix this
+          group: {
             id: tagConfirmed!.group.id as string,
-            esExclusivo: tagConfirmed!.group.isExclusive as boolean,
+            isExclsuive: tagConfirmed!.group.isExclusive as boolean,
           },
-          nombre: tagConfirmed!.name,
+          name: tagConfirmed!.name,
         },
       ],
     });

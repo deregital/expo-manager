@@ -1,9 +1,9 @@
 'use client';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useModelosTabla } from '@/components/modelos/table/ModelosTable';
+import { useProfilesTable } from '@/components/modelos/table/ModelosTable';
 import SwitchEventos from '@/components/ui/SwitchEventos';
 import { create } from 'zustand';
-import Filtro from '@/components/ui/filtro/Filtro';
+import Filter from '@/components/ui/filtro/Filtro';
 import {
   type Filtro as FiltroType,
   FuncionFiltrar,
@@ -11,19 +11,19 @@ import {
 } from '@/lib/filter';
 import { useMemo } from 'react';
 
-export const useModelosFiltro = create(() => ({
-  showEventos: false,
+export const useProfilesFilter = create(() => ({
+  showEvents: false,
 }));
 
 const FiltroTabla = () => {
   const searchParams = new URLSearchParams(useSearchParams());
   const pathname = usePathname();
   const router = useRouter();
-  const { showEventos } = useModelosFiltro();
+  const { showEvents } = useProfilesFilter();
 
-  const { cantidadDeModelos, isLoadingModelos } = useModelosTabla((s) => ({
-    isLoadingModelos: s.isLoading,
-    cantidadDeModelos: s.cantidad,
+  const { profileCount, isLoadingProfiles } = useProfilesTable((s) => ({
+    isLoadingProfiles: s.isLoading,
+    profileCount: s.count,
   }));
 
   function setAndDeleteSearch<T extends keyof FiltroTraducido>(
@@ -53,27 +53,27 @@ const FiltroTabla = () => {
     [searchParams.get('grupos')]
   );
 
-  const filtrar: FuncionFiltrar = ({
-    tags: etiquetas,
+  const filter: FuncionFiltrar = ({
+    tags,
     input,
     groups,
-    condicionalTag: condicionalEtiq,
+    condicionalTag,
     condicionalGroup,
     dni,
-    genero,
+    gender,
     instagram,
     mail,
-    telefono,
+    phoneNumber,
   }) => {
     setAndDeleteSearch('grupos', groups);
     setAndDeleteSearch('condicionalGrupo', condicionalGroup);
-    setAndDeleteSearch('condicionalEtiq', condicionalEtiq);
+    setAndDeleteSearch('condicionalEtiq', condicionalTag);
     setAndDeleteSearch('dni', dni);
-    setAndDeleteSearch('genero', genero);
+    setAndDeleteSearch('genero', gender);
     setAndDeleteSearch('instagram', instagram);
     setAndDeleteSearch('mail', mail);
-    setAndDeleteSearch('telefono', telefono);
-    setAndDeleteSearch('etiquetas', etiquetas);
+    setAndDeleteSearch('telefono', phoneNumber);
+    setAndDeleteSearch('etiquetas', tags);
     setAndDeleteSearch('input', input);
 
     router.push(`${pathname}?${searchParams.toString()}`);
@@ -81,33 +81,33 @@ const FiltroTabla = () => {
 
   return (
     <div className='flex items-center justify-between gap-x-4'>
-      <Filtro
-        defaultFiltro={{
+      <Filter
+        defaultFilter={{
           tags: defaultEtiquetas,
           groups: defaultGroups,
         }}
-        mostrarInput
+        showInput
         showTag
-        funcionFiltrado={filtrar}
+        filterFunction={filter}
       >
         <div className='flex w-full items-center justify-between gap-x-4'>
-          {!isLoadingModelos && (
+          {!isLoadingProfiles && (
             <p className='self-start text-nowrap text-sm text-black/80 md:self-end'>
-              {cantidadDeModelos === 0
+              {profileCount === 0
                 ? 'No se encontraron participantes'
-                : cantidadDeModelos === 1
+                : profileCount === 1
                   ? '1 participante encontrado'
-                  : `${cantidadDeModelos} participantes encontrados`}
+                  : `${profileCount} participantes encontrados`}
             </p>
           )}
           <SwitchEventos
             setShowEventos={(value) => {
-              useModelosFiltro.setState({ showEventos: value });
+              useProfilesFilter.setState({ showEvents: value });
             }}
-            showEventos={showEventos}
+            showEventos={showEvents}
           />
         </div>
-      </Filtro>
+      </Filter>
     </div>
   );
 };

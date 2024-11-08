@@ -10,8 +10,8 @@ import { useState } from 'react';
 import { DataTable } from '@/components/modelos/table/dataTable';
 import { generateColumns } from '@/components/eventos/table/columnsEvento';
 import RaiseHand from '@/components/icons/RaiseHand';
-import Filtro from '@/components/ui/filtro/Filtro';
-import { FuncionFiltrar, filterModelos } from '@/lib/filter';
+import Filter from '@/components/ui/filtro/Filtro';
+import { FuncionFiltrar, filterProfiles } from '@/lib/filter';
 
 interface EventoPageProps {
   params: {
@@ -33,7 +33,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
 
   const filtrar: FuncionFiltrar = (filter) => {
     if (!modelos) return;
-    setModelosData(filterModelos(modelos, filter));
+    setModelosData(filterProfiles(modelos, filter));
   };
 
   if (isLoadingEvento)
@@ -76,7 +76,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
           onChange={setSearch}
           placeholder='Buscar por nombre o ID legible'
         /> */}
-        <Filtro mostrarInput showTag funcionFiltrado={filtrar} />
+        <Filter showInput showTag filterFunction={filtrar} />
       </div>
       <DataTable
         columns={generateColumns(

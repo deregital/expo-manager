@@ -5,52 +5,52 @@ import { Trash } from 'lucide-react';
 import React from 'react';
 import { create } from 'zustand';
 
-interface ModelosComboYListProps {
-  modelos: RouterOutputs['modelo']['getAll'];
-  modelosLoading: boolean;
+interface ProfilesComboYListProps {
+  profiles: RouterOutputs['modelo']['getAll'];
+  profilesLoading: boolean;
 }
 
 export const asignacionComboBoxOpens = create<{
-  modelos: boolean;
+  profiles: boolean;
   groups: boolean;
   tags: boolean;
-  setModelosOpen: (open: boolean) => void;
+  setProfilesOpen: (open: boolean) => void;
   setGroupsOpen: (open: boolean) => void;
   setTags: (open: boolean) => void;
 }>((set) => ({
-  modelos: false,
+  profiles: false,
   groups: false,
   tags: false,
-  setModelosOpen: (open: boolean) => set({ modelos: open }),
+  setProfilesOpen: (open: boolean) => set({ profiles: open }),
   setGroupsOpen: (open: boolean) => set({ groups: open }),
   setTags: (open: boolean) => set({ tags: open }),
 }));
 
 export const asignacionSelectedData = create<{
-  modelos: RouterOutputs['modelo']['getAll'];
+  profiles: RouterOutputs['modelo']['getAll'];
   tags: RouterOutputs['tag']['getAll'];
   tagsList: RouterOutputs['tag']['getAll'];
   group: RouterOutputs['tagGroup']['getAll'][number] | undefined;
-  setModelos: (modelos: RouterOutputs['modelo']['getAll'][number]) => void;
+  setProfiles: (modelos: RouterOutputs['modelo']['getAll'][number]) => void;
   setTags: (tags: RouterOutputs['tag']['getAll'][number]) => void;
   setGroup: (group: RouterOutputs['tagGroup']['getAll'][number]) => void;
-  clearModelos: () => void;
+  clearProfiles: () => void;
   clearTags: () => void;
   clearGroup: () => void;
 }>((set, get) => ({
-  modelos: [],
+  profiles: [],
   tags: [],
   tagsList: [],
   group: undefined,
-  setModelos: (modelos) => {
-    if (get().modelos.find((m) => m.id === modelos.id)) {
+  setProfiles: (profiles) => {
+    if (get().profiles.find((m) => m.id === profiles.id)) {
       set({
-        modelos: get().modelos.filter((m) => m.id !== modelos.id),
+        profiles: get().profiles.filter((m) => m.id !== profiles.id),
       });
       return;
     } else {
       set({
-        modelos: [...get().modelos, modelos],
+        profiles: [...get().profiles, profiles],
       });
     }
   },
@@ -77,51 +77,57 @@ export const asignacionSelectedData = create<{
       });
     }
   },
-  clearModelos: () => set({ modelos: [] }),
+  clearProfiles: () => set({ profiles: [] }),
   clearTags: () => set({ tags: [] }),
   clearGroup: () => set({ group: undefined }),
 }));
 
 const ModelosComboYList = ({
-  modelos,
-  modelosLoading,
-}: ModelosComboYListProps) => {
-  const { modelos: modelosOpen, setModelosOpen } = asignacionComboBoxOpens();
-  const { modelos: modelosList, setModelos } = asignacionSelectedData();
+  profiles,
+  profilesLoading,
+}: ProfilesComboYListProps) => {
+  const { profilesOpen, setProfilesOpen } = asignacionComboBoxOpens((s) => ({
+    profilesOpen: s.profiles,
+    setProfilesOpen: s.setProfilesOpen,
+  }));
+  const { profilesList, setProfiles } = asignacionSelectedData((s) => ({
+    profilesList: s.profiles,
+    setProfiles: s.setProfiles,
+  }));
 
   return (
     <>
       <ComboBox
-        open={modelosOpen}
-        setOpen={setModelosOpen}
-        isLoading={modelosLoading}
+        open={profilesOpen}
+        setOpen={setProfilesOpen}
+        isLoading={profilesLoading}
         triggerChildren={<p>Modelos</p>}
         notFoundText='No hay participantes disponibles'
         placeholder='Buscar participantes...'
-        data={modelos ?? []}
+        data={profiles ?? []}
         id='id'
-        value='nombreCompleto'
+        value='fullName'
         onSelect={(value) => {
-          setModelos(
-            modelos!.find(
+          setProfiles(
+            profiles!.find(
               (m) => m.id === value
             ) as RouterOutputs['modelo']['getAll'][number]
           );
-          setModelosOpen(false);
+          setProfilesOpen(false);
         }}
         selectedIf={''}
       />
       <div
         className={cn(
-          modelosList.length > 0 && 'mt-2 rounded-md border border-gray-500'
+          profilesList.length > 0 && 'mt-2 rounded-md border border-gray-500'
         )}
       >
-        {modelosList.map((modelo) => (
+        {profilesList.map((modelo) => (
           <div className='flex w-full justify-between p-1' key={modelo.id}>
-            <p>{modelo.nombreCompleto}</p>
+            <p>{modelo.fullName}</p>
             <Trash
               className='cursor-pointer fill-red-500 text-red-900'
-              onClick={() => setModelos(modelo)}
+              onClick={() => setProfiles(modelo)}
             />
           </div>
         ))}

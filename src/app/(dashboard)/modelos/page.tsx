@@ -2,7 +2,7 @@
 
 import React, { Suspense } from 'react';
 import FiltroTabla from '@/components/modelos/FiltroTabla';
-import ModelosTable from '@/components/modelos/table/ModelosTable';
+import ProfilesTable from '@/components/modelos/table/ModelosTable';
 import CrearModelo from '@/components/modelos/CrearModelo';
 
 const ModelosPage = () => {
@@ -15,7 +15,7 @@ const ModelosPage = () => {
         <CrearModelo />
       </div>
       <FiltroTabla />
-      <ModelosTable />
+      <ProfilesTable />
     </Suspense>
   );
 };
