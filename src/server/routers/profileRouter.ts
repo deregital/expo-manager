@@ -2,10 +2,8 @@ import { getHighestIdLegible } from '@/lib/server';
 import { normalize } from '@/lib/utils';
 import { modeloSchemaCrearOEditar } from '@/server/schemas/modelo';
 import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
-import { MessageJson } from '@/server/types/whatsapp';
-import { Mensaje, Perfil, Prisma, TipoEtiqueta } from '@prisma/client';
+import { Prisma, TipoEtiqueta } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
-import { subDays } from 'date-fns';
 import levenshtein from 'string-comparison';
 import { z } from 'zod';
 import { ModelosSimilarity } from '../types/modelos';
@@ -16,62 +14,10 @@ export const modeloRouter = router({
 
     return data?.profiles ?? [];
   }),
-  getAllWithInChat: protectedProcedure.query(async ({ ctx }) => {
-    const modelos = await ctx.prisma
-      .$extends({
-        result: {
-          perfil: {
-            inChat: {
-              compute(
-                data: Perfil & {
-                  mensajes: (Mensaje & { message: MessageJson })[];
-                }
-              ) {
-                return (
-                  data.mensajes.length > 0 &&
-                  data.mensajes.some(
-                    (m) =>
-                      m.created_at > subDays(new Date(), 1) &&
-                      m.message.from === data.telefono
-                  )
-                );
-              },
-            },
-          },
-        },
-      })
-      .perfil.findMany({
-        where: {
-          esPapelera: false,
-          etiquetas: {
-            some: {
-              id: { in: ctx.etiquetasVisibles },
-            },
-          },
-        },
-        include: {
-          etiquetas: true,
-          mensajes: {
-            select: {
-              visto: true,
-              message: true,
-              created_at: true,
-            },
-          },
-        },
-      });
+  getAllWithActiveChat: protectedProcedure.query(async ({ ctx }) => {
+    const { data } = await ctx.fetch.GET('/profile/all-with-active-chat');
 
-    type Modelo = (typeof modelos)[number];
-
-    type ReemplazarMensaje<T> = T extends { message: Prisma.JsonValue }
-      ? Omit<T, 'message'> & { message: MessageJson }
-      : T;
-
-    type ModeloActualizado = Omit<Modelo, 'mensajes'> & {
-      mensajes: ReemplazarMensaje<Modelo['mensajes'][number]>[];
-    };
-
-    return modelos as ModeloActualizado[];
+    return data?.profiles ?? [];
   }),
   getById: protectedProcedure
     .input(z.string().uuid())

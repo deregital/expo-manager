@@ -17,7 +17,7 @@ type ChatSidebarProps = {
 
 const ChatSidebar = ({ filter }: ChatSidebarProps) => {
   const { data: profiles, isLoading: profilesLoading } =
-    trpc.modelo.getAllWithInChat.useQuery();
+    trpc.modelo.getAllWithActiveChat.useQuery();
 
   const params = useParams<{ telefono: string }>();
   const phoneNumberSelected = params.telefono;
@@ -32,7 +32,7 @@ const ChatSidebar = ({ filter }: ChatSidebarProps) => {
   const nonReadProfiles = useMemo(() => {
     return filteredProfiles
       ? filteredProfiles.filter((profile) =>
-          profile.mensajes.some((m) => !m.visto)
+          profile.messages.some((m) => m.state !== 'SEEN')
         )
       : [];
   }, [filteredProfiles]);
@@ -48,34 +48,32 @@ const ChatSidebar = ({ filter }: ChatSidebarProps) => {
       : filteredProfiles;
   }, [filteredProfiles, nonReadProfiles]);
 
-  const getUltimaFechaMensaje = (
-    profile: RouterOutputs['modelo']['getAllWithInChat'][number]
+  const getDateOfLastMessage = (
+    profile: RouterOutputs['modelo']['getAllWithActiveChat'][number]
   ) => {
-    const ultimoMensaje =
-      profile.mensajes.length > 0
-        ? profile.mensajes[profile.mensajes.length - 1]
+    const lastMessage =
+      profile.messages.length > 0
+        ? profile.messages[profile.messages.length - 1]
         : null;
-    return ultimoMensaje
-      ? new Date(ultimoMensaje.message.timestamp)
-      : new Date(0);
+    return lastMessage ? new Date(lastMessage.message.timestamp) : new Date(0);
   };
 
   const activeProfiles = useMemo(() => {
     return readProfiles
       .filter((c) => c.inChat)
       .sort((a, b) => {
-        const dateA = getUltimaFechaMensaje(a);
-        const dateB = getUltimaFechaMensaje(b);
+        const dateA = getDateOfLastMessage(a);
+        const dateB = getDateOfLastMessage(b);
         return dateB.getTime() - dateA.getTime();
       });
   }, [readProfiles]);
 
-  const contactosInactivos = useMemo(() => {
+  const inactiveProfiles = useMemo(() => {
     return readProfiles
       .filter((c) => !c.inChat)
       .sort((a, b) => {
-        const fechaA = getUltimaFechaMensaje(a);
-        const fechaB = getUltimaFechaMensaje(b);
+        const fechaA = getDateOfLastMessage(a);
+        const fechaB = getDateOfLastMessage(b);
         return fechaB.getTime() - fechaA.getTime();
       });
   }, [readProfiles]);
@@ -103,11 +101,9 @@ const ChatSidebar = ({ filter }: ChatSidebarProps) => {
               <ContactoCard
                 inPage={phoneNumberSelected === contacto.phoneNumber}
                 key={contacto.id}
-                contacto={contacto}
-                noLeidos={
-                  (contacto.mensajes as { visto: boolean }[]).filter(
-                    (m) => !m.visto
-                  ).length
+                profile={contacto}
+                nonRead={
+                  contacto.messages.filter((m) => m.state !== 'SEEN').length
                 }
               />
             </Link>
@@ -122,7 +118,7 @@ const ChatSidebar = ({ filter }: ChatSidebarProps) => {
             },
             {
               title: 'Contactos inactivos',
-              contactos: contactosInactivos,
+              contactos: inactiveProfiles,
             },
           ]}
         />

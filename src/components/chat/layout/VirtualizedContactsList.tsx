@@ -14,22 +14,22 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 interface VirtualizedContactsListProps {
   isOpen: string;
   setIsOpen: Dispatch<SetStateAction<string>>;
-  telefonoSelected: string;
-  contactos: RouterOutputs['modelo']['getAllWithInChat'];
+  phoneNumberSelected: string;
+  profiles: RouterOutputs['modelo']['getAllWithActiveChat'];
   title: string;
 }
 
 const VirtualizedContactsList = ({
-  contactos,
+  profiles,
   isOpen,
   setIsOpen,
   title,
-  telefonoSelected,
+  phoneNumberSelected,
 }: VirtualizedContactsListProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const rowVirtualizer = useVirtualizer({
-    count: contactos.length,
+    count: profiles.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 52, // Estimación del tamaño en píxeles por cada item
   });
@@ -62,12 +62,12 @@ const VirtualizedContactsList = ({
       >
         <div className='space-y-2'>
           {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-            const contacto = contactos[virtualItem.index];
-            const inPage = telefonoSelected === contacto.telefono;
+            const contacto = profiles[virtualItem.index];
+            const inPage = phoneNumberSelected === contacto.phoneNumber;
             return (
               <Link
                 prefetch={false}
-                href={`/mensajes/${contacto.telefono}`}
+                href={`/mensajes/${contacto.phoneNumber}`}
                 ref={rowVirtualizer.measureElement}
                 data-index={virtualItem.index}
                 onClick={() => {
@@ -88,12 +88,17 @@ const VirtualizedContactsList = ({
                   height: `${virtualItem.size}px`,
                 }}
               >
-                <FotoModelo url={contacto.fotoUrl} className='h-8 w-8' />
+                <FotoModelo
+                  url={contacto.profilePictureUrl}
+                  className='h-8 w-8'
+                />
                 <div>
                   <p className='truncate text-sm font-semibold'>
-                    {contacto.nombreCompleto}
+                    {contacto.fullName}
                   </p>
-                  <p className='text-xs text-slate-400'>{contacto.telefono}</p>
+                  <p className='text-xs text-slate-400'>
+                    {contacto.phoneNumber}
+                  </p>
                 </div>
               </Link>
             );
