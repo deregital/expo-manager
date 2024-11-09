@@ -41,15 +41,15 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
   const [open, setOpen] = useState(false);
   const [shouldDelete, setShouldDelete] = useState(false);
   const [conflict, setConflict] = useState<
-    RouterOutputs['modelo']['getByGrupoEtiqueta'] | undefined
+    RouterOutputs['modelo']['getByTagGroups'] | undefined
   >(undefined);
   const utils = trpc.useUtils();
   const createTagGroup = trpc.tagGroup.create.useMutation();
   const editTagGroup = trpc.tagGroup.edit.useMutation();
   const deleteTagGroup = trpc.tagGroup.delete.useMutation();
 
-  const { data: modelosGrupo, isLoading: modelosGrupoLoading } =
-    trpc.modelo.getByGrupoEtiqueta.useQuery([group?.id ?? ''], {
+  const { data: profilesGroup, isLoading: isLoadingProfilesGroup } =
+    trpc.modelo.getByTagGroups.useQuery([group?.id ?? ''], {
       enabled: action === 'EDIT' && group?.id !== undefined,
       onSuccess(data) {
         if (action === 'CREATE') return;
@@ -58,16 +58,13 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
         setConflict(
           data
             .filter(
-              (modelo) =>
-                modelo.etiquetas.filter(
-                  (etiqueta) => etiqueta.grupoId === group?.id
-                ).length > 1
+              (profile) =>
+                profile.tags.filter((tag) => tag.groupId === group?.id).length >
+                1
             )
-            .map((modelo) => ({
-              ...modelo,
-              etiquetas: modelo.etiquetas.filter(
-                (etiqueta) => etiqueta.grupoId === group?.id
-              ),
+            .map((profile) => ({
+              ...profile,
+              tags: profile.tags.filter((tag) => tag.groupId === group?.id),
             }))
         );
       },
@@ -119,19 +116,15 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
     } else if (type === 'EDIT') {
       if (isExclusive === true && group?.isExclusive === false) {
         const conflict =
-          modelosGrupo &&
-          modelosGrupo
+          profilesGroup &&
+          profilesGroup
             .filter(
-              (modelo) =>
-                modelo.etiquetas.filter(
-                  (etiqueta) => etiqueta.grupoId === groupId
-                ).length > 1
+              (profile) =>
+                profile.tags.filter((tag) => tag.groupId === groupId).length > 1
             )
             .map((modelo) => ({
               ...modelo,
-              etiquetas: modelo.etiquetas.filter(
-                (etiqueta) => etiqueta.grupoId === groupId
-              ),
+              tags: modelo.tags.filter((tag) => tag.groupId === groupId),
             }));
 
         if (conflict && conflict.length > 0) {
@@ -157,7 +150,7 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
           setOpen(false);
           utils.tagGroup.getAll.invalidate();
           if (group) {
-            utils.modelo.getByGrupoEtiqueta.invalidate([group.id]);
+            utils.modelo.getByTagGroups.invalidate([group.id]);
           }
           toast.success('Grupo de etiquetas editado con éxito');
         })
@@ -203,7 +196,9 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
       return createTagGroup.isLoading || conflict !== undefined;
     } else {
       return (
-        editTagGroup.isLoading || conflict !== undefined || modelosGrupoLoading
+        editTagGroup.isLoading ||
+        conflict !== undefined ||
+        isLoadingProfilesGroup
       );
     }
   }, [
@@ -211,7 +206,7 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
     createTagGroup.isLoading,
     editTagGroup.isLoading,
     modalData.type,
-    modelosGrupoLoading,
+    isLoadingProfilesGroup,
   ]);
 
   return (

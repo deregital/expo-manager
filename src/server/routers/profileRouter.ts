@@ -12,7 +12,7 @@ import { TRPCError } from '@trpc/server';
 import levenshtein from 'string-comparison';
 import { z } from 'zod';
 import { ModelosSimilarity } from '../types/modelos';
-import { profileSchema } from 'expo-backend-types';
+import { profileSchema, tagGroupSchema, tagSchema } from 'expo-backend-types';
 
 export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -40,63 +40,38 @@ export const modeloRouter = router({
 
       return data;
     }),
-  getByEtiqueta: protectedProcedure
-    .input(z.string().array())
+  getByTags: protectedProcedure
+    .input(z.array(tagSchema.shape.id))
     .query(async ({ input, ctx }) => {
-      return await ctx.prisma.perfil.findMany({
-        where: {
-          esPapelera: false,
-          AND: [
-            {
-              etiquetas: {
-                some: {
-                  id: { in: input },
-                },
-              },
-            },
-            {
-              etiquetas: {
-                some: {
-                  id: { in: ctx.etiquetasVisibles },
-                },
-              },
-            },
-          ],
-        },
-        include: {
-          etiquetas: {
-            include: {
-              grupo: {
-                select: {
-                  esExclusivo: true,
-                },
-              },
-            },
+      const { error, data } = await ctx.fetch.GET('/profile/find-by-tags', {
+        params: {
+          query: {
+            tags: input,
           },
         },
       });
+
+      if (error) handleError(error);
+
+      return data?.profiles ?? [];
     }),
-  getByGrupoEtiqueta: protectedProcedure
-    .input(z.string().array())
+  getByTagGroups: protectedProcedure
+    .input(z.array(tagGroupSchema.shape.id))
     .query(async ({ input, ctx }) => {
-      return await ctx.prisma.perfil.findMany({
-        where: {
-          esPapelera: false,
-          etiquetas: {
-            some: {
-              id: { in: ctx.etiquetasVisibles },
-              grupo: {
-                id: {
-                  in: input,
-                },
-              },
+      const { error, data } = await ctx.fetch.GET(
+        '/profile/find-by-tag-groups',
+        {
+          params: {
+            query: {
+              tagGroups: input,
             },
           },
-        },
-        include: {
-          etiquetas: true,
-        },
-      });
+        }
+      );
+
+      if (error) handleError(error);
+
+      return data?.profiles ?? [];
     }),
   create: publicProcedure
     .input(

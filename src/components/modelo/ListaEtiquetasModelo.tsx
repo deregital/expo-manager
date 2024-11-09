@@ -13,8 +13,8 @@ interface ProfileTagsListProps {
 }
 
 const ListaEtiquetasModelo = ({ tags, profileId }: ProfileTagsListProps) => {
-  const [addEtiquetaOpen, setAddEtiquetaOpen] = useState(false);
-  const editModelo = trpc.modelo.edit.useMutation();
+  const [addTagOpen, setAddTagOpen] = useState(false);
+  const editProfile = trpc.modelo.edit.useMutation();
 
   async function handleDelete(
     tag: GetGlobalFilterResponseDto['globalFilter'][number]
@@ -22,7 +22,7 @@ const ListaEtiquetasModelo = ({ tags, profileId }: ProfileTagsListProps) => {
     useProfileData.setState({
       tags: tags.filter((e) => e.id !== tag.id),
     });
-    await editModelo
+    await editProfile
       .mutateAsync({
         id: profileId,
         tags: tags
@@ -47,17 +47,17 @@ const ListaEtiquetasModelo = ({ tags, profileId }: ProfileTagsListProps) => {
 
   return (
     <ListaEtiquetas
-      open={addEtiquetaOpen}
-      setOpen={setAddEtiquetaOpen}
+      open={addTagOpen}
+      setOpen={setAddTagOpen}
       tags={tags}
       handleDelete={handleDelete}
     >
       <AgregarEtiquetasAModelo
         closeAddTag={() => {
-          setAddEtiquetaOpen(false);
+          setAddTagOpen(false);
         }}
         openAddTag={() => {
-          setAddEtiquetaOpen(true);
+          setAddTagOpen(true);
         }}
       />
     </ListaEtiquetas>

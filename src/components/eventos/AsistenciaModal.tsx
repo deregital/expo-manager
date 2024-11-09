@@ -97,7 +97,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
       tags: [...participantTags!, tagAssisted] as any[],
     });
     toast.success('Participante añadido correctamente');
-    utils.modelo.getByEtiqueta.invalidate();
+    utils.modelo.getByTags.invalidate();
     usePresentismoModal.setState({ isOpen: false, modeloId: '' });
   }
 

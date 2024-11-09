@@ -5,7 +5,7 @@ import { ShieldQuestionIcon } from 'lucide-react';
 import React, { useState } from 'react';
 
 interface ModelosConflictProps {
-  modelos: RouterOutputs['modelo']['getByGrupoEtiqueta'] | undefined;
+  modelos: RouterOutputs['modelo']['getByTagGroups'] | undefined;
 }
 
 const ModelosConflict = ({ modelos }: ModelosConflictProps) => {
@@ -33,17 +33,17 @@ const ModelosConflict = ({ modelos }: ModelosConflictProps) => {
                 href={`/modelo/${modelo.id}`}
                 target='_blank'
               >
-                {modelo.nombreCompleto}
+                {modelo.fullName}
               </a>
               {' - '}
-              {modelo.etiquetas.slice(0, 3)?.map((etiqueta) => (
+              {modelo.tags.slice(0, 3)?.map((tag) => (
                 <Badge
-                  key={etiqueta.id}
+                  key={tag.id}
                   variant={'default'}
                   className='mr-1 select-none'
-                  title={etiqueta.nombre}
+                  title={tag.name}
                 >
-                  {etiqueta.nombre}
+                  {tag.name}
                 </Badge>
               ))}
             </li>

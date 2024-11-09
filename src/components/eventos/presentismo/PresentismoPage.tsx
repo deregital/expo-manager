@@ -33,8 +33,8 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
       id: eventoId,
     });
 
-  const { data: modelos, isLoading: modelosIsLoading } =
-    trpc.modelo.getByEtiqueta.useQuery(
+  const { data: profiles, isLoading: isLoadingProfiles } =
+    trpc.modelo.getByTags.useQuery(
       evento ? [evento.etiquetaConfirmoId, evento.etiquetaAsistioId] : [],
       {
         enabled: !!evento,
@@ -51,27 +51,25 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
   const [search, setSearch] = useState('');
   const router = useRouter();
 
-  const modelosData = useMemo(() => {
-    if (!modelos) return [];
-    return modelos.filter((modelo) => {
-      if (modelo.idLegible !== null) {
+  const profilesData = useMemo(() => {
+    if (!profiles) return [];
+    return profiles.filter((profile) => {
+      if (profile.shortId !== null) {
         return (
-          searchNormalize(modelo.idLegible.toString(), search) ||
-          searchNormalize(modelo.nombreCompleto, search)
+          searchNormalize(profile.shortId.toString(), search) ||
+          searchNormalize(profile.fullName, search)
         );
       }
-      return searchNormalize(modelo.nombreCompleto, search);
+      return searchNormalize(profile.fullName, search);
     });
-  }, [search, modelos]);
+  }, [search, profiles]);
 
   const countModelos = useMemo(() => {
-    if (!modelos || !evento) return 0;
-    return modelos.filter((modelo) =>
-      modelo.etiquetas.find(
-        (etiqueta) => etiqueta.id === evento.etiquetaAsistioId
-      )
+    if (!profiles || !evento) return 0;
+    return profiles.filter((profile) =>
+      profile.tags.find((tag) => tag.id === evento.etiquetaAsistioId)
     ).length;
-  }, [evento, modelos]);
+  }, [evento, profiles]);
 
   useEffect(() => {
     if (!evento) return;
@@ -84,29 +82,27 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
     router.push(`/eventos/${eventoId}/presentismo`);
   }, [eventoId, router, urlSearchParams]);
 
-  const progress = useProgress(modelos ?? [], evento?.etiquetaAsistioId ?? '');
+  const progress = useProgress(profiles ?? [], evento?.etiquetaAsistioId ?? '');
 
   const handleGeneratePDF = async () => {
-    const modelosConfirmados = modelosData
+    const confirmedProfiles = profilesData
       .filter((modelo) =>
-        modelo.etiquetas.find(
-          (etiqueta) =>
-            etiqueta.id === evento?.etiquetaConfirmoId ||
-            etiqueta.id === evento?.etiquetaAsistioId
+        modelo.tags.find(
+          (tag) =>
+            tag.id === evento?.etiquetaConfirmoId ||
+            tag.id === evento?.etiquetaAsistioId
         )
       )
-      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
+      .sort((a, b) => a.fullName.localeCompare(b.fullName));
 
-    const tableContent = modelosConfirmados.map(
-      (modelo) =>
+    const tableContent = confirmedProfiles.map(
+      (profile) =>
         [
-          modelo.nombreCompleto,
-          modelo.idLegible ? modelo.idLegible.toString() : '',
-          modelo.telefono,
-          modelo.dni ?? '',
-          (modelo.etiquetas.some(
-            (etiqueta) => etiqueta.id === evento?.etiquetaAsistioId
-          )
+          profile.fullName,
+          profile.shortId ? profile.shortId.toString() : '',
+          profile.phoneNumber,
+          profile.dni ?? '',
+          (profile.tags.some((tag) => tag.id === evento?.etiquetaAsistioId)
             ? 'SI'
             : '') as string,
         ] as PDFData[0]['datos'][number]
@@ -202,10 +198,10 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
           asistenciaId: evento!.etiquetaAsistioId,
           confirmoId: evento!.etiquetaConfirmoId,
         })}
-        data={modelosData}
-        isLoading={modelosIsLoading}
+        data={profilesData}
+        isLoading={isLoadingProfiles}
         initialSortingColumn={{
-          id: '¿Vino?' as keyof (typeof modelosData)[number],
+          id: '¿Vino?' as keyof (typeof profilesData)[number],
           desc: false,
         }}
       />

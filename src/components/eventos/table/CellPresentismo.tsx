@@ -1,4 +1,5 @@
 'use client';
+import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
 import { Row } from '@tanstack/react-table';
@@ -9,39 +10,39 @@ export const CellPresentismo = ({
   confirmedId,
   assistedId,
 }: {
-  row: Row<RouterOutputs['modelo']['getByEtiqueta'][number]>;
+  row: Row<RouterOutputs['modelo']['getByTags'][number]>;
   confirmedId: string;
   assistedId: string;
 }) => {
-  const tagsId = row.original.etiquetas.map((tag: any) => tag.id);
+  const tagsId = row.original.tags.map((tag) => tag.id);
   const { data: tagAssisted } = trpc.tag.getById.useQuery(assistedId, {
     enabled: !!row.original,
   });
   const { data: tagConfirmed } = trpc.tag.getById.useQuery(confirmedId, {
     enabled: !!row.original,
   });
-  const editModelo = trpc.modelo.edit.useMutation();
+  const editProfile = trpc.modelo.edit.useMutation();
   const useUtils = trpc.useUtils();
 
   async function addAsistencia(
-    modelo: RouterOutputs['modelo']['getByEtiqueta'][number]
+    profile: RouterOutputs['modelo']['getByTags'][number]
   ) {
     toast.loading('Confirmando asistencia');
-    const tagsId = modelo.etiquetas
-      .map((etiqueta) => {
+    const tagsId = profile.tags
+      .map((tag) => {
         return {
-          id: etiqueta.id,
+          id: tag.id,
           grupo: {
-            id: etiqueta.grupoId,
-            esExclusivo: etiqueta.grupo.esExclusivo,
+            id: tag.groupId,
+            esExclusivo: tag.group.isExclusive,
           },
-          nombre: etiqueta.nombre,
+          nombre: tag.name,
         };
       })
       .filter((et) => et.id !== confirmedId);
 
-    await editModelo.mutateAsync({
-      id: modelo.id,
+    await editProfile.mutateAsync({
+      id: profile.id,
       etiquetas: [
         ...tagsId,
         {
@@ -57,30 +58,30 @@ export const CellPresentismo = ({
     });
     toast.dismiss();
     toast.success('Se confirmó su asistencia');
-    useUtils.modelo.getByEtiqueta.invalidate();
+    useUtils.modelo.getByTags.invalidate();
   }
 
   async function deleteAsistencia(
-    modelo: RouterOutputs['modelo']['getByEtiqueta'][number]
+    profile: RouterOutputs['modelo']['getByTags'][number]
   ) {
     toast.loading('Eliminando presentismo');
-    const etiquetasId = modelo.etiquetas
-      .map((etiqueta) => {
+    const tagsId = profile.tags
+      .map((tag) => {
         return {
-          id: etiqueta.id,
+          id: tag.id,
           grupo: {
-            id: etiqueta.grupoId,
-            esExclusivo: etiqueta.grupo.esExclusivo,
+            id: tag.groupId,
+            esExclusivo: tag.group.isExclusive,
           },
-          nombre: etiqueta.nombre,
+          nombre: tag.name,
         };
       })
       .filter((et) => et.id !== assistedId);
 
-    await editModelo.mutateAsync({
-      id: modelo.id,
+    await editProfile.mutateAsync({
+      id: profile.id,
       etiquetas: [
-        ...etiquetasId,
+        ...tagsId,
         {
           id: confirmedId,
           grupo: {
@@ -94,14 +95,14 @@ export const CellPresentismo = ({
     });
     toast.dismiss();
     toast.success('Se eliminó del presentismo');
-    useUtils.modelo.getByEtiqueta.invalidate();
+    useUtils.modelo.getByTags.invalidate();
   }
 
   return (
     <div className='flex items-center justify-center gap-x-2'>
-      <input
+      <Input
         type='checkbox'
-        disabled={editModelo.isLoading}
+        disabled={editProfile.isLoading}
         className='h-6 w-6'
         checked={tagsId.includes(assistedId)}
         onChange={() =>

@@ -58,7 +58,7 @@ export const CellComponent = ({
     toast.dismiss();
     toast.success('Se agregó al presentismo');
     useUtils.modelo.getAll.invalidate();
-    useUtils.modelo.getByEtiqueta.invalidate();
+    useUtils.modelo.getByTags.invalidate();
   }
 
   return (
