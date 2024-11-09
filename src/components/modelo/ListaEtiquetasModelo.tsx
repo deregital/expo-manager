@@ -1,47 +1,45 @@
 import AgregarEtiquetasAModelo from '@/components/modelo/AgregarEtiquetasAModelo';
-import { useModeloData } from '@/components/modelo/ModeloPageContent';
+import { useProfileData } from '@/components/modelo/ModeloPageContent';
 import ListaEtiquetas from '@/components/ui/ListaEtiquetas';
 import { trpc } from '@/lib/trpc';
-import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
+import { TagWithGroupColor } from '@/server/types/etiquetas';
+import { GetGlobalFilterResponseDto } from 'expo-backend-types';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-interface ListaEtiquetasModeloProps {
-  modeloId: string;
-  etiquetas: EtiquetaBaseConGrupoColor[];
+interface ProfileTagsListProps {
+  profileId: string;
+  tags: TagWithGroupColor[];
 }
 
-const ListaEtiquetasModelo = ({
-  etiquetas,
-  modeloId,
-}: ListaEtiquetasModeloProps) => {
+const ListaEtiquetasModelo = ({ tags, profileId }: ProfileTagsListProps) => {
   const [addEtiquetaOpen, setAddEtiquetaOpen] = useState(false);
   const editModelo = trpc.modelo.edit.useMutation();
 
   async function handleDelete(
-    etiqueta: ListaEtiquetasModeloProps['etiquetas'][number]
+    tag: GetGlobalFilterResponseDto['globalFilter'][number]
   ) {
-    useModeloData.setState({
-      etiquetas: etiquetas.filter((e) => e.id !== etiqueta.id),
+    useProfileData.setState({
+      tags: tags.filter((e) => e.id !== tag.id),
     });
     await editModelo
       .mutateAsync({
-        id: modeloId,
-        etiquetas: etiquetas
-          .filter((e) => e.id !== etiqueta.id)
+        id: profileId,
+        tags: tags
+          .filter((e) => e.id !== tag.id)
           .map((e) => ({
             id: e.id,
-            nombre: e.nombre,
-            grupo: {
-              id: e.grupo.id,
-              esExclusivo: e.grupo.esExclusivo,
+            name: e.name,
+            group: {
+              id: e.group.id,
+              isExclusive: e.group.isExclusive,
             },
           })),
       })
-      .then(() => toast.success(`Etiqueta ${etiqueta.nombre} eliminada`))
+      .then(() => toast.success(`Etiqueta ${tag.name} eliminada`))
       .catch(() => {
-        useModeloData.setState({
-          etiquetas: [...etiquetas, etiqueta],
+        useProfileData.setState({
+          tags: [...tags, tag],
         });
         toast.error('Error al eliminar etiqueta');
       });
@@ -51,7 +49,7 @@ const ListaEtiquetasModelo = ({
     <ListaEtiquetas
       open={addEtiquetaOpen}
       setOpen={setAddEtiquetaOpen}
-      etiquetas={etiquetas}
+      tags={tags}
       handleDelete={handleDelete}
     >
       <AgregarEtiquetasAModelo

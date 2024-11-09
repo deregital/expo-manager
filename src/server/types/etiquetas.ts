@@ -1,10 +1,10 @@
-import { Prisma } from '@prisma/client';
+import { type Prisma } from 'expo-backend-types';
 
-export type EtiquetaBaseConGrupoColor = Prisma.EtiquetaGetPayload<{
+export type TagWithGroupColor = Prisma.TagGetPayload<{
   select: {
     id: true;
-    nombre: true;
-    tipo: true;
-    grupo: { select: { color: true; id: true; esExclusivo: true } };
+    name: true;
+    type: true;
+    group: { select: { color: true; id: true; isExclusive: true } };
   };
 }>;

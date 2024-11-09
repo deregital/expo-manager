@@ -10,16 +10,18 @@ interface SidebarFiltroBaseProps {}
 
 const SidebarFiltroBase = ({}: SidebarFiltroBaseProps) => {
   const utils = trpc.useUtils();
-  const { data: filtroBaseData, isLoading: filtroBaseLoading } =
+  const { data: globalFilterData, isLoading: globalFilterLoading } =
     trpc.cuenta.getFiltroBase.useQuery(undefined, {
       onSuccess(data) {
-        setIsChecked(data.activo);
+        setIsChecked(data.isGlobalFilterActive);
       },
     });
-  const { mutateAsync: updateFiltroBase } =
+  const { mutateAsync: updateGlobalFilter } =
     trpc.cuenta.updateFiltroBase.useMutation();
 
-  const [isChecked, setIsChecked] = useState(filtroBaseData?.activo ?? false);
+  const [isChecked, setIsChecked] = useState(
+    globalFilterData?.isGlobalFilterActive ?? false
+  );
 
   return (
     <div
@@ -38,11 +40,11 @@ const SidebarFiltroBase = ({}: SidebarFiltroBaseProps) => {
             isChecked ? 'text-black/85' : 'text-gray-400'
           )}
         >
-          {filtroBaseData?.etiquetas?.length ? (
-            filtroBaseData?.etiquetas?.length > 0 && (
+          {globalFilterData?.globalFilter?.length ? (
+            globalFilterData?.globalFilter?.length > 0 && (
               <span>
-                {filtroBaseData?.etiquetas?.length}{' '}
-                {`etiqueta${filtroBaseData?.etiquetas?.length > 1 ? 's' : ''}`}
+                {globalFilterData?.globalFilter?.length}{' '}
+                {`etiqueta${globalFilterData?.globalFilter?.length > 1 ? 's' : ''}`}
               </span>
             )
           ) : (
@@ -51,13 +53,13 @@ const SidebarFiltroBase = ({}: SidebarFiltroBaseProps) => {
         </p>
       </div>
       <Switch
-        disabled={filtroBaseLoading}
+        disabled={globalFilterLoading}
         checked={isChecked}
         onCheckedChange={async (activo) => {
           setIsChecked(activo);
-          await updateFiltroBase({
+          await updateGlobalFilter({
             activo,
-            etiquetas: filtroBaseData?.etiquetas?.map((e) => e.id),
+            etiquetas: globalFilterData?.globalFilter?.map((e) => e.id),
           }).catch(() => {
             setIsChecked(!activo);
           });

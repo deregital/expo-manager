@@ -1,5 +1,5 @@
 import AddEtiquetaCombos from '@/components/ui/AddEtiquetaCombos';
-import { useModeloData } from '@/components/modelo/ModeloPageContent';
+import { useProfileData } from '@/components/modelo/ModeloPageContent';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
 import React from 'react';
@@ -14,8 +14,8 @@ const AgregarEtiquetasAModelo = ({
   closeAddTag,
   openAddTag,
 }: AgregarEtiquetasAModeloProps) => {
-  const { etiquetas, modeloId } = useModeloData((state) => ({
-    etiquetas: state.etiquetas,
+  const { etiquetas, modeloId } = useProfileData((state) => ({
+    etiquetas: state.tags,
     modeloId: state.id,
   }));
   const addEtiqueta = trpc.modelo.edit.useMutation();
@@ -24,10 +24,10 @@ const AgregarEtiquetasAModelo = ({
   async function handleAddEtiqueta(
     addedEtiqueta: NonNullable<
       RouterOutputs['modelo']['getById']
-    >['etiquetas'][number]
+    >['tags'][number]
   ) {
-    useModeloData.setState({
-      etiquetas: [...etiquetas, addedEtiqueta],
+    useProfileData.setState({
+      tags: [...etiquetas, addedEtiqueta],
     });
 
     closeAddTag();
@@ -38,18 +38,18 @@ const AgregarEtiquetasAModelo = ({
         etiquetas: [
           ...etiquetas.map((e) => ({
             id: e.id,
-            nombre: e.nombre,
+            nombre: e.name,
             grupo: {
-              id: e.grupo.id,
-              esExclusivo: e.grupo.esExclusivo,
+              id: e.group.id,
+              esExclusivo: e.group.isExclusive,
             },
           })),
           {
             id: addedEtiqueta.id,
-            nombre: addedEtiqueta.nombre,
-            grupo: {
-              id: addedEtiqueta.grupo.id,
-              esExclusivo: addedEtiqueta.grupo.esExclusivo,
+            name: addedEtiqueta.name,
+            group: {
+              id: addedEtiqueta.group.id,
+              isExclusive: addedEtiqueta.group.isExclusive,
             },
           },
         ],
@@ -60,8 +60,8 @@ const AgregarEtiquetasAModelo = ({
         utils.modelo.getByFiltro.invalidate();
       })
       .catch(() => {
-        useModeloData.setState({
-          etiquetas: etiquetas.filter((e) => e.id !== addedEtiqueta.id),
+        useProfileData.setState({
+          tags: etiquetas.filter((e) => e.id !== addedEtiqueta.id),
         });
         openAddTag();
         toast.error('Error al agregar la etiqueta');

@@ -1,4 +1,4 @@
-import { useModeloData } from '@/components/modelo/ModeloPageContent';
+import { useProfileData } from '@/components/modelo/ModeloPageContent';
 import { trpc } from '@/lib/trpc';
 import { useSession } from 'next-auth/react';
 import React, { FormEvent, useState } from 'react';
@@ -18,7 +18,7 @@ const CommentsSection = ({ profileId }: CommentsSectionProps) => {
   const session = useSession();
   const utils = trpc.useUtils();
 
-  const { comments: commentsData } = useModeloData((state) => ({
+  const { comments: commentsData } = useProfileData((state) => ({
     comments: state.comments,
   }));
   // Estado para manejar el switch de Simple o Resoluble
@@ -48,7 +48,7 @@ const CommentsSection = ({ profileId }: CommentsSectionProps) => {
     e.currentTarget.reset();
     setIsSolvable(false);
 
-    useModeloData.setState({
+    useProfileData.setState({
       comments: [
         {
           id: 'temp',
@@ -80,7 +80,7 @@ const CommentsSection = ({ profileId }: CommentsSectionProps) => {
       })
       .catch(() => {
         target.comment.value = commentContent;
-        useModeloData.setState({
+        useProfileData.setState({
           comments: commentsData?.filter((comment) => comment.id !== 'temp'),
         });
       });

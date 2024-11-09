@@ -1,12 +1,18 @@
 import { getHighestIdLegible } from '@/lib/server';
 import { normalize } from '@/lib/utils';
 import { modeloSchemaCrearOEditar } from '@/server/schemas/modelo';
-import { protectedProcedure, publicProcedure, router } from '@/server/trpc';
+import {
+  handleError,
+  protectedProcedure,
+  publicProcedure,
+  router,
+} from '@/server/trpc';
 import { Prisma, TipoEtiqueta } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import levenshtein from 'string-comparison';
 import { z } from 'zod';
 import { ModelosSimilarity } from '../types/modelos';
+import { profileSchema } from 'expo-backend-types';
 
 export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -20,32 +26,19 @@ export const modeloRouter = router({
     return data?.profiles ?? [];
   }),
   getById: protectedProcedure
-    .input(z.string().uuid())
+    .input(profileSchema.shape.id)
     .query(async ({ input, ctx }) => {
-      return await ctx.prisma.perfil.findUnique({
-        where: {
-          id: input,
-          etiquetas: {
-            some: {
-              id: { in: ctx.etiquetasVisibles },
-            },
+      const { data, error } = await ctx.fetch.GET(`/profile/{id}`, {
+        params: {
+          path: {
+            id: input,
           },
-        },
-        include: {
-          etiquetas: {
-            include: {
-              grupo: {
-                select: {
-                  id: true,
-                  color: true,
-                  esExclusivo: true,
-                },
-              },
-            },
-          },
-          residencia: true,
         },
       });
+
+      if (error) handleError(error);
+
+      return data;
     }),
   getByEtiqueta: protectedProcedure
     .input(z.string().array())

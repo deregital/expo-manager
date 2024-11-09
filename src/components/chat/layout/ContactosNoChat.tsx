@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 interface ContactosNoChatProps {
   telefonoSelected: string;
   items: {
-    contactos: RouterOutputs['modelo']['getAllWithInChat'];
+    contactos: RouterOutputs['modelo']['getAllWithActiveChat'];
     title: string;
   }[];
 }

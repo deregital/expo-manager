@@ -1,6 +1,6 @@
 'use client';
 import ModeloPageContent, {
-  useModeloData,
+  useProfileData,
 } from '@/components/modelo/ModeloPageContent';
 import Loader from '@/components/ui/loader';
 import { trpc } from '@/lib/trpc';
@@ -31,9 +31,9 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
 
     if (!modelo || !comments) return;
 
-    useModeloData.setState({
+    useProfileData.setState({
       id: modelo.id,
-      etiquetas: modelo.etiquetas,
+      tags: modelo.tags,
       comments: comments.comments,
     });
   }, [
@@ -59,7 +59,7 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
           <Loader />
         </div>
       ) : (
-        <ModeloPageContent modelo={modelo} />
+        <ModeloPageContent profile={modelo} />
       )}
     </div>
   );

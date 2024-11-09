@@ -2,19 +2,19 @@ import CirclePlus from '@/components/icons/CirclePlus';
 import CircleXIcon from '@/components/icons/CircleX';
 import { Badge } from '@/components/ui/badge';
 import { getTextColorByBg } from '@/lib/utils';
-import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
+import { TagWithGroupColor } from '@/server/types/etiquetas';
 import React from 'react';
 
 interface ListaEtiquetasProps {
-  etiquetas: EtiquetaBaseConGrupoColor[];
+  tags: TagWithGroupColor[];
   children: React.ReactNode;
   open: boolean;
   setOpen: (open: boolean) => void;
-  handleDelete: (etiqueta: EtiquetaBaseConGrupoColor) => void;
+  handleDelete: (tag: TagWithGroupColor) => void;
 }
 
 const ListaEtiquetas = ({
-  etiquetas,
+  tags,
   children,
   open,
   setOpen,
@@ -23,19 +23,19 @@ const ListaEtiquetas = ({
   return (
     <div className='w-full'>
       <div className='flex flex-wrap items-center gap-2'>
-        {etiquetas?.map((etiqueta) => (
+        {tags?.map((tag) => (
           <Badge
             className='group whitespace-nowrap transition-transform duration-200 ease-in-out hover:shadow-md'
             style={{
-              backgroundColor: etiqueta.grupo.color,
-              color: getTextColorByBg(etiqueta.grupo.color),
+              backgroundColor: tag.group.color,
+              color: getTextColorByBg(tag.group.color),
             }}
-            key={etiqueta.id}
+            key={tag.id}
           >
-            {etiqueta.nombre}
+            {tag.name}
 
             <CircleXIcon
-              onClick={() => handleDelete(etiqueta)}
+              onClick={() => handleDelete(tag)}
               className='invisible w-0 cursor-pointer group-hover:visible group-hover:ml-1 group-hover:w-4'
               width={16}
               height={16}

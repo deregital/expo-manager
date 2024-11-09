@@ -3,7 +3,8 @@ import ListaEtiquetas from '@/components/ui/ListaEtiquetas';
 import Loader from '@/components/ui/loader';
 import { Switch } from '@/components/ui/switch';
 import { trpc } from '@/lib/trpc';
-import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
+import { RouterOutputs } from '@/server';
+import { GetGlobalFilterResponseDto } from 'expo-backend-types';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
@@ -11,19 +12,27 @@ import { create } from 'zustand';
 interface ActualizarFiltroBaseProps {}
 
 export const useTagsGlobalFilter = create<{
-  tags: EtiquetaBaseConGrupoColor[];
+  tags: RouterOutputs['cuenta']['getFiltroBase']['globalFilter'];
   active: boolean;
-  addTag: (tag: EtiquetaBaseConGrupoColor) => void;
-  removeTag: (tag: EtiquetaBaseConGrupoColor) => void;
+  addTag: (
+    tag: RouterOutputs['cuenta']['getFiltroBase']['globalFilter'][number]
+  ) => void;
+  removeTag: (
+    tag: RouterOutputs['cuenta']['getFiltroBase']['globalFilter'][number]
+  ) => void;
 }>((set) => ({
   tags: [],
   active: false,
-  addTag: (tag: EtiquetaBaseConGrupoColor) => {
+  addTag: (
+    tag: RouterOutputs['cuenta']['getFiltroBase']['globalFilter'][number]
+  ) => {
     set((state) => ({
       tags: [...state.tags, tag],
     }));
   },
-  removeTag: (tag: EtiquetaBaseConGrupoColor) => {
+  removeTag: (
+    tag: RouterOutputs['cuenta']['getFiltroBase']['globalFilter'][number]
+  ) => {
     set((state) => ({
       tags: state.tags.filter((e) => e.id !== tag.id),
     }));
@@ -33,29 +42,31 @@ export const useTagsGlobalFilter = create<{
 const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
   const utils = trpc.useUtils();
   const filtroBaseMutation = trpc.cuenta.updateFiltroBase.useMutation();
-  const { data: filtroBaseData, isLoading: filtroBaseLoading } =
+  const { data: globalFilterData, isLoading: globalFilterActive } =
     trpc.cuenta.getFiltroBase.useQuery(undefined, {
       onSuccess: (data) => {
         useTagsGlobalFilter.setState({
-          active: data.activo,
-          tags: data.etiquetas,
+          active: data?.isGlobalFilterActive,
+          tags: data?.globalFilter || [],
         });
       },
     });
   const [open, setOpen] = useState(false);
   const { removeTag, tags, addTag, active } = useTagsGlobalFilter();
 
-  async function handleDelete(tag: EtiquetaBaseConGrupoColor) {
+  async function handleDelete(
+    tag: GetGlobalFilterResponseDto['globalFilter'][number]
+  ) {
     removeTag(tag);
     await filtroBaseMutation
       .mutateAsync({
         activo: active,
-        etiquetas: filtroBaseData?.etiquetas
-          ?.filter((e) => e.id !== tag.id)
-          .map((e) => e.id),
+        etiquetas: globalFilterData?.globalFilter
+          ?.filter((t) => t.id !== tag.id)
+          .map((t) => t.id),
       })
       .then(() => {
-        toast.success(`Etiqueta ${tag.nombre} eliminada`);
+        toast.success(`Etiqueta ${tag.name} eliminada`);
         utils.modelo.invalidate();
         utils.cuenta.getFiltroBase.invalidate();
       })
@@ -71,7 +82,7 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
         <div className='flex items-center gap-x-3'>
           <h1 className='text-2xl font-bold'>Filtro base</h1>
           <Switch
-            disabled={filtroBaseLoading}
+            disabled={globalFilterActive}
             checked={active}
             onCheckedChange={async (checked: boolean | 'indeterminate') => {
               // if (checked === 'indeterminate') return;
@@ -93,15 +104,15 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
             }}
           />
         </div>
-        {filtroBaseLoading ? (
+        {globalFilterActive ? (
           <Loader />
         ) : (
-          filtroBaseData && (
+          globalFilterData && (
             <ListaEtiquetas
               open={open}
               setOpen={setOpen}
               handleDelete={handleDelete}
-              etiquetas={tags}
+              tags={tags}
             >
               <AgregarEtiquetasAFiltroBase
                 closeAddTag={() => setOpen(false)}

@@ -4,29 +4,28 @@ import ComboBox from '@/components/ui/ComboBox';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
-import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
-import { type TagType } from 'expo-backend-types';
+import { GetGlobalFilterResponseDto, type TagType } from 'expo-backend-types';
 import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 function availableGroups(
-  tags: EtiquetaBaseConGrupoColor[],
-  groupsdata: NonNullable<RouterOutputs['tagGroup']['getAll']>
+  tags: GetGlobalFilterResponseDto['globalFilter'],
+  groupsData: NonNullable<RouterOutputs['tagGroup']['getAll']>
 ) {
   const internalTagTypes: TagType[] = ['PARTICIPANT', 'NOT_IN_SYSTEM'];
 
-  return groupsdata.filter((group) => {
+  return groupsData.filter((group) => {
     if (group.tags.length === 0) return false;
     if (group.tags.every((tag) => internalTagTypes.includes(tag.type))) {
       return false;
     }
     if (group.isExclusive) {
-      const tagIds = tags.map((tag) => tag.grupo.id);
+      const tagIds = tags.map((tag) => tag.group.id);
       return !tagIds.includes(group.id);
     } else {
       if (
         group.tags.length ===
-        tags.filter((tag) => tag.grupo.id === group.id).length
+        tags.filter((tag) => tag.group.id === group.id).length
       )
         return false;
     }
@@ -35,7 +34,7 @@ function availableGroups(
 }
 
 function availableTags(
-  tags: EtiquetaBaseConGrupoColor[],
+  tags: GetGlobalFilterResponseDto['globalFilter'],
   tagsData: NonNullable<RouterOutputs['tag']['getAll']>,
   groups: ReturnType<typeof availableGroups>
 ) {
@@ -48,11 +47,9 @@ function availableTags(
 }
 
 interface AddTagCombosProps {
-  tags: EtiquetaBaseConGrupoColor[];
+  tags: GetGlobalFilterResponseDto['globalFilter'];
   handleAddTag: (
-    addedTag: NonNullable<
-      RouterOutputs['modelo']['getById']
-    >['etiquetas'][number]
+    addedTag: NonNullable<RouterOutputs['modelo']['getById']>['tags'][number]
   ) => void;
 }
 
@@ -155,9 +152,7 @@ const AddEtiquetaCombos = ({ tags, handleAddTag }: AddTagCombosProps) => {
           if (selectedTag) {
             handleAddTag(
               // TODO: Fix this type
-              selectedTag as unknown as NonNullable<
-                RouterOutputs['modelo']['getById']
-              >['etiquetas'][number]
+              selectedTag
             );
           } else {
             toast.error('Selecciona una etiqueta');

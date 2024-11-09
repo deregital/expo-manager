@@ -62,12 +62,12 @@ const VirtualizedContactsList = ({
       >
         <div className='space-y-2'>
           {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-            const contacto = profiles[virtualItem.index];
-            const inPage = phoneNumberSelected === contacto.phoneNumber;
+            const profile = profiles[virtualItem.index];
+            const inPage = phoneNumberSelected === profile.phoneNumber;
             return (
               <Link
                 prefetch={false}
-                href={`/mensajes/${contacto.phoneNumber}`}
+                href={`/mensajes/${profile.phoneNumber}`}
                 ref={rowVirtualizer.measureElement}
                 data-index={virtualItem.index}
                 onClick={() => {
@@ -89,15 +89,15 @@ const VirtualizedContactsList = ({
                 }}
               >
                 <FotoModelo
-                  url={contacto.profilePictureUrl}
+                  url={profile.profilePictureUrl}
                   className='h-8 w-8'
                 />
                 <div>
                   <p className='truncate text-sm font-semibold'>
-                    {contacto.fullName}
+                    {profile.fullName}
                   </p>
                   <p className='text-xs text-slate-400'>
-                    {contacto.phoneNumber}
+                    {profile.phoneNumber}
                   </p>
                 </div>
               </Link>

@@ -9,68 +9,68 @@ import { toast } from 'sonner';
 import CircleXIcon from '../icons/CircleX';
 import { Save, Trash2Icon } from 'lucide-react';
 import CirclePlus from '../icons/CirclePlus';
-import ModeloFoto from '@/components/modelo/ModeloFoto';
+import ProfilePicture from '@/components/modelo/ModeloFoto';
 import ModeloEditModal, {
-  edadFromFechaNacimiento,
+  edadFromFechaNacimiento as ageFromBirthDate,
 } from '@/components/modelo/ModeloEditModal';
-import { TipoEtiqueta } from '@prisma/client';
 import Link from 'next/link';
 import ChatFillIcon from '@/components/icons/ChatFillIcon';
 import WhatsappIcon from '@/components/icons/WhatsappIcon';
 import InstagramIcon from '@/components/icons/InstagramIcon';
 import MailIcon from '@/components/icons/MailIcon';
 import DNIIcon from '@/components/icons/DNIIcon';
-import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
 import BotonesPapelera from '@/components/papelera/BotonesPapelera';
 import { GetByProfileCommentResponseDto } from 'expo-backend-types';
+import { TagWithGroupColor } from '@/server/types/etiquetas';
 
-interface ModeloPageContentProps {
-  modelo: NonNullable<RouterOutputs['modelo']['getById']>;
+interface ProfilePageContentProps {
+  profile: NonNullable<RouterOutputs['modelo']['getById']>;
 }
-type ModeloData = {
+type ProfileData = {
   id: string;
-  etiquetas: EtiquetaBaseConGrupoColor[];
+  tags: TagWithGroupColor[];
   comments: GetByProfileCommentResponseDto['comments'] | undefined;
 };
-type ModeloFoto = {
+type ProfilePicture = {
   id: string;
-  fotoUrl: string | undefined;
+  pictureUrl: string | undefined;
 };
-export const useModeloData = create<ModeloData>(() => ({
+export const useProfileData = create<ProfileData>(() => ({
   id: '',
-  etiquetas: [],
+  tags: [],
   comments: undefined,
 }));
-export const useModeloFoto = create<ModeloFoto>(() => ({
+export const useProfilePicture = create<ProfilePicture>(() => ({
   id: '',
-  fotoUrl: undefined,
+  pictureUrl: undefined,
 }));
-const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
-  const { etiquetas } = useModeloData((state) => ({
-    etiquetas: state.etiquetas,
+const ModeloPageContent = ({ profile }: ProfilePageContentProps) => {
+  const { tags } = useProfileData((state) => ({
+    tags: state.tags,
   }));
-  const [fotoUrl, setFotoUrl] = useState(modelo?.fotoUrl);
+  const [profilePicUrl, setProfilePictureUrl] = useState(
+    profile?.profilePictureUrl
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   const [video, setVideo] = useState<File | null>(null);
   const [edit, setEdit] = useState(false);
   const utils = trpc.useUtils();
-  const etiquetasFiltradas = useMemo(
+  const filteredTags = useMemo(
     () =>
-      etiquetas.filter(
-        (e) =>
-          e.tipo !== TipoEtiqueta.MODELO && e.tipo !== TipoEtiqueta.TENTATIVA
+      tags.filter(
+        (e) => e.type !== 'PARTICIPANT' && e.type !== 'NOT_IN_SYSTEM'
       ),
-    [etiquetas]
+    [tags]
   );
 
   useEffect(() => {
-    setFotoUrl(modelo.fotoUrl);
-  }, [modelo]);
+    setProfilePictureUrl(profile.profilePictureUrl);
+  }, [profile]);
 
   async function handleDelete() {
     const form = new FormData();
-    form.append('id', modelo.id);
-    form.append('url', fotoUrl ?? '');
+    form.append('id', profile.id);
+    form.append('url', profilePicUrl ?? '');
     await fetch('/api/image', {
       method: 'DELETE',
       body: form,
@@ -78,7 +78,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
       .then(() => {
         toast.success('Foto eliminada con éxito');
         utils.modelo.getById.invalidate();
-        setFotoUrl(null);
+        setProfilePictureUrl(null);
       })
       .catch(() => toast.error('Error al eliminar la foto'));
     setEdit(false);
@@ -91,8 +91,8 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     }
     const form = new FormData();
     form.append('imagen', video);
-    form.append('id', modelo.id);
-    form.append('url', modelo.fotoUrl ?? '');
+    form.append('id', profile.id);
+    form.append('url', profile.profilePictureUrl ?? '');
     toast.loading('Subiendo foto...');
     setEdit(false);
     await fetch('/api/image', {
@@ -114,12 +114,12 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
         toast.error('Error al subir la foto');
         setEdit(false);
         setVideo(null);
-        setFotoUrl(modelo.fotoUrl);
+        setProfilePictureUrl(profile.profilePictureUrl);
       });
   }
 
   function handleCancel() {
-    setFotoUrl(modelo.fotoUrl);
+    setProfilePictureUrl(profile.profilePictureUrl);
     setVideo(null);
     inputRef.current!.value = '';
     setEdit(false);
@@ -129,15 +129,15 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
     <>
       <div className='mt-4 flex flex-col gap-x-4 sm:flex-row'>
         <div className='relative flex w-full flex-col items-center md:w-[200px]'>
-          <ModeloFoto
+          <ProfilePicture
             onClick={() => {
               setEdit(true);
             }}
-            alt={`${modelo?.nombreCompleto}`}
+            alt={`${profile?.fullName}`}
             src={
-              (fotoUrl === modelo.fotoUrl && fotoUrl
-                ? `${fotoUrl}?test=${new Date().getTime()}`
-                : fotoUrl) || '/img/profilePlaceholder.jpg'
+              (profilePicUrl === profile.profilePictureUrl && profilePicUrl
+                ? `${profilePicUrl}?test=${new Date().getTime()}`
+                : profilePicUrl) || '/img/profilePlaceholder.jpg'
             }
           />
           {edit && (
@@ -154,7 +154,9 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       setVideo(file ?? null);
-                      setFotoUrl(!file ? null : URL.createObjectURL(file));
+                      setProfilePictureUrl(
+                        !file ? null : URL.createObjectURL(file)
+                      );
                     }}
                   />
                 </label>
@@ -168,7 +170,7 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
                     </Button>
                   </>
                 )}
-                {!inputRef.current?.value && fotoUrl && (
+                {!inputRef.current?.value && profilePicUrl && (
                   <Button
                     className='aspect-square h-10 w-[calc(33%-4px)] max-w-10 bg-red-600 p-1 hover:bg-red-800 md:h-max md:w-8'
                     onClick={handleDelete}
@@ -191,13 +193,13 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
           <div className='flex flex-col gap-4'>
             <div className='flex flex-wrap items-center gap-x-4'>
               <h2 className='text-xl font-bold md:text-3xl'>
-                {modelo?.nombreCompleto}
+                {profile?.fullName}
                 <span className='ml-2 text-2xl font-bold text-gray-600'>
-                  ID: {modelo?.idLegible}
+                  ID: {profile?.shortId}
                 </span>
               </h2>
               <Link
-                href={`/mensajes/${modelo.telefono}`}
+                href={`/mensajes/${profile.phoneNumber}`}
                 className='rounded-md bg-slate-600 p-2'
                 title='Enviar mensaje por chat'
               >
@@ -206,28 +208,28 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
               <a
                 className='cursor-pointer rounded-md bg-lime-600 p-2'
                 title='Enviar mensaje por WhatsApp'
-                href={`https://wa.me/${modelo.telefono}`}
+                href={`https://wa.me/${profile.phoneNumber}`}
                 target='_blank'
                 rel='noreferrer'
               >
                 <WhatsappIcon className='h-4 w-4 fill-white' />
               </a>
-              {modelo.instagram && (
+              {profile.instagram && (
                 <a
                   className='cursor-pointer rounded-md bg-[#c000b3] p-2'
-                  title={`Instagram de ${modelo.nombreCompleto}`}
-                  href={`https://instagram.com/${modelo.instagram}`}
+                  title={`Instagram de ${profile.fullName}`}
+                  href={`https://instagram.com/${profile.instagram}`}
                   target='_blank'
                   rel='noreferrer'
                 >
                   <InstagramIcon className='h-4 w-4 fill-white' />
                 </a>
               )}
-              {modelo.mail && (
+              {profile.mail && (
                 <a
                   className='cursor-pointer rounded-md bg-[#ea1c1c] p-2'
-                  title={`Mail de ${modelo.nombreCompleto}`}
-                  href={`mailto:${modelo.mail}`}
+                  title={`Mail de ${profile.fullName}`}
+                  href={`mailto:${profile.mail}`}
                   target='_blank'
                   rel='noreferrer'
                 >
@@ -235,55 +237,49 @@ const ModeloPageContent = ({ modelo }: ModeloPageContentProps) => {
                 </a>
               )}
             </div>
-            {modelo.dni && (
+            {profile.dni && (
               <p>
                 <DNIIcon className='mr-2 inline-block h-5 w-5 fill-black' />
-                <span>{modelo.dni}</span>
+                <span>{profile.dni}</span>
               </p>
             )}
-            {modelo.nombresAlternativos.length > 0 && (
+            {profile.alternativeNames.length > 0 && (
               <p className='text-sm text-black/80'>
-                Nombres alternativos: {modelo.nombresAlternativos.join(', ')}
+                Nombres alternativos: {profile.alternativeNames.join(', ')}
               </p>
             )}
             <div className='flex gap-x-4'>
               <p>
                 Edad:{' '}
-                {modelo.fechaNacimiento
-                  ? `${edadFromFechaNacimiento(modelo.fechaNacimiento)} años`
+                {profile.birthDate
+                  ? `${ageFromBirthDate(profile.birthDate)} años`
                   : 'N/A'}
               </p>
-              <p>Género: {modelo?.genero ?? 'N/A'}</p>
-              <ModeloEditModal modelo={modelo} />
+              <p>Género: {profile?.gender ?? 'N/A'}</p>
+              <ModeloEditModal modelo={profile} />
             </div>
           </div>
           <div className='hidden flex-wrap gap-2 md:flex'>
-            <ListaEtiquetasModelo
-              modeloId={modelo.id}
-              etiquetas={etiquetasFiltradas}
-            />
+            <ListaEtiquetasModelo profileId={profile.id} tags={filteredTags} />
           </div>
         </div>
       </div>
       <div className='mt-4 flex flex-wrap gap-2 md:hidden'>
-        <ListaEtiquetasModelo
-          modeloId={modelo.id}
-          etiquetas={etiquetasFiltradas}
-        />
+        <ListaEtiquetasModelo profileId={profile.id} tags={filteredTags} />
       </div>
       <div className='mt-3 flex flex-col gap-x-2 sm:flex-row sm:items-center'>
-        {modelo.esPapelera && (
+        {profile.isInTrash && (
           <span className='order-2 font-bold text-red-500 sm:order-1'>
             La modelo está en la papelera
           </span>
         )}
         <div className='order-1 sm:order-2'>
-          <BotonesPapelera id={modelo.id} esPapelera={modelo.esPapelera} />
+          <BotonesPapelera id={profile.id} esPapelera={profile.isInTrash} />
         </div>
       </div>
       <div className='mt-5'>
         <h2 className='text-xl font-bold md:text-2xl'>Comentarios</h2>
-        <CommentsSection profileId={modelo.id} />
+        <CommentsSection profileId={profile.id} />
       </div>
     </>
   );
