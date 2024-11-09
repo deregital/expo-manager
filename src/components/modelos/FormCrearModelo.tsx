@@ -1,7 +1,7 @@
 import CirclePlus from '@/components/icons/CirclePlus';
 import CircleXIcon from '@/components/icons/CircleX';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
-import { useCrearModeloModal } from '@/components/modelos/CrearModelo';
+import { useCreateProfileModal } from '@/components/modelos/CrearModelo';
 import ComboBox from '@/components/ui/ComboBox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,7 +42,7 @@ const FormCrearModelo = ({
   setVideo,
   video,
 }: FormCrearModeloProps) => {
-  const modalModelo = useCrearModeloModal();
+  const createProfileModal = useCreateProfileModal();
 
   const [openSelect, setOpenSelect] = useState(false);
   const [addTagOpen, setAddTagOpen] = useState(false);
@@ -63,21 +63,21 @@ const FormCrearModelo = ({
   async function handleDeleteTag(
     tag: NonNullable<RouterOutputs['tag']['getById']>
   ) {
-    useCrearModeloModal.setState({
-      modelo: {
-        ...modalModelo.modelo,
-        etiquetas: modalModelo.modelo.etiquetas.filter((e) => e.id !== tag.id),
+    useCreateProfileModal.setState({
+      profile: {
+        ...createProfileModal.profile,
+        tags: createProfileModal.profile.tags.filter((e) => e.id !== tag.id),
       },
     });
   }
 
   async function handleDeleteNombre(index: number) {
-    const newApodos = modalModelo.modelo.apodos;
-    newApodos.splice(index, 1);
-    useCrearModeloModal.setState({
-      modelo: {
-        ...modalModelo.modelo,
-        apodos: newApodos,
+    const newAlternativeNames = createProfileModal.profile.alternativeNames;
+    newAlternativeNames.splice(index, 1);
+    useCreateProfileModal.setState({
+      profile: {
+        ...createProfileModal.profile,
+        alternativeNames: newAlternativeNames,
       },
     });
   }
@@ -86,9 +86,9 @@ const FormCrearModelo = ({
     if (selectedTag === '') return;
     const tag = tagsFromGroup?.find((t) => t.id === selectedTag);
     if (
-      useCrearModeloModal
+      useCreateProfileModal
         .getState()
-        .modelo.etiquetas.find((e) => e.id === tag?.id)
+        .profile.tags.find((e) => e.id === tag?.id)
     ) {
       toast.error('La etiqueta ya fue agregada');
       return;
@@ -98,23 +98,19 @@ const FormCrearModelo = ({
     // Verificar grupo exclusivo o no
     if (
       tag.group.isExclusive &&
-      useCrearModeloModal
+      useCreateProfileModal
         .getState()
-        .modelo.etiquetas.find(
+        .profile.tags.find(
           (e) => e.group.id === tag?.group.id && e.id !== tag?.id
         )
     ) {
       toast.error('No puedes agregar dos etiquetas exclusivas del mismo grupo');
       return;
     }
-    useCrearModeloModal.setState({
-      modelo: {
-        ...modalModelo.modelo,
-        etiquetas: [
-          // TODO: Fix this type casting
-          ...(modalModelo.modelo.etiquetas as any),
-          tag,
-        ],
+    useCreateProfileModal.setState({
+      profile: {
+        ...createProfileModal.profile,
+        tags: [...createProfileModal.profile.tags, tag],
       },
     });
     setSelectedTag('');
@@ -127,18 +123,18 @@ const FormCrearModelo = ({
 
   const { data: statesBySelectedCountry } =
     trpc.location.getStateByCountry.useQuery(
-      modalModelo.modelo.birth.country ?? '',
+      createProfileModal.profile.birthLocation.country ?? '',
       {
-        enabled: !!modalModelo.modelo.birth.country,
+        enabled: !!createProfileModal.profile.birthLocation.country,
       }
     );
 
   const { data: argStates } = trpc.location.getArgStates.useQuery();
 
   const { data: citiesData } = trpc.location.getCitiesByArgState.useQuery(
-    modalModelo.modelo.residence?.state ?? '',
+    createProfileModal.profile.residenceLocation?.state ?? '',
     {
-      enabled: !!modalModelo.modelo.residence?.state,
+      enabled: !!createProfileModal.profile.residenceLocation?.state,
     }
   );
   const [isSolvable, setIsSolvable] = useState(false);
@@ -153,11 +149,11 @@ const FormCrearModelo = ({
     if (!comment || comment === '') return;
     e.currentTarget.reset();
     setIsSolvable(false);
-    useCrearModeloModal.setState({
-      modelo: {
-        ...modalModelo.modelo,
+    useCreateProfileModal.setState({
+      profile: {
+        ...createProfileModal.profile,
         comments: [
-          ...modalModelo.modelo.comments,
+          ...createProfileModal.profile.comments,
           {
             content: comment,
             isSolvable: isSolvableComment,
@@ -168,11 +164,11 @@ const FormCrearModelo = ({
   };
 
   const handleDeleteComment = (index: number) => {
-    const newComments = modalModelo.modelo.comments;
+    const newComments = createProfileModal.profile.comments;
     newComments.splice(index, 1);
-    useCrearModeloModal.setState({
-      modelo: {
-        ...modalModelo.modelo,
+    useCreateProfileModal.setState({
+      profile: {
+        ...createProfileModal.profile,
         comments: newComments,
       },
     });
@@ -183,12 +179,12 @@ const FormCrearModelo = ({
       <Input
         type='text'
         placeholder='Nombre Completo'
-        value={modalModelo.modelo.nombreCompleto}
+        value={createProfileModal.profile.fullName}
         onChange={(e) =>
-          useCrearModeloModal.setState({
-            modelo: {
-              ...modalModelo.modelo,
-              nombreCompleto: e.target.value,
+          useCreateProfileModal.setState({
+            profile: {
+              ...createProfileModal.profile,
+              fullName: e.target.value,
             },
           })
         }
@@ -198,12 +194,12 @@ const FormCrearModelo = ({
       <Input
         type='text'
         placeholder='Teléfono'
-        value={modalModelo.modelo.telefono}
+        value={createProfileModal.profile.phoneNumber}
         onChange={(e) =>
-          useCrearModeloModal.setState({
-            modelo: {
-              ...modalModelo.modelo,
-              telefono: e.target.value.trim(),
+          useCreateProfileModal.setState({
+            profile: {
+              ...createProfileModal.profile,
+              phoneNumber: e.target.value.trim(),
             },
           })
         }
@@ -213,12 +209,12 @@ const FormCrearModelo = ({
       <Input
         type='text'
         placeholder='Teléfono Secundario'
-        value={modalModelo.modelo.telefonoSecundario}
+        value={createProfileModal.profile.secondaryPhoneNumber ?? ''}
         onChange={(e) =>
-          useCrearModeloModal.setState({
-            modelo: {
-              ...modalModelo.modelo,
-              telefonoSecundario: e.target.value.trim(),
+          useCreateProfileModal.setState({
+            profile: {
+              ...createProfileModal.profile,
+              secondaryPhoneNumber: e.target.value.trim(),
             },
           })
         }
@@ -227,10 +223,13 @@ const FormCrearModelo = ({
       <Input
         type='text'
         placeholder='DNI'
-        value={modalModelo.modelo.dni}
+        value={createProfileModal.profile.dni ?? ''}
         onChange={(e) =>
-          useCrearModeloModal.setState({
-            modelo: { ...modalModelo.modelo, dni: e.target.value.trim() },
+          useCreateProfileModal.setState({
+            profile: {
+              ...createProfileModal.profile,
+              dni: e.target.value.trim(),
+            },
           })
         }
       />
@@ -240,17 +239,17 @@ const FormCrearModelo = ({
         placeholder='Fecha de nacimiento'
         className='py-4'
         value={
-          modalModelo.modelo.fechaNacimiento
-            ? isNaN(modalModelo.modelo.fechaNacimiento?.getTime())
+          createProfileModal.profile.birthDate
+            ? isNaN(createProfileModal.profile.birthDate?.getTime())
               ? ''
-              : modalModelo.modelo.fechaNacimiento.toISOString().split('T')[0]
+              : createProfileModal.profile.birthDate.toISOString().split('T')[0]
             : ''
         }
         onChange={(e) =>
-          useCrearModeloModal.setState({
-            modelo: {
-              ...modalModelo.modelo,
-              fechaNacimiento: new Date(e.currentTarget.value),
+          useCreateProfileModal.setState({
+            profile: {
+              ...createProfileModal.profile,
+              birthDate: new Date(e.currentTarget.value),
             },
           })
         }
@@ -261,14 +260,14 @@ const FormCrearModelo = ({
           open={openSelect}
           onOpenChange={setOpenSelect}
           onValueChange={(value) => {
-            useCrearModeloModal.setState({
-              modelo: {
-                ...modalModelo.modelo,
-                genero: value as string,
+            useCreateProfileModal.setState({
+              profile: {
+                ...createProfileModal.profile,
+                gender: value,
               },
             });
           }}
-          defaultValue={modalModelo.modelo.genero ?? 'N/A'}
+          defaultValue={createProfileModal.profile.gender ?? 'N/A'}
         >
           <SelectTrigger>
             <SelectValue placeholder='Genero' />
@@ -285,10 +284,13 @@ const FormCrearModelo = ({
       <Input
         type='text'
         placeholder='Mail'
-        value={modalModelo.modelo.mail}
+        value={createProfileModal.profile.mail ?? ''}
         onChange={(e) =>
-          useCrearModeloModal.setState({
-            modelo: { ...modalModelo.modelo, mail: e.target.value.trim() },
+          useCreateProfileModal.setState({
+            profile: {
+              ...createProfileModal.profile,
+              mail: e.target.value.trim(),
+            },
           })
         }
       />
@@ -298,11 +300,11 @@ const FormCrearModelo = ({
         <Input
           type='text'
           placeholder='Instagram'
-          value={modalModelo.modelo.instagram}
+          value={createProfileModal.profile.instagram ?? ''}
           onChange={(e) =>
-            useCrearModeloModal.setState({
-              modelo: {
-                ...modalModelo.modelo,
+            useCreateProfileModal.setState({
+              profile: {
+                ...createProfileModal.profile,
                 instagram: e.target.value.trim(),
               },
             })
@@ -332,7 +334,7 @@ const FormCrearModelo = ({
       </div>
       <Label className='pt-2 text-sm'>Etiquetas:</Label>
       <div className='flex flex-wrap items-center gap-2'>
-        {modalModelo.modelo.etiquetas?.map((tag) => {
+        {createProfileModal.profile.tags?.map((tag) => {
           if (!tag) return;
           return (
             <Badge
@@ -421,44 +423,50 @@ const FormCrearModelo = ({
       )}
       <Label className='pt-2 text-sm'>Nombres alternativos:</Label>
       <div className='flex w-full flex-col items-start gap-y-1'>
-        {modalModelo.modelo.apodos?.map((apodo, index) => {
-          return (
-            <div
-              key={index}
-              className='flex w-full items-center justify-between gap-x-3'
-            >
-              <Input
-                type='text'
-                placeholder='Nombre'
-                value={apodo}
+        {createProfileModal.profile.alternativeNames?.map(
+          (alternativeName, index) => {
+            return (
+              <div
                 key={index}
-                onChange={(e) => {
-                  const newApodos = modalModelo.modelo.apodos;
-                  newApodos[index] = e.target.value;
-                  useCrearModeloModal.setState({
-                    modelo: {
-                      ...modalModelo.modelo,
-                      apodos: newApodos,
-                    },
-                  });
-                }}
-              />
-              <TrashIcon
-                onClick={() => handleDeleteNombre(index)}
-                className='h-6 w-6 cursor-pointer'
-                width={16}
-                height={16}
-              />
-            </div>
-          );
-        })}
+                className='flex w-full items-center justify-between gap-x-3'
+              >
+                <Input
+                  type='text'
+                  placeholder='Nombre'
+                  value={alternativeName}
+                  key={index}
+                  onChange={(e) => {
+                    const newAlternativeNames =
+                      createProfileModal.profile.alternativeNames;
+                    newAlternativeNames[index] = e.target.value;
+                    useCreateProfileModal.setState({
+                      profile: {
+                        ...createProfileModal.profile,
+                        alternativeNames: newAlternativeNames,
+                      },
+                    });
+                  }}
+                />
+                <TrashIcon
+                  onClick={() => handleDeleteNombre(index)}
+                  className='h-6 w-6 cursor-pointer'
+                  width={16}
+                  height={16}
+                />
+              </div>
+            );
+          }
+        )}
         <CirclePlus
           className='h-5 w-5 cursor-pointer'
           onClick={() => {
-            useCrearModeloModal.setState({
-              modelo: {
-                ...modalModelo.modelo,
-                apodos: [...modalModelo.modelo.apodos, ''],
+            useCreateProfileModal.setState({
+              profile: {
+                ...createProfileModal.profile,
+                alternativeNames: [
+                  ...createProfileModal.profile.alternativeNames,
+                  '',
+                ],
               },
             });
           }}
@@ -468,11 +476,11 @@ const FormCrearModelo = ({
         <Label className='pt-2 text-sm'>Nacionalidad:</Label>
         <Select
           onValueChange={(value) => {
-            useCrearModeloModal.setState({
-              modelo: {
-                ...modalModelo.modelo,
-                birth: {
-                  ...modalModelo.modelo.birth,
+            useCreateProfileModal.setState({
+              profile: {
+                ...createProfileModal.profile,
+                birthLocation: {
+                  ...createProfileModal.profile.birthLocation,
                   country: value,
                 },
               },
@@ -491,18 +499,18 @@ const FormCrearModelo = ({
           </SelectContent>
         </Select>
         <Select
-          disabled={!modalModelo.modelo.birth.country}
+          disabled={!createProfileModal.profile.birthLocation.country}
           onValueChange={(value) => {
             const state = JSON.parse(value) as {
               latitude: number;
               longitude: number;
               name: string;
             };
-            useCrearModeloModal.setState({
-              modelo: {
-                ...modalModelo.modelo,
-                birth: {
-                  ...modalModelo.modelo.birth,
+            useCreateProfileModal.setState({
+              profile: {
+                ...createProfileModal.profile,
+                birthLocation: {
+                  ...createProfileModal.profile.birthLocation,
                   latitude: state.latitude,
                   longitude: state.longitude,
                   state: state.name,
@@ -534,11 +542,11 @@ const FormCrearModelo = ({
         <Label className='pt-2 text-sm'>Lugar de residencia (Argentina):</Label>
         <Select
           onValueChange={(value) => {
-            useCrearModeloModal.setState({
-              modelo: {
-                ...modalModelo.modelo,
-                residence: {
-                  ...modalModelo.modelo.residence,
+            useCreateProfileModal.setState({
+              profile: {
+                ...createProfileModal.profile,
+                residenceLocation: {
+                  ...createProfileModal.profile.residenceLocation,
                   state: value,
                 },
               },
@@ -557,7 +565,7 @@ const FormCrearModelo = ({
           </SelectContent>
         </Select>
         <Select
-          disabled={!modalModelo.modelo.residence?.state}
+          disabled={!createProfileModal.profile.residenceLocation?.state}
           onValueChange={(value) => {
             const city = JSON.parse(value) as {
               latitude: number;
@@ -565,11 +573,11 @@ const FormCrearModelo = ({
               name: string;
             };
 
-            useCrearModeloModal.setState({
-              modelo: {
-                ...modalModelo.modelo,
-                residence: {
-                  ...modalModelo.modelo.residence,
+            useCreateProfileModal.setState({
+              profile: {
+                ...createProfileModal.profile,
+                residenceLocation: {
+                  ...createProfileModal.profile.residenceLocation,
                   city: city.name,
                   latitude: city.latitude,
                   longitude: city.longitude,
@@ -607,7 +615,7 @@ const FormCrearModelo = ({
         />
         <Label className='pt-2 text-xs'>Comentarios agregados:</Label>
         <div className='flex flex-col gap-y-2'>
-          {modalModelo.modelo.comments?.map((comment, index) => {
+          {createProfileModal.profile.comments?.map((comment, index) => {
             return (
               <div
                 key={index}

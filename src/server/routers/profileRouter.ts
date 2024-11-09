@@ -1,6 +1,3 @@
-import { getHighestIdLegible } from '@/lib/server';
-import { normalize } from '@/lib/utils';
-import { modeloSchemaCrearOEditar } from '@/server/schemas/modelo';
 import {
   handleError,
   protectedProcedure,
@@ -9,10 +6,13 @@ import {
 } from '@/server/trpc';
 import { Prisma, TipoEtiqueta } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
-import levenshtein from 'string-comparison';
 import { z } from 'zod';
-import { ModelosSimilarity } from '../types/modelos';
-import { profileSchema, tagGroupSchema, tagSchema } from 'expo-backend-types';
+import {
+  createProfileSchema,
+  profileSchema,
+  tagGroupSchema,
+  tagSchema,
+} from 'expo-backend-types';
 
 export const modeloRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -73,209 +73,24 @@ export const modeloRouter = router({
 
       return data?.profiles ?? [];
     }),
-  create: publicProcedure
-    .input(
-      modeloSchemaCrearOEditar.pick({
-        nombreCompleto: true,
-        telefono: true,
-      })
-    )
+  create: protectedProcedure
+    .input(createProfileSchema)
     .mutation(async ({ input, ctx }) => {
-      const idLegibleMasAlto = await getHighestIdLegible(ctx.prisma);
-      return await ctx.prisma.perfil.create({
-        data: {
-          ...input,
-          idLegible: idLegibleMasAlto + 1,
-        },
-      });
-    }),
-  createManual: publicProcedure
-    .input(
-      z.object({
-        modelo: modeloSchemaCrearOEditar,
-        similarity: z.boolean(),
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      const modeloEtiqueta = await ctx.prisma.etiqueta.findFirst({
-        where: {
-          tipo: TipoEtiqueta.MODELO,
-        },
-      });
+      const birthDate = input.profile.birthDate?.toISOString() ?? null;
 
-      if (!modeloEtiqueta) {
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'No se encontró la etiqueta de modelo',
-        });
-      }
-
-      const telefono = input.modelo.telefono.startsWith('549')
-        ? input.modelo.telefono
-        : `549${input.modelo.telefono}`;
-
-      const telefonoSecundario = input.modelo.telefonoSecundario
-        ? input.modelo.telefonoSecundario.startsWith('549')
-          ? input.modelo.telefonoSecundario
-          : `549${input.modelo.telefonoSecundario}`
-        : undefined;
-
-      const perfilConMismoTelefonoDNI = await ctx.prisma.perfil.findMany({
-        where: {
-          OR: [
-            {
-              telefono: telefono,
-            },
-            {
-              telefono: telefonoSecundario ?? undefined,
-            },
-            {
-              telefonoSecundario: telefonoSecundario ?? undefined,
-            },
-            {
-              telefonoSecundario: telefono ?? undefined,
-            },
-            {
-              dni: input.modelo.dni ?? undefined,
-            },
-          ],
-        },
-      });
-      if (perfilConMismoTelefonoDNI && perfilConMismoTelefonoDNI.length > 0) {
-        throw new TRPCError({
-          code: 'CONFLICT',
-          message: `Ya existe un perfil con el mismo teléfono o DNI`,
-        });
-      }
-
-      const perfilConMismoTelefonoSecundario = input.modelo.telefonoSecundario
-        ? await ctx.prisma.perfil.findMany({
-            where: {
-              telefonoSecundario: input.modelo.telefonoSecundario,
-            },
-          })
-        : undefined;
-
-      if (
-        perfilConMismoTelefonoSecundario &&
-        perfilConMismoTelefonoSecundario.length > 0
-      ) {
-        throw new TRPCError({
-          code: 'CONFLICT',
-          message: `Ya existe un perfil con el mismo teléfono secundario`,
-        });
-      }
-
-      const modelos = await ctx.prisma.perfil.findMany({
-        where: {},
-        select: {
-          id: true,
-          nombreCompleto: true,
-          telefono: true,
-        },
-      });
-      const similarityModelos: ModelosSimilarity = [];
-      if (!input.similarity) {
-        modelos.forEach(async (modelo) => {
-          if (modelo.telefono === input.modelo.telefono) {
-            throw new TRPCError({
-              code: 'CONFLICT',
-              message: 'Ya existe un registro con ese teléfono',
-            });
-          }
-          const similarityTelefono = levenshtein.levenshtein.similarity(
-            modelo.telefono,
-            input.modelo.telefono
-          );
-          const similarityNombre = levenshtein.levenshtein.similarity(
-            normalize(modelo.nombreCompleto).toLowerCase(),
-            normalize(input.modelo.nombreCompleto).toLocaleLowerCase()
-          );
-          if (similarityTelefono >= 0.75 || similarityNombre >= 0.75) {
-            similarityModelos.push({
-              similarityTelefono: similarityTelefono,
-              similarityNombre: similarityNombre,
-              modelo: {
-                ...modelo,
-              },
-            });
-          }
-        });
-        if (similarityModelos.length > 0) {
-          return similarityModelos;
-        }
-      }
-
-      const idLegibleMasAlto = await getHighestIdLegible(ctx.prisma);
-
-      const connectResidencia =
-        input.modelo.residenciaLatitud !== undefined &&
-        input.modelo.residenciaLongitud !== undefined;
-
-      return await ctx.prisma.perfil.create({
-        data: {
-          idLegible: idLegibleMasAlto + 1,
-          nombreCompleto: input.modelo.nombreCompleto,
-          nombrePila: input.modelo.nombreCompleto.split(' ')[0],
-          telefono: telefono,
-          telefonoSecundario: telefonoSecundario,
-          genero:
-            input.modelo.genero !== 'N/A' ? input.modelo.genero : undefined,
-          fechaNacimiento: input.modelo.fechaNacimiento
-            ? new Date(input.modelo.fechaNacimiento)
-            : undefined,
-          fotoUrl: input.modelo.fotoUrl ? input.modelo.fotoUrl : undefined,
-          etiquetas: {
-            connect: [modeloEtiqueta.id, ...(input.modelo.etiquetas ?? [])].map(
-              (etiqueta) => {
-                return {
-                  id: etiqueta,
-                };
-              }
-            ),
-          },
-          nombresAlternativos: input.modelo.apodos
-            ? input.modelo.apodos
-            : undefined,
-          dni: input.modelo.dni ? input.modelo.dni : undefined,
-          mail: input.modelo.mail ? input.modelo.mail : undefined,
-          instagram: input.modelo.instagram
-            ? input.modelo.instagram
-            : undefined,
-          paisNacimiento: input.modelo.paisNacimiento,
-          provinciaNacimiento: input.modelo.provinciaNacimiento,
-          residencia: {
-            connectOrCreate: connectResidencia
-              ? {
-                  where: {
-                    latitud_longitud: {
-                      latitud: input.modelo.residenciaLatitud ?? 0,
-                      longitud: input.modelo.residenciaLongitud ?? 0,
-                    },
-                  },
-                  create: {
-                    latitud: input.modelo.residenciaLatitud ?? 0,
-                    longitud: input.modelo.residenciaLongitud ?? 0,
-                    localidad: input.modelo.localidadResidencia ?? '',
-                    provincia: input.modelo.provinciaResidencia ?? '',
-                  },
-                }
-              : undefined,
-          },
-          comentarios: {
-            createMany: {
-              data: [...(input.modelo.comentarios ?? [])].map((comentario) => ({
-                contenido: comentario.contenido,
-                isSolvable: comentario.isSolvable,
-                creadoPor: ctx.session!.user!.id,
-              })),
-            },
+      const { data, error } = await ctx.fetch.POST('/profile/create', {
+        body: {
+          checkForSimilarity: input.checkForSimilarity,
+          profile: {
+            ...input.profile,
+            birthDate,
           },
         },
-        select: {
-          id: true,
-        },
       });
+
+      if (error) handleError(error);
+
+      return data!.response;
     }),
   delete: publicProcedure
     .input(z.string().uuid())

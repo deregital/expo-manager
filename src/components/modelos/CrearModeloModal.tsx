@@ -7,16 +7,16 @@ import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent } from '../ui/dialog';
 import Loader from '../ui/loader';
-import { useCrearModeloModal } from './CrearModelo';
+import { useCreateProfileModal } from './CrearModelo';
 import { useEffect, useRef, useState } from 'react';
 import ModelosSimilares from '@/components/modelos/ModelosSimilares';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 const CrearModeloModal = ({ open }: { open: boolean }) => {
-  const modalModelo = useCrearModeloModal();
+  const modalProfile = useCreateProfileModal();
   const utils = trpc.useUtils();
   const router = useRouter();
-  const createModelo = trpc.modelo.createManual.useMutation({
+  const createProfile = trpc.modelo.create.useMutation({
     onError: (error) => {
       if (
         error?.data?.zodError?.fieldErrors &&
@@ -39,7 +39,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const searchParams = new URLSearchParams(useSearchParams());
-  const [eventoId, setEventoId] = useState<string | null>(
+  const [eventId, setEventoId] = useState<string | null>(
     searchParams.get('evento') ?? null
   );
   const pathname = usePathname();
@@ -53,10 +53,10 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   );
   const { data: etiquetaEvento } = trpc.evento.getById.useQuery(
     {
-      id: eventoId ?? '',
+      id: eventId ?? '',
     },
     {
-      enabled: !!eventoId,
+      enabled: !!eventId,
     }
   );
   const { data: etiquetaAsistio } = trpc.tag.getById.useQuery(
@@ -73,52 +73,43 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   }, [searchParams.get('evento')]);
 
   async function handleSave() {
-    const etiquetaInEvento = modalModelo.modelo.etiquetas.find(
-      (e) => e.id === eventoId
+    const etiquetaInEvento = modalProfile.profile.tags.find(
+      (e) => e.id === eventId
     );
 
     const agregarEtiquetaEvento =
-      !etiquetaInEvento && eventoId && eventoId !== '';
+      !etiquetaInEvento && eventId && eventId !== '';
     const etiquetasInsertar = agregarEtiquetaEvento
-      ? [...modalModelo.modelo.etiquetas, etiquetaAsistio!]
-      : modalModelo.modelo.etiquetas;
+      ? [...modalProfile.profile.tags, etiquetaAsistio!]
+      : modalProfile.profile.tags;
 
-    const telefonoParseado = modalModelo.modelo.telefono.startsWith('549')
-      ? modalModelo.modelo.telefono
-      : `549${modalModelo.modelo.telefono}`;
-
-    const telefonosecParseado = modalModelo.modelo.telefonoSecundario
-      ? modalModelo.modelo.telefonoSecundario.startsWith('549')
-        ? modalModelo.modelo.telefonoSecundario
-        : `549${modalModelo.modelo.telefonoSecundario}`
-      : undefined;
-
-    const res = await createModelo
+    const res = await createProfile
       .mutateAsync({
-        modelo: {
-          nombreCompleto: modalModelo.modelo.nombreCompleto,
-          telefono: telefonoParseado,
-          telefonoSecundario: telefonosecParseado,
-          dni: modalModelo.modelo.dni ?? undefined,
-          mail: modalModelo.modelo.mail ?? undefined,
-          fechaNacimiento: modalModelo.modelo.fechaNacimiento
-            ? modalModelo.modelo.fechaNacimiento.toISOString()
-            : undefined,
-          instagram: modalModelo.modelo.instagram,
-          etiquetas: etiquetasInsertar.map((e) => e.id),
-          apodos: modalModelo.modelo.apodos.filter((e) => e !== ''),
-          paisNacimiento: modalModelo.modelo.birth.country,
-          provinciaNacimiento: modalModelo.modelo.birth.state,
-          provinciaResidencia: modalModelo.modelo.residence?.state,
-          localidadResidencia: modalModelo.modelo.residence?.city,
-          residenciaLatitud: modalModelo.modelo.residence?.latitude,
-          residenciaLongitud: modalModelo.modelo.residence?.longitude,
-          comentarios: modalModelo.modelo.comments.map((c) => ({
-            contenido: c.content,
+        profile: {
+          fullName: modalProfile.profile.fullName,
+          phoneNumber: modalProfile.profile.phoneNumber,
+          secondaryPhoneNumber:
+            modalProfile.profile.secondaryPhoneNumber ?? null,
+          dni: modalProfile.profile.dni ?? null,
+          mail: modalProfile.profile.mail ?? null,
+          birthDate: modalProfile.profile.birthDate
+            ? modalProfile.profile.birthDate.toISOString()
+            : null,
+          gender: modalProfile.profile.gender ?? null,
+          profilePictureUrl: fotoUrl ?? null,
+          instagram: modalProfile.profile.instagram,
+          tags: etiquetasInsertar.map((e) => e.id),
+          alternativeNames: modalProfile.profile.alternativeNames.filter(
+            (e) => e !== ''
+          ),
+          birth: modalProfile.profile.birthLocation,
+          residence: modalProfile.profile.residenceLocation,
+          comments: modalProfile.profile.comments.map((c) => ({
+            content: c.content,
             isSolvable: c.isSolvable,
           })),
         },
-        similarity: similarity,
+        checkForSimilarity: similarity,
       })
       .catch((e) => {
         return;
@@ -138,17 +129,18 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
         }))
       );
     } else {
+      if (res.type === 'similar') return;
       await handleUpload(res.id);
       toast.success('Participante creado correctamente');
       setSimilarity(false);
       utils.modelo.getAll.invalidate();
-      modalModelo.resetModelo();
+      modalProfile.resetModelo();
       searchParams.delete('modal');
-      if (eventoId && eventoId !== '') {
+      if (eventId && eventId !== '') {
         searchParams.delete('evento');
         searchParams.set('persona', 'creada');
         router.push(
-          `eventos/${eventoId}/presentismo?${searchParams.toString()}`
+          `eventos/${eventId}/presentismo?${searchParams.toString()}`
         );
       } else {
         router.push(`${pathname}?${searchParams.toString()}`);
@@ -181,15 +173,15 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   }
 
   async function handleCancel() {
-    modalModelo.resetModelo();
+    modalProfile.resetModelo();
     searchParams.delete('modal');
     setVideo(null);
     setFotoUrl(null);
     setSimilarity(false);
 
-    if (createModelo.isSuccess) return;
-    if (eventoId && eventoId !== '') {
-      router.push(`eventos/${eventoId}/presentismo`);
+    if (createProfile.isSuccess) return;
+    if (eventId && eventId !== '') {
+      router.push(`eventos/${eventId}/presentismo`);
       searchParams.delete('evento');
     } else {
       router.push(`${pathname}?${searchParams.toString()}`);
@@ -251,9 +243,9 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
             <Button
               onClick={handleSave}
               className='flex justify-center gap-x-2'
-              disabled={createModelo.isLoading}
+              disabled={createProfile.isLoading}
             >
-              {createModelo.isLoading ?? <Loader className='h-5 w-5' />}
+              {createProfile.isLoading ?? <Loader className='h-5 w-5' />}
               <p>{similarity ? 'Agregar igualmente' : 'Guardar'}</p>
             </Button>
           </div>

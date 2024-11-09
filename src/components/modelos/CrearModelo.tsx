@@ -5,70 +5,75 @@ import CrearModeloModal from './CrearModeloModal';
 import { create } from 'zustand';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { Comment, Profile } from 'expo-backend-types';
 
-type ModeloModal = {
+type ProfileModal = {
   open: boolean;
-  modelo: {
-    nombreCompleto: string;
-    telefono: string;
-    telefonoSecundario?: string;
-    fechaNacimiento: Date | undefined;
-    genero: string;
-    etiquetas: NonNullable<RouterOutputs['tag']['getById']>[];
-    apodos: string[];
-    dni: string | undefined;
-    mail: string | undefined;
-    instagram: string | undefined;
-    birth: {
-      country: string | undefined;
-      state: string | undefined;
-      longitude: number | undefined;
-      latitude: number | undefined;
+  profile: Omit<
+    Profile,
+    | 'id'
+    | 'shortId'
+    | 'firstName'
+    | 'profilePictureUrl'
+    | 'created_at'
+    | 'updated_at'
+    | 'birthLocationId'
+    | 'residenceLocationId'
+    | 'isInTrash'
+    | 'movedToTrashDate'
+  > & {
+    birthLocation: {
+      city: string;
+      state: string;
+      longitude: number;
+      latitude: number;
+      country: string;
     };
-    residence: {
-      latitude: number | undefined;
-      longitude: number | undefined;
-      state: string | undefined;
-      city: string | undefined;
+    residenceLocation: {
+      city: string;
+      country: string;
+      state: string;
+      longitude: number;
+      latitude: number;
     };
-    comments: {
-      content: string;
-      isSolvable: boolean;
-    }[];
+    tags: NonNullable<RouterOutputs['tag']['getById']>[];
+    comments: Pick<Comment, 'content' | 'isSolvable'>[];
   };
   resetModelo: () => void;
 };
 
-const defaultModelo = {
-  nombreCompleto: '',
-  telefono: '',
-  telefonoSecundario: undefined,
-  fechaNacimiento: undefined,
-  genero: 'N/A',
-  etiquetas: [],
-  apodos: [],
-  dni: undefined,
-  mail: undefined,
-  instagram: undefined,
-  birth: {
-    country: undefined,
-    state: undefined,
-    longitude: undefined,
-    latitude: undefined,
+const defaultProfile = {
+  fullName: '',
+  phoneNumber: '',
+  secondaryPhoneNumber: null,
+  birthDate: null,
+  gender: 'N/A',
+  tags: [] as ProfileModal['profile']['tags'],
+  alternativeNames: [] as ProfileModal['profile']['alternativeNames'],
+  dni: null,
+  mail: null,
+  instagram: null,
+  birthLocation: {
+    country: 'Argentina',
+    city: '',
+    state: '',
+    longitude: 0,
+    latitude: 0,
   },
-  residence: {
-    latitude: undefined,
-    longitude: undefined,
-    state: undefined,
-    city: undefined,
+  residenceLocation: {
+    latitude: 0,
+    longitude: 0,
+    country: '',
+    state: '',
+    city: '',
   },
-  comments: [],
-};
+  comments: [] as ProfileModal['profile']['comments'],
+} satisfies ProfileModal['profile'];
 
-export const useCrearModeloModal = create<ModeloModal>((set) => ({
+export const useCreateProfileModal = create<ProfileModal>((set) => ({
   open: false,
-  modelo: defaultModelo,
-  resetModelo: () => set({ modelo: defaultModelo }),
+  profile: defaultProfile,
+  resetModelo: () => set({ profile: defaultProfile }),
 }));
 
 const CrearModelo = () => {
