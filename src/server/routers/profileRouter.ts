@@ -92,14 +92,20 @@ export const modeloRouter = router({
 
       return data!.response;
     }),
-  delete: publicProcedure
-    .input(z.string().uuid())
+  delete: protectedProcedure
+    .input(profileSchema.shape.id)
     .mutation(async ({ input, ctx }) => {
-      return await ctx.prisma.perfil.delete({
-        where: {
-          id: input,
+      const { error, data } = await ctx.fetch.DELETE(`/profile/{id}`, {
+        params: {
+          path: {
+            id: input,
+          },
         },
       });
+
+      if (error) handleError(error);
+
+      return data;
     }),
   edit: publicProcedure
     .input(
