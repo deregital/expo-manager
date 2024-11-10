@@ -1,4 +1,4 @@
-import ModelosChart from '@/components/dashboard/ModelosChart';
+import ProfilesChart from '@/components/dashboard/ModelosChart';
 import { Card, CardTitle } from '@/components/ui/card';
 import Loader from '@/components/ui/loader';
 import React from 'react';
@@ -21,9 +21,9 @@ const GraficoCard = ({ profiles, isLoading }: GraficoCardProps) => {
         <div className='flex flex-1 items-center justify-center'>
           <Loader />
         </div>
-      ) : Object.values(profiles).some((modelo) => modelo.profiles > 0) ? (
+      ) : Object.values(profiles).some((prof) => prof.profiles > 0) ? (
         <div className='h-full flex-1'>
-          <ModelosChart
+          <ProfilesChart
             data={profiles}
             className='sm:min-h-auto my-auto h-full min-h-[200px] sm:max-h-full'
           />

@@ -39,7 +39,7 @@ const FiltroTabla = () => {
     }
   }
 
-  const defaultEtiquetas = useMemo(
+  const defaultTags = useMemo(
     () =>
       JSON.parse(searchParams.get('etiquetas') ?? '[]') as FiltroType['tags'],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -83,7 +83,7 @@ const FiltroTabla = () => {
     <div className='flex items-center justify-between gap-x-4'>
       <Filter
         defaultFilter={{
-          tags: defaultEtiquetas,
+          tags: defaultTags,
           groups: defaultGroups,
         }}
         showInput

@@ -10,8 +10,8 @@ import CircleXIcon from '../icons/CircleX';
 import { Save, Trash2Icon } from 'lucide-react';
 import CirclePlus from '../icons/CirclePlus';
 import ProfilePicture from '@/components/modelo/ModeloFoto';
-import ModeloEditModal, {
-  edadFromFechaNacimiento as ageFromBirthDate,
+import ProfileEditModal, {
+  ageFromBirthDate as ageFromBirthDate,
 } from '@/components/modelo/ModeloEditModal';
 import Link from 'next/link';
 import ChatFillIcon from '@/components/icons/ChatFillIcon';
@@ -44,7 +44,7 @@ export const useProfilePicture = create<ProfilePicture>(() => ({
   id: '',
   pictureUrl: undefined,
 }));
-const ModeloPageContent = ({ profile }: ProfilePageContentProps) => {
+const ProfilePageContent = ({ profile }: ProfilePageContentProps) => {
   const { tags } = useProfileData((state) => ({
     tags: state.tags,
   }));
@@ -256,7 +256,7 @@ const ModeloPageContent = ({ profile }: ProfilePageContentProps) => {
                   : 'N/A'}
               </p>
               <p>Género: {profile?.gender ?? 'N/A'}</p>
-              <ModeloEditModal modelo={profile} />
+              <ProfileEditModal profile={profile} />
             </div>
           </div>
           <div className='hidden flex-wrap gap-2 md:flex'>
@@ -284,4 +284,4 @@ const ModeloPageContent = ({ profile }: ProfilePageContentProps) => {
     </>
   );
 };
-export default ModeloPageContent;
+export default ProfilePageContent;

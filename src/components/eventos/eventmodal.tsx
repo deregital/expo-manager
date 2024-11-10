@@ -200,9 +200,11 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   useEventoModalData.setState({
                     tipo: 'EDIT',
                     nombre: evento.nombre,
+                    // @ts-expect-error FIX: fecha is not a string
                     fecha: evento.fecha,
                     ubicacion: evento.ubicacion,
                     carpetaId: evento.carpetaId || '',
+                    // @ts-expect-error FIX: fecha is not a string
                     subeventos: evento.subEventos.map((subevento) => ({
                       id: subevento.id,
                       nombre: subevento.nombre,

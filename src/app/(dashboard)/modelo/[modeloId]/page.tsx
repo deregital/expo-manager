@@ -1,5 +1,5 @@
 'use client';
-import ModeloPageContent, {
+import ProfilePageContent, {
   useProfileData,
 } from '@/components/modelo/ModeloPageContent';
 import Loader from '@/components/ui/loader';
@@ -15,8 +15,10 @@ interface ModeloPageProps {
 }
 
 const ModeloPage = ({ params }: ModeloPageProps) => {
-  const { data: modelo, isLoading: isLoadingModelo } =
-    trpc.modelo.getById.useQuery(params.modeloId);
+  const { data: profile, isLoading: isLoadingProfile } =
+    trpc.modelo.getById.useQuery(params.modeloId, {
+      enabled: !!params.modeloId,
+    });
   const {
     data: comments,
     isLoading: isLoadingComments,
@@ -27,18 +29,18 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
 
   useEffect(() => {
     if (isRefetchingComments) return;
-    if (isLoadingModelo || isLoadingComments) return;
+    if (isLoadingProfile || isLoadingComments) return;
 
-    if (!modelo || !comments) return;
+    if (!profile || !comments) return;
 
     useProfileData.setState({
-      id: modelo.id,
-      tags: modelo.tags,
+      id: profile.id,
+      tags: profile.tags,
       comments: comments.comments,
     });
   }, [
-    modelo,
-    isLoadingModelo,
+    profile,
+    isLoadingProfile,
     isLoadingComments,
     comments,
     isRefetchingComments,
@@ -54,12 +56,12 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
           }}
         />
       </div>
-      {isLoadingModelo || isLoadingComments || !modelo || !comments ? (
+      {isLoadingProfile || isLoadingComments || !profile || !comments ? (
         <div className='flex h-full w-full items-center justify-center'>
           <Loader />
         </div>
       ) : (
-        <ModeloPageContent profile={modelo} />
+        <ProfilePageContent profile={profile} />
       )}
     </div>
   );

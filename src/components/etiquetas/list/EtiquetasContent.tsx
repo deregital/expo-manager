@@ -4,6 +4,7 @@ import ModeloIcon from '@/components/icons/ModeloIcon';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import React from 'react';
+import { type Filtro as FiltroType } from '@/lib/filter';
 
 interface EtiquetasContentProps {
   tag: GrupoConMatch['tags'][number];
@@ -18,10 +19,10 @@ const EtiquetasContent = ({ tag, background }: EtiquetasContentProps) => {
       'etiquetas',
       JSON.stringify([
         {
-          etiqueta: { id: tag.id, nombre: tag.name },
+          tag: { id: tag.id, name: tag.name },
           include: true,
         },
-      ])
+      ] satisfies FiltroType['tags'])
     );
     return searchParams.toString();
   }

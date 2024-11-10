@@ -6,7 +6,7 @@ export const locationRouter = router({
     const { data, error } = await ctx.fetch.GET('/location/all');
 
     if (error) {
-      handleError(error);
+      throw handleError(error);
     }
 
     return data;
@@ -26,7 +26,7 @@ export const locationRouter = router({
       );
 
       if (error) {
-        handleError(error);
+        throw handleError(error);
       }
 
       return data?.cities ?? [];
@@ -35,7 +35,7 @@ export const locationRouter = router({
     const { data, error } = await ctx.fetch.GET('/location/arg-states');
 
     if (error) {
-      handleError(error);
+      throw handleError(error);
     }
 
     return data.states;
@@ -44,7 +44,7 @@ export const locationRouter = router({
     const { data, error } = await ctx.fetch.GET('/location/all-countries');
 
     if (error) {
-      handleError(error);
+      throw handleError(error);
     }
 
     return data.countries;
@@ -64,7 +64,7 @@ export const locationRouter = router({
       );
 
       if (error) {
-        handleError(error);
+        throw handleError(error);
       }
 
       return data?.states ?? [];

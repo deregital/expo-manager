@@ -30,7 +30,7 @@ export const modeloRouter = router({
         },
       });
 
-      if (error) handleError(error);
+      if (error) throw handleError(error);
 
       return data;
     }),
@@ -45,7 +45,7 @@ export const modeloRouter = router({
         },
       });
 
-      if (error) handleError(error);
+      if (error) throw handleError(error);
 
       return data?.profiles ?? [];
     }),
@@ -63,7 +63,7 @@ export const modeloRouter = router({
         }
       );
 
-      if (error) handleError(error);
+      if (error) throw handleError(error);
 
       return data?.profiles ?? [];
     }),
@@ -82,7 +82,7 @@ export const modeloRouter = router({
         },
       });
 
-      if (error) handleError(error);
+      if (error) throw handleError(error);
 
       return data!.response;
     }),
@@ -97,7 +97,7 @@ export const modeloRouter = router({
         },
       });
 
-      if (error) handleError(error);
+      if (error) throw handleError(error);
 
       return data;
     }),
@@ -110,6 +110,7 @@ export const modeloRouter = router({
     .mutation(async ({ input, ctx }) => {
       const birthDate = input.birthDate?.toISOString() ?? null;
       const movedToTrashDate = input.movedToTrashDate?.toISOString() ?? null;
+
       const { error, data } = await ctx.fetch.PATCH(`/profile/{id}`, {
         params: {
           path: {
@@ -123,7 +124,7 @@ export const modeloRouter = router({
         },
       });
 
-      if (error) handleError(error);
+      if (error) throw handleError(error);
 
       return data;
     }),
@@ -144,7 +145,7 @@ export const modeloRouter = router({
         }
       );
 
-      if (error) handleError(error);
+      if (error) throw handleError(error);
 
       return data!;
     }),
@@ -162,7 +163,7 @@ export const modeloRouter = router({
         }
       );
 
-      if (error) handleError(error);
+      if (error) throw handleError(error);
 
       return data;
     }),

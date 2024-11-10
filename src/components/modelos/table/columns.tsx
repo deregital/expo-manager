@@ -1,6 +1,6 @@
 'use client';
 
-import { edadFromFechaNacimiento } from '@/components/modelo/ModeloEditModal';
+import { ageFromBirthDate } from '@/components/modelo/ModeloEditModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { getTextColorByBg } from '@/lib/utils';
@@ -70,7 +70,7 @@ export function generateColumns(
       maxSize: 50,
       cell: ({ row }) => {
         if (row.original.birthDate === null) return <></>;
-        const edad = edadFromFechaNacimiento(row.original.birthDate);
+        const edad = ageFromBirthDate(row.original.birthDate);
         return <p className='whitespace-nowrap'>{`${edad} años`}</p>;
       },
     },

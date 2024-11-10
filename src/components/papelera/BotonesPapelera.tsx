@@ -39,13 +39,15 @@ const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
   });
 
   const sendToTrashMutation = trpc.modelo.edit.useMutation({
-    onSuccess: async () => {
+    onSuccess: async (data) => {
+      console.log(data);
+
       await addCommentMutation.mutateAsync({
         profileId: id,
         content: 'Participante enviada a la papelera',
       });
       toast.success('Participante enviada la papelera');
-      utils.modelo.getById.invalidate();
+      utils.modelo.getById.invalidate(id);
       utils.modelo.getProfilesInTrash.invalidate();
       utils.comment.getByProfileId.invalidate(id);
     },
@@ -75,6 +77,7 @@ const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
         toast.info('Este Participante ya fue agregado a la papelera');
         return;
       }
+
       await sendToTrashMutation.mutateAsync({
         id: id,
         isInTrash: true,

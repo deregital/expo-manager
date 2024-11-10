@@ -40,12 +40,12 @@ function filterProfiles(
   search: { tagId?: string; groupId?: string }
 ) {
   if (search.tagId === '' && search.groupId === '') return profiles;
-  const mod = profiles.filter((modelo) => {
+  const mod = profiles.filter((profile) => {
     return (
       (search.tagId === '' ||
-        modelo.tags.some((tag) => tag.id === search.tagId)) &&
+        profile.tags.some((tag) => tag.id === search.tagId)) &&
       (search.groupId === '' ||
-        modelo.tags.some((tag) => tag.groupId === search.groupId))
+        profile.tags.some((tag) => tag.groupId === search.groupId))
     );
   });
   return mod;
@@ -68,7 +68,7 @@ const PageClient = ({}: PageClientProps) => {
   const { data: tagGroupsData, isLoading: tagGroupsLoading } =
     trpc.tagGroup.getAll.useQuery();
   const { data: tagsData, isLoading: tagsLoading } = trpc.tag.getAll.useQuery();
-  const { data: profilesData, isLoading: modelosLoading } =
+  const { data: profilesData, isLoading: isLoadingProfiles } =
     trpc.modelo.getByDateRange.useQuery({
       from: format(from, 'yyyy-MM-dd'),
       to: format(addDays(to, 1), 'yyyy-MM-dd'),
@@ -89,7 +89,7 @@ const PageClient = ({}: PageClientProps) => {
     return tagsData ? tagsData.filter((tag) => tag.groupId === tagGroupId) : [];
   }, [currentGroup, tagsData, tagGroupId]);
 
-  const profilesForGraphic = useMemo(() => {
+  const profilesForChart = useMemo(() => {
     const modReturn: { date: string; profiles: number }[] = [];
     if (!profilesData) return [];
 
@@ -216,11 +216,14 @@ const PageClient = ({}: PageClientProps) => {
         />
       </section>
       <section className='rounded-md grid-in-grafico sm:h-full'>
-        <GraficoCard isLoading={modelosLoading} profiles={profilesForGraphic} />
+        <GraficoCard
+          isLoading={isLoadingProfiles}
+          profiles={profilesForChart}
+        />
       </section>
       <section className='rounded-md grid-in-listaModelos sm:h-full sm:max-h-full'>
         <ModelosList
-          isLoading={modelosLoading}
+          isLoading={isLoadingProfiles}
           profiles={relevantProfiles
             .sort(
               (a, b) =>
@@ -235,7 +238,7 @@ const PageClient = ({}: PageClientProps) => {
           popoverText='Cantidad de participantes que cuentan con la etiqueta seleccionada'
           title='Participantes'
           content={relevantProfiles.length.toString()}
-          isLoading={modelosLoading}
+          isLoading={isLoadingProfiles}
         />
       </section>
       <section className='rounded-md grid-in-cardRetencion sm:self-end sm:pb-2'>
@@ -250,11 +253,11 @@ const PageClient = ({}: PageClientProps) => {
             //     ? `${retencion}%`
             //     : `${retencion.toFixed(2)}%`
           }
-          isLoading={modelosLoading}
+          isLoading={isLoadingProfiles}
         />
       </section>
       <section className='rounded-md pb-2 grid-in-cardMensajes sm:self-end'>
-        <MensajesCard isLoading={modelosLoading} cantMensajes={0} />
+        <MensajesCard isLoading={isLoadingProfiles} cantMensajes={0} />
       </section>
     </>
   );

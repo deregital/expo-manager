@@ -25,19 +25,19 @@ interface BarChartProps {
   className?: string;
 }
 
-export const modelosChartData = create<{
+export const profilesChartData = create<{
   data: { profiles: number; date: string }[];
 }>(() => ({
   data: [],
 }));
 
-const ModelosChart = ({ data, className }: BarChartProps) => {
-  const dataMostrar = useMemo(() => {
+const ProfilesChart = ({ data, className }: BarChartProps) => {
+  const dataToShow = useMemo(() => {
     return data.map((d) => {
-      const [anio, mes, dia] = d.date.split('-');
+      const [year, month, day] = d.date.split('-');
       return {
         ...d,
-        fecha: `${dia}/${mes}/${anio}`,
+        fecha: `${day}/${month}/${year}`,
       };
     });
   }, [data]);
@@ -54,7 +54,7 @@ const ModelosChart = ({ data, className }: BarChartProps) => {
       width={'100%'}
       className={cn(className)}
     >
-      <RechartChart id='modelosChart' data={dataMostrar} className='h-full'>
+      <RechartChart id='modelosChart' data={dataToShow} className='h-full'>
         <XAxis dataKey={'fecha'} />
         <YAxis />
         <Tooltip
@@ -68,7 +68,7 @@ const ModelosChart = ({ data, className }: BarChartProps) => {
           )}
         />
         <Bar
-          dataKey='modelos'
+          dataKey='profiles'
           className='fill-slate-700'
           activeBar={<Rectangle stroke='black' />}
         />
@@ -77,7 +77,7 @@ const ModelosChart = ({ data, className }: BarChartProps) => {
   );
 };
 
-export default ModelosChart;
+export default ProfilesChart;
 
 const CustomTooltip = ({
   active,

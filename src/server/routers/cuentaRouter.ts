@@ -32,6 +32,10 @@ export const cuentaRouter = router({
   getFiltroBase: protectedProcedure.query(async ({ ctx }) => {
     const { data } = await ctx.fetch.GET('/account/global-filter');
 
+    if (!data) {
+      throw new Error('No se ha encontrado el filtro base');
+    }
+
     return data!;
   }),
   getMe: protectedProcedure.query(async ({ ctx }) => {
