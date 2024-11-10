@@ -30,7 +30,7 @@ const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
       });
       toast.success('Participante restaurada de la papelera');
       utils.modelo.getById.invalidate();
-      utils.modelo.getModelosPapelera.invalidate();
+      utils.modelo.getProfilesInTrash.invalidate();
       utils.comment.getByProfileId.invalidate(id);
     },
     onError: () => {
@@ -46,7 +46,7 @@ const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
       });
       toast.success('Participante enviada la papelera');
       utils.modelo.getById.invalidate();
-      utils.modelo.getModelosPapelera.invalidate();
+      utils.modelo.getProfilesInTrash.invalidate();
       utils.comment.getByProfileId.invalidate(id);
     },
     onError: (error) => {
@@ -57,7 +57,7 @@ const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
   const deleteMutation = trpc.modelo.delete.useMutation({
     onSuccess: () => {
       toast.success('Participante eliminado definitivamente');
-      utils.modelo.getModelosPapelera.invalidate();
+      utils.modelo.getProfilesInTrash.invalidate();
       utils.modelo.getById.invalidate();
 
       if (pathname !== '/papelera') {

@@ -166,25 +166,9 @@ export const modeloRouter = router({
 
       return data;
     }),
-  getModelosPapelera: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.perfil.findMany({
-      where: {
-        esPapelera: true,
-        etiquetas: {
-          some: {
-            id: { in: ctx.etiquetasVisibles },
-          },
-        },
-      },
-      select: {
-        id: true,
-        nombreCompleto: true,
-        fotoUrl: true,
-        created_at: true,
-        esPapelera: true,
-        telefono: true,
-        fechaPapelera: true,
-      },
-    });
+  getProfilesInTrash: protectedProcedure.query(async ({ ctx }) => {
+    const { data } = await ctx.fetch.GET('/profile/find-trash');
+
+    return data?.profiles ?? [];
   }),
 });

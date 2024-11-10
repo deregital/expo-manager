@@ -4,15 +4,19 @@ import { RouterOutputs } from '@/server';
 import PapeleraRow from '@/components/papelera/PapeleraRow';
 
 interface PapeleraListProps {
-  modelos: RouterOutputs['modelo']['getModelosPapelera'];
+  profiles: RouterOutputs['modelo']['getProfilesInTrash'];
   isLoading: boolean;
 }
 
-const PapeleraList = ({ modelos, isLoading }: PapeleraListProps) => {
-  const modelosOrdenados = modelos.sort((a, b) => {
-    const fechaA = a.fechaPapelera ? new Date(a.fechaPapelera).getTime() : 0;
-    const fechaB = b.fechaPapelera ? new Date(b.fechaPapelera).getTime() : 0;
-    return fechaB - fechaA;
+const PapeleraList = ({ profiles, isLoading }: PapeleraListProps) => {
+  const sortedProfiles = profiles.sort((a, b) => {
+    const dateA = a.movedToTrashDate
+      ? new Date(a.movedToTrashDate).getTime()
+      : 0;
+    const dateB = b.movedToTrashDate
+      ? new Date(b.movedToTrashDate).getTime()
+      : 0;
+    return dateB - dateA;
   });
 
   return (
@@ -22,14 +26,14 @@ const PapeleraList = ({ modelos, isLoading }: PapeleraListProps) => {
           <Loader />
         </div>
       ) : (
-        modelosOrdenados.length === 0 && (
+        sortedProfiles.length === 0 && (
           <div className='flex h-full w-full items-center justify-center'>
             <p className='text-gray-500'>No hay participantes en la papelera</p>
           </div>
         )
       )}
-      {modelosOrdenados.map((modelo) => (
-        <PapeleraRow key={modelo.id} modelo={modelo} />
+      {sortedProfiles.map((profile) => (
+        <PapeleraRow key={profile.id} profile={profile} />
       ))}
     </div>
   );
