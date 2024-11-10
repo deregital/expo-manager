@@ -7,7 +7,6 @@ import ComboBox from '@/components/ui/ComboBox';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
-import { MessageJson } from '@/server/types/whatsapp';
 import { addDays, format, startOfMonth } from 'date-fns';
 import { XIcon } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
@@ -36,18 +35,17 @@ export const useDashboardData = create<{
   },
 }));
 
-function filterModelos(
-  modelos: RouterOutputs['modelo']['getByDateRange'][string],
+function filterProfiles(
+  profiles: NonNullable<RouterOutputs['modelo']['getByDateRange'][string]>,
   search: { tagId?: string; groupId?: string }
 ) {
-  if (search.tagId === '' && search.groupId === '') return modelos;
-  // @ts-ignore
-  const mod = modelos.filter((modelo) => {
+  if (search.tagId === '' && search.groupId === '') return profiles;
+  const mod = profiles.filter((modelo) => {
     return (
       (search.tagId === '' ||
-        modelo.etiquetas.some((tag) => tag.id === search.tagId)) &&
+        modelo.tags.some((tag) => tag.id === search.tagId)) &&
       (search.groupId === '' ||
-        modelo.etiquetas.some((tag) => tag.grupoId === search.groupId))
+        modelo.tags.some((tag) => tag.groupId === search.groupId))
     );
   });
   return mod;
@@ -70,10 +68,10 @@ const PageClient = ({}: PageClientProps) => {
   const { data: tagGroupsData, isLoading: tagGroupsLoading } =
     trpc.tagGroup.getAll.useQuery();
   const { data: tagsData, isLoading: tagsLoading } = trpc.tag.getAll.useQuery();
-  const { data: modelosData, isLoading: modelosLoading } =
+  const { data: profilesData, isLoading: modelosLoading } =
     trpc.modelo.getByDateRange.useQuery({
-      start: format(from, 'yyyy-MM-dd'),
-      end: format(addDays(to, 1), 'yyyy-MM-dd'),
+      from: format(from, 'yyyy-MM-dd'),
+      to: format(addDays(to, 1), 'yyyy-MM-dd'),
     });
 
   const currentGroup = useMemo(() => {
@@ -91,40 +89,43 @@ const PageClient = ({}: PageClientProps) => {
     return tagsData ? tagsData.filter((tag) => tag.groupId === tagGroupId) : [];
   }, [currentGroup, tagsData, tagGroupId]);
 
-  const modelosParaGrafico = useMemo(() => {
-    const modReturn: { fecha: string; modelos: number }[] = [];
-    if (!modelosData) return [];
+  const profilesForGraphic = useMemo(() => {
+    const modReturn: { date: string; profiles: number }[] = [];
+    if (!profilesData) return [];
 
-    for (const [day, modelos] of Object.entries(modelosData)) {
-      const modelosFiltradas = filterModelos(modelos, {
+    for (const [day, profiles] of Object.entries(profilesData)) {
+      if (!profiles) continue;
+      const filteredProfiles = filterProfiles(profiles, {
         tagId,
         groupId: tagGroupId,
       });
 
-      modReturn.push({ modelos: modelosFiltradas.length, fecha: day });
+      modReturn.push({ profiles: filteredProfiles.length, date: day });
     }
     return modReturn;
-  }, [modelosData, tagId, tagGroupId]);
+  }, [profilesData, tagId, tagGroupId]);
 
-  const modelosQueCuentan = useMemo(() => {
-    if (!modelosData) return [];
-    const mod = Object.values(modelosData ?? {}).flatMap((m) => m);
+  const relevantProfiles = useMemo(() => {
+    if (!profilesData) return [];
+    const profs = Object.values(profilesData).flatMap((m) => {
+      return m ?? [];
+    });
+    if (!profs) return [];
     if (!tagId && !tagGroupId) {
-      return mod;
+      return profs;
     }
-    return filterModelos(mod, { tagId, groupId: tagGroupId });
-  }, [modelosData, tagId, tagGroupId]);
+    return filterProfiles(profs, { tagId, groupId: tagGroupId });
+  }, [profilesData, tagId, tagGroupId]);
 
-  const retencion = useMemo(() => {
-    return (
-      (modelosQueCuentan.filter((modelo) =>
-        // @ts-ignore
-        modelo.mensajes.filter((m) => 'from' in (m.message as MessageJson))
-      ).length /
-        modelosQueCuentan.length) *
-      100
-    );
-  }, [modelosQueCuentan]);
+  // const retencion = useMemo(() => {
+  //   return (
+  //     (relevantProfiles.filter((modelo) =>
+  //       modelo.messages.filter((m) => 'from' in (m.message as MessageJson))
+  //     ).length /
+  //       relevantProfiles.length) *
+  //     100
+  //   );
+  // }, [relevantProfiles]);
 
   return (
     <>
@@ -215,12 +216,12 @@ const PageClient = ({}: PageClientProps) => {
         />
       </section>
       <section className='rounded-md grid-in-grafico sm:h-full'>
-        <GraficoCard isLoading={modelosLoading} modelos={modelosParaGrafico} />
+        <GraficoCard isLoading={modelosLoading} profiles={profilesForGraphic} />
       </section>
       <section className='rounded-md grid-in-listaModelos sm:h-full sm:max-h-full'>
         <ModelosList
           isLoading={modelosLoading}
-          modelos={modelosQueCuentan
+          profiles={relevantProfiles
             .sort(
               (a, b) =>
                 new Date(b.created_at).getTime() -
@@ -233,7 +234,7 @@ const PageClient = ({}: PageClientProps) => {
         <SharedCard
           popoverText='Cantidad de participantes que cuentan con la etiqueta seleccionada'
           title='Participantes'
-          content={modelosQueCuentan.length.toString()}
+          content={relevantProfiles.length.toString()}
           isLoading={modelosLoading}
         />
       </section>
@@ -242,11 +243,12 @@ const PageClient = ({}: PageClientProps) => {
           popoverText='Porcentaje de participantes que aceptaron ser contactados'
           title='Retención de participantes'
           content={
-            isNaN(retencion)
-              ? '0%'
-              : retencion % 1 === 0
-                ? `${retencion}%`
-                : `${retencion.toFixed(2)}%`
+            '0%'
+            // isNaN(retencion)
+            //   ? '0%'
+            //   : retencion % 1 === 0
+            //     ? `${retencion}%`
+            //     : `${retencion.toFixed(2)}%`
           }
           isLoading={modelosLoading}
         />

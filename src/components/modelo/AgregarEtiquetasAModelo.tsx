@@ -40,7 +40,6 @@ const AgregarEtiquetasAModelo = ({
       .then(() => {
         toast.success('Etiqueta agregada con éxito');
         utils.modelo.getById.invalidate(profileId);
-        utils.modelo.getByFiltro.invalidate();
       })
       .catch(() => {
         useProfileData.setState({

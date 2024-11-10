@@ -19,14 +19,14 @@ import { create } from 'zustand';
 
 interface BarChartProps {
   data: {
-    fecha: string;
-    modelos: number;
+    date: string;
+    profiles: number;
   }[];
   className?: string;
 }
 
 export const modelosChartData = create<{
-  data: { modelos: number; fecha: string }[];
+  data: { profiles: number; date: string }[];
 }>(() => ({
   data: [],
 }));
@@ -34,7 +34,7 @@ export const modelosChartData = create<{
 const ModelosChart = ({ data, className }: BarChartProps) => {
   const dataMostrar = useMemo(() => {
     return data.map((d) => {
-      const [anio, mes, dia] = d.fecha.split('-');
+      const [anio, mes, dia] = d.date.split('-');
       return {
         ...d,
         fecha: `${dia}/${mes}/${anio}`,

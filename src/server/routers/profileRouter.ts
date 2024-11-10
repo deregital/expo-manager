@@ -1,5 +1,4 @@
 import { handleError, protectedProcedure, router } from '@/server/trpc';
-import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import {
   createProfileSchema,
@@ -128,114 +127,26 @@ export const modeloRouter = router({
 
       return data;
     }),
-  getByFiltro: protectedProcedure
-    .input(
-      z.object({
-        nombre: z.string().optional(),
-        grupoId: z.string().uuid().optional(),
-        etiquetaId: z.string().uuid().optional(),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      return await ctx.prisma.perfil.findMany({
-        where: {
-          esPapelera: false,
-          AND: [
-            {
-              nombreCompleto: {
-                contains: input.nombre,
-                mode: 'insensitive',
-              },
-            },
-            {
-              etiquetas: {
-                some: {
-                  id: input.etiquetaId,
-                },
-              },
-            },
-            {
-              etiquetas: {
-                some: {
-                  id: { in: ctx.etiquetasVisibles },
-                  grupo: {
-                    id: input.grupoId,
-                  },
-                },
-              },
-            },
-          ],
-        },
-        include: {
-          etiquetas: {
-            include: {
-              grupo: {
-                select: {
-                  color: true,
-                },
-              },
-            },
-          },
-        },
-      });
-    }),
   getByDateRange: protectedProcedure
     .input(
       z.object({
-        start: z.string().optional(),
-        end: z.string().optional(),
-        etiquetaId: z.string().optional(),
+        from: z.string(),
+        to: z.string(),
       })
     )
-    .output(z.custom<ReturnType<typeof modelosAgrupadas>>())
     .query(async ({ input, ctx }) => {
-      const startDateTime = input.start ? new Date(input.start) : undefined;
-      const endDateTime = input.end ? new Date(input.end) : undefined;
-
-      const modelos = await ctx.prisma.perfil.findMany({
-        where: {
-          esPapelera: false,
-          created_at: {
-            gte: startDateTime,
-            lte: endDateTime,
+      const { error, data } = await ctx.fetch.GET(
+        '/profile/find-by-date-range',
+        {
+          params: {
+            query: input,
           },
-          AND: [
-            {
-              etiquetas: {
-                some: {
-                  id: input.etiquetaId,
-                },
-              },
-            },
-            {
-              etiquetas: {
-                some: {
-                  id: { in: ctx.etiquetasVisibles },
-                },
-              },
-            },
-          ],
-        },
-        orderBy: {
-          created_at: 'asc',
-        },
-        include: {
-          mensajes: true,
-          etiquetas: {
-            include: {
-              grupo: {
-                select: {
-                  id: true,
-                },
-              },
-            },
-          },
-        },
-      });
+        }
+      );
 
-      const groupedModelos = modelosAgrupadas(modelos);
+      if (error) handleError(error);
 
-      return groupedModelos;
+      return data!;
     }),
   getByTelefono: protectedProcedure
     .input(z.string())
@@ -274,32 +185,3 @@ export const modeloRouter = router({
     });
   }),
 });
-
-function modelosAgrupadas(
-  modelos: Prisma.PerfilGetPayload<{
-    include: {
-      mensajes: true;
-      etiquetas: {
-        include: {
-          grupo: {
-            select: {
-              id: true;
-            };
-          };
-        };
-      };
-    };
-  }>[]
-) {
-  return modelos.reduce(
-    (acc, modelo) => {
-      const date = modelo.created_at.toISOString().split('T')[0];
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-      acc[date].push(modelo);
-      return acc;
-    },
-    {} as Record<string, typeof modelos>
-  );
-}
