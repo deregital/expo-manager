@@ -36,7 +36,7 @@ const ChatPage = ({}: ChatPageProps) => {
   return (
     <div className='relative w-full bg-[url(/img/whatsapp_background.png)]'>
       <div className='flex h-full flex-col'>
-        <ChatTopbar inChat={data?.inChat ?? false} telefono={telefono} />
+        <ChatTopbar inChat={data?.inChat ?? false} phoneNumber={telefono} />
         <div className='h-full overflow-y-auto'>
           {data?.mensajes != null && (
             <MensajesList telefono={telefono} mensajes={data?.mensajes ?? []} />

@@ -148,20 +148,23 @@ export const modeloRouter = router({
 
       return data!;
     }),
-  getByTelefono: protectedProcedure
-    .input(z.string())
+  getByPhoneNumber: protectedProcedure
+    .input(profileSchema.shape.phoneNumber)
     .query(async ({ input, ctx }) => {
-      return await ctx.prisma.perfil.findUnique({
-        where: {
-          esPapelera: false,
-          telefono: input,
-          etiquetas: {
-            some: {
-              id: { in: ctx.etiquetasVisibles },
+      const { data, error } = await ctx.fetch.GET(
+        '/profile/find-by-phone-number/{phoneNumber}',
+        {
+          params: {
+            path: {
+              phoneNumber: input,
             },
           },
-        },
-      });
+        }
+      );
+
+      if (error) handleError(error);
+
+      return data;
     }),
   getModelosPapelera: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.prisma.perfil.findMany({
