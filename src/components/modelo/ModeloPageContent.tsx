@@ -19,7 +19,7 @@ import WhatsappIcon from '@/components/icons/WhatsappIcon';
 import InstagramIcon from '@/components/icons/InstagramIcon';
 import MailIcon from '@/components/icons/MailIcon';
 import DNIIcon from '@/components/icons/DNIIcon';
-import BotonesPapelera from '@/components/papelera/BotonesPapelera';
+import TrashCanButtons from '@/components/papelera/BotonesPapelera';
 import { GetByProfileCommentResponseDto } from 'expo-backend-types';
 import { TagWithGroupColor } from '@/server/types/etiquetas';
 
@@ -274,7 +274,7 @@ const ModeloPageContent = ({ profile }: ProfilePageContentProps) => {
           </span>
         )}
         <div className='order-1 sm:order-2'>
-          <BotonesPapelera id={profile.id} esPapelera={profile.isInTrash} />
+          <TrashCanButtons id={profile.id} isInTrash={profile.isInTrash} />
         </div>
       </div>
       <div className='mt-5'>

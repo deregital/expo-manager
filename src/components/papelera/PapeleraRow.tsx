@@ -1,4 +1,4 @@
-import BotonesPapelera from '@/components/papelera/BotonesPapelera';
+import TrashCanButtons from '@/components/papelera/BotonesPapelera';
 import FotoModelo from '@/components/ui/FotoModelo';
 import { RouterOutputs } from '@/server';
 import { format } from 'date-fns';
@@ -29,7 +29,7 @@ const PapeleraRow = ({ modelo }: PapeleraRowProps) => {
             </span>
           )}
         </div>
-        <BotonesPapelera id={modelo.id} esPapelera={true} />
+        <TrashCanButtons id={modelo.id} isInTrash={true} />
       </div>
     </Link>
   );

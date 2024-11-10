@@ -29,14 +29,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
   const searchParams = new URLSearchParams(useSearchParams());
   const editModelo = trpc.modelo.edit.useMutation();
 
-  const { data: assistanceTag } = trpc.tag.getById.useQuery(
-    modalPresentismo.evento?.etiquetaAsistioId ?? '',
-    {
-      enabled: !!modalPresentismo.evento,
-    }
-  );
-
-  const modelosData = useMemo(() => {
+  const profilesData = useMemo(() => {
     if (!profiles) return [];
     return profiles
       .filter((profile) =>
@@ -62,39 +55,24 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
       toast.error('No se ha encontrado el evento');
     }
 
-    const modelo = profiles?.find(
+    const profile = profiles?.find(
       (modelo) => modelo.id === modalPresentismo.modeloId
     );
 
-    if (!modelo) {
+    if (!profile) {
       toast.error('No se ha encontrado el participante');
       return;
     }
 
-    const participantTags = modelo?.tags
-      .map((tag) => ({
-        id: tag.id,
-        name: tag.name,
-        group: {
-          id: tag.groupId,
-          isExclusive: tag.group.isExclusive,
-        },
-      }))
-      .filter((tag) => tag.id !== modalPresentismo.evento?.etiquetaConfirmoId);
+    const participantTagsId = profile?.tags
+      .map((tag) => tag.id)
+      .filter((tagId) => tagId !== modalPresentismo.evento?.etiquetaConfirmoId);
 
-    const tagAssisted = {
-      id: modalPresentismo.evento!.etiquetaAsistioId,
-      name: assistanceTag!.name,
-      group: {
-        id: assistanceTag!.group.id,
-        isExclusive: assistanceTag!.group.isExclusive,
-      },
-    };
+    const tagAssistedId = modalPresentismo.evento!.etiquetaAsistioId;
 
     await editModelo.mutateAsync({
       id: modalPresentismo.modeloId,
-      // @ts-expect-error TODO: Fix this
-      tags: [...participantTags!, tagAssisted] as any[],
+      tags: [...participantTagsId, tagAssistedId],
     });
     toast.success('Participante añadido correctamente');
     utils.modelo.getByTags.invalidate();
@@ -122,7 +100,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
             <ComboBox
               buttonClassName='md:w-full'
               contentClassName='sm:max-w-[--radix-popover-trigger-width]'
-              data={modelosData}
+              data={profilesData}
               id={'id'}
               value='fullName'
               open={openModelos}

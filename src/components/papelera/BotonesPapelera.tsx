@@ -6,12 +6,12 @@ import React from 'react';
 import { toast } from 'sonner';
 import { useRouter, usePathname } from 'next/navigation';
 
-interface BotonesPapeleraProps {
-  esPapelera: boolean;
+interface TrashCanButtonsProps {
+  isInTrash: boolean;
   id: string;
 }
 
-const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
+const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
   const utils = trpc.useUtils();
   const router = useRouter();
   const pathname = usePathname();
@@ -71,21 +71,21 @@ const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
 
   async function handleSendToTrash() {
     try {
-      if (esPapelera) {
+      if (isInTrash) {
         toast.info('Este Participante ya fue agregado a la papelera');
         return;
       }
       await sendToTrashMutation.mutateAsync({
         id: id,
-        esPapelera: true,
-        fechaPapelera: new Date().toISOString(),
+        isInTrash: true,
+        movedToTrashDate: new Date(),
       });
     } catch (error) {}
   }
 
   async function handleDeletePermanently() {
     try {
-      if (!esPapelera) {
+      if (!isInTrash) {
         toast.info(
           'El participante debe estar en la papelera para eliminarlo definitivamente'
         );
@@ -97,22 +97,22 @@ const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
 
   async function handleRestoreFromTrash() {
     try {
-      if (!esPapelera) {
+      if (!isInTrash) {
         toast.info('Este Participante no está en la papelera');
         return;
       }
 
       await restoreMutation.mutateAsync({
         id: id,
-        esPapelera: false,
-        fechaPapelera: null,
+        isInTrash: false,
+        movedToTrashDate: null,
       });
     } catch (error) {}
   }
 
   return (
     <>
-      {esPapelera ? (
+      {isInTrash ? (
         <div className='flex gap-x-4'>
           <Button
             disabled={restoreMutation.isLoading || deleteMutation.isLoading}
@@ -153,4 +153,4 @@ const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
   );
 };
 
-export default BotonesPapelera;
+export default TrashCanButtons;

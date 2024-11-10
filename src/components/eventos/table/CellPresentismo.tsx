@@ -15,12 +15,6 @@ export const CellPresentismo = ({
   assistedId: string;
 }) => {
   const tagsId = row.original.tags.map((tag) => tag.id);
-  const { data: tagAssisted } = trpc.tag.getById.useQuery(assistedId, {
-    enabled: !!row.original,
-  });
-  const { data: tagConfirmed } = trpc.tag.getById.useQuery(confirmedId, {
-    enabled: !!row.original,
-  });
   const editProfile = trpc.modelo.edit.useMutation();
   const useUtils = trpc.useUtils();
 
@@ -29,32 +23,12 @@ export const CellPresentismo = ({
   ) {
     toast.loading('Confirmando asistencia');
     const tagsId = profile.tags
-      .map((tag) => {
-        return {
-          id: tag.id,
-          grupo: {
-            id: tag.groupId,
-            esExclusivo: tag.group.isExclusive,
-          },
-          nombre: tag.name,
-        };
-      })
-      .filter((et) => et.id !== confirmedId);
+      .map((tag) => tag.id)
+      .filter((tagId) => tagId !== confirmedId);
 
     await editProfile.mutateAsync({
       id: profile.id,
-      etiquetas: [
-        ...tagsId,
-        {
-          id: tagAssisted!.id,
-          grupo: {
-            // TODO: Fix this
-            id: tagAssisted!.group.id as string,
-            esExclusivo: tagAssisted!.group.isExclusive as boolean,
-          },
-          nombre: tagAssisted!.name,
-        },
-      ],
+      tags: [...tagsId, assistedId],
     });
     toast.dismiss();
     toast.success('Se confirmó su asistencia');
@@ -66,32 +40,12 @@ export const CellPresentismo = ({
   ) {
     toast.loading('Eliminando presentismo');
     const tagsId = profile.tags
-      .map((tag) => {
-        return {
-          id: tag.id,
-          grupo: {
-            id: tag.groupId,
-            esExclusivo: tag.group.isExclusive,
-          },
-          nombre: tag.name,
-        };
-      })
-      .filter((et) => et.id !== assistedId);
+      .map((tag) => tag.id)
+      .filter((tagId) => tagId !== assistedId);
 
     await editProfile.mutateAsync({
       id: profile.id,
-      etiquetas: [
-        ...tagsId,
-        {
-          id: confirmedId,
-          grupo: {
-            // TODO: Fix this
-            id: tagConfirmed!.group.id as string,
-            esExclusivo: tagConfirmed!.group.isExclusive as boolean,
-          },
-          nombre: tagConfirmed!.name,
-        },
-      ],
+      tags: [...tagsId, confirmedId],
     });
     toast.dismiss();
     toast.success('Se eliminó del presentismo');

@@ -38,22 +38,15 @@ type ModeloModalData = Pick<
   | 'secondaryPhoneNumber'
 > & {
   open: boolean;
-  // gender: string;
-  // birthDate: Date | undefined;
-  // alternativeNames: string[];
-  // instagram: string | undefined;
-  // mail: string | undefined;
-  // dni: string | undefined;
-  // telefono: string | undefined;
-  // telefonoSecundario: string | null | undefined;
-  // nombreCompleto: string | undefined;
   phoneNumber: Profile['phoneNumber'] | undefined;
   fullName: Profile['fullName'] | undefined;
-  birth: Partial<
-    Pick<Location, 'city' | 'country' | 'latitude' | 'longitude' | 'state'>
+  birth: Pick<
+    Location,
+    'city' | 'country' | 'latitude' | 'longitude' | 'state'
   >;
-  residence: Partial<
-    Pick<Location, 'city' | 'country' | 'latitude' | 'longitude' | 'state'>
+  residence: Pick<
+    Location,
+    'city' | 'country' | 'latitude' | 'longitude' | 'state'
   >;
 };
 
@@ -73,16 +66,18 @@ const useModeloModalData = create<ModeloModalData>(() => ({
   secondaryPhoneNumber: null,
   fullName: undefined,
   birth: {
-    country: undefined,
-    state: undefined,
-    latitude: undefined,
-    longitude: undefined,
+    country: '',
+    city: '',
+    state: '',
+    latitude: 0,
+    longitude: 0,
   },
   residence: {
-    latitude: undefined,
-    longitude: undefined,
-    state: undefined,
-    city: undefined,
+    latitude: 0,
+    country: 'Argentina',
+    longitude: 0,
+    state: '',
+    city: '',
   },
 }));
 
@@ -196,21 +191,17 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
     try {
       return await editModelo.mutateAsync({
         id: modelo.id,
-        genero: gender ?? undefined,
-        fechaNacimiento: birthDate ? birthDate.toString() : undefined,
-        nombresAlternativos: alternativeNames.filter((apodo) => apodo !== ''),
+        gender: gender ?? undefined,
+        birthDate: birthDate ? birthDate.toString() : undefined,
+        alternativeNames: alternativeNames.filter((apodo) => apodo !== ''),
         instagram: instagram ?? null,
         mail: mail ?? null,
         dni: dni ?? null,
-        telefono: phoneNumber ?? undefined,
-        telefonoSecundario: secondaryPhoneNumber,
-        nombreCompleto: fullName ?? undefined,
-        paisNacimiento: birth.country ?? '',
-        provinciaNacimiento: birth.state ?? '',
-        residenciaLatitud: residence?.latitude,
-        residenciaLongitud: residence?.longitude,
-        provinciaResidencia: residence?.state,
-        localidadResidencia: residence?.city,
+        phoneNumber: phoneNumber ?? undefined,
+        secondaryPhoneNumber: secondaryPhoneNumber,
+        fullName: fullName ?? undefined,
+        birth: birth,
+        residence: residence,
       });
     } catch (error) {}
   }
@@ -612,6 +603,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
 
               useModeloModalData.setState({
                 residence: {
+                  ...residence,
                   city: city.nombre as string,
                   state: residence?.state,
                   latitude: city.latitud,

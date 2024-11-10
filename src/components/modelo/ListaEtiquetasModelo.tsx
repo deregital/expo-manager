@@ -25,16 +25,7 @@ const ListaEtiquetasModelo = ({ tags, profileId }: ProfileTagsListProps) => {
     await editProfile
       .mutateAsync({
         id: profileId,
-        tags: tags
-          .filter((e) => e.id !== tag.id)
-          .map((e) => ({
-            id: e.id,
-            name: e.name,
-            group: {
-              id: e.group.id,
-              isExclusive: e.group.isExclusive,
-            },
-          })),
+        tags: tags.filter((t) => t.id !== tag.id).map((t) => t.id),
       })
       .then(() => toast.success(`Etiqueta ${tag.name} eliminada`))
       .catch(() => {

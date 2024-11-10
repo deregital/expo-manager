@@ -16,44 +16,17 @@ export const CellComponent = ({
   assistedId: string;
 }) => {
   const tagsId = row.original.tags.map((tag) => tag.id);
-  const { data: tagConfirmed } = trpc.tag.getById.useQuery(
-    confirmedAssistanceId,
-    {
-      enabled: !!row.original,
-    }
-  );
   const editModelo = trpc.modelo.edit.useMutation();
   const useUtils = trpc.useUtils();
 
   async function addPresentismo(
-    modelo: RouterOutputs['modelo']['getAll'][number]
+    profile: RouterOutputs['modelo']['getAll'][number]
   ) {
     toast.loading('Agregando al presentismo');
-    const tagsId = modelo.tags.map((tag) => {
-      return {
-        id: tag.id,
-        group: {
-          id: tag.groupId,
-          isExclusive: tag.group.isExclusive,
-        },
-        name: tag.name,
-      };
-    });
+    const tagsId = profile.tags.map((tag) => tag.id);
     await editModelo.mutateAsync({
-      id: modelo.id,
-      etiquetas: [
-        // @ts-expect-error TODO: Fix this
-        ...tagsId,
-        {
-          id: tagConfirmed!.id,
-          // @ts-expect-error TODO: Fix this
-          group: {
-            id: tagConfirmed!.group.id as string,
-            isExclsuive: tagConfirmed!.group.isExclusive as boolean,
-          },
-          name: tagConfirmed!.name,
-        },
-      ],
+      id: profile.id,
+      tags: [...tagsId, confirmedAssistanceId],
     });
     toast.dismiss();
     toast.success('Se agregó al presentismo');
