@@ -24,11 +24,11 @@ const EventoPage = ({ params }: EventoPageProps) => {
     trpc.evento.getById.useQuery({
       id: params.eventoId,
     });
-  const { data: modelos } = trpc.modelo.getAll.useQuery();
+  const { data: modelos } = trpc.profile.getAll.useQuery();
 
   const router = useRouter();
   const [modelosData, setModelosData] = useState<
-    RouterOutputs['modelo']['getAll']
+    RouterOutputs['profile']['getAll']
   >(modelos ?? []);
 
   const filtrar: FuncionFiltrar = (filter) => {

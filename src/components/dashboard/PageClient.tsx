@@ -36,7 +36,7 @@ export const useDashboardData = create<{
 }));
 
 function filterProfiles(
-  profiles: NonNullable<RouterOutputs['modelo']['getByDateRange'][string]>,
+  profiles: NonNullable<RouterOutputs['profile']['getByDateRange'][string]>,
   search: { tagId?: string; groupId?: string }
 ) {
   if (search.tagId === '' && search.groupId === '') return profiles;
@@ -69,7 +69,7 @@ const PageClient = ({}: PageClientProps) => {
     trpc.tagGroup.getAll.useQuery();
   const { data: tagsData, isLoading: tagsLoading } = trpc.tag.getAll.useQuery();
   const { data: profilesData, isLoading: isLoadingProfiles } =
-    trpc.modelo.getByDateRange.useQuery({
+    trpc.profile.getByDateRange.useQuery({
       from: format(from, 'yyyy-MM-dd'),
       to: format(addDays(to, 1), 'yyyy-MM-dd'),
     });

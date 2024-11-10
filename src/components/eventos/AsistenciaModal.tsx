@@ -23,11 +23,11 @@ export const usePresentismoModal = create<PresentismoModal>((set) => ({
 const AsistenciaModal = ({ open }: { open: boolean }) => {
   const modalPresentismo = usePresentismoModal();
   const [openModelos, setOpenModelos] = useState(false);
-  const { data: profiles } = trpc.modelo.getAll.useQuery();
+  const { data: profiles } = trpc.profile.getAll.useQuery();
   const utils = trpc.useUtils();
   const router = useRouter();
   const searchParams = new URLSearchParams(useSearchParams());
-  const editModelo = trpc.modelo.edit.useMutation();
+  const editModelo = trpc.profile.edit.useMutation();
 
   const profilesData = useMemo(() => {
     if (!profiles) return [];
@@ -75,7 +75,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
       tags: [...participantTagsId, tagAssistedId],
     });
     toast.success('Participante añadido correctamente');
-    utils.modelo.getByTags.invalidate();
+    utils.profile.getByTags.invalidate();
     usePresentismoModal.setState({ isOpen: false, modeloId: '' });
   }
 

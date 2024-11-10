@@ -67,7 +67,7 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
       })
       .then(() => {
         toast.success(`Etiqueta ${tag.name} eliminada`);
-        utils.modelo.invalidate();
+        utils.profile.invalidate();
         utils.cuenta.getFiltroBase.invalidate();
       })
       .catch(() => {
@@ -96,7 +96,7 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
                 })
                 .then(() => {
                   utils.cuenta.getFiltroBase.invalidate();
-                  utils.modelo.invalidate();
+                  utils.profile.invalidate();
                   toast.success(
                     checked ? 'Filtro activado' : 'Filtro desactivado'
                   );

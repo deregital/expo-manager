@@ -10,7 +10,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
 export function generateColumns(
   showEventos: boolean
-): ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] {
+): ColumnDef<RouterOutputs['profile']['getAll'][number]>[] {
   return [
     {
       accessorKey: 'shortId',

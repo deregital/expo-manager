@@ -13,7 +13,7 @@ export function generateColumnsPresentismo({
   asistenciaId: string;
   confirmoId: string;
 }) {
-  const columns: ColumnDef<RouterOutputs['modelo']['getByTags'][number]>[] = [
+  const columns: ColumnDef<RouterOutputs['profile']['getByTags'][number]>[] = [
     {
       accessorKey: 'shortId',
       header: ({ column }) => {

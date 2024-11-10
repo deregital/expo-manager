@@ -22,15 +22,15 @@ const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
     },
   });
 
-  const restoreMutation = trpc.modelo.edit.useMutation({
+  const restoreMutation = trpc.profile.edit.useMutation({
     onSuccess: async () => {
       await addCommentMutation.mutateAsync({
         profileId: id,
         content: 'Participante restaurada de la papelera',
       });
       toast.success('Participante restaurada de la papelera');
-      utils.modelo.getById.invalidate();
-      utils.modelo.getProfilesInTrash.invalidate();
+      utils.profile.getById.invalidate();
+      utils.profile.getProfilesInTrash.invalidate();
       utils.comment.getByProfileId.invalidate(id);
     },
     onError: () => {
@@ -38,7 +38,7 @@ const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
     },
   });
 
-  const sendToTrashMutation = trpc.modelo.edit.useMutation({
+  const sendToTrashMutation = trpc.profile.edit.useMutation({
     onSuccess: async (data) => {
       console.log(data);
 
@@ -47,8 +47,8 @@ const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
         content: 'Participante enviada a la papelera',
       });
       toast.success('Participante enviada la papelera');
-      utils.modelo.getById.invalidate(id);
-      utils.modelo.getProfilesInTrash.invalidate();
+      utils.profile.getById.invalidate(id);
+      utils.profile.getProfilesInTrash.invalidate();
       utils.comment.getByProfileId.invalidate(id);
     },
     onError: (error) => {
@@ -56,11 +56,11 @@ const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
     },
   });
 
-  const deleteMutation = trpc.modelo.delete.useMutation({
+  const deleteMutation = trpc.profile.delete.useMutation({
     onSuccess: () => {
       toast.success('Participante eliminado definitivamente');
-      utils.modelo.getProfilesInTrash.invalidate();
-      utils.modelo.getById.invalidate();
+      utils.profile.getProfilesInTrash.invalidate();
+      utils.profile.getById.invalidate();
 
       if (pathname !== '/papelera') {
         router.replace('/modelos');

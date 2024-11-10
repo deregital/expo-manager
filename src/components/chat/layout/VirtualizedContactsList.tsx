@@ -15,7 +15,7 @@ interface VirtualizedContactsListProps {
   isOpen: string;
   setIsOpen: Dispatch<SetStateAction<string>>;
   phoneNumberSelected: string;
-  profiles: RouterOutputs['modelo']['getAllWithActiveChat'];
+  profiles: RouterOutputs['profile']['getAllWithActiveChat'];
   title: string;
 }
 

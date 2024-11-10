@@ -24,7 +24,7 @@ import { toast } from 'sonner';
 import { create } from 'zustand';
 
 interface ProfileEditModalProps {
-  profile: NonNullable<RouterOutputs['modelo']['getById']>;
+  profile: NonNullable<RouterOutputs['profile']['getById']>;
 }
 
 type ProfileModalData = Pick<
@@ -134,7 +134,7 @@ const ProfileEditModal = ({ profile }: ProfileEditModalProps) => {
     setCountryIsoCode(isoCode ?? '');
   }, [allCountries, profile]);
 
-  const editProfile = trpc.modelo.edit.useMutation({
+  const editProfile = trpc.profile.edit.useMutation({
     onSuccess: () => {
       toast.success('Participante editado con éxito');
       useProfileModalData.setState({
@@ -144,7 +144,7 @@ const ProfileEditModal = ({ profile }: ProfileEditModalProps) => {
       });
       setOpenSelect(false);
       setError('');
-      utils.modelo.getById.invalidate(profile.id);
+      utils.profile.getById.invalidate(profile.id);
     },
     onError: (error) => {
       const errorCode = error.data?.code;

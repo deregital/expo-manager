@@ -10,7 +10,7 @@ export function generateColumns(
   confirmedAssitanceId: string,
   assistedId: string
 ) {
-  const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
+  const columns: ColumnDef<RouterOutputs['profile']['getAll'][number]>[] = [
     {
       accessorKey: 'shortId',
       header: ({ column }) => {

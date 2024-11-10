@@ -18,12 +18,12 @@ const AgregarEtiquetasAModelo = ({
     tags: state.tags,
     profileId: state.id,
   }));
-  const addEtiqueta = trpc.modelo.edit.useMutation();
+  const addEtiqueta = trpc.profile.edit.useMutation();
   const utils = trpc.useUtils();
 
   async function handleAddEtiqueta(
     addedEtiqueta: NonNullable<
-      RouterOutputs['modelo']['getById']
+      RouterOutputs['profile']['getById']
     >['tags'][number]
   ) {
     useProfileData.setState({
@@ -39,7 +39,7 @@ const AgregarEtiquetasAModelo = ({
       })
       .then(() => {
         toast.success('Etiqueta agregada con éxito');
-        utils.modelo.getById.invalidate(profileId);
+        utils.profile.getById.invalidate(profileId);
       })
       .catch(() => {
         useProfileData.setState({

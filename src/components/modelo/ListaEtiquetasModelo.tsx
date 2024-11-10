@@ -14,7 +14,7 @@ interface ProfileTagsListProps {
 
 const ListaEtiquetasModelo = ({ tags, profileId }: ProfileTagsListProps) => {
   const [addTagOpen, setAddTagOpen] = useState(false);
-  const editProfile = trpc.modelo.edit.useMutation();
+  const editProfile = trpc.profile.edit.useMutation();
 
   async function handleDelete(
     tag: GetGlobalFilterResponseDto['globalFilter'][number]

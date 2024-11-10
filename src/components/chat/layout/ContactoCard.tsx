@@ -6,7 +6,7 @@ import { RouterOutputs } from '@/server';
 import React from 'react';
 
 interface ContactoCardProps {
-  profile: RouterOutputs['modelo']['getAllWithActiveChat'][number];
+  profile: RouterOutputs['profile']['getAllWithActiveChat'][number];
   inPage: boolean;
   nonRead: number;
 }

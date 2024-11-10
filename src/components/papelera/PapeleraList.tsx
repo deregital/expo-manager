@@ -4,7 +4,7 @@ import { RouterOutputs } from '@/server';
 import PapeleraRow from '@/components/papelera/PapeleraRow';
 
 interface PapeleraListProps {
-  profiles: RouterOutputs['modelo']['getProfilesInTrash'];
+  profiles: RouterOutputs['profile']['getProfilesInTrash'];
   isLoading: boolean;
 }
 

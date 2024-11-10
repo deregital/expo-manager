@@ -2,7 +2,7 @@ import { RouterOutputs } from '@/server';
 import { useMemo } from 'react';
 
 export function useProgress(
-  profiles: RouterOutputs['modelo']['getByTags'],
+  profiles: RouterOutputs['profile']['getByTags'],
   tagAssistedId: string
 ) {
   return useMemo(() => {

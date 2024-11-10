@@ -25,7 +25,7 @@ const ChatPage = ({}: ChatPageProps) => {
   async function leerMensajitos() {
     await leerMensajes(telefono);
     utils.whatsapp.mensajesNoLeidos.invalidate();
-    utils.modelo.getAllWithActiveChat.invalidate();
+    utils.profile.getAllWithActiveChat.invalidate();
   }
 
   useEffect(() => {

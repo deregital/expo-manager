@@ -49,7 +49,7 @@ function availableTags(
 interface AddTagCombosProps {
   tags: GetGlobalFilterResponseDto['globalFilter'];
   handleAddTag: (
-    addedTag: NonNullable<RouterOutputs['modelo']['getById']>['tags'][number]
+    addedTag: NonNullable<RouterOutputs['profile']['getById']>['tags'][number]
   ) => void;
 }
 

@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 
 interface PapeleraRowProps {
-  profile: RouterOutputs['modelo']['getProfilesInTrash'][number];
+  profile: RouterOutputs['profile']['getProfilesInTrash'][number];
 }
 
 const PapeleraRow = ({ profile }: PapeleraRowProps) => {

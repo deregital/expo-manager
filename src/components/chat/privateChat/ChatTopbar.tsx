@@ -12,9 +12,12 @@ interface ChatTopbarProps {
 }
 
 const ChatTopbar = ({ phoneNumber: phoneNumber, inChat }: ChatTopbarProps) => {
-  const { data: profile } = trpc.modelo.getByPhoneNumber.useQuery(phoneNumber, {
-    enabled: !!phoneNumber,
-  });
+  const { data: profile } = trpc.profile.getByPhoneNumber.useQuery(
+    phoneNumber,
+    {
+      enabled: !!phoneNumber,
+    }
+  );
 
   const formatPhoneNumber = (phone: string) => {
     try {

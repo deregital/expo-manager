@@ -5,7 +5,7 @@ import { ShieldQuestionIcon } from 'lucide-react';
 import React, { useState } from 'react';
 
 interface ModelosConflictProps {
-  modelos: RouterOutputs['modelo']['getByTagGroups'] | undefined;
+  modelos: RouterOutputs['profile']['getByTagGroups'] | undefined;
 }
 
 const ModelosConflict = ({ modelos }: ModelosConflictProps) => {

@@ -16,7 +16,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   const modalProfile = useCreateProfileModal();
   const utils = trpc.useUtils();
   const router = useRouter();
-  const createProfile = trpc.modelo.create.useMutation({
+  const createProfile = trpc.profile.create.useMutation({
     onError: (error) => {
       if (
         error?.data?.zodError?.fieldErrors &&
@@ -133,7 +133,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
       await handleUpload(res.id);
       toast.success('Participante creado correctamente');
       setSimilarity(false);
-      utils.modelo.getAll.invalidate();
+      utils.profile.getAll.invalidate();
       modalProfile.resetModelo();
       searchParams.delete('modal');
       if (eventId && eventId !== '') {

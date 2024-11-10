@@ -19,7 +19,7 @@ const AgregarEtiquetasAFiltroBase = ({
   const utils = trpc.useUtils();
 
   async function handleAddTag(
-    addedTag: NonNullable<RouterOutputs['modelo']['getById']>['tags'][number]
+    addedTag: NonNullable<RouterOutputs['profile']['getById']>['tags'][number]
   ) {
     addTag(addedTag);
     closeAddTag();
@@ -30,7 +30,7 @@ const AgregarEtiquetasAFiltroBase = ({
       })
       .then(() => {
         toast.success(`Etiqueta ${addedTag.name} agregada con éxito`);
-        utils.modelo.invalidate();
+        utils.profile.invalidate();
         utils.cuenta.getFiltroBase.invalidate();
       })
       .catch(() => {

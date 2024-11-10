@@ -34,7 +34,7 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
     });
 
   const { data: profiles, isLoading: isLoadingProfiles } =
-    trpc.modelo.getByTags.useQuery(
+    trpc.profile.getByTags.useQuery(
       evento ? [evento.etiquetaConfirmoId, evento.etiquetaAsistioId] : [],
       {
         enabled: !!evento,

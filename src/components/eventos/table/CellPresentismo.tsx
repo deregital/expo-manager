@@ -10,16 +10,16 @@ export const CellPresentismo = ({
   confirmedId,
   assistedId,
 }: {
-  row: Row<RouterOutputs['modelo']['getByTags'][number]>;
+  row: Row<RouterOutputs['profile']['getByTags'][number]>;
   confirmedId: string;
   assistedId: string;
 }) => {
   const tagsId = row.original.tags.map((tag) => tag.id);
-  const editProfile = trpc.modelo.edit.useMutation();
+  const editProfile = trpc.profile.edit.useMutation();
   const useUtils = trpc.useUtils();
 
   async function addAsistencia(
-    profile: RouterOutputs['modelo']['getByTags'][number]
+    profile: RouterOutputs['profile']['getByTags'][number]
   ) {
     toast.loading('Confirmando asistencia');
     const tagsId = profile.tags
@@ -32,11 +32,11 @@ export const CellPresentismo = ({
     });
     toast.dismiss();
     toast.success('Se confirmó su asistencia');
-    useUtils.modelo.getByTags.invalidate();
+    useUtils.profile.getByTags.invalidate();
   }
 
   async function deleteAsistencia(
-    profile: RouterOutputs['modelo']['getByTags'][number]
+    profile: RouterOutputs['profile']['getByTags'][number]
   ) {
     toast.loading('Eliminando presentismo');
     const tagsId = profile.tags
@@ -49,7 +49,7 @@ export const CellPresentismo = ({
     });
     toast.dismiss();
     toast.success('Se eliminó del presentismo');
-    useUtils.modelo.getByTags.invalidate();
+    useUtils.profile.getByTags.invalidate();
   }
 
   return (

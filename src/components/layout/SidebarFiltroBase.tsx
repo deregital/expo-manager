@@ -64,7 +64,7 @@ const SidebarFiltroBase = ({}: SidebarFiltroBaseProps) => {
             setIsChecked(!activo);
           });
           utils.cuenta.getFiltroBase.invalidate();
-          utils.modelo.invalidate();
+          utils.profile.invalidate();
           toast.success(activo ? 'Filtro activado' : 'Filtro desactivado');
         }}
       />

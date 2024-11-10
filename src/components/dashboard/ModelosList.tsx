@@ -7,7 +7,7 @@ import Link from 'next/link';
 import React from 'react';
 
 interface ProfilesListProps {
-  profiles: RouterOutputs['modelo']['getByDateRange'][string];
+  profiles: RouterOutputs['profile']['getByDateRange'][string];
   isLoading: boolean;
 }
 

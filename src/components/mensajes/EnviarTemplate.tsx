@@ -24,7 +24,7 @@ const EnviarTemplate = () => {
   }));
   const { data } = trpc.whatsapp.getTemplates.useQuery();
   const { data: tags } = trpc.tag.getAll.useQuery();
-  const { data: profiles } = trpc.modelo.getByTags.useQuery(
+  const { data: profiles } = trpc.profile.getByTags.useQuery(
     templateData.tags.map((et) => et.id)
   );
   const { data: template } = trpc.whatsapp.getTemplateById.useQuery(

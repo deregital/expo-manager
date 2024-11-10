@@ -53,7 +53,7 @@ const ProfilesTable = () => {
     data: profiles,
     isLoading,
     isRefetching,
-  } = trpc.modelo.getAll.useQuery();
+  } = trpc.profile.getAll.useQuery();
 
   useEffect(() => {
     setSearch({

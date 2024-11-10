@@ -17,7 +17,7 @@ type ChatSidebarProps = {
 
 const ChatSidebar = ({ filter }: ChatSidebarProps) => {
   const { data: profiles, isLoading: profilesLoading } =
-    trpc.modelo.getAllWithActiveChat.useQuery();
+    trpc.profile.getAllWithActiveChat.useQuery();
 
   const params = useParams<{ telefono: string }>();
   const phoneNumberSelected = params.telefono;
@@ -49,7 +49,7 @@ const ChatSidebar = ({ filter }: ChatSidebarProps) => {
   }, [filteredProfiles, nonReadProfiles]);
 
   const getDateOfLastMessage = (
-    profile: RouterOutputs['modelo']['getAllWithActiveChat'][number]
+    profile: RouterOutputs['profile']['getAllWithActiveChat'][number]
   ) => {
     const lastMessage =
       profile.messages.length > 0

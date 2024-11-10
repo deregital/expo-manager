@@ -6,7 +6,7 @@ import { trpc } from '@/lib/trpc';
 
 const PapeleraPage = () => {
   const { data: profiles, isLoading } =
-    trpc.modelo.getProfilesInTrash.useQuery();
+    trpc.profile.getProfilesInTrash.useQuery();
 
   return (
     <>

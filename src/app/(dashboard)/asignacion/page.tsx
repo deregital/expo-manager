@@ -24,10 +24,10 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
   const router = useRouter();
 
   const { data: profiles, isLoading: modelosLoading } =
-    trpc.modelo.getAll.useQuery();
+    trpc.profile.getAll.useQuery();
 
   const [filteredProfiles, setFilteredProfiles] = useState<
-    RouterOutputs['modelo']['getAll']
+    RouterOutputs['profile']['getAll']
   >(profiles ?? []);
 
   const {
@@ -90,7 +90,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
         clearModelos();
         clearTags();
         clearGroup();
-        utils.modelo.getAll.invalidate();
+        utils.profile.getAll.invalidate();
       });
   }
 
@@ -108,7 +108,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
         clearModelos();
         clearTags();
         clearGroup();
-        utils.modelo.getAll.invalidate();
+        utils.profile.getAll.invalidate();
       });
   }
 

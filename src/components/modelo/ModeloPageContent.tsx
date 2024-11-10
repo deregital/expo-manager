@@ -24,7 +24,7 @@ import { GetByProfileCommentResponseDto } from 'expo-backend-types';
 import { TagWithGroupColor } from '@/server/types/etiquetas';
 
 interface ProfilePageContentProps {
-  profile: NonNullable<RouterOutputs['modelo']['getById']>;
+  profile: NonNullable<RouterOutputs['profile']['getById']>;
 }
 type ProfileData = {
   id: string;
@@ -77,7 +77,7 @@ const ProfilePageContent = ({ profile }: ProfilePageContentProps) => {
     })
       .then(() => {
         toast.success('Foto eliminada con éxito');
-        utils.modelo.getById.invalidate();
+        utils.profile.getById.invalidate();
         setProfilePictureUrl(null);
       })
       .catch(() => toast.error('Error al eliminar la foto'));
@@ -106,7 +106,7 @@ const ProfilePageContent = ({ profile }: ProfilePageContentProps) => {
         }
         setEdit(false);
         setVideo(null);
-        utils.modelo.getById.invalidate();
+        utils.profile.getById.invalidate();
         toast.success('Foto actualizada con éxito');
       })
       .catch((e) => {

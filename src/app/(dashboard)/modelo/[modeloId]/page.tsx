@@ -16,7 +16,7 @@ interface ModeloPageProps {
 
 const ModeloPage = ({ params }: ModeloPageProps) => {
   const { data: profile, isLoading: isLoadingProfile } =
-    trpc.modelo.getById.useQuery(params.modeloId, {
+    trpc.profile.getById.useQuery(params.modeloId, {
       enabled: !!params.modeloId,
     });
   const {

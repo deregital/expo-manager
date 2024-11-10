@@ -8,7 +8,7 @@ import {
   updateProfileSchema,
 } from 'expo-backend-types';
 
-export const modeloRouter = router({
+export const profileRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const { data } = await ctx.fetch.GET('/profile/all');
 

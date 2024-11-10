@@ -6,7 +6,7 @@ import React from 'react';
 import { create } from 'zustand';
 
 interface ProfilesComboYListProps {
-  profiles: RouterOutputs['modelo']['getAll'];
+  profiles: RouterOutputs['profile']['getAll'];
   profilesLoading: boolean;
 }
 
@@ -27,11 +27,11 @@ export const asignacionComboBoxOpens = create<{
 }));
 
 export const asignacionSelectedData = create<{
-  profiles: RouterOutputs['modelo']['getAll'];
+  profiles: RouterOutputs['profile']['getAll'];
   tags: RouterOutputs['tag']['getAll'];
   tagsList: RouterOutputs['tag']['getAll'];
   group: RouterOutputs['tagGroup']['getAll'][number] | undefined;
-  setProfiles: (modelos: RouterOutputs['modelo']['getAll'][number]) => void;
+  setProfiles: (modelos: RouterOutputs['profile']['getAll'][number]) => void;
   setTags: (tags: RouterOutputs['tag']['getAll'][number]) => void;
   setGroup: (group: RouterOutputs['tagGroup']['getAll'][number]) => void;
   clearProfiles: () => void;
@@ -111,7 +111,7 @@ const ModelosComboYList = ({
           setProfiles(
             profiles!.find(
               (m) => m.id === value
-            ) as RouterOutputs['modelo']['getAll'][number]
+            ) as RouterOutputs['profile']['getAll'][number]
           );
           setProfilesOpen(false);
         }}

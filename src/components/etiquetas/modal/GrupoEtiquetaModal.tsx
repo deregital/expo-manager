@@ -41,7 +41,7 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
   const [open, setOpen] = useState(false);
   const [shouldDelete, setShouldDelete] = useState(false);
   const [conflict, setConflict] = useState<
-    RouterOutputs['modelo']['getByTagGroups'] | undefined
+    RouterOutputs['profile']['getByTagGroups'] | undefined
   >(undefined);
   const utils = trpc.useUtils();
   const createTagGroup = trpc.tagGroup.create.useMutation();
@@ -49,7 +49,7 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
   const deleteTagGroup = trpc.tagGroup.delete.useMutation();
 
   const { data: profilesGroup, isLoading: isLoadingProfilesGroup } =
-    trpc.modelo.getByTagGroups.useQuery([group?.id ?? ''], {
+    trpc.profile.getByTagGroups.useQuery([group?.id ?? ''], {
       enabled: action === 'EDIT' && group?.id !== undefined,
       onSuccess(data) {
         if (action === 'CREATE') return;
@@ -150,7 +150,7 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
           setOpen(false);
           utils.tagGroup.getAll.invalidate();
           if (group) {
-            utils.modelo.getByTagGroups.invalidate([group.id]);
+            utils.profile.getByTagGroups.invalidate([group.id]);
           }
           toast.success('Grupo de etiquetas editado con éxito');
         })
