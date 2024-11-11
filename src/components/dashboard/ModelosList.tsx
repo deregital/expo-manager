@@ -11,7 +11,7 @@ interface ProfilesListProps {
   isLoading: boolean;
 }
 
-const ModelosList = ({ profiles, isLoading }: ProfilesListProps) => {
+const ProfilesList = ({ profiles, isLoading }: ProfilesListProps) => {
   return (
     <Card className='flex h-full flex-col p-2 pr-0 sm:pr-2'>
       <CardTitle className='pb-2 text-2xl font-extrabold sm:text-3xl'>
@@ -49,4 +49,4 @@ const ModelosList = ({ profiles, isLoading }: ProfilesListProps) => {
   );
 };
 
-export default ModelosList;
+export default ProfilesList;

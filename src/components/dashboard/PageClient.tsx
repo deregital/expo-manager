@@ -1,7 +1,7 @@
 'use client';
 import GraficoCard from '@/components/dashboard/GraficoCard';
 import MensajesCard from '@/components/dashboard/MensajesCard';
-import ModelosList from '@/components/dashboard/ModelosList';
+import ProfilesList from '@/components/dashboard/ModelosList';
 import SharedCard from '@/components/dashboard/SharedCard';
 import ComboBox from '@/components/ui/ComboBox';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
@@ -222,7 +222,7 @@ const PageClient = ({}: PageClientProps) => {
         />
       </section>
       <section className='rounded-md grid-in-listaModelos sm:h-full sm:max-h-full'>
-        <ModelosList
+        <ProfilesList
           isLoading={isLoadingProfiles}
           profiles={relevantProfiles
             .sort(

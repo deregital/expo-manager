@@ -2,7 +2,7 @@ import * as React from 'react';
 import ProfilePic from '@/components/ui/FotoModelo';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
-import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
+import ProfileFillIcon from '@/components/icons/ModeloFillIcon';
 import WhatsappIcon from '@/components/icons/WhatsappIcon';
 import { parsePhoneNumber } from 'libphonenumber-js';
 
@@ -55,7 +55,7 @@ const ChatTopbar = ({ phoneNumber: phoneNumber, inChat }: ChatTopbarProps) => {
                 className='flex items-center justify-center rounded bg-gray-200 p-1'
                 title='Ir a la vista de la modelo'
               >
-                <ModeloFillIcon className='size-5' />
+                <ProfileFillIcon className='size-5' />
               </Link>
             </div>
           </div>

@@ -72,9 +72,9 @@ const ChatSidebar = ({ filter }: ChatSidebarProps) => {
     return readProfiles
       .filter((c) => !c.inChat)
       .sort((a, b) => {
-        const fechaA = getDateOfLastMessage(a);
-        const fechaB = getDateOfLastMessage(b);
-        return fechaB.getTime() - fechaA.getTime();
+        const dateA = getDateOfLastMessage(a);
+        const dateB = getDateOfLastMessage(b);
+        return dateB.getTime() - dateA.getTime();
       });
   }, [readProfiles]);
 
@@ -90,20 +90,20 @@ const ChatSidebar = ({ filter }: ChatSidebarProps) => {
     profiles && (
       <aside className='grid h-full grid-cols-1 grid-rows-[auto,1fr] gap-y-2 pb-4'>
         <div className='max-h-80 overflow-y-auto'>
-          {nonReadProfiles.map((contacto) => (
+          {nonReadProfiles.map((profile) => (
             <Link
-              href={`/mensajes/${contacto.phoneNumber}`}
-              key={contacto.id}
+              href={`/mensajes/${profile.phoneNumber}`}
+              key={profile.id}
               onClick={() => {
                 useChatSidebar.setState({ isOpen: false });
               }}
             >
               <ContactoCard
-                inPage={phoneNumberSelected === contacto.phoneNumber}
-                key={contacto.id}
-                profile={contacto}
+                inPage={phoneNumberSelected === profile.phoneNumber}
+                key={profile.id}
+                profile={profile}
                 nonRead={
-                  contacto.messages.filter((m) => m.state !== 'SEEN').length
+                  profile.messages.filter((m) => m.state !== 'SEEN').length
                 }
               />
             </Link>

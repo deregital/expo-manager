@@ -1,6 +1,6 @@
 import { GrupoConMatch } from '@/components/etiquetas/list/EtiquetasList';
 import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
-import ModeloIcon from '@/components/icons/ModeloIcon';
+import ProfileIcon from '@/components/icons/ModeloIcon';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import React from 'react';
@@ -39,7 +39,7 @@ const EtiquetasContent = ({ tag, background }: EtiquetasContentProps) => {
         {tag.type === 'PROFILE' && <EtiquetaModal action='EDIT' tag={tag} />}
         <p className='text-sm font-semibold'>{tag._count.profiles}</p>
         <Link href={`/modelos?${setSearchParams()}`}>
-          <ModeloIcon className='h-4 w-4 hover:cursor-pointer hover:text-gray-700' />
+          <ProfileIcon className='h-4 w-4 hover:cursor-pointer hover:text-gray-700' />
         </Link>
       </div>
     </div>

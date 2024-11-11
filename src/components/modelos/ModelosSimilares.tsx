@@ -1,4 +1,4 @@
-import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
+import ProfileFillIcon from '@/components/icons/ModeloFillIcon';
 import { type SimilarityProfile } from 'expo-backend-types';
 import { useRouter } from 'next/navigation';
 import React from 'react';
@@ -17,7 +17,7 @@ const SimilarProfiles = ({ similarityProfiles }: SimilarProfilesProps) => {
       <p>
         <span className='font-bold'>Teléfono:</span> {profile.phoneNumber}
       </p>
-      <ModeloFillIcon
+      <ProfileFillIcon
         className='h-6 w-6 hover:text-gray-400'
         onClick={() => {
           router.push(`/modelo/${profile.id}`);
