@@ -8,13 +8,13 @@ import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
-interface ModeloPageProps {
+interface ProfilePageProps {
   params: {
     modeloId: string;
   };
 }
 
-const ModeloPage = ({ params }: ModeloPageProps) => {
+const ProfilePage = ({ params }: ProfilePageProps) => {
   const { data: profile, isLoading: isLoadingProfile } =
     trpc.profile.getById.useQuery(params.modeloId, {
       enabled: !!params.modeloId,
@@ -67,4 +67,4 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
   );
 };
 
-export default ModeloPage;
+export default ProfilePage;

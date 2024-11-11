@@ -1,4 +1,4 @@
-import FotoModelo from '@/components/ui/FotoModelo';
+import ProfilePic from '@/components/ui/FotoModelo';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { useChatSidebar } from '@/components/chat/layout/ChatSidebarMobile';
@@ -88,7 +88,7 @@ const VirtualizedContactsList = ({
                   height: `${virtualItem.size}px`,
                 }}
               >
-                <FotoModelo
+                <ProfilePic
                   url={profile.profilePictureUrl}
                   className='h-8 w-8'
                 />

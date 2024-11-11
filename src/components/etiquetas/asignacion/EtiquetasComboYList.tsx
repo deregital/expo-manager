@@ -3,6 +3,7 @@ import {
   asignacionSelectedData,
 } from '@/components/etiquetas/asignacion/ModelosComboYList';
 import ComboBox from '@/components/ui/ComboBox';
+import { notChoosableTagTypes } from '@/lib/constants';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
@@ -32,7 +33,7 @@ const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
 
   const choosableTags = useMemo(() => {
     const possibleTags = tagsData?.filter((tag) => {
-      if (tag.type !== 'PARTICIPANT') return false;
+      if (notChoosableTagTypes.includes(tag.type)) return false;
       if (!currentGroup)
         return !tags.find(
           (t) =>
@@ -57,7 +58,7 @@ const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
 
   const choosableGroups = useMemo(() => {
     return tagGroupsData?.filter((g) =>
-      g.tags.some((tag) => tag.type === 'PARTICIPANT')
+      g.tags.some((tag) => !notChoosableTagTypes.includes(tag.type))
     );
   }, [tagGroupsData]);
 

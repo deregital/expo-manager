@@ -1,31 +1,30 @@
 import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
-import { ModelosSimilarity } from '@/server/types/modelos';
+import { type SimilarityProfile } from 'expo-backend-types';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
-interface ModelosSimilaresProps {
-  similarityModelos: ModelosSimilarity;
+interface SimilarProfilesProps {
+  similarityProfiles: SimilarityProfile[];
 }
 
-const ModelosSimilares = ({ similarityModelos }: ModelosSimilaresProps) => {
+const SimilarProfiles = ({ similarityProfiles }: SimilarProfilesProps) => {
   const router = useRouter();
-  return similarityModelos.map((modelo) => (
-    <div key={modelo.modelo.id} className='flex items-center justify-between'>
+  return similarityProfiles.map(({ profile }) => (
+    <div key={profile.id} className='flex items-center justify-between'>
       <p>
-        <span className='font-bold'>Nombre:</span>{' '}
-        {modelo.modelo.nombreCompleto}
+        <span className='font-bold'>Nombre:</span> {profile.fullName}
       </p>
       <p>
-        <span className='font-bold'>Teléfono:</span> {modelo.modelo.telefono}
+        <span className='font-bold'>Teléfono:</span> {profile.phoneNumber}
       </p>
       <ModeloFillIcon
         className='h-6 w-6 hover:text-gray-400'
         onClick={() => {
-          router.push(`/modelo/${modelo.modelo.id}`);
+          router.push(`/modelo/${profile.id}`);
         }}
       />
     </div>
   ));
 };
 
-export default ModelosSimilares;
+export default SimilarProfiles;

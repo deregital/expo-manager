@@ -1,5 +1,5 @@
 import TrashCanButtons from '@/components/papelera/BotonesPapelera';
-import FotoModelo from '@/components/ui/FotoModelo';
+import ProfilePic from '@/components/ui/FotoModelo';
 import { RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -16,7 +16,7 @@ const PapeleraRow = ({ profile }: PapeleraRowProps) => {
       className='flex items-center justify-between gap-x-4 px-3 py-2 hover:bg-gray-200'
     >
       <div className='flex w-full items-center gap-x-2.5 truncate'>
-        <FotoModelo url={profile.profilePictureUrl ?? ''} />
+        <ProfilePic url={profile.profilePictureUrl ?? ''} />
         <p className='w-full truncate py-1'>{profile.fullName}</p>
       </div>
       <div className='flex gap-x-4'>

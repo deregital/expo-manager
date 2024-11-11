@@ -1,7 +1,7 @@
 'use client';
 import { RouterOutputs } from '@/server';
 import { Button } from '../ui/button';
-import CrearModeloModal from './CrearModeloModal';
+import ModalCreateProfile from './CrearModeloModal';
 import { create } from 'zustand';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -39,7 +39,7 @@ type ProfileModal = {
     tags: NonNullable<RouterOutputs['tag']['getById']>[];
     comments: Pick<Comment, 'content' | 'isSolvable'>[];
   };
-  resetModelo: () => void;
+  resetProfile: () => void;
 };
 
 const defaultProfile = {
@@ -73,11 +73,10 @@ const defaultProfile = {
 export const useCreateProfileModal = create<ProfileModal>((set) => ({
   open: false,
   profile: defaultProfile,
-  resetModelo: () => set({ profile: defaultProfile }),
+  resetProfile: () => set({ profile: defaultProfile }),
 }));
 
-const CrearModelo = () => {
-  // const modalModelo = useCrearModeloModal();
+const CreateProfile = () => {
   const searchParams = new URLSearchParams(useSearchParams());
   const pathname = usePathname();
   const router = useRouter();
@@ -99,9 +98,9 @@ const CrearModelo = () => {
       >
         Crear Participante
       </Button>
-      <CrearModeloModal open={search === 'true' ? true : false} />
+      <ModalCreateProfile open={search === 'true' ? true : false} />
     </>
   );
 };
 
-export default CrearModelo;
+export default CreateProfile;

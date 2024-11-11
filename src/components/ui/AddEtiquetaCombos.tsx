@@ -2,6 +2,7 @@ import EtiquetaFillIcon from '@/components/icons/EtiquetaFillIcon';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import ComboBox from '@/components/ui/ComboBox';
 import { Button } from '@/components/ui/button';
+import { notChoosableTagTypes } from '@/lib/constants';
 import { trpc } from '@/lib/trpc';
 import { RouterOutputs } from '@/server';
 import { GetGlobalFilterResponseDto, type TagType } from 'expo-backend-types';
@@ -39,8 +40,7 @@ function availableTags(
   groups: ReturnType<typeof availableGroups>
 ) {
   return tagsData.filter((tag) => {
-    if (tag.type === 'PARTICIPANT' || tag.type === 'NOT_IN_SYSTEM')
-      return false;
+    if (notChoosableTagTypes.includes(tag.type)) return false;
     if (!groups.map((g) => g.id).includes(tag.group.id)) return false;
     return !tags.map((tag) => tag.id).includes(tag.id);
   });

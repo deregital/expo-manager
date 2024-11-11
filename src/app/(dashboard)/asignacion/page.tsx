@@ -1,7 +1,7 @@
 'use client';
 
 import EtiquetasComboYList from '@/components/etiquetas/asignacion/EtiquetasComboYList';
-import ModelosComboYList, {
+import ProfilesComboYList, {
   asignacionSelectedData,
 } from '@/components/etiquetas/asignacion/ModelosComboYList';
 import Filter from '@/components/ui/filtro/Filtro';
@@ -19,11 +19,11 @@ interface AsignacionPageProps {}
 
 const AsignacionPage = ({}: AsignacionPageProps) => {
   const utils = trpc.useUtils();
-  const asignar = trpc.tag.massiveAllocation.useMutation();
-  const desasignar = trpc.tag.masiveDeallocation.useMutation();
+  const allocate = trpc.tag.massiveAllocation.useMutation();
+  const deallocate = trpc.tag.masiveDeallocation.useMutation();
   const router = useRouter();
 
-  const { data: profiles, isLoading: modelosLoading } =
+  const { data: profiles, isLoading: isLoadingProfiles } =
     trpc.profile.getAll.useQuery();
 
   const [filteredProfiles, setFilteredProfiles] = useState<
@@ -34,7 +34,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
     tagsList,
     profiles: profileList,
     clearTags,
-    clearProfiles: clearModelos,
+    clearProfiles,
     clearGroup,
   } = asignacionSelectedData();
 
@@ -45,7 +45,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
 
   async function allocateTags() {
     const tagIds = tagsList.map((t) => t.id);
-    const modeloIds = profileList.map((m) => m.id);
+    const profileIds = profileList.map((m) => m.id);
 
     // chequeo para no agregar etiquetas bloqueantes a modelos que ya tengan etiquetas bloqueantes
     for (const profile of profileList) {
@@ -80,14 +80,14 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
       }
     }
 
-    await asignar
+    await allocate
       .mutateAsync({
         tagIds,
-        profileIds: modeloIds,
+        profileIds: profileIds,
       })
       .then(() => {
         toast.success('Etiquetas asignadas correctamente');
-        clearModelos();
+        clearProfiles();
         clearTags();
         clearGroup();
         utils.profile.getAll.invalidate();
@@ -96,16 +96,16 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
 
   async function desasignarEtiquetas() {
     const tagIds = tagsList.map((e) => e.id);
-    const modeloIds = profileList.map((m) => m.id);
+    const profileIds = profileList.map((m) => m.id);
 
-    await desasignar
+    await deallocate
       .mutateAsync({
         tagIds,
-        profileIds: modeloIds,
+        profileIds: profileIds,
       })
       .then(() => {
         toast.success('Etiquetas desasignadas correctamente');
-        clearModelos();
+        clearProfiles();
         clearTags();
         clearGroup();
         utils.profile.getAll.invalidate();
@@ -126,9 +126,9 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
       <Filter className='py-1' filterFunction={filter} showTag showInput />
       <div className='flex h-auto gap-x-2 border-t-[1px] border-t-black/20 p-3 md:p-5 '>
         <div className='flex-1'>
-          <ModelosComboYList
+          <ProfilesComboYList
             profiles={filteredProfiles}
-            profilesLoading={modelosLoading}
+            profilesLoading={isLoadingProfiles}
           />
           {profileList.length === 0 && (
             <p className='mt-2'>
@@ -154,11 +154,11 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
           disabled={
             tagsList.length === 0 ||
             profileList.length === 0 ||
-            desasignar.isLoading ||
-            asignar.isLoading
+            deallocate.isLoading ||
+            allocate.isLoading
           }
         >
-          {asignar.isLoading ? <Loader /> : 'Asignar'}
+          {allocate.isLoading ? <Loader /> : 'Asignar'}
         </Button>
         <Button
           className='mt-4'
@@ -166,11 +166,11 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
           disabled={
             tagsList.length === 0 ||
             profileList.length === 0 ||
-            desasignar.isLoading ||
-            asignar.isLoading
+            deallocate.isLoading ||
+            allocate.isLoading
           }
         >
-          {desasignar.isLoading || asignar.isLoading ? (
+          {deallocate.isLoading || allocate.isLoading ? (
             <Loader />
           ) : (
             'Desasignar'

@@ -24,16 +24,16 @@ const EventoPage = ({ params }: EventoPageProps) => {
     trpc.evento.getById.useQuery({
       id: params.eventoId,
     });
-  const { data: modelos } = trpc.profile.getAll.useQuery();
+  const { data: profiles } = trpc.profile.getAll.useQuery();
 
   const router = useRouter();
-  const [modelosData, setModelosData] = useState<
+  const [profilesData, setprofilesData] = useState<
     RouterOutputs['profile']['getAll']
-  >(modelos ?? []);
+  >(profiles ?? []);
 
   const filtrar: FuncionFiltrar = (filter) => {
-    if (!modelos) return;
-    setModelosData(filterProfiles(modelos, filter));
+    if (!profiles) return;
+    setprofilesData(filterProfiles(profiles, filter));
   };
 
   if (isLoadingEvento)
@@ -83,7 +83,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
           evento!.etiquetaConfirmoId,
           evento!.etiquetaAsistioId
         )}
-        data={modelosData}
+        data={profilesData}
         initialSortingColumn={{ id: 'created_at', desc: true }}
       />
     </div>

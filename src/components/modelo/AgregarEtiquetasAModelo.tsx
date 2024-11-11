@@ -5,15 +5,15 @@ import { RouterOutputs } from '@/server';
 import React from 'react';
 import { toast } from 'sonner';
 
-interface AgregarEtiquetasAModeloProps {
+interface AddTagsToProfileProps {
   closeAddTag: () => void;
   openAddTag: () => void;
 }
 
-const AgregarEtiquetasAModelo = ({
+const AddTagsToProfile = ({
   closeAddTag,
   openAddTag,
-}: AgregarEtiquetasAModeloProps) => {
+}: AddTagsToProfileProps) => {
   const { tags, profileId } = useProfileData((state) => ({
     tags: state.tags,
     profileId: state.id,
@@ -53,4 +53,4 @@ const AgregarEtiquetasAModelo = ({
   return <AddEtiquetaCombos tags={tags} handleAddTag={handleAddEtiqueta} />;
 };
 
-export default AgregarEtiquetasAModelo;
+export default AddTagsToProfile;

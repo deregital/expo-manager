@@ -1,5 +1,5 @@
 import * as React from 'react';
-import FotoModelo from '@/components/ui/FotoModelo';
+import ProfilePic from '@/components/ui/FotoModelo';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
 import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
@@ -41,7 +41,7 @@ const ChatTopbar = ({ phoneNumber: phoneNumber, inChat }: ChatTopbarProps) => {
         <div className='flex w-full items-center justify-between'>
           <div className='flex items-center gap-x-2'>
             <div className='flex items-center gap-x-2'>
-              <FotoModelo
+              <ProfilePic
                 className='my-0.5'
                 alt={`Foto de ${profile.fullName}`}
                 url={profile.profilePictureUrl}

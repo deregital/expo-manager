@@ -599,27 +599,21 @@ const ProfileEditModal = ({ profile }: ProfileEditModalProps) => {
             open={openCitySelect}
             onOpenChange={setOpenCitySelect}
             onValueChange={(value) => {
-              const city = JSON.parse(value as string) as {
-                latitud: number;
-                longitud: number;
-                nombre: string;
-              };
+              const city = citiesData?.find((city) => city.name === value);
+
+              if (!city) return;
 
               useProfileModalData.setState({
                 residence: {
                   ...residence,
-                  city: city.nombre as string,
+                  city: city.name,
                   state: residence?.state,
-                  latitude: city.latitud,
-                  longitude: city.longitud,
+                  latitude: city.centroid.lat,
+                  longitude: city.centroid.lon,
                 },
               });
             }}
-            defaultValue={JSON.stringify({
-              latitud: residence?.latitude,
-              longitud: residence?.longitude,
-              nombre: residence?.city,
-            })}
+            defaultValue={residence?.city}
             disabled={!residence?.state}
           >
             <SelectTrigger>
@@ -627,14 +621,7 @@ const ProfileEditModal = ({ profile }: ProfileEditModalProps) => {
             </SelectTrigger>
             <SelectContent>
               {citiesData?.map((city) => (
-                <SelectItem
-                  key={city.id}
-                  value={JSON.stringify({
-                    latitud: city.centroid.lat,
-                    longitud: city.centroid.lon,
-                    nombre: city.name,
-                  })}
-                >
+                <SelectItem key={city.id} value={city.name}>
                   {city.name}
                 </SelectItem>
               ))}

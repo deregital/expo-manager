@@ -13,7 +13,7 @@ import EditFillIcon from '@/components/icons/EditFillIcon';
 import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
 import { RouterOutputs } from '@/server';
-import ModelosConflict from '@/components/etiquetas/modal/ModelosConflict';
+import ProfilesConflict from '@/components/etiquetas/modal/ModelosConflict';
 import { GrupoConMatch } from '@/components/etiquetas/list/EtiquetasList';
 
 interface TagGroupModalProps {
@@ -122,9 +122,9 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
               (profile) =>
                 profile.tags.filter((tag) => tag.groupId === groupId).length > 1
             )
-            .map((modelo) => ({
-              ...modelo,
-              tags: modelo.tags.filter((tag) => tag.groupId === groupId),
+            .map((profile) => ({
+              ...profile,
+              tags: profile.tags.filter((tag) => tag.groupId === groupId),
             }));
 
         if (conflict && conflict.length > 0) {
@@ -338,7 +338,7 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
             </p>
           ) : null}
 
-          {conflict && <ModelosConflict modelos={conflict} />}
+          {conflict && <ProfilesConflict profiles={conflict} />}
 
           <div className='flex gap-x-4'>
             <Button

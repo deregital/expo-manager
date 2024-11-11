@@ -1,6 +1,6 @@
 import { RouterOutputs } from '@/server';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import ListaEtiquetasModelo from '@/components/modelo/ListaEtiquetasModelo';
+import ProfileTagsList from '@/components/modelo/ListaEtiquetasModelo';
 import { create } from 'zustand';
 import CommentsSection from '@/components/modelo/CommentsSection';
 import { Button } from '../ui/button';
@@ -22,6 +22,7 @@ import DNIIcon from '@/components/icons/DNIIcon';
 import TrashCanButtons from '@/components/papelera/BotonesPapelera';
 import { GetByProfileCommentResponseDto } from 'expo-backend-types';
 import { TagWithGroupColor } from '@/server/types/etiquetas';
+import { notChoosableTagTypes } from '@/lib/constants';
 
 interface ProfilePageContentProps {
   profile: NonNullable<RouterOutputs['profile']['getById']>;
@@ -56,10 +57,7 @@ const ProfilePageContent = ({ profile }: ProfilePageContentProps) => {
   const [edit, setEdit] = useState(false);
   const utils = trpc.useUtils();
   const filteredTags = useMemo(
-    () =>
-      tags.filter(
-        (e) => e.type !== 'PARTICIPANT' && e.type !== 'NOT_IN_SYSTEM'
-      ),
+    () => tags.filter((e) => !notChoosableTagTypes.includes(e.type)),
     [tags]
   );
 
@@ -260,12 +258,12 @@ const ProfilePageContent = ({ profile }: ProfilePageContentProps) => {
             </div>
           </div>
           <div className='hidden flex-wrap gap-2 md:flex'>
-            <ListaEtiquetasModelo profileId={profile.id} tags={filteredTags} />
+            <ProfileTagsList profileId={profile.id} tags={filteredTags} />
           </div>
         </div>
       </div>
       <div className='mt-4 flex flex-wrap gap-2 md:hidden'>
-        <ListaEtiquetasModelo profileId={profile.id} tags={filteredTags} />
+        <ProfileTagsList profileId={profile.id} tags={filteredTags} />
       </div>
       <div className='mt-3 flex flex-col gap-x-2 sm:flex-row sm:items-center'>
         {profile.isInTrash && (

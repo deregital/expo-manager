@@ -66,7 +66,7 @@ const EnviarTemplate = () => {
     }
     useTemplateSend.setState({
       open: true,
-      modelos: profiles?.length ?? 0,
+      profiles: profiles?.length ?? 0,
       precio: currentPrecio,
     });
   }

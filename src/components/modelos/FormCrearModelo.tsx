@@ -28,30 +28,33 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import CreateComment from '../modelo/CreateComment';
+import { notChoosableTagTypes } from '@/lib/constants';
 
-interface FormCrearModeloProps {
+interface CreateProfileFormProps {
   inputRef: React.RefObject<HTMLInputElement>;
   video: File | null;
   setVideo: React.Dispatch<React.SetStateAction<File | null>>;
   setFotoUrl: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-const FormCrearModelo = ({
+const CreateProfileForm = ({
   inputRef,
   setFotoUrl,
   setVideo,
   video,
-}: FormCrearModeloProps) => {
+}: CreateProfileFormProps) => {
   const createProfileModal = useCreateProfileModal();
 
   const [openSelect, setOpenSelect] = useState(false);
   const [addTagOpen, setAddTagOpen] = useState(false);
   const [comboBoxGroupOpen, setComboBoxGroupOpen] = useState(false);
   const [comboBoxTagOpen, setComboBoxTagOpen] = useState(false);
-  const { data: tagGroups } = trpc.tagGroup.getAll.useQuery();
+  const { data: tagGroups, isLoading: isLoadingTagGroups } =
+    trpc.tagGroup.getAll.useQuery();
   const [selectedTagGroup, setSelectedTagGroup] = useState<string>('');
   const [selectedTag, setSelectedTag] = useState<string>('');
-  const { data: tagsFromGroup } =
+  const [countryIsoCode, setCountryIsoCode] = useState<string>('');
+  const { data: tagsFromGroup, isLoading: isLoadingTags } =
     selectedTagGroup === ''
       ? trpc.tag.getAll.useQuery()
       : trpc.tag.getByGroupId.useQuery(selectedTagGroup);
@@ -122,12 +125,9 @@ const FormCrearModelo = ({
   const { data: allCountries } = trpc.location.getCountries.useQuery();
 
   const { data: statesBySelectedCountry } =
-    trpc.location.getStateByCountry.useQuery(
-      createProfileModal.profile.birthLocation.country ?? '',
-      {
-        enabled: !!createProfileModal.profile.birthLocation.country,
-      }
-    );
+    trpc.location.getStateByCountry.useQuery(countryIsoCode ?? '', {
+      enabled: countryIsoCode !== '',
+    });
 
   const { data: argStates } = trpc.location.getArgStates.useQuery();
 
@@ -374,8 +374,13 @@ const FormCrearModelo = ({
             open={comboBoxGroupOpen}
             setOpen={setComboBoxGroupOpen}
             value='name'
+            isLoading={isLoadingTagGroups}
             id={'id'}
-            data={tagGroups ?? []}
+            data={
+              tagGroups?.filter((g) =>
+                g.tags.some((tag) => !notChoosableTagTypes.includes(tag.type))
+              ) ?? []
+            }
             onSelect={(selectedItem) => {
               if (selectedItem === selectedTagGroup) {
                 setSelectedTagGroup('');
@@ -397,7 +402,12 @@ const FormCrearModelo = ({
             }
           />
           <ComboBox
-            data={tagsFromGroup ?? []}
+            isLoading={isLoadingTags}
+            data={
+              tagsFromGroup?.filter(
+                (tag) => !notChoosableTagTypes.includes(tag.type)
+              ) ?? []
+            }
             id={'id'}
             value='name'
             wFullMobile
@@ -475,13 +485,19 @@ const FormCrearModelo = ({
       <div className='flex flex-col gap-y-2'>
         <Label className='pt-2 text-sm'>Nacionalidad:</Label>
         <Select
-          onValueChange={(value) => {
+          onValueChange={(name) => {
+            const isoCode =
+              allCountries?.find((country) => country.name === name)?.isoCode ??
+              '';
+
+            setCountryIsoCode(isoCode);
+
             useCreateProfileModal.setState({
               profile: {
                 ...createProfileModal.profile,
                 birthLocation: {
                   ...createProfileModal.profile.birthLocation,
-                  country: value,
+                  country: name,
                 },
               },
             });
@@ -492,28 +508,34 @@ const FormCrearModelo = ({
           </SelectTrigger>
           <SelectContent>
             {allCountries?.map((country) => (
-              <SelectItem key={country.isoCode} value={country.isoCode}>
+              <SelectItem key={country.isoCode} value={country.name}>
                 {country.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select
-          disabled={!createProfileModal.profile.birthLocation.country}
-          onValueChange={(value) => {
-            const state = JSON.parse(value) as {
-              latitude: number;
-              longitude: number;
-              name: string;
-            };
+          disabled={
+            !createProfileModal.profile.birthLocation.country ||
+            createProfileModal.profile.birthLocation.country === ''
+          }
+          onValueChange={(name) => {
+            const state = statesBySelectedCountry?.find(
+              (state) => state.name === name
+            );
+            if (!state) return;
+            const numberLat = Number(state.latitude);
+            const numberLong = Number(state.longitude);
+
             useCreateProfileModal.setState({
               profile: {
                 ...createProfileModal.profile,
                 birthLocation: {
                   ...createProfileModal.profile.birthLocation,
-                  latitude: state.latitude,
-                  longitude: state.longitude,
-                  state: state.name,
+                  latitude: isNaN(numberLat) ? 0 : numberLat,
+                  longitude: isNaN(numberLong) ? 0 : numberLong,
+                  city: state.name,
+                  state: '',
                 },
               },
             });
@@ -524,14 +546,7 @@ const FormCrearModelo = ({
           </SelectTrigger>
           <SelectContent>
             {statesBySelectedCountry?.map((state) => (
-              <SelectItem
-                key={state.isoCode}
-                value={JSON.stringify({
-                  latitude: state.latitude,
-                  longitude: state.longitude,
-                  name: state.name,
-                })}
-              >
+              <SelectItem key={state.isoCode} value={state.name}>
                 {state.name}
               </SelectItem>
             ))}
@@ -658,4 +673,4 @@ const FormCrearModelo = ({
   );
 };
 
-export default FormCrearModelo;
+export default CreateProfileForm;

@@ -12,22 +12,22 @@ import { useRouter, useSearchParams } from 'next/navigation';
 type PresentismoModal = {
   isOpen: boolean;
   evento: RouterOutputs['evento']['getById'] | null;
-  modeloId: string;
+  profileId: string;
 };
 export const usePresentismoModal = create<PresentismoModal>((set) => ({
   isOpen: false,
   evento: null,
-  modeloId: '',
+  profileId: '',
 }));
 
 const AsistenciaModal = ({ open }: { open: boolean }) => {
   const modalPresentismo = usePresentismoModal();
-  const [openModelos, setOpenModelos] = useState(false);
+  const [openProfiles, setOpenProfiles] = useState(false);
   const { data: profiles } = trpc.profile.getAll.useQuery();
   const utils = trpc.useUtils();
   const router = useRouter();
   const searchParams = new URLSearchParams(useSearchParams());
-  const editModelo = trpc.profile.edit.useMutation();
+  const editProfile = trpc.profile.edit.useMutation();
 
   const profilesData = useMemo(() => {
     if (!profiles) return [];
@@ -47,7 +47,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
   ]);
 
   async function handleSubmit() {
-    if (modalPresentismo.modeloId === '') {
+    if (modalPresentismo.profileId === '') {
       toast.error('Debes seleccionar un participante');
     }
 
@@ -56,7 +56,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
     }
 
     const profile = profiles?.find(
-      (modelo) => modelo.id === modalPresentismo.modeloId
+      (profile) => profile.id === modalPresentismo.profileId
     );
 
     if (!profile) {
@@ -70,13 +70,13 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
 
     const tagAssistedId = modalPresentismo.evento!.etiquetaAsistioId;
 
-    await editModelo.mutateAsync({
-      id: modalPresentismo.modeloId,
+    await editProfile.mutateAsync({
+      id: modalPresentismo.profileId,
       tags: [...participantTagsId, tagAssistedId],
     });
     toast.success('Participante añadido correctamente');
     utils.profile.getByTags.invalidate();
-    usePresentismoModal.setState({ isOpen: false, modeloId: '' });
+    usePresentismoModal.setState({ isOpen: false, profileId: '' });
   }
 
   if (!modalPresentismo.evento || modalPresentismo.evento === null) return;
@@ -103,33 +103,33 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
               data={profilesData}
               id={'id'}
               value='fullName'
-              open={openModelos}
-              setOpen={setOpenModelos}
+              open={openProfiles}
+              setOpen={setOpenProfiles}
               wFullMobile
               triggerChildren={
                 <>
                   <span className='max-w-[calc(100%-30px)] truncate'>
-                    {modalPresentismo.modeloId !== ''
+                    {modalPresentismo.profileId !== ''
                       ? profiles?.find(
-                          (modelo) => modelo.id === modalPresentismo.modeloId
+                          (profile) => profile.id === modalPresentismo.profileId
                         )?.fullName
                       : 'Buscar participante...'}
                   </span>
                 </>
               }
               onSelect={(id) => {
-                if (modalPresentismo.modeloId === id) {
-                  usePresentismoModal.setState({ modeloId: '' });
-                  setOpenModelos(false);
+                if (modalPresentismo.profileId === id) {
+                  usePresentismoModal.setState({ profileId: '' });
+                  setOpenProfiles(false);
                   return;
                 }
-                usePresentismoModal.setState({ modeloId: id });
-                setOpenModelos(false);
+                usePresentismoModal.setState({ profileId: id });
+                setOpenProfiles(false);
               }}
-              selectedIf={modalPresentismo.modeloId}
+              selectedIf={modalPresentismo.profileId}
             />
           </div>
-          <Button disabled={editModelo.isLoading} onClick={handleSubmit}>
+          <Button disabled={editProfile.isLoading} onClick={handleSubmit}>
             Añadir
           </Button>
         </div>

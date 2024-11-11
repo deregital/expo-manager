@@ -1,4 +1,4 @@
-import FotoModelo from '@/components/ui/FotoModelo';
+import ProfilePic from '@/components/ui/FotoModelo';
 import { Card, CardTitle } from '@/components/ui/card';
 import Loader from '@/components/ui/loader';
 import { RouterOutputs } from '@/server';
@@ -29,18 +29,18 @@ const ModelosList = ({ profiles, isLoading }: ProfilesListProps) => {
             </div>
           )
         )}
-        {profiles?.map((modelo) => (
+        {profiles?.map((profile) => (
           <Link
-            href={`/modelo/${modelo.id}`}
-            key={modelo.id}
+            href={`/modelo/${profile.id}`}
+            key={profile.id}
             className='flex items-center justify-between gap-x-4 px-0.5 py-1.5 hover:bg-gray-200'
           >
             <div className='flex w-full items-center gap-x-1 truncate'>
-              <FotoModelo url={modelo.profilePictureUrl} />
-              <p className='w-full truncate py-1'>{modelo.fullName}</p>
+              <ProfilePic url={profile.profilePictureUrl} />
+              <p className='w-full truncate py-1'>{profile.fullName}</p>
             </div>
             <span className='w-fit'>
-              {format(modelo.created_at, 'dd/MM/yyyy')}
+              {format(profile.created_at, 'dd/MM/yyyy')}
             </span>
           </Link>
         ))}

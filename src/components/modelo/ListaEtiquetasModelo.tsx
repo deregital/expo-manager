@@ -1,4 +1,4 @@
-import AgregarEtiquetasAModelo from '@/components/modelo/AgregarEtiquetasAModelo';
+import AddTagsToProfile from '@/components/modelo/AgregarEtiquetasAModelo';
 import { useProfileData } from '@/components/modelo/ModeloPageContent';
 import ListaEtiquetas from '@/components/ui/ListaEtiquetas';
 import { trpc } from '@/lib/trpc';
@@ -12,7 +12,7 @@ interface ProfileTagsListProps {
   tags: TagWithGroupColor[];
 }
 
-const ListaEtiquetasModelo = ({ tags, profileId }: ProfileTagsListProps) => {
+const ProfileTagsList = ({ tags, profileId }: ProfileTagsListProps) => {
   const [addTagOpen, setAddTagOpen] = useState(false);
   const editProfile = trpc.profile.edit.useMutation();
 
@@ -43,7 +43,7 @@ const ListaEtiquetasModelo = ({ tags, profileId }: ProfileTagsListProps) => {
       tags={tags}
       handleDelete={handleDelete}
     >
-      <AgregarEtiquetasAModelo
+      <AddTagsToProfile
         closeAddTag={() => {
           setAddTagOpen(false);
         }}
@@ -55,4 +55,4 @@ const ListaEtiquetasModelo = ({ tags, profileId }: ProfileTagsListProps) => {
   );
 };
 
-export default ListaEtiquetasModelo;
+export default ProfileTagsList;

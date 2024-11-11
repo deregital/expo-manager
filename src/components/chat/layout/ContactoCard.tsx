@@ -1,5 +1,5 @@
 import ChatFillIcon from '@/components/icons/ChatFillIcon';
-import FotoModelo from '@/components/ui/FotoModelo';
+import ProfilePic from '@/components/ui/FotoModelo';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
@@ -20,7 +20,7 @@ const ContactoCard = ({ profile, inPage, nonRead }: ContactoCardProps) => {
       })}
     >
       <div className='relative'>
-        <FotoModelo url={profile.profilePictureUrl} />
+        <ProfilePic url={profile.profilePictureUrl} />
         <Badge className='absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center bg-red-500 hover:bg-red-500'>
           {nonRead}
         </Badge>

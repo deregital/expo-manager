@@ -31,7 +31,7 @@ export const asignacionSelectedData = create<{
   tags: RouterOutputs['tag']['getAll'];
   tagsList: RouterOutputs['tag']['getAll'];
   group: RouterOutputs['tagGroup']['getAll'][number] | undefined;
-  setProfiles: (modelos: RouterOutputs['profile']['getAll'][number]) => void;
+  setProfiles: (profiles: RouterOutputs['profile']['getAll'][number]) => void;
   setTags: (tags: RouterOutputs['tag']['getAll'][number]) => void;
   setGroup: (group: RouterOutputs['tagGroup']['getAll'][number]) => void;
   clearProfiles: () => void;
@@ -82,7 +82,7 @@ export const asignacionSelectedData = create<{
   clearGroup: () => set({ group: undefined }),
 }));
 
-const ModelosComboYList = ({
+const ProfilesComboYList = ({
   profiles,
   profilesLoading,
 }: ProfilesComboYListProps) => {
@@ -122,12 +122,12 @@ const ModelosComboYList = ({
           profilesList.length > 0 && 'mt-2 rounded-md border border-gray-500'
         )}
       >
-        {profilesList.map((modelo) => (
-          <div className='flex w-full justify-between p-1' key={modelo.id}>
-            <p>{modelo.fullName}</p>
+        {profilesList.map((profile) => (
+          <div className='flex w-full justify-between p-1' key={profile.id}>
+            <p>{profile.fullName}</p>
             <Trash
               className='cursor-pointer fill-red-500 text-red-900'
-              onClick={() => setProfiles(modelo)}
+              onClick={() => setProfiles(profile)}
             />
           </div>
         ))}
@@ -136,4 +136,4 @@ const ModelosComboYList = ({
   );
 };
 
-export default ModelosComboYList;
+export default ProfilesComboYList;

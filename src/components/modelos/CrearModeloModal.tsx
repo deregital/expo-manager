@@ -1,7 +1,6 @@
 'use client';
-import FormCrearModelo from '@/components/modelos/FormCrearModelo';
+import CreateProfileForm from '@/components/modelos/FormCrearModelo';
 import { trpc } from '@/lib/trpc';
-import { ModelosSimilarity } from '@/server/types/modelos';
 import clsx from 'clsx';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
@@ -9,10 +8,11 @@ import { Dialog, DialogContent } from '../ui/dialog';
 import Loader from '../ui/loader';
 import { useCreateProfileModal } from './CrearModelo';
 import { useEffect, useRef, useState } from 'react';
-import ModelosSimilares from '@/components/modelos/ModelosSimilares';
+import SimilarProfiles from '@/components/modelos/ModelosSimilares';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { type SimilarityProfile } from 'expo-backend-types';
 
-const CrearModeloModal = ({ open }: { open: boolean }) => {
+const ModalCreateProfile = ({ open }: { open: boolean }) => {
   const modalProfile = useCreateProfileModal();
   const utils = trpc.useUtils();
   const router = useRouter();
@@ -48,9 +48,9 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
 
   const [similarity, setSimilarity] = useState<boolean>(false);
   const [similarityView, setSimilarityView] = useState<boolean>(false);
-  const [similarityModelos, setSimilarityModelos] = useState<ModelosSimilarity>(
-    []
-  );
+  const [similarityProfiles, setSimilarityProfiles] = useState<
+    SimilarityProfile[]
+  >([]);
   const { data: etiquetaEvento } = trpc.evento.getById.useQuery(
     {
       id: eventId ?? '',
@@ -109,7 +109,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
             isSolvable: c.isSolvable,
           })),
         },
-        checkForSimilarity: similarity,
+        checkForSimilarity: !similarity,
       })
       .catch((e) => {
         return;
@@ -117,24 +117,15 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
 
     if (!res) return;
 
-    if (Array.isArray(res)) {
+    if (res.type === 'similar') {
       setSimilarity(true);
-      setSimilarityModelos(
-        res.map((r) => ({
-          similarityTelefono: r.similarityTelefono,
-          similarityNombre: r.similarityNombre,
-          modelo: {
-            ...r.modelo,
-          },
-        }))
-      );
+      setSimilarityProfiles(res.similarProfiles);
     } else {
-      if (res.type === 'similar') return;
       await handleUpload(res.id);
       toast.success('Participante creado correctamente');
       setSimilarity(false);
       utils.profile.getAll.invalidate();
-      modalProfile.resetModelo();
+      modalProfile.resetProfile();
       searchParams.delete('modal');
       if (eventId && eventId !== '') {
         searchParams.delete('evento');
@@ -173,7 +164,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   }
 
   async function handleCancel() {
-    modalProfile.resetModelo();
+    modalProfile.resetProfile();
     searchParams.delete('modal');
     setVideo(null);
     setFotoUrl(null);
@@ -204,7 +195,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
           </p>
           {!similarityView ? (
             <div className='mt-1 flex max-h-[400px] flex-col gap-y-1 overflow-y-auto px-2'>
-              <FormCrearModelo
+              <CreateProfileForm
                 video={video}
                 setVideo={setVideo}
                 setFotoUrl={setFotoUrl}
@@ -213,7 +204,7 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
             </div>
           ) : (
             <div className='flex max-h-[400px] flex-col gap-y-2 overflow-y-auto'>
-              <ModelosSimilares similarityModelos={similarityModelos} />
+              <SimilarProfiles similarityProfiles={similarityProfiles} />
               <Button onClick={() => setSimilarityView(false)}>Volver</Button>
             </div>
           )}
@@ -231,8 +222,8 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
                     className='cursor-pointer font-semibold underline'
                     onClick={() => setSimilarityView(true)}
                   >
-                    {similarityModelos.length}{' '}
-                    {similarityModelos.length === 1
+                    {similarityProfiles.length}{' '}
+                    {similarityProfiles.length === 1
                       ? 'participante similar.'
                       : 'participantes similares.'}
                   </span>{' '}
@@ -255,4 +246,4 @@ const CrearModeloModal = ({ open }: { open: boolean }) => {
   );
 };
 
-export default CrearModeloModal;
+export default ModalCreateProfile;

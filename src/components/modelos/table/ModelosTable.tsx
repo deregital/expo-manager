@@ -7,6 +7,7 @@ import { create } from 'zustand';
 import { generateColumns } from '@/components/modelos/table/columns';
 import { Filtro, filterProfiles } from '@/lib/filter';
 import { useSearchQuery } from '@/lib/useSearchQuery';
+import { notChoosableTagTypes } from '@/lib/constants';
 
 export const useProfilesTable = create<{
   count: number;
@@ -95,10 +96,10 @@ const ProfilesTable = () => {
     <DataTable
       isLoading={isLoading && !isRefetching}
       columns={generateColumns(showEvents)}
-      data={data.map((modelo) => ({
-        ...modelo,
-        tags: modelo.tags.filter(
-          (tag) => tag.type !== 'PARTICIPANT' && tag.type !== 'NOT_IN_SYSTEM'
+      data={data.map((profile) => ({
+        ...profile,
+        tags: profile.tags.filter(
+          (tag) => !notChoosableTagTypes.includes(tag.type)
         ),
       }))}
       initialSortingColumn={{ id: 'shortId', desc: true }}

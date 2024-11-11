@@ -16,7 +16,7 @@ export const CellComponent = ({
   assistedId: string;
 }) => {
   const tagsId = row.original.tags.map((tag) => tag.id);
-  const editModelo = trpc.profile.edit.useMutation();
+  const editProfile = trpc.profile.edit.useMutation();
   const useUtils = trpc.useUtils();
 
   async function addPresentismo(
@@ -24,7 +24,7 @@ export const CellComponent = ({
   ) {
     toast.loading('Agregando al presentismo');
     const tagsId = profile.tags.map((tag) => tag.id);
-    await editModelo.mutateAsync({
+    await editProfile.mutateAsync({
       id: profile.id,
       tags: [...tagsId, confirmedAssistanceId],
     });
@@ -44,7 +44,7 @@ export const CellComponent = ({
       ) : (
         <>
           <Button
-            disabled={editModelo.isLoading}
+            disabled={editProfile.isLoading}
             className='px-1'
             onClick={() => {
               if (!row.original.id) {

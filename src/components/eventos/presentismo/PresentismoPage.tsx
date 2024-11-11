@@ -64,7 +64,7 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
     });
   }, [search, profiles]);
 
-  const countModelos = useMemo(() => {
+  const profileCount = useMemo(() => {
     if (!profiles || !evento) return 0;
     return profiles.filter((profile) =>
       profile.tags.find((tag) => tag.id === evento.etiquetaAsistioId)
@@ -86,8 +86,8 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
 
   const handleGeneratePDF = async () => {
     const confirmedProfiles = profilesData
-      .filter((modelo) =>
-        modelo.tags.find(
+      .filter((profile) =>
+        profile.tags.find(
           (tag) =>
             tag.id === evento?.etiquetaConfirmoId ||
             tag.id === evento?.etiquetaAsistioId
@@ -182,8 +182,8 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
         </div>
         <div>
           <h3 className='text-sm sm:text-lg'>
-            Confirmaron: {countModelos}{' '}
-            {countModelos === 1 ? 'participante' : 'participantes'}
+            Confirmaron: {profileCount}{' '}
+            {profileCount === 1 ? 'participante' : 'participantes'}
           </h3>
         </div>
       </div>
