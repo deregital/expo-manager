@@ -1,17 +1,18 @@
 import {
-  asignacionComboBoxOpens,
-  asignacionSelectedData,
-} from '@/components/etiquetas/asignacion/ModelosComboYList';
+  allocationComboBoxOpens,
+  allocationSelectedData,
+} from '@/components/etiquetas/allocation/ProfilesComboAndList';
 import ComboBox from '@/components/ui/ComboBox';
+import { notChoosableTagTypes } from '@/lib/constants';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { Trash } from 'lucide-react';
 import React, { useMemo } from 'react';
 
-interface EtiquetasComboYListProps {}
+interface TagsComboAndListProps {}
 
-const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
+const TagsComboAndList = ({}: TagsComboAndListProps) => {
   const { data: tagGroupsData, isLoading: tagGroupLoading } =
     trpc.tagGroup.getAll.useQuery();
   const { data: tagsData, isLoading: tagsLoading } = trpc.tag.getAll.useQuery();
@@ -21,18 +22,18 @@ const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
     setTags,
     group: currentGroup,
     setGroup: setCurrentGroup,
-  } = asignacionSelectedData();
+  } = allocationSelectedData();
 
   const {
     groups: openGroups,
     setGroupsOpen: setOpenGroups,
     tags: tagsOpen,
     setTags: setTagsOpen,
-  } = asignacionComboBoxOpens();
+  } = allocationComboBoxOpens();
 
   const choosableTags = useMemo(() => {
     const possibleTags = tagsData?.filter((tag) => {
-      if (tag.type !== 'PARTICIPANT') return false;
+      if (notChoosableTagTypes.includes(tag.type)) return false;
       if (!currentGroup)
         return !tags.find(
           (t) =>
@@ -57,7 +58,7 @@ const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
 
   const choosableGroups = useMemo(() => {
     return tagGroupsData?.filter((g) =>
-      g.tags.some((tag) => tag.type === 'PARTICIPANT')
+      g.tags.some((tag) => !notChoosableTagTypes.includes(tag.type))
     );
   }, [tagGroupsData]);
 
@@ -130,4 +131,4 @@ const EtiquetasComboYList = ({}: EtiquetasComboYListProps) => {
   );
 };
 
-export default EtiquetasComboYList;
+export default TagsComboAndList;

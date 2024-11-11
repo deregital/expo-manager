@@ -1,6 +1,5 @@
 import { searchNormalize } from '@/lib/utils';
-import { Perfil } from '@prisma/client';
-import type { Tag, TagGroup } from 'expo-backend-types';
+import type { Tag, TagGroup, Profile } from 'expo-backend-types';
 
 export type Filtro = {
   input: string;
@@ -14,18 +13,28 @@ export type Filtro = {
   }[];
   condicionalTag: 'AND' | 'OR';
   condicionalGroup: 'AND' | 'OR';
-  instagram: Perfil['instagram'];
-  mail: Perfil['mail'];
-  dni: Perfil['dni'];
-  telefono: Perfil['telefono'];
-  genero: Perfil['genero'];
+  instagram: Profile['instagram'];
+  mail: Profile['mail'];
+  dni: Profile['dni'];
+  phoneNumber: Profile['phoneNumber'];
+  gender: Profile['gender'];
 };
 
-export type FiltroTraducido = Omit<Filtro, 'groups'> & {
+export type FiltroTraducido = Omit<
+  Filtro,
+  | 'groups'
+  | 'tags'
+  | 'condicionalTag'
+  | 'condicionalGroup'
+  | 'telefono'
+  | 'genero'
+> & {
   grupos: Filtro['groups'];
   etiquetas: Filtro['tags'];
   condicionalGrupo: Filtro['condicionalGroup'];
   condicionalEtiq: Filtro['condicionalTag'];
+  telefono: Filtro['phoneNumber'];
+  genero: Filtro['gender'];
 };
 
 export type FuncionFiltrar = ({
@@ -37,11 +46,11 @@ export type FuncionFiltrar = ({
   instagram,
   mail,
   dni,
-  telefono,
-  genero,
+  phoneNumber,
+  gender,
 }: Filtro) => void;
 
-export const defaultFilter: Filtro = {
+export const defaultAdvancedFilter: Filtro = {
   input: '',
   tags: [],
   groups: [],
@@ -50,22 +59,22 @@ export const defaultFilter: Filtro = {
   instagram: '',
   mail: '',
   dni: '',
-  telefono: '',
-  genero: '',
+  phoneNumber: '',
+  gender: '',
 };
 
-export function filterModelos<
+export function filterProfiles<
   M extends {
-    nombreCompleto: string;
-    idLegible?: number;
-    instagram: Perfil['instagram'];
-    mail: Perfil['mail'];
-    dni: Perfil['dni'];
-    telefono: Perfil['telefono'];
-    genero: Perfil['genero'];
-    etiquetas: { id: string; grupoId: string }[];
+    fullName: Profile['fullName'];
+    shortId?: Profile['shortId'];
+    instagram: Profile['instagram'];
+    mail: Profile['mail'];
+    dni: Profile['dni'];
+    phoneNumber: Profile['phoneNumber'];
+    gender: Profile['gender'];
+    tags: { id: string; groupId: string }[];
   },
->(modelos: M[], search: Partial<Filtro>): M[] {
+>(profiles: M[], search: Partial<Filtro>): M[] {
   if (
     search.input === undefined &&
     search.tags &&
@@ -75,10 +84,10 @@ export function filterModelos<
     search.instagram === undefined &&
     search.mail === undefined &&
     search.dni === undefined &&
-    search.telefono === undefined &&
-    search.genero === undefined
+    search.phoneNumber === undefined &&
+    search.gender === undefined
   )
-    return modelos;
+    return profiles;
 
   const tagsInclude = search.tags?.filter((et) => et.include) ?? [];
   const tagsNotInclude = search.tags?.filter((et) => !et.include) ?? [];
@@ -86,58 +95,58 @@ export function filterModelos<
   const groupsInclude = search.groups?.filter((gr) => gr.include) ?? [];
   const groupsNotInclude = search.groups?.filter((gr) => !gr.include) ?? [];
 
-  const mod = modelos?.filter((modelo) => {
+  const mod = profiles?.filter((profile) => {
     return (
       (search.input === undefined ||
-        searchNormalize(modelo.nombreCompleto, search.input) ||
-        (modelo.idLegible &&
-          searchNormalize(modelo.idLegible.toString(), search.input))) &&
+        searchNormalize(profile.fullName, search.input) ||
+        (profile.shortId &&
+          searchNormalize(profile.shortId.toString(), search.input))) &&
       (search.instagram === undefined ||
         search.instagram === null ||
-        searchNormalize(modelo.instagram ?? '', search.instagram)) &&
+        searchNormalize(profile.instagram ?? '', search.instagram)) &&
       (search.mail === undefined ||
         search.mail === null ||
-        searchNormalize(modelo.mail ?? '', search.mail)) &&
+        searchNormalize(profile.mail ?? '', search.mail)) &&
       (search.dni === undefined ||
         search.dni === null ||
-        searchNormalize(modelo.dni ?? '', search.dni)) &&
-      (search.telefono === undefined ||
-        searchNormalize(modelo.telefono, search.telefono)) &&
-      (search.genero === undefined ||
-        search.genero === null ||
+        searchNormalize(profile.dni ?? '', search.dni)) &&
+      (search.phoneNumber === undefined ||
+        searchNormalize(profile.phoneNumber, search.phoneNumber)) &&
+      (search.gender === undefined ||
+        search.gender === null ||
         searchNormalize(
-          modelo.genero ?? '',
-          search.genero !== 'Todos' ? search.genero : ''
+          profile.gender ?? '',
+          search.gender !== 'Todos' ? search.gender : ''
         )) &&
       (search.tags === undefined ||
         search.tags.length === 0 ||
         (search.condicionalTag === 'AND'
           ? tagsInclude.every(({ tag }) =>
-              modelo.etiquetas.some((et) => et.id === tag.id)
+              profile.tags.some((et) => et.id === tag.id)
             ) &&
             tagsNotInclude.every(({ tag }) =>
-              modelo.etiquetas.every((et) => et.id !== tag.id)
+              profile.tags.every((et) => et.id !== tag.id)
             )
           : tagsInclude.some(({ tag }) =>
-              modelo.etiquetas.some((et) => et.id === tag.id)
+              profile.tags.some((et) => et.id === tag.id)
             ) &&
             tagsNotInclude.some(({ tag }) =>
-              modelo.etiquetas.every((et) => et.id !== tag.id)
+              profile.tags.every((et) => et.id !== tag.id)
             ))) &&
       (search.groups === undefined ||
         search.groups.length === 0 ||
         (search.condicionalGroup === 'AND'
           ? groupsInclude.every(({ group }) =>
-              modelo.etiquetas.some((et) => et.grupoId === group.id)
+              profile.tags.some((et) => et.groupId === group.id)
             ) &&
             groupsNotInclude.every(({ group }) =>
-              modelo.etiquetas.every((et) => et.grupoId !== group.id)
+              profile.tags.every((et) => et.groupId !== group.id)
             )
           : groupsInclude.some(({ group }) =>
-              modelo.etiquetas.some((et) => et.grupoId === group.id)
+              profile.tags.some((et) => et.groupId === group.id)
             ) &&
             groupsNotInclude.some(({ group }) =>
-              modelo.etiquetas.every((et) => et.grupoId !== group.id)
+              profile.tags.every((et) => et.groupId !== group.id)
             )))
     );
   });

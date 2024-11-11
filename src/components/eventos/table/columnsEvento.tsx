@@ -10,9 +10,9 @@ export function generateColumns(
   confirmedAssitanceId: string,
   assistedId: string
 ) {
-  const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
+  const columns: ColumnDef<RouterOutputs['profile']['getAll'][number]>[] = [
     {
-      accessorKey: 'idLegible',
+      accessorKey: 'shortId',
       header: ({ column }) => {
         return (
           <div
@@ -39,11 +39,11 @@ export function generateColumns(
       maxSize: 50,
       enableResizing: false,
       cell: ({ row }) => {
-        return <p className='w-full text-center'>{row.original.idLegible}</p>;
+        return <p className='w-full text-center'>{row.original.shortId}</p>;
       },
     },
     {
-      accessorKey: 'nombreCompleto',
+      accessorKey: 'fullName',
       header: ({ column }) => {
         return (
           <Button
@@ -102,8 +102,8 @@ export function generateColumns(
       minSize: 100,
       sortingFn: (rowA, rowB) => {
         // This is a custom sorting function that sorts rows that contain id in etiquetas first
-        const a = rowA.original.etiquetas.map((tag) => tag.id);
-        const b = rowB.original.etiquetas.map((tag) => tag.id);
+        const a = rowA.original.tags.map((tag) => tag.id);
+        const b = rowB.original.tags.map((tag) => tag.id);
 
         const hasTagA =
           a.includes(confirmedAssitanceId) || a.includes(assistedId);

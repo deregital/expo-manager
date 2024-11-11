@@ -2,17 +2,15 @@
 import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 
-import EtiquetasList, {
-  GrupoConMatch,
-} from '@/components/etiquetas/list/EtiquetasList';
+import TagsList, { GroupWithMatch } from '@/components/etiquetas/list/TagsList';
 import SearchInput from '@/components/ui/SearchInput';
-import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
-import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
+import TagGroupModal from '@/components/etiquetas/modal/TagGroupModal';
+import TagModal from '@/components/etiquetas/modal/TagModal';
 import Loader from '@/components/ui/loader';
 import { normalize, searchNormalize } from '@/lib/utils';
 import ExpandContractTags, {
   useTagsSettings,
-} from '@/components/etiquetas/list/ExpandContractEtiquetas';
+} from '@/components/etiquetas/list/ExpandContractTags';
 import { ModalTriggerCreate } from '@/components/etiquetas/modal/ModalTrigger';
 import Link from 'next/link';
 import StampIcon from '@/components/icons/StampIcon';
@@ -69,8 +67,8 @@ const EtiquetasPage = () => {
       </p>
       <div className='flex flex-col justify-between gap-4 px-3 md:flex-row md:px-5'>
         <div className='flex flex-col gap-4 md:flex-row'>
-          <GrupoEtiquetaModal action='CREATE' />
-          <EtiquetaModal action='CREATE' />
+          <TagGroupModal action='CREATE' />
+          <TagModal action='CREATE' />
           <Link href='/asignacion'>
             <ModalTriggerCreate className='w-full md:w-fit' onClick={() => {}}>
               <StampIcon className='mr-3 h-6 w-6' />
@@ -112,7 +110,7 @@ const EtiquetasPage = () => {
             <Loader />
           </div>
         ) : (
-          <EtiquetasList groups={(filteredGroups ?? []) as GrupoConMatch[]} />
+          <TagsList groups={(filteredGroups ?? []) as GroupWithMatch[]} />
         )}
       </div>
     </>

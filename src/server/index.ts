@@ -1,5 +1,5 @@
 import { router } from './trpc';
-import { modeloRouter } from '@/server/routers/modelosRouter';
+import { profileRouter } from '@/server/routers/profileRouter';
 import { tagRouter } from '@/server/routers/tagRouter';
 import { whatsappRouter } from '@/server/routers/whatsappRouter';
 import { tagGroupRouter } from '@/server/routers/tagGroupRouter';
@@ -14,7 +14,7 @@ import { cannedResponseRouter } from '@/server/routers/canned-responseRouter';
 import { commentRouter } from '@/server/routers/commentRouter';
 
 export const appRouter = router({
-  modelo: modeloRouter,
+  profile: profileRouter,
   tag: tagRouter,
   whatsapp: whatsappRouter,
   tagGroup: tagGroupRouter,

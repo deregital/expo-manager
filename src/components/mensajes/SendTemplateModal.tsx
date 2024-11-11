@@ -19,13 +19,13 @@ export const useTemplateSend = create<{
   open: boolean;
   tags: TagProps[];
   plantilla: string;
-  modelos: number;
+  profiles: number;
   precio: number;
 }>(() => ({
   open: false,
   tags: [],
   plantilla: '',
-  modelos: 0,
+  profiles: 0,
   precio: 0,
 }));
 
@@ -43,7 +43,7 @@ const SendTemplateModal = () => {
         open: false,
         plantilla: '',
         tags: [],
-        modelos: 0,
+        profiles: 0,
         precio: 0,
       });
       return;
@@ -63,8 +63,8 @@ const SendTemplateModal = () => {
         <p>
           ¿Estás seguro de que deseas enviar la plantilla{' '}
           {templateData.plantilla ? templateData.plantilla : '-'} a{' '}
-          {templateData.modelos}{' '}
-          {templateData.modelos !== 1 ? 'participantes' : 'participante'} a un
+          {templateData.profiles}{' '}
+          {templateData.profiles !== 1 ? 'participantes' : 'participante'} a un
           valor de USD${templateData.precio.toFixed(3)}?
         </p>
         <div className='flex items-center justify-end gap-x-2'>

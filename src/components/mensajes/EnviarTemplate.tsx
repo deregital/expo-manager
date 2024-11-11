@@ -24,7 +24,7 @@ const EnviarTemplate = () => {
   }));
   const { data } = trpc.whatsapp.getTemplates.useQuery();
   const { data: tags } = trpc.tag.getAll.useQuery();
-  const { data: modelos } = trpc.modelo.getByEtiqueta.useQuery(
+  const { data: profiles } = trpc.profile.getByTags.useQuery(
     templateData.tags.map((et) => et.id)
   );
   const { data: template } = trpc.whatsapp.getTemplateById.useQuery(
@@ -46,8 +46,8 @@ const EnviarTemplate = () => {
       categoria = 'MARKETING';
     }
 
-    return precioTemplate[categoria] * (modelos ? modelos.length : 0);
-  }, [modelos, template?.data, templateData.plantilla]);
+    return precioTemplate[categoria] * (profiles ? profiles.length : 0);
+  }, [profiles, template?.data, templateData.plantilla]);
 
   const currentTags = useMemo(() => {
     return tags?.filter(
@@ -66,7 +66,7 @@ const EnviarTemplate = () => {
     }
     useTemplateSend.setState({
       open: true,
-      modelos: modelos?.length ?? 0,
+      profiles: profiles?.length ?? 0,
       precio: currentPrecio,
     });
   }
@@ -181,7 +181,7 @@ const EnviarTemplate = () => {
       </div>
       <div className='flex items-center justify-around'>
         <div className=''>
-          <span>{modelos?.length} participantes encontrados</span>
+          <span>{profiles?.length} participantes encontrados</span>
         </div>
         <div>
           <span>USD${currentPrecio.toFixed(3)} precio estimado</span>

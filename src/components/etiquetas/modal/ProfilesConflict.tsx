@@ -4,14 +4,14 @@ import { RouterOutputs } from '@/server';
 import { ShieldQuestionIcon } from 'lucide-react';
 import React, { useState } from 'react';
 
-interface ModelosConflictProps {
-  modelos: RouterOutputs['modelo']['getByGrupoEtiqueta'] | undefined;
+interface ProfilesConflictProps {
+  profiles: RouterOutputs['profile']['getByTagGroups'] | undefined;
 }
 
-const ModelosConflict = ({ modelos }: ModelosConflictProps) => {
+const ProfilesConflict = ({ profiles }: ProfilesConflictProps) => {
   const [showAll, setShowAll] = useState(false);
 
-  if (!modelos || modelos.length === 0) return null;
+  if (!profiles || profiles.length === 0) return null;
 
   return (
     <div className='text-red-500'>
@@ -22,34 +22,34 @@ const ModelosConflict = ({ modelos }: ModelosConflictProps) => {
         <span> Hay modelos con más de una etiqueta este grupo:</span>
       </p>
       <ul className='mt-3'>
-        {modelos.map((modelo, idx) => {
+        {profiles.map((profile, idx) => {
           if (!showAll && idx >= 4) return null;
 
           return (
-            <li key={`${modelo.id}-${idx}`}>
+            <li key={`${profile.id}-${idx}`}>
               <a
                 rel='noopener noreferrer'
                 className='hover:underline'
-                href={`/modelo/${modelo.id}`}
+                href={`/modelo/${profile.id}`}
                 target='_blank'
               >
-                {modelo.nombreCompleto}
+                {profile.fullName}
               </a>
               {' - '}
-              {modelo.etiquetas.slice(0, 3)?.map((etiqueta) => (
+              {profile.tags.slice(0, 3)?.map((tag) => (
                 <Badge
-                  key={etiqueta.id}
+                  key={tag.id}
                   variant={'default'}
                   className='mr-1 select-none'
-                  title={etiqueta.nombre}
+                  title={tag.name}
                 >
-                  {etiqueta.nombre}
+                  {tag.name}
                 </Badge>
               ))}
             </li>
           );
         })}
-        {modelos.length > 4 && (
+        {profiles.length > 4 && (
           <Button
             className='p-0'
             variant={'link'}
@@ -63,4 +63,4 @@ const ModelosConflict = ({ modelos }: ModelosConflictProps) => {
   );
 };
 
-export default ModelosConflict;
+export default ProfilesConflict;

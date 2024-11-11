@@ -11,53 +11,27 @@ export const CellComponent = ({
   confirmedAssistanceId,
   assistedId,
 }: {
-  row: Row<RouterOutputs['modelo']['getAll'][number]>;
+  row: Row<RouterOutputs['profile']['getAll'][number]>;
   confirmedAssistanceId: string;
   assistedId: string;
 }) => {
-  const tagsId = row.original.etiquetas.map((tag: any) => tag.id);
-  const { data: tagConfirmed } = trpc.tag.getById.useQuery(
-    confirmedAssistanceId,
-    {
-      enabled: !!row.original,
-    }
-  );
-  const editModelo = trpc.modelo.edit.useMutation();
+  const tagsId = row.original.tags.map((tag) => tag.id);
+  const editProfile = trpc.profile.edit.useMutation();
   const useUtils = trpc.useUtils();
 
   async function addPresentismo(
-    modelo: RouterOutputs['modelo']['getAll'][number]
+    profile: RouterOutputs['profile']['getAll'][number]
   ) {
     toast.loading('Agregando al presentismo');
-    const tagsId = modelo.etiquetas.map((tag) => {
-      return {
-        id: tag.id,
-        grupo: {
-          id: tag.grupoId,
-          esExclusivo: tag.grupo.esExclusivo,
-        },
-        nombre: tag.nombre,
-      };
-    });
-    await editModelo.mutateAsync({
-      id: modelo.id,
-      etiquetas: [
-        ...tagsId,
-        {
-          id: tagConfirmed!.id,
-          grupo: {
-            // TODO: Fix this
-            id: tagConfirmed!.group.id as string,
-            esExclusivo: tagConfirmed!.group.isExclusive as boolean,
-          },
-          nombre: tagConfirmed!.name,
-        },
-      ],
+    const tagsId = profile.tags.map((tag) => tag.id);
+    await editProfile.mutateAsync({
+      id: profile.id,
+      tags: [...tagsId, confirmedAssistanceId],
     });
     toast.dismiss();
     toast.success('Se agregó al presentismo');
-    useUtils.modelo.getAll.invalidate();
-    useUtils.modelo.getByEtiqueta.invalidate();
+    useUtils.profile.getAll.invalidate();
+    useUtils.profile.getByTags.invalidate();
   }
 
   return (
@@ -70,7 +44,7 @@ export const CellComponent = ({
       ) : (
         <>
           <Button
-            disabled={editModelo.isLoading}
+            disabled={editProfile.isLoading}
             className='px-1'
             onClick={() => {
               if (!row.original.id) {

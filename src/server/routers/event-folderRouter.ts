@@ -20,7 +20,7 @@ export const eventFolderRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const { data, error } = await ctx.fetch.GET('/event-folder/all');
     if (error) throw handleError(error);
-    return data.eventFolders;
+    return data.folders;
   }),
 
   getById: protectedProcedure

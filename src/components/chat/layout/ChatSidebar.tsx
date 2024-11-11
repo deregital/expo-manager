@@ -3,81 +3,82 @@ import { useChatSidebar } from '@/components/chat/layout/ChatSidebarMobile';
 import ContactoCard from '@/components/chat/layout/ContactoCard';
 import ContactosNoChat from '@/components/chat/layout/ContactosNoChat';
 import Loader from '@/components/ui/loader';
-import { Filtro, filterModelos } from '@/lib/filter';
+import { Filtro, filterProfiles } from '@/lib/filter';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React, { useMemo } from 'react';
 import CannedResponsesModal from '../CannedResponsesModal';
+import { RouterOutputs } from '@/server';
 
 type ChatSidebarProps = {
-  filtro: Filtro;
+  filter: Filtro;
 };
 
-const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
-  const { data: contactos, isLoading: contactosLoading } =
-    trpc.modelo.getAllWithInChat.useQuery();
+const ChatSidebar = ({ filter }: ChatSidebarProps) => {
+  const { data: profiles, isLoading: profilesLoading } =
+    trpc.profile.getAllWithActiveChat.useQuery();
 
-  const params = useParams();
-  const telefonoSelected = params.telefono as string;
+  const params = useParams<{ telefono: string }>();
+  const phoneNumberSelected = params.telefono;
 
-  const contactosFiltrados = useMemo(() => {
-    if (!contactos) {
+  const filteredProfiles = useMemo(() => {
+    if (!profiles) {
       return [];
     }
-    return filterModelos(contactos, filtro);
-  }, [contactos, filtro]);
+    return filterProfiles(profiles, filter);
+  }, [profiles, filter]);
 
-  const contactosNoLeidos = useMemo(() => {
-    return contactosFiltrados
-      ? contactosFiltrados.filter((contacto) =>
-          contacto.mensajes.some((m) => !m.visto)
+  const nonReadProfiles = useMemo(() => {
+    return filteredProfiles
+      ? filteredProfiles.filter((profile) =>
+          profile.messages.some((m) => m.state !== 'SEEN')
         )
       : [];
-  }, [contactosFiltrados]);
+  }, [filteredProfiles]);
 
-  const contactosLeidos = useMemo(() => {
-    if (!contactosFiltrados) {
+  const readProfiles = useMemo(() => {
+    if (!filteredProfiles) {
       return [];
     }
-    return contactosNoLeidos.length > 0
-      ? contactosFiltrados.filter(
-          (contacto) => !contactosNoLeidos.some((cnl) => cnl.id === contacto.id)
+    return nonReadProfiles.length > 0
+      ? filteredProfiles.filter(
+          (profile) => !nonReadProfiles.some((cnl) => cnl.id === profile.id)
         )
-      : contactosFiltrados;
-  }, [contactosFiltrados, contactosNoLeidos]);
+      : filteredProfiles;
+  }, [filteredProfiles, nonReadProfiles]);
 
-  const getUltimaFechaMensaje = (contacto: any) => {
-    const ultimoMensaje =
-      contacto.mensajes.length > 0
-        ? contacto.mensajes[contacto.mensajes.length - 1]
+  const getDateOfLastMessage = (
+    profile: RouterOutputs['profile']['getAllWithActiveChat'][number]
+  ) => {
+    const lastMessage =
+      profile.messages.length > 0
+        ? profile.messages[profile.messages.length - 1]
         : null;
-    return ultimoMensaje
-      ? new Date(ultimoMensaje.message.timestamp)
-      : new Date(0);
+    return lastMessage ? new Date(lastMessage.message.timestamp) : new Date(0);
   };
 
-  const contactosActivos = useMemo(() => {
-    return contactosLeidos
+  const activeProfiles = useMemo(() => {
+    return readProfiles
       .filter((c) => c.inChat)
       .sort((a, b) => {
-        const fechaA = getUltimaFechaMensaje(a);
-        const fechaB = getUltimaFechaMensaje(b);
-        return fechaB.getTime() - fechaA.getTime();
+        const dateA = getDateOfLastMessage(a);
+        const dateB = getDateOfLastMessage(b);
+        return dateB.getTime() - dateA.getTime();
       });
-  }, [contactosLeidos]);
+  }, [readProfiles]);
 
-  const contactosInactivos = useMemo(() => {
-    return contactosLeidos
+  const inactiveProfiles = useMemo(() => {
+    return readProfiles
       .filter((c) => !c.inChat)
       .sort((a, b) => {
-        const fechaA = getUltimaFechaMensaje(a);
-        const fechaB = getUltimaFechaMensaje(b);
-        return fechaB.getTime() - fechaA.getTime();
+        const dateA = getDateOfLastMessage(a);
+        const dateB = getDateOfLastMessage(b);
+        return dateB.getTime() - dateA.getTime();
       });
-  }, [contactosLeidos]);
+  }, [readProfiles]);
 
-  if (contactosLoading) {
+  if (profilesLoading) {
     return (
       <div className='flex h-full items-center justify-center'>
         <Loader />
@@ -86,40 +87,38 @@ const ChatSidebar = ({ filtro }: ChatSidebarProps) => {
   }
 
   return (
-    contactos && (
+    profiles && (
       <aside className='grid h-full grid-cols-1 grid-rows-[auto,1fr] gap-y-2 pb-4'>
         <div className='max-h-80 overflow-y-auto'>
-          {contactosNoLeidos.map((contacto) => (
+          {nonReadProfiles.map((profile) => (
             <Link
-              href={`/mensajes/${contacto.telefono}`}
-              key={contacto.id}
+              href={`/mensajes/${profile.phoneNumber}`}
+              key={profile.id}
               onClick={() => {
                 useChatSidebar.setState({ isOpen: false });
               }}
             >
               <ContactoCard
-                inPage={telefonoSelected === contacto.telefono}
-                key={contacto.id}
-                contacto={contacto}
-                noLeidos={
-                  (contacto.mensajes as { visto: boolean }[]).filter(
-                    (m) => !m.visto
-                  ).length
+                inPage={phoneNumberSelected === profile.phoneNumber}
+                key={profile.id}
+                profile={profile}
+                nonRead={
+                  profile.messages.filter((m) => m.state !== 'SEEN').length
                 }
               />
             </Link>
           ))}
         </div>
         <ContactosNoChat
-          telefonoSelected={telefonoSelected}
+          telefonoSelected={phoneNumberSelected}
           items={[
             {
               title: 'Contactos activos',
-              contactos: contactosActivos,
+              contactos: activeProfiles,
             },
             {
               title: 'Contactos inactivos',
-              contactos: contactosInactivos,
+              contactos: inactiveProfiles,
             },
           ]}
         />

@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ComboBox from '@/components/ui/ComboBox';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 
-const ComboBoxModelos = ({
+const ProfilesComboBox = ({
   data,
 }: {
   data: RouterOutputs['tagGroup']['getAll'];
@@ -58,4 +58,4 @@ const ComboBoxModelos = ({
   );
 };
 
-export default ComboBoxModelos;
+export default ProfilesComboBox;

@@ -17,87 +17,98 @@ import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { differenceInYears } from 'date-fns';
+import { Profile, UpdateProfileDto } from 'expo-backend-types';
 import { TrashIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 
-interface ModeloEditModalProps {
-  modelo: NonNullable<RouterOutputs['modelo']['getById']>;
+interface ProfileEditModalProps {
+  profile: NonNullable<RouterOutputs['profile']['getById']>;
 }
 
-interface ModeloModalData {
+type ProfileModalData = Pick<
+  Profile,
+  | 'gender'
+  | 'birthDate'
+  | 'alternativeNames'
+  | 'instagram'
+  | 'mail'
+  | 'dni'
+  | 'secondaryPhoneNumber'
+> & {
   open: boolean;
-  genero: string;
-  fechaNacimiento: Date | undefined;
-  nombresAlternativos: string[];
-  instagram: string | undefined;
-  mail: string | undefined;
-  dni: string | undefined;
-  telefono: string | undefined;
-  telefonoSecundario: string | null | undefined;
-  nombreCompleto: string | undefined;
-  birth: {
-    country: string | undefined;
-    state: string | undefined;
-    latitude: number | undefined;
-    longitude: number | undefined;
-  };
-  residence: {
-    latitude: number | undefined;
-    longitude: number | undefined;
-    state: string | undefined;
-    city: string | undefined;
-  };
+  phoneNumber: Profile['phoneNumber'] | undefined;
+  fullName: Profile['fullName'] | undefined;
+  birth: NonNullable<UpdateProfileDto['birth']>;
+  residence: NonNullable<UpdateProfileDto['residence']>;
+};
+
+export function ageFromBirthDate(birthDate: string) {
+  return differenceInYears(new Date(), new Date(birthDate));
 }
 
-export function edadFromFechaNacimiento(fechaNacimiento: string) {
-  return differenceInYears(new Date(), new Date(fechaNacimiento));
-}
-
-const useModeloModalData = create<ModeloModalData>(() => ({
+const useProfileModalData = create<ProfileModalData>(() => ({
   open: false,
-  genero: 'N/A',
-  fechaNacimiento: undefined,
-  nombresAlternativos: [],
-  instagram: undefined,
-  mail: undefined,
-  dni: undefined,
-  telefono: undefined,
-  telefonoSecundario: undefined,
-  nombreCompleto: undefined,
+  gender: 'N/A',
+  birthDate: null,
+  alternativeNames: [],
+  instagram: null,
+  mail: null,
+  dni: null,
+  phoneNumber: undefined,
+  secondaryPhoneNumber: null,
+  fullName: undefined,
   birth: {
-    country: undefined,
-    state: undefined,
-    latitude: undefined,
-    longitude: undefined,
+    country: '',
+    city: '',
+    state: '',
+    latitude: 0,
+    longitude: 0,
   },
   residence: {
-    latitude: undefined,
-    longitude: undefined,
-    state: undefined,
-    city: undefined,
+    latitude: 0,
+    country: 'Argentina',
+    longitude: 0,
+    state: '',
+    city: '',
   },
 }));
 
-const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
+const ProfileEditModal = ({ profile }: ProfileEditModalProps) => {
   const {
     open,
-    genero,
-    fechaNacimiento,
-    nombresAlternativos,
+    gender,
+    birthDate,
+    alternativeNames,
     instagram,
     mail,
     dni,
-    telefono,
-    telefonoSecundario,
-    nombreCompleto,
+    phoneNumber,
+    secondaryPhoneNumber,
+    fullName,
     birth,
     residence,
-  } = useModeloModalData();
+  } = useProfileModalData();
+  const [countryIsoCode, setCountryIsoCode] = useState('');
   const [openSelect, setOpenSelect] = useState(false);
   const [error, setError] = useState('');
   const utils = trpc.useUtils();
+
+  const { data: allCountries } = trpc.location.getCountries.useQuery();
+  const { data: statesBySelectedCountry } =
+    trpc.location.getStateByCountry.useQuery(countryIsoCode, {
+      enabled: !!birth.country,
+    });
+
+  const { data: argStates } = trpc.location.getArgStates.useQuery();
+
+  const { data: citiesData } = trpc.location.getCitiesByArgState.useQuery(
+    residence?.state ?? '',
+    {
+      enabled: !!residence?.state,
+    }
+  );
 
   const [openCountrySelect, setOpenCountrySelect] = useState(false);
   const [openStateSelect, setOpenStateSelect] = useState(false);
@@ -105,46 +116,35 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
   const [openCitySelect, setOpenCitySelect] = useState(false);
 
   useEffect(() => {
-    useModeloModalData.setState({
-      fechaNacimiento: modelo.fechaNacimiento
-        ? new Date(modelo.fechaNacimiento)
-        : undefined,
-      nombresAlternativos: modelo.nombresAlternativos,
-      instagram: modelo.instagram ?? undefined,
-      mail: modelo.mail ?? undefined,
-      dni: modelo.dni ?? undefined,
-      telefono: modelo.telefono ?? undefined,
-      telefonoSecundario: modelo.telefonoSecundario,
-      nombreCompleto: modelo.nombreCompleto ?? undefined,
-      birth: {
-        country: modelo.paisNacimiento ?? '',
-        state: modelo.provinciaNacimiento ?? '',
-        // TODO: Add latitud and longitud to the modelo
-        latitude: /*modelo.nacimiento?.latitud*/ undefined,
-        longitude: /*modelo.nacimiento?.longitud*/ undefined,
-      },
-      residence: {
-        latitude: modelo.residencia?.latitud,
-        longitude: modelo.residencia?.longitud,
-        state: modelo.residencia?.provincia ?? '',
-        city: modelo.residencia?.localidad ?? '',
-      },
+    useProfileModalData.setState({
+      birthDate: profile.birthDate ? new Date(profile.birthDate) : undefined,
+      alternativeNames: profile.alternativeNames,
+      instagram: profile.instagram ?? undefined,
+      mail: profile.mail ?? undefined,
+      dni: profile.dni ?? undefined,
+      phoneNumber: profile.phoneNumber ?? undefined,
+      secondaryPhoneNumber: profile.secondaryPhoneNumber,
+      fullName: profile.fullName ?? undefined,
+      birth: profile.birthLocation ?? undefined,
+      residence: profile.residenceLocation ?? undefined,
     });
-  }, [modelo]);
+    const isoCode = allCountries?.find(
+      (country) => country.name === profile.birthLocation?.country
+    )?.isoCode;
+    setCountryIsoCode(isoCode ?? '');
+  }, [allCountries, profile]);
 
-  const editModelo = trpc.modelo.edit.useMutation({
+  const editProfile = trpc.profile.edit.useMutation({
     onSuccess: () => {
       toast.success('Participante editado con éxito');
-      useModeloModalData.setState({
-        genero: modelo.genero ?? 'N/A',
-        fechaNacimiento: modelo.fechaNacimiento
-          ? new Date(modelo.fechaNacimiento)
-          : undefined,
+      useProfileModalData.setState({
+        gender: profile.gender ?? 'N/A',
+        birthDate: profile.birthDate ? new Date(profile.birthDate) : undefined,
         open: false,
       });
       setOpenSelect(false);
       setError('');
-      utils.modelo.getById.invalidate(modelo.id);
+      utils.profile.getById.invalidate(profile.id);
     },
     onError: (error) => {
       const errorCode = error.data?.code;
@@ -167,115 +167,80 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
   });
 
   function addNickname() {
-    useModeloModalData.setState({
-      nombresAlternativos: [...nombresAlternativos, ''],
+    useProfileModalData.setState({
+      alternativeNames: [...alternativeNames, ''],
     });
   }
 
   function removeNickname(index: number) {
-    useModeloModalData.setState({
-      nombresAlternativos: nombresAlternativos.filter((_, i) => i !== index),
+    useProfileModalData.setState({
+      alternativeNames: alternativeNames.filter((_, i) => i !== index),
     });
   }
 
   function handleNicknameChange(index: number, value: string) {
-    const newNombresAlternativos = [...nombresAlternativos];
+    const newNombresAlternativos = [...alternativeNames];
     newNombresAlternativos[index] = value;
-    useModeloModalData.setState({
-      nombresAlternativos: newNombresAlternativos,
+    useProfileModalData.setState({
+      alternativeNames: newNombresAlternativos,
     });
   }
 
   function intercambiarNumeros() {
-    if (!telefono || !telefonoSecundario) return;
-    useModeloModalData.setState((state) => {
-      if (!state.telefonoSecundario) return {};
+    if (!phoneNumber || !secondaryPhoneNumber) return;
+    useProfileModalData.setState((state) => {
+      if (!state.secondaryPhoneNumber) return {};
       return {
-        telefono: state.telefonoSecundario,
-        telefonoSecundario: state.telefono,
+        phoneNumber: state.secondaryPhoneNumber,
+        secondaryPhoneNumber: state.phoneNumber,
       };
     });
   }
 
   async function edit() {
-    if (!telefono) {
+    if (!phoneNumber) {
       setError('El teléfono es requerido');
       return;
     }
     try {
-      return await editModelo.mutateAsync({
-        id: modelo.id,
-        genero,
-        fechaNacimiento: fechaNacimiento
-          ? fechaNacimiento.toString()
-          : undefined,
-        nombresAlternativos: nombresAlternativos.filter(
-          (apodo) => apodo !== ''
-        ),
+      return await editProfile.mutateAsync({
+        id: profile.id,
+        gender: gender ?? undefined,
+        birthDate: birthDate ? birthDate.toString() : undefined,
+        alternativeNames: alternativeNames.filter((apodo) => apodo !== ''),
         instagram: instagram ?? null,
         mail: mail ?? null,
         dni: dni ?? null,
-        telefono: telefono ?? undefined,
-        telefonoSecundario: telefonoSecundario,
-        nombreCompleto: nombreCompleto ?? undefined,
-        paisNacimiento: birth.country ?? '',
-        provinciaNacimiento: birth.state ?? '',
-        residenciaLatitud: residence?.latitude,
-        residenciaLongitud: residence?.longitude,
-        provinciaResidencia: residence?.state,
-        localidadResidencia: residence?.city,
+        phoneNumber: phoneNumber ?? undefined,
+        secondaryPhoneNumber: secondaryPhoneNumber,
+        fullName: fullName ?? undefined,
+        birth: birth,
+        residence: residence,
       });
     } catch (error) {}
   }
 
   async function handleCancel() {
-    useModeloModalData.setState({
-      genero: modelo.genero ?? 'N/A',
-      fechaNacimiento: modelo.fechaNacimiento
-        ? new Date(modelo.fechaNacimiento)
-        : undefined,
-      birth: {
-        country: modelo.paisNacimiento ?? '',
-        state: modelo.provinciaNacimiento ?? '',
-        // TODO: Add latitud and longitud to the modelo
-        latitude: /*modelo.nacimiento?.latitud*/ undefined,
-        longitude: /*modelo.nacimiento?.longitud*/ undefined,
-      },
-      residence: {
-        latitude: modelo.residencia?.latitud,
-        longitude: modelo.residencia?.longitud,
-        state: modelo.residencia?.provincia ?? '',
-        city: modelo.residencia?.localidad ?? '',
-      },
+    useProfileModalData.setState({
+      gender: profile.gender ?? 'N/A',
+      birthDate: profile.birthDate ? new Date(profile.birthDate) : undefined,
+      birth: profile.birthLocation ?? undefined,
+      residence: profile.residenceLocation ?? undefined,
       open: false,
     });
     setOpenSelect(false);
     setError('');
   }
 
-  const { data: allCountries } = trpc.location.getCountries.useQuery();
-  const { data: statesBySelectedCountry } =
-    trpc.location.getStateByCountry.useQuery(birth.country ?? '', {
-      enabled: !!birth.country,
-    });
-
-  const { data: argStates } = trpc.location.getArgStates.useQuery();
-
-  const { data: citiesData } = trpc.location.getCitiesByArgState.useQuery(
-    residence?.state ?? '',
-    {
-      enabled: !!residence?.state,
-    }
-  );
   const telefonoSecundarioExists = useMemo(() => {
-    return telefonoSecundario !== null && telefonoSecundario !== undefined;
-  }, [telefonoSecundario]);
+    return secondaryPhoneNumber !== null && secondaryPhoneNumber !== undefined;
+  }, [secondaryPhoneNumber]);
 
   return (
     <Dialog
       open={open}
       onOpenChange={(value) => {
-        useModeloModalData.setState({
+        useProfileModalData.setState({
           open: value,
         });
       }}
@@ -284,19 +249,19 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
         <ModalTriggerEdit
           onClick={(e) => {
             e.preventDefault();
-            useModeloModalData.setState({
+            useProfileModalData.setState({
               open: true,
-              genero: modelo.genero ?? 'N/A',
-              fechaNacimiento: modelo.fechaNacimiento
-                ? new Date(modelo.fechaNacimiento)
+              gender: profile.gender ?? 'N/A',
+              birthDate: profile.birthDate
+                ? new Date(profile.birthDate)
                 : undefined,
-              nombresAlternativos: modelo.nombresAlternativos,
-              instagram: modelo.instagram ?? undefined,
-              mail: modelo.mail ?? undefined,
-              dni: modelo.dni ?? undefined,
-              telefono: modelo.telefono ?? undefined,
-              telefonoSecundario: modelo.telefonoSecundario ?? undefined,
-              nombreCompleto: modelo.nombreCompleto ?? undefined,
+              alternativeNames: profile.alternativeNames,
+              instagram: profile.instagram ?? undefined,
+              mail: profile.mail ?? undefined,
+              dni: profile.dni ?? undefined,
+              phoneNumber: profile.phoneNumber ?? undefined,
+              secondaryPhoneNumber: profile.secondaryPhoneNumber ?? undefined,
+              fullName: profile.fullName ?? undefined,
             });
           }}
         >
@@ -318,10 +283,10 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               type='text'
               name='nombreCompleto'
               id='nombreCompleto'
-              value={nombreCompleto ?? ''}
+              value={fullName ?? ''}
               onChange={(e) => {
-                useModeloModalData.setState({
-                  nombreCompleto: e.currentTarget.value || undefined,
+                useProfileModalData.setState({
+                  fullName: e.currentTarget.value || undefined,
                 });
               }}
             />
@@ -333,11 +298,11 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               open={openSelect}
               onOpenChange={setOpenSelect}
               onValueChange={(value) => {
-                useModeloModalData.setState({
-                  genero: value as string,
+                useProfileModalData.setState({
+                  gender: value as string,
                 });
               }}
-              defaultValue={modelo.genero ?? 'N/A'}
+              defaultValue={profile.gender ?? 'N/A'}
             >
               <SelectTrigger className='w-full'>
                 <SelectValue placeholder='Género' />
@@ -346,7 +311,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
                 <SelectItem value='Femenino'>Femenino</SelectItem>
                 <SelectItem value='Masculino'>Masculino</SelectItem>
                 <SelectItem value='Otro'>Otro</SelectItem>
-                <SelectItem disabled={!!modelo.genero} value='N/A'>
+                <SelectItem disabled={!!profile.gender} value='N/A'>
                   N/A
                 </SelectItem>
               </SelectContent>
@@ -363,15 +328,15 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               name='edad'
               id='fechaNacimiento'
               value={
-                fechaNacimiento
-                  ? isNaN(fechaNacimiento?.getTime())
+                birthDate
+                  ? isNaN(birthDate?.getTime())
                     ? ''
-                    : fechaNacimiento.toISOString().split('T')[0]
+                    : birthDate.toISOString().split('T')[0]
                   : ''
               }
               onChange={(e) => {
-                useModeloModalData.setState({
-                  fechaNacimiento: new Date(e.currentTarget.value),
+                useProfileModalData.setState({
+                  birthDate: new Date(e.currentTarget.value),
                 });
               }}
             />
@@ -386,7 +351,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               id='instagram'
               value={instagram ?? ''}
               onChange={(e) => {
-                useModeloModalData.setState({
+                useProfileModalData.setState({
                   instagram: e.currentTarget.value || undefined,
                 });
               }}
@@ -400,7 +365,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               id='mail'
               value={mail ?? ''}
               onChange={(e) => {
-                useModeloModalData.setState({
+                useProfileModalData.setState({
                   mail: e.currentTarget.value || undefined,
                 });
               }}
@@ -416,7 +381,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
               id='dni'
               value={dni ?? ''}
               onChange={(e) => {
-                useModeloModalData.setState({
+                useProfileModalData.setState({
                   dni: e.currentTarget.value || undefined,
                 });
               }}
@@ -435,10 +400,10 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
                   type='text'
                   name='telefono'
                   id='telefono'
-                  value={telefono ?? ''}
+                  value={phoneNumber ?? ''}
                   onChange={(e) => {
-                    useModeloModalData.setState({
-                      telefono: e.currentTarget.value || undefined,
+                    useProfileModalData.setState({
+                      phoneNumber: e.currentTarget.value || undefined,
                     });
                   }}
                 />
@@ -448,8 +413,8 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
                     className='bg-black p-2 text-white hover:bg-gray-700'
                     title='Agregar Teléfono Secundario'
                     onClick={() => {
-                      useModeloModalData.setState({
-                        telefonoSecundario: '',
+                      useProfileModalData.setState({
+                        secondaryPhoneNumber: '',
                       });
                     }}
                   >
@@ -468,17 +433,17 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
                       type='text'
                       name='telefonoSecundario'
                       id='telefonoSecundario'
-                      value={telefonoSecundario ?? ''}
+                      value={secondaryPhoneNumber ?? ''}
                       onChange={(e) => {
-                        useModeloModalData.setState({
-                          telefonoSecundario: e.currentTarget.value,
+                        useProfileModalData.setState({
+                          secondaryPhoneNumber: e.currentTarget.value,
                         });
                       }}
                     />
                     <Button
                       onClick={() => {
-                        useModeloModalData.setState({
-                          telefonoSecundario: null,
+                        useProfileModalData.setState({
+                          secondaryPhoneNumber: null,
                         });
                       }}
                       className='w-8 p-1'
@@ -487,10 +452,10 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
                       <TrashIcon className='w-full' />
                     </Button>
                   </div>
-                  {telefonoSecundario &&
-                    telefonoSecundario.length > 0 &&
-                    telefono &&
-                    telefono.length > 0 && (
+                  {secondaryPhoneNumber &&
+                    secondaryPhoneNumber.length > 0 &&
+                    phoneNumber &&
+                    phoneNumber.length > 0 && (
                       <Button
                         variant='secondary'
                         className='mt-2 bg-blue-800 p-2 text-white hover:bg-blue-900'
@@ -506,7 +471,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
         </div>
         <div className='flex flex-col gap-y-2'>
           <Label htmlFor='nombresAlternativos'>Nombres Alternativos</Label>
-          {nombresAlternativos.map((apodo, index) => (
+          {alternativeNames.map((apodo, index) => (
             <div key={index} className='flex items-center gap-x-2'>
               <Input
                 type='text'
@@ -539,22 +504,28 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           <Select
             open={openCountrySelect}
             onOpenChange={setOpenCountrySelect}
-            onValueChange={(value) => {
-              useModeloModalData.setState({
+            onValueChange={(name) => {
+              const isoCode =
+                allCountries?.find((country) => country.name === name)
+                  ?.isoCode ?? '';
+
+              setCountryIsoCode(isoCode);
+
+              useProfileModalData.setState({
                 birth: {
                   ...birth,
-                  country: value as string,
+                  country: name,
                 },
               });
             }}
-            defaultValue={birth.country}
+            defaultValue={birth.country === '' ? undefined : birth.country}
           >
             <SelectTrigger>
               <SelectValue placeholder='País' />
             </SelectTrigger>
             <SelectContent>
               {allCountries?.map((country) => (
-                <SelectItem key={country.isoCode} value={country.isoCode}>
+                <SelectItem key={country.isoCode} value={country.name}>
                   {country.name}
                 </SelectItem>
               ))}
@@ -563,37 +534,35 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           <Select
             open={openStateSelect}
             onOpenChange={setOpenStateSelect}
-            onValueChange={(value) => {
-              const state = JSON.parse(value) as {
-                latitude: number;
-                longitude: number;
-                name: string;
-              };
-              useModeloModalData.setState({
+            onValueChange={(name) => {
+              const state = statesBySelectedCountry?.find(
+                (state) => state.name === name
+              );
+
+              if (!state) return;
+
+              const numberLat = Number(state.latitude);
+              const numberLong = Number(state.longitude);
+
+              useProfileModalData.setState({
                 birth: {
                   ...birth,
-                  latitude: state.latitude,
-                  longitude: state.longitude,
-                  state: state.name,
+                  latitude: isNaN(numberLat) ? 0 : numberLat,
+                  longitude: isNaN(numberLong) ? 0 : numberLong,
+                  city: state.name,
+                  state: '',
                 },
               });
             }}
-            disabled={!birth.country}
-            defaultValue={birth.state}
+            disabled={!birth.country || birth.country === ''}
+            defaultValue={birth.city}
           >
             <SelectTrigger>
               <SelectValue placeholder='Provincia' />
             </SelectTrigger>
             <SelectContent>
               {statesBySelectedCountry?.map((state) => (
-                <SelectItem
-                  key={state.isoCode}
-                  value={JSON.stringify({
-                    latitude: state.latitude,
-                    longitude: state.longitude,
-                    name: state.name,
-                  })}
-                >
+                <SelectItem key={state.isoCode} value={state.name}>
                   {state.name}
                 </SelectItem>
               ))}
@@ -606,7 +575,7 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             open={openProvinceSelect}
             onOpenChange={setOpenProvinceSelect}
             onValueChange={(value) => {
-              useModeloModalData.setState({
+              useProfileModalData.setState({
                 residence: {
                   ...residence,
                   state: value as string,
@@ -630,26 +599,21 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             open={openCitySelect}
             onOpenChange={setOpenCitySelect}
             onValueChange={(value) => {
-              const city = JSON.parse(value as string) as {
-                latitud: number;
-                longitud: number;
-                nombre: string;
-              };
+              const city = citiesData?.find((city) => city.name === value);
 
-              useModeloModalData.setState({
+              if (!city) return;
+
+              useProfileModalData.setState({
                 residence: {
-                  city: city.nombre as string,
+                  ...residence,
+                  city: city.name,
                   state: residence?.state,
-                  latitude: city.latitud,
-                  longitude: city.longitud,
+                  latitude: city.centroid.lat,
+                  longitude: city.centroid.lon,
                 },
               });
             }}
-            defaultValue={JSON.stringify({
-              latitud: residence?.latitude,
-              longitud: residence?.longitude,
-              nombre: residence?.city,
-            })}
+            defaultValue={residence?.city}
             disabled={!residence?.state}
           >
             <SelectTrigger>
@@ -657,21 +621,14 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
             </SelectTrigger>
             <SelectContent>
               {citiesData?.map((city) => (
-                <SelectItem
-                  key={city.name}
-                  value={JSON.stringify({
-                    latitud: city.centroid.lat,
-                    longitud: city.centroid.lon,
-                    nombre: city.name,
-                  })}
-                >
+                <SelectItem key={city.id} value={city.name}>
                   {city.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        {editModelo.isError || error !== '' ? (
+        {editProfile.isError || error !== '' ? (
           <p className='text-sm font-semibold text-red-500'>
             {error ??
               'Error al editar el participante, asegúrese de ingresar todos los campos requeridos correctamente'}
@@ -681,9 +638,9 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
           <Button
             className='w-full max-w-32'
             onClick={edit}
-            disabled={editModelo.isLoading}
+            disabled={editProfile.isLoading}
           >
-            {(editModelo.isLoading && <Loader />) || 'Aceptar'}
+            {(editProfile.isLoading && <Loader />) || 'Aceptar'}
           </Button>
           <Button variant='destructive' onClick={handleCancel}>
             Cancelar
@@ -694,4 +651,4 @@ const ModeloEditModal = ({ modelo }: ModeloEditModalProps) => {
   );
 };
 
-export default ModeloEditModal;
+export default ProfileEditModal;

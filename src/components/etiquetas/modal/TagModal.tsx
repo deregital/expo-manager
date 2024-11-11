@@ -2,7 +2,7 @@
 import { trpc } from '@/lib/trpc';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import GrupoEtiquetaComboBox from './GrupoEtiquetaComboBox';
+import TagGroupComboBox from './TagGroupComboBox';
 import { useState } from 'react';
 import { create } from 'zustand';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,7 @@ import Loader from '@/components/ui/loader';
 import { cn } from '@/lib/utils';
 import { type FindAllWithTagsResponseDto } from 'expo-backend-types';
 
-interface EtiquetaModalProps {
+interface TagModalProps {
   action: 'CREATE' | 'EDIT';
   tag?: FindAllWithTagsResponseDto['groups'][number]['tags'][number];
 }
@@ -36,7 +36,7 @@ export const useTagModalData = create<ModalData>(() => ({
   tagId: '',
 }));
 
-const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
+const TagModal = ({ action, tag }: TagModalProps) => {
   const { data: tagGroupsData, isLoading } = trpc.tagGroup.getAll.useQuery();
 
   const utils = trpc.useUtils();
@@ -199,7 +199,7 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
               {isLoading ? (
                 <Loader />
               ) : (
-                <GrupoEtiquetaComboBox data={tagGroupsData ?? []} />
+                <TagGroupComboBox data={tagGroupsData ?? []} />
               )}
             </div>
           </div>
@@ -264,4 +264,4 @@ const EtiquetaModal = ({ action, tag }: EtiquetaModalProps) => {
   );
 };
 
-export default EtiquetaModal;
+export default TagModal;

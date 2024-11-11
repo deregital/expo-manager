@@ -10,8 +10,8 @@ import { useState } from 'react';
 import { DataTable } from '@/components/modelos/table/dataTable';
 import { generateColumns } from '@/components/eventos/table/columnsEvento';
 import RaiseHand from '@/components/icons/RaiseHand';
-import Filtro from '@/components/ui/filtro/Filtro';
-import { FuncionFiltrar, filterModelos } from '@/lib/filter';
+import Filter from '@/components/ui/filtro/Filtro';
+import { FuncionFiltrar, filterProfiles } from '@/lib/filter';
 
 interface EventoPageProps {
   params: {
@@ -24,16 +24,16 @@ const EventoPage = ({ params }: EventoPageProps) => {
     trpc.evento.getById.useQuery({
       id: params.eventoId,
     });
-  const { data: modelos } = trpc.modelo.getAll.useQuery();
+  const { data: profiles } = trpc.profile.getAll.useQuery();
 
   const router = useRouter();
-  const [modelosData, setModelosData] = useState<
-    RouterOutputs['modelo']['getAll']
-  >(modelos ?? []);
+  const [profilesData, setprofilesData] = useState<
+    RouterOutputs['profile']['getAll']
+  >(profiles ?? []);
 
   const filtrar: FuncionFiltrar = (filter) => {
-    if (!modelos) return;
-    setModelosData(filterModelos(modelos, filter));
+    if (!profiles) return;
+    setprofilesData(filterProfiles(profiles, filter));
   };
 
   if (isLoadingEvento)
@@ -76,14 +76,14 @@ const EventoPage = ({ params }: EventoPageProps) => {
           onChange={setSearch}
           placeholder='Buscar por nombre o ID legible'
         /> */}
-        <Filtro mostrarInput showTag funcionFiltrado={filtrar} />
+        <Filter showInput showTag filterFunction={filtrar} />
       </div>
       <DataTable
         columns={generateColumns(
           evento!.etiquetaConfirmoId,
           evento!.etiquetaAsistioId
         )}
-        data={modelosData}
+        data={profilesData}
         initialSortingColumn={{ id: 'created_at', desc: true }}
       />
     </div>

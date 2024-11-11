@@ -12,49 +12,42 @@ import { useRouter, useSearchParams } from 'next/navigation';
 type PresentismoModal = {
   isOpen: boolean;
   evento: RouterOutputs['evento']['getById'] | null;
-  modeloId: string;
+  profileId: string;
 };
 export const usePresentismoModal = create<PresentismoModal>((set) => ({
   isOpen: false,
   evento: null,
-  modeloId: '',
+  profileId: '',
 }));
 
 const AsistenciaModal = ({ open }: { open: boolean }) => {
   const modalPresentismo = usePresentismoModal();
-  const [openModelos, setOpenModelos] = useState(false);
-  const { data: modelos } = trpc.modelo.getAll.useQuery();
+  const [openProfiles, setOpenProfiles] = useState(false);
+  const { data: profiles } = trpc.profile.getAll.useQuery();
   const utils = trpc.useUtils();
   const router = useRouter();
   const searchParams = new URLSearchParams(useSearchParams());
-  const editModelo = trpc.modelo.edit.useMutation();
+  const editProfile = trpc.profile.edit.useMutation();
 
-  const { data: assistanceTag } = trpc.tag.getById.useQuery(
-    modalPresentismo.evento?.etiquetaAsistioId ?? '',
-    {
-      enabled: !!modalPresentismo.evento,
-    }
-  );
-
-  const modelosData = useMemo(() => {
-    if (!modelos) return [];
-    return modelos
-      .filter((modelo) =>
-        modelo.etiquetas.every(
+  const profilesData = useMemo(() => {
+    if (!profiles) return [];
+    return profiles
+      .filter((profile) =>
+        profile.tags.every(
           (tag) =>
             tag.id !== modalPresentismo.evento?.etiquetaAsistioId &&
             tag.id !== modalPresentismo.evento?.etiquetaConfirmoId
         )
       )
-      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
+      .sort((a, b) => a.fullName.localeCompare(b.fullName));
   }, [
     modalPresentismo.evento?.etiquetaAsistioId,
     modalPresentismo.evento?.etiquetaConfirmoId,
-    modelos,
+    profiles,
   ]);
 
   async function handleSubmit() {
-    if (modalPresentismo.modeloId === '') {
+    if (modalPresentismo.profileId === '') {
       toast.error('Debes seleccionar un participante');
     }
 
@@ -62,43 +55,28 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
       toast.error('No se ha encontrado el evento');
     }
 
-    const modelo = modelos?.find(
-      (modelo) => modelo.id === modalPresentismo.modeloId
+    const profile = profiles?.find(
+      (profile) => profile.id === modalPresentismo.profileId
     );
 
-    if (!modelo) {
+    if (!profile) {
       toast.error('No se ha encontrado el participante');
       return;
     }
 
-    const participantTags = modelo?.etiquetas
-      .map((tag) => ({
-        id: tag.id,
-        nombre: tag.nombre,
-        grupo: {
-          id: tag.grupoId,
-          esExclusivo: tag.grupo.esExclusivo,
-        },
-      }))
-      .filter((tag) => tag.id !== modalPresentismo.evento?.etiquetaConfirmoId);
+    const participantTagsId = profile?.tags
+      .map((tag) => tag.id)
+      .filter((tagId) => tagId !== modalPresentismo.evento?.etiquetaConfirmoId);
 
-    const tagAssisted = {
-      id: modalPresentismo.evento!.etiquetaAsistioId,
-      nombre: assistanceTag!.name,
-      grupo: {
-        id: assistanceTag!.group.id,
-        esExclusivo: assistanceTag!.group.isExclusive,
-      },
-    };
+    const tagAssistedId = modalPresentismo.evento!.etiquetaAsistioId;
 
-    await editModelo.mutateAsync({
-      id: modalPresentismo.modeloId,
-      // TODO: Fix this type
-      etiquetas: [...participantTags!, tagAssisted] as any,
+    await editProfile.mutateAsync({
+      id: modalPresentismo.profileId,
+      tags: [...participantTagsId, tagAssistedId],
     });
     toast.success('Participante añadido correctamente');
-    utils.modelo.getByEtiqueta.invalidate();
-    usePresentismoModal.setState({ isOpen: false, modeloId: '' });
+    utils.profile.getByTags.invalidate();
+    usePresentismoModal.setState({ isOpen: false, profileId: '' });
   }
 
   if (!modalPresentismo.evento || modalPresentismo.evento === null) return;
@@ -122,36 +100,36 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
             <ComboBox
               buttonClassName='md:w-full'
               contentClassName='sm:max-w-[--radix-popover-trigger-width]'
-              data={modelosData}
+              data={profilesData}
               id={'id'}
-              value='nombreCompleto'
-              open={openModelos}
-              setOpen={setOpenModelos}
+              value='fullName'
+              open={openProfiles}
+              setOpen={setOpenProfiles}
               wFullMobile
               triggerChildren={
                 <>
                   <span className='max-w-[calc(100%-30px)] truncate'>
-                    {modalPresentismo.modeloId !== ''
-                      ? modelos?.find(
-                          (modelo) => modelo.id === modalPresentismo.modeloId
-                        )?.nombreCompleto
+                    {modalPresentismo.profileId !== ''
+                      ? profiles?.find(
+                          (profile) => profile.id === modalPresentismo.profileId
+                        )?.fullName
                       : 'Buscar participante...'}
                   </span>
                 </>
               }
               onSelect={(id) => {
-                if (modalPresentismo.modeloId === id) {
-                  usePresentismoModal.setState({ modeloId: '' });
-                  setOpenModelos(false);
+                if (modalPresentismo.profileId === id) {
+                  usePresentismoModal.setState({ profileId: '' });
+                  setOpenProfiles(false);
                   return;
                 }
-                usePresentismoModal.setState({ modeloId: id });
-                setOpenModelos(false);
+                usePresentismoModal.setState({ profileId: id });
+                setOpenProfiles(false);
               }}
-              selectedIf={modalPresentismo.modeloId}
+              selectedIf={modalPresentismo.profileId}
             />
           </div>
-          <Button disabled={editModelo.isLoading} onClick={handleSubmit}>
+          <Button disabled={editProfile.isLoading} onClick={handleSubmit}>
             Añadir
           </Button>
         </div>

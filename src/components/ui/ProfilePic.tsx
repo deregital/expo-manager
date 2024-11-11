@@ -3,11 +3,11 @@ import React from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
-interface FotoModeloProps extends React.ComponentPropsWithoutRef<'img'> {
+interface ProfilePicProps extends React.ComponentPropsWithoutRef<'img'> {
   url: string | null;
 }
 
-const FotoModelo = ({ url, className, ...props }: FotoModeloProps) => {
+const ProfilePic = ({ url, className, ...props }: ProfilePicProps) => {
   return (
     <Avatar className={cn(className)}>
       <AvatarImage
@@ -28,4 +28,4 @@ const FotoModelo = ({ url, className, ...props }: FotoModeloProps) => {
   );
 };
 
-export default FotoModelo;
+export default ProfilePic;

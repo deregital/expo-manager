@@ -27,7 +27,7 @@ const ChatSidebarMobile = ({ filtro }: ChatSidebarMobileProps) => {
         <HamburgerMenuIcon />
       </SheetTrigger>
       <SheetContent className='px-0' side={'left'}>
-        <ChatSidebar filtro={filtro} />
+        <ChatSidebar filter={filtro} />
       </SheetContent>
     </Sheet>
   );

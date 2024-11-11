@@ -5,8 +5,9 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { trpc } from '@/lib/trpc';
 import ComboBox from '@/components/ui/ComboBox';
 import EtiquetaFillIcon from '@/components/icons/EtiquetaFillIcon';
+import { notChoosableTagTypes } from '@/lib/constants';
 
-const EtiquetaComboBoxModelos = () => {
+const ProfileTagComboBox = () => {
   const [open, setOpen] = useState(false);
   const searchParams = new URLSearchParams(useSearchParams());
   const [tagId, setTagId] = useState(searchParams.get('etiqueta') ?? '');
@@ -18,9 +19,7 @@ const EtiquetaComboBoxModelos = () => {
       : trpc.tag.getByGroupId.useQuery(`${searchParams.get('grupoId')}`);
 
   const filteredTags = useMemo(() => {
-    return data?.filter(
-      (tag) => tag.type !== 'PARTICIPANT' && tag.type !== 'NOT_IN_SYSTEM'
-    );
+    return data?.filter((tag) => !notChoosableTagTypes.includes(tag.type));
   }, [data]);
 
   useEffect(() => {
@@ -64,4 +63,4 @@ const EtiquetaComboBoxModelos = () => {
   );
 };
 
-export default EtiquetaComboBoxModelos;
+export default ProfileTagComboBox;

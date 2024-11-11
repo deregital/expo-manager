@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
 
-import { useTagModalData } from './EtiquetaModal';
+import { useTagModalData } from './TagModal';
 import { RouterOutputs } from '@/server';
 import ComboBox from '@/components/ui/ComboBox';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 
-const GrupoEtiquetaComboBox = ({
+const TagGroupComboBox = ({
   data,
 }: {
   data: RouterOutputs['tagGroup']['getAll'];
@@ -48,4 +48,4 @@ const GrupoEtiquetaComboBox = ({
   );
 };
 
-export default GrupoEtiquetaComboBox;
+export default TagGroupComboBox;

@@ -1,4 +1,4 @@
-import { useFiltro } from '@/components/ui/filtro/Filtro';
+import { useFilter } from '@/components/ui/filtro/Filtro';
 import FiltroAvanzadoEtiquetasYGrupos from '@/components/ui/filtro/FiltroAvanzadoEtiquetasYGrupos';
 import FiltroAvanzadoInputs from '@/components/ui/filtro/FiltroAvanzadoInputs';
 import React from 'react';
@@ -12,7 +12,7 @@ const FiltroAvanzado = ({
   showTag = false,
   mostrarInput = false,
 }: FiltroAvanzadoProps) => {
-  const { filterTags, filterGroups } = useFiltro((s) => ({
+  const { filterTags, filterGroups } = useFilter((s) => ({
     filterTags: s.tags,
     filterGroups: s.groups,
   }));

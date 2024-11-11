@@ -1,7 +1,7 @@
 import EtiquetaFillIcon from '@/components/icons/EtiquetaFillIcon';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import ComboBox from '@/components/ui/ComboBox';
-import { useFiltro, useFiltroAvanzado } from '@/components/ui/filtro/Filtro';
+import { useFilter, useFiltroAvanzado } from '@/components/ui/filtro/Filtro';
 import { Switch } from '@/components/ui/switch';
 import { trpc } from '@/lib/trpc';
 import React, { useState, useMemo, useEffect } from 'react';
@@ -26,7 +26,7 @@ const FiltroBasicoEtiqueta = ({
   include,
   setInclude,
 }: FiltroBasicoEtiquetaProps) => {
-  const { filterTags, reset } = useFiltro((s) => ({
+  const { filterTags, reset } = useFilter((s) => ({
     filterTags: s.tags,
     reset: s.reset,
   }));

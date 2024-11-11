@@ -1,4 +1,4 @@
-import { useFiltro } from '@/components/ui/filtro/Filtro';
+import { useFilter } from '@/components/ui/filtro/Filtro';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -13,7 +13,13 @@ interface FiltroAvanzadoInputsProps {}
 
 const FiltroAvanzadoInputs = ({}: FiltroAvanzadoInputsProps) => {
   const [openSelectGenero, setOpenSelectGenero] = useState(false);
-  const { dni, genero, instagram, mail, telefono } = useFiltro();
+  const { dni, gender, instagram, mail, phoneNumber } = useFilter((s) => ({
+    dni: s.dni,
+    gender: s.gender,
+    instagram: s.instagram,
+    mail: s.mail,
+    phoneNumber: s.phoneNumber,
+  }));
 
   const inputs: Array<
     {
@@ -37,18 +43,18 @@ const FiltroAvanzadoInputs = ({}: FiltroAvanzadoInputsProps) => {
       placeholder: 'DNI',
       value: dni,
       onChange: (e) => {
-        useFiltro.setState({ dni: e.target.value });
+        useFilter.setState({ dni: e.target.value });
       },
     },
     {
       placeholder: 'Género',
-      value: genero,
+      value: gender,
       onChange: (e: string) => {
         if (e === 'N/A') {
-          useFiltro.setState({ genero: undefined });
+          useFilter.setState({ gender: undefined });
           return;
         }
-        useFiltro.setState({ genero: e });
+        useFilter.setState({ gender: e });
       },
       type: 'select',
       options: [
@@ -64,21 +70,21 @@ const FiltroAvanzadoInputs = ({}: FiltroAvanzadoInputsProps) => {
       placeholder: 'Instagram',
       value: instagram,
       onChange: (e) => {
-        useFiltro.setState({ instagram: e.target.value });
+        useFilter.setState({ instagram: e.target.value });
       },
     },
     {
       placeholder: 'Mail',
       value: mail,
       onChange: (e) => {
-        useFiltro.setState({ mail: e.target.value });
+        useFilter.setState({ mail: e.target.value });
       },
     },
     {
       placeholder: 'Teléfono',
-      value: telefono,
+      value: phoneNumber,
       onChange: (e) => {
-        useFiltro.setState({ telefono: e.target.value });
+        useFilter.setState({ phoneNumber: e.target.value });
       },
     },
   ];

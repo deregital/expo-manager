@@ -1,22 +1,24 @@
 'use client';
-import ModeloPageContent, {
-  useModeloData,
-} from '@/components/modelo/ModeloPageContent';
+import ProfilePageContent, {
+  useProfileData,
+} from '@/components/modelo/ProfilePageContent';
 import Loader from '@/components/ui/loader';
 import { trpc } from '@/lib/trpc';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
-interface ModeloPageProps {
+interface ProfilePageProps {
   params: {
     modeloId: string;
   };
 }
 
-const ModeloPage = ({ params }: ModeloPageProps) => {
-  const { data: modelo, isLoading: isLoadingModelo } =
-    trpc.modelo.getById.useQuery(params.modeloId);
+const ProfilePage = ({ params }: ProfilePageProps) => {
+  const { data: profile, isLoading: isLoadingProfile } =
+    trpc.profile.getById.useQuery(params.modeloId, {
+      enabled: !!params.modeloId,
+    });
   const {
     data: comments,
     isLoading: isLoadingComments,
@@ -27,18 +29,18 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
 
   useEffect(() => {
     if (isRefetchingComments) return;
-    if (isLoadingModelo || isLoadingComments) return;
+    if (isLoadingProfile || isLoadingComments) return;
 
-    if (!modelo || !comments) return;
+    if (!profile || !comments) return;
 
-    useModeloData.setState({
-      id: modelo.id,
-      etiquetas: modelo.etiquetas,
+    useProfileData.setState({
+      id: profile.id,
+      tags: profile.tags,
       comments: comments.comments,
     });
   }, [
-    modelo,
-    isLoadingModelo,
+    profile,
+    isLoadingProfile,
     isLoadingComments,
     comments,
     isRefetchingComments,
@@ -54,15 +56,15 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
           }}
         />
       </div>
-      {isLoadingModelo || isLoadingComments || !modelo || !comments ? (
+      {isLoadingProfile || isLoadingComments || !profile || !comments ? (
         <div className='flex h-full w-full items-center justify-center'>
           <Loader />
         </div>
       ) : (
-        <ModeloPageContent modelo={modelo} />
+        <ProfilePageContent profile={profile} />
       )}
     </div>
   );
 };
 
-export default ModeloPage;
+export default ProfilePage;

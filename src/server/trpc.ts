@@ -3,6 +3,8 @@ import { prisma } from '@/server/db';
 import { fetchClient } from '@/server/fetchClient';
 import { TRPCError, initTRPC } from '@trpc/server';
 import { JWT } from 'next-auth/jwt';
+import superjson from 'superjson';
+
 import { ZodError } from 'zod';
 
 export function handleError(error: {
@@ -11,6 +13,7 @@ export function handleError(error: {
   error: string;
 }): TRPCError | undefined {
   const { message, statusCode, error: cause } = error;
+
   const messageString = message[0];
   const errorCode = statusCode as
     | 200
@@ -65,13 +68,17 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 };
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
+  transformer: superjson,
   errorFormatter({ shape, error }) {
     return {
       ...shape,
       data: {
         ...shape.data,
         zodError:
-          error.cause instanceof ZodError ? error.cause.flatten() : null,
+          (error.cause as ZodError).name === 'ZodError' ||
+          error.cause instanceof ZodError
+            ? (error.cause as ZodError).flatten()
+            : null,
       },
     };
   },

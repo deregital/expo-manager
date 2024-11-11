@@ -1,12 +1,12 @@
 import React from 'react';
 
-interface ModeloFotoProps {
+interface ProfilePictureProps {
   onClick: () => void;
   src: string;
   alt: string;
 }
 
-const ModeloFoto = ({ onClick, alt, src }: ModeloFotoProps) => {
+const ProfilePicture = ({ onClick, alt, src }: ProfilePictureProps) => {
   return (
     <div
       onClick={onClick}
@@ -27,4 +27,4 @@ const ModeloFoto = ({ onClick, alt, src }: ModeloFotoProps) => {
   );
 };
 
-export default ModeloFoto;
+export default ProfilePicture;
