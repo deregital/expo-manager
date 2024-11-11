@@ -1,9 +1,9 @@
 'use client';
 
-import EtiquetasComboYList from '@/components/etiquetas/asignacion/EtiquetasComboYList';
-import ProfilesComboYList, {
-  asignacionSelectedData,
-} from '@/components/etiquetas/asignacion/ModelosComboYList';
+import TagsComboAndList from '@/components/etiquetas/allocation/TagsComboAndList';
+import ProfilesComboAndList, {
+  allocationSelectedData,
+} from '@/components/etiquetas/allocation/ProfilesComboAndList';
 import Filter from '@/components/ui/filtro/Filtro';
 import { Button } from '@/components/ui/button';
 import Loader from '@/components/ui/loader';
@@ -36,7 +36,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
     clearTags,
     clearProfiles,
     clearGroup,
-  } = asignacionSelectedData();
+  } = allocationSelectedData();
 
   const filter: FuncionFiltrar = (filter) => {
     if (!profiles) return;
@@ -126,7 +126,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
       <Filter className='py-1' filterFunction={filter} showTag showInput />
       <div className='flex h-auto gap-x-2 border-t-[1px] border-t-black/20 p-3 md:p-5 '>
         <div className='flex-1'>
-          <ProfilesComboYList
+          <ProfilesComboAndList
             profiles={filteredProfiles}
             profilesLoading={isLoadingProfiles}
           />
@@ -138,7 +138,7 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
           )}
         </div>
         <div className='flex-1'>
-          <EtiquetasComboYList />
+          <TagsComboAndList />
           {tagsList.length === 0 && (
             <p className='mt-2'>
               Seleccione las etiquetas que quiere asignar o desasignar de los

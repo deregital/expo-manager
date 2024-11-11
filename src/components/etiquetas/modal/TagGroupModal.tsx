@@ -13,15 +13,15 @@ import EditFillIcon from '@/components/icons/EditFillIcon';
 import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
 import { RouterOutputs } from '@/server';
-import ProfilesConflict from '@/components/etiquetas/modal/ModelosConflict';
-import { GrupoConMatch } from '@/components/etiquetas/list/EtiquetasList';
+import ProfilesConflict from '@/components/etiquetas/modal/ProfilesConflict';
+import { GroupWithMatch } from '@/components/etiquetas/list/TagsList';
 
 interface TagGroupModalProps {
   action: 'EDIT' | 'CREATE';
-  group?: GrupoConMatch;
+  group?: GroupWithMatch;
 }
 
-type GrupoEtiquetaModalData = {
+type TagGroupModalData = {
   type: 'CREATE' | 'EDIT';
   name: string;
   groupId: string;
@@ -29,7 +29,7 @@ type GrupoEtiquetaModalData = {
   isExclusive: boolean;
 };
 
-export const useTagGroupModalData = create<GrupoEtiquetaModalData>(() => ({
+export const useTagGroupModalData = create<TagGroupModalData>(() => ({
   type: 'CREATE',
   name: '',
   groupId: '',
@@ -37,7 +37,7 @@ export const useTagGroupModalData = create<GrupoEtiquetaModalData>(() => ({
   isExclusive: false,
 }));
 
-const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
+const TagGroupModal = ({ action, group }: TagGroupModalProps) => {
   const [open, setOpen] = useState(false);
   const [shouldDelete, setShouldDelete] = useState(false);
   const [conflict, setConflict] = useState<
@@ -384,4 +384,4 @@ const GrupoEtiquetaModal = ({ action, group }: TagGroupModalProps) => {
   );
 };
 
-export default GrupoEtiquetaModal;
+export default TagGroupModal;

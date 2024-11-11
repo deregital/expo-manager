@@ -1,5 +1,5 @@
 import TrashCanButtons from '@/components/papelera/BotonesPapelera';
-import ProfilePic from '@/components/ui/FotoModelo';
+import ProfilePic from '@/components/ui/ProfilePic';
 import { RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import Link from 'next/link';

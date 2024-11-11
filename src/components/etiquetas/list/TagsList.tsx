@@ -1,6 +1,6 @@
-import EtiquetasContent from '@/components/etiquetas/list/EtiquetasContent';
-import { useTagsSettings } from '@/components/etiquetas/list/ExpandContractEtiquetas';
-import GrupoTrigger from '@/components/etiquetas/list/GrupoTrigger';
+import TagsContent from '@/components/etiquetas/list/EtiquetasContent';
+import { useTagsSettings } from '@/components/etiquetas/list/ExpandContractTags';
+import GroupTrigger from '@/components/etiquetas/list/GroupTrigger';
 import {
   Accordion,
   AccordionContent,
@@ -11,7 +11,7 @@ import { getTextColorByBg } from '@/lib/utils';
 import { type FindAllWithTagsResponseDto } from 'expo-backend-types';
 import React, { useEffect, useState } from 'react';
 
-export type GrupoConMatch = Omit<
+export type GroupWithMatch = Omit<
   FindAllWithTagsResponseDto['groups'][number],
   'tags'
 > & {
@@ -21,11 +21,11 @@ export type GrupoConMatch = Omit<
   })[];
 };
 
-interface EtiquetasListProps {
-  groups: GrupoConMatch[];
+interface TagsListProps {
+  groups: GroupWithMatch[];
 }
 
-const EtiquetasList = ({ groups }: EtiquetasListProps) => {
+const TagsList = ({ groups }: TagsListProps) => {
   const [active, setActive] = useState<string[]>([]);
   const [prevShowEvento, setPrevShowEvento] = useState<boolean>(false);
   const {
@@ -100,15 +100,11 @@ const EtiquetasList = ({ groups }: EtiquetasListProps) => {
               color: getTextColorByBg(group.color),
             }}
           >
-            <GrupoTrigger group={group} />
+            <GroupTrigger group={group} />
           </AccordionTrigger>
           <AccordionContent className='pb-0 pl-2'>
             {group.tags.map((tag) => (
-              <EtiquetasContent
-                key={tag.id}
-                tag={tag}
-                background={group.color}
-              />
+              <TagsContent key={tag.id} tag={tag} background={group.color} />
             ))}
           </AccordionContent>
         </AccordionItem>
@@ -117,4 +113,4 @@ const EtiquetasList = ({ groups }: EtiquetasListProps) => {
   );
 };
 
-export default EtiquetasList;
+export default TagsList;

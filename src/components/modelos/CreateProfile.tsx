@@ -1,7 +1,7 @@
 'use client';
 import { RouterOutputs } from '@/server';
 import { Button } from '../ui/button';
-import ModalCreateProfile from './CrearModeloModal';
+import ModalCreateProfile from './CreateProfileModal';
 import { create } from 'zustand';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';

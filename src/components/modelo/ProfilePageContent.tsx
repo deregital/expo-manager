@@ -1,6 +1,6 @@
 import { RouterOutputs } from '@/server';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import ProfileTagsList from '@/components/modelo/ListaEtiquetasModelo';
+import ProfileTagsList from '@/components/modelo/ProfileTagsList';
 import { create } from 'zustand';
 import CommentsSection from '@/components/modelo/CommentsSection';
 import { Button } from '../ui/button';
@@ -9,10 +9,10 @@ import { toast } from 'sonner';
 import CircleXIcon from '../icons/CircleX';
 import { Save, Trash2Icon } from 'lucide-react';
 import CirclePlus from '../icons/CirclePlus';
-import ProfilePicture from '@/components/modelo/ModeloFoto';
+import ProfilePicture from '@/components/modelo/ProfilePicture';
 import ProfileEditModal, {
   ageFromBirthDate as ageFromBirthDate,
-} from '@/components/modelo/ModeloEditModal';
+} from '@/components/modelo/ProfileEditModal';
 import Link from 'next/link';
 import ChatFillIcon from '@/components/icons/ChatFillIcon';
 import WhatsappIcon from '@/components/icons/WhatsappIcon';

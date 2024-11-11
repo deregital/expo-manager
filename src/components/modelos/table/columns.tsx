@@ -1,6 +1,6 @@
 'use client';
 
-import { ageFromBirthDate } from '@/components/modelo/ModeloEditModal';
+import { ageFromBirthDate } from '@/components/modelo/ProfileEditModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { getTextColorByBg } from '@/lib/utils';

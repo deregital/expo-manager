@@ -1,7 +1,7 @@
 import CirclePlus from '@/components/icons/CirclePlus';
 import CircleXIcon from '@/components/icons/CircleX';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
-import { useCreateProfileModal } from '@/components/modelos/CrearModelo';
+import { useCreateProfileModal } from '@/components/modelos/CreateProfile';
 import ComboBox from '@/components/ui/ComboBox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

@@ -1,7 +1,7 @@
 'use client';
-import GraficoCard from '@/components/dashboard/GraficoCard';
+import ProfilesChartCard from '@/components/dashboard/ProfilesChartCard';
 import MensajesCard from '@/components/dashboard/MensajesCard';
-import ProfilesList from '@/components/dashboard/ModelosList';
+import ProfilesList from '@/components/dashboard/ProfilesList';
 import SharedCard from '@/components/dashboard/SharedCard';
 import ComboBox from '@/components/ui/ComboBox';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
@@ -216,7 +216,7 @@ const PageClient = ({}: PageClientProps) => {
         />
       </section>
       <section className='rounded-md grid-in-grafico sm:h-full'>
-        <GraficoCard
+        <ProfilesChartCard
           isLoading={isLoadingProfiles}
           profiles={profilesForChart}
         />

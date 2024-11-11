@@ -1,4 +1,4 @@
-import ProfilesChart from '@/components/dashboard/ModelosChart';
+import ProfilesChart from '@/components/dashboard/ProfilesChart';
 import { Card, CardTitle } from '@/components/ui/card';
 import Loader from '@/components/ui/loader';
 import React from 'react';
@@ -11,7 +11,7 @@ interface GraficoCardProps {
   isLoading: boolean;
 }
 
-const GraficoCard = ({ profiles, isLoading }: GraficoCardProps) => {
+const ProfilesChartCard = ({ profiles, isLoading }: GraficoCardProps) => {
   return (
     <Card className='flex h-full min-h-48 flex-col p-2 sm:min-h-max'>
       <CardTitle className='pb-2 text-2xl font-extrabold sm:text-3xl'>
@@ -37,4 +37,4 @@ const GraficoCard = ({ profiles, isLoading }: GraficoCardProps) => {
   );
 };
 
-export default GraficoCard;
+export default ProfilesChartCard;

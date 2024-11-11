@@ -1,6 +1,6 @@
 'use client';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useProfilesTable } from '@/components/modelos/table/ModelosTable';
+import { useProfilesTable } from '@/components/modelos/table/ProfilesTable';
 import SwitchEventos from '@/components/ui/SwitchEventos';
 import { create } from 'zustand';
 import Filter from '@/components/ui/filtro/Filtro';
@@ -15,7 +15,7 @@ export const useProfilesFilter = create(() => ({
   showEvents: false,
 }));
 
-const FiltroTabla = () => {
+const TableFilter = () => {
   const searchParams = new URLSearchParams(useSearchParams());
   const pathname = usePathname();
   const router = useRouter();
@@ -112,4 +112,4 @@ const FiltroTabla = () => {
   );
 };
 
-export default FiltroTabla;
+export default TableFilter;

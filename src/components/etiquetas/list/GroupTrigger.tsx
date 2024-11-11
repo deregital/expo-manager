@@ -1,15 +1,15 @@
-import { GrupoConMatch } from '@/components/etiquetas/list/EtiquetasList';
-import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
+import { GroupWithMatch } from '@/components/etiquetas/list/TagsList';
+import TagGroupModal from '@/components/etiquetas/modal/TagGroupModal';
 import { cn } from '@/lib/utils';
 import { LockIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useMemo } from 'react';
 
-interface GrupoTriggerProps {
-  group: GrupoConMatch;
+interface GroupTriggerProps {
+  group: GroupWithMatch;
 }
 
-const GrupoTrigger = ({ group }: GrupoTriggerProps) => {
+const GroupTrigger = ({ group }: GroupTriggerProps) => {
   const searchParams = new URLSearchParams(useSearchParams());
   const router = useRouter();
   const esEvento = useMemo(() => {
@@ -45,7 +45,7 @@ const GrupoTrigger = ({ group }: GrupoTriggerProps) => {
         {group.isExclusive ? <LockIcon className='h-5 w-5' /> : null}
         {!esEvento && !esAdmin && (
           <div onClick={(e) => e.preventDefault()}>
-            <GrupoEtiquetaModal action='EDIT' group={group} />
+            <TagGroupModal action='EDIT' group={group} />
           </div>
         )}
       </div>
@@ -53,4 +53,4 @@ const GrupoTrigger = ({ group }: GrupoTriggerProps) => {
   );
 };
 
-export default GrupoTrigger;
+export default GroupTrigger;

@@ -1,9 +1,9 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import FiltroTabla from '@/components/modelos/FiltroTabla';
-import ProfilesTable from '@/components/modelos/table/ModelosTable';
-import CreateProfile from '@/components/modelos/CrearModelo';
+import TableFilter from '@/components/modelos/TableFilter';
+import ProfilesTable from '@/components/modelos/table/ProfilesTable';
+import CreateProfile from '@/components/modelos/CreateProfile';
 
 const ProfilesPage = () => {
   return (
@@ -14,7 +14,7 @@ const ProfilesPage = () => {
         </p>
         <CreateProfile />
       </div>
-      <FiltroTabla />
+      <TableFilter />
       <ProfilesTable />
     </Suspense>
   );

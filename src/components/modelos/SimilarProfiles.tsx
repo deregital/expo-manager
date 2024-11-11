@@ -1,4 +1,4 @@
-import ProfileFillIcon from '@/components/icons/ModeloFillIcon';
+import ProfileFillIcon from '@/components/icons/ProfileFillIcon';
 import { type SimilarityProfile } from 'expo-backend-types';
 import { useRouter } from 'next/navigation';
 import React from 'react';

@@ -1,17 +1,17 @@
-import { GrupoConMatch } from '@/components/etiquetas/list/EtiquetasList';
-import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
-import ProfileIcon from '@/components/icons/ModeloIcon';
+import { GroupWithMatch } from '@/components/etiquetas/list/TagsList';
+import TagModal from '@/components/etiquetas/modal/TagModal';
+import ProfileIcon from '@/components/icons/ProfileIcon';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import React from 'react';
 import { type Filtro as FiltroType } from '@/lib/filter';
 
-interface EtiquetasContentProps {
-  tag: GrupoConMatch['tags'][number];
+interface TagsContentProps {
+  tag: GroupWithMatch['tags'][number];
   background: string;
 }
 
-const EtiquetasContent = ({ tag, background }: EtiquetasContentProps) => {
+const TagsContent = ({ tag, background }: TagsContentProps) => {
   const searchParams = new URLSearchParams();
 
   function setSearchParams() {
@@ -36,7 +36,7 @@ const EtiquetasContent = ({ tag, background }: EtiquetasContentProps) => {
     >
       <p className={cn('capitalize', tag.match && 'underline')}>{tag.name}</p>
       <div className='flex items-center gap-x-2'>
-        {tag.type === 'PROFILE' && <EtiquetaModal action='EDIT' tag={tag} />}
+        {tag.type === 'PROFILE' && <TagModal action='EDIT' tag={tag} />}
         <p className='text-sm font-semibold'>{tag._count.profiles}</p>
         <Link href={`/modelos?${setSearchParams()}`}>
           <ProfileIcon className='h-4 w-4 hover:cursor-pointer hover:text-gray-700' />
@@ -46,4 +46,4 @@ const EtiquetasContent = ({ tag, background }: EtiquetasContentProps) => {
   );
 };
 
-export default EtiquetasContent;
+export default TagsContent;

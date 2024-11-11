@@ -1,5 +1,5 @@
 import ChatFillIcon from '@/components/icons/ChatFillIcon';
-import ProfilePic from '@/components/ui/FotoModelo';
+import ProfilePic from '@/components/ui/ProfilePic';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';

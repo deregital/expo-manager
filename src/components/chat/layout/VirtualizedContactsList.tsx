@@ -1,4 +1,4 @@
-import ProfilePic from '@/components/ui/FotoModelo';
+import ProfilePic from '@/components/ui/ProfilePic';
 import { cn } from '@/lib/utils';
 import { RouterOutputs } from '@/server';
 import { useChatSidebar } from '@/components/chat/layout/ChatSidebarMobile';

@@ -1,7 +1,7 @@
 'use client';
 import ProfilePageContent, {
   useProfileData,
-} from '@/components/modelo/ModeloPageContent';
+} from '@/components/modelo/ProfilePageContent';
 import Loader from '@/components/ui/loader';
 import { trpc } from '@/lib/trpc';
 import { ArrowLeft } from 'lucide-react';

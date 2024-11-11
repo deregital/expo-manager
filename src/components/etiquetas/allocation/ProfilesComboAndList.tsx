@@ -10,7 +10,7 @@ interface ProfilesComboYListProps {
   profilesLoading: boolean;
 }
 
-export const asignacionComboBoxOpens = create<{
+export const allocationComboBoxOpens = create<{
   profiles: boolean;
   groups: boolean;
   tags: boolean;
@@ -26,7 +26,7 @@ export const asignacionComboBoxOpens = create<{
   setTags: (open: boolean) => set({ tags: open }),
 }));
 
-export const asignacionSelectedData = create<{
+export const allocationSelectedData = create<{
   profiles: RouterOutputs['profile']['getAll'];
   tags: RouterOutputs['tag']['getAll'];
   tagsList: RouterOutputs['tag']['getAll'];
@@ -82,15 +82,15 @@ export const asignacionSelectedData = create<{
   clearGroup: () => set({ group: undefined }),
 }));
 
-const ProfilesComboYList = ({
+const ProfilesComboAndList = ({
   profiles,
   profilesLoading,
 }: ProfilesComboYListProps) => {
-  const { profilesOpen, setProfilesOpen } = asignacionComboBoxOpens((s) => ({
+  const { profilesOpen, setProfilesOpen } = allocationComboBoxOpens((s) => ({
     profilesOpen: s.profiles,
     setProfilesOpen: s.setProfilesOpen,
   }));
-  const { profilesList, setProfiles } = asignacionSelectedData((s) => ({
+  const { profilesList, setProfiles } = allocationSelectedData((s) => ({
     profilesList: s.profiles,
     setProfiles: s.setProfiles,
   }));
@@ -136,4 +136,4 @@ const ProfilesComboYList = ({
   );
 };
 
-export default ProfilesComboYList;
+export default ProfilesComboAndList;

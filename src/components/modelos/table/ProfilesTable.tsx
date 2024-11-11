@@ -1,4 +1,4 @@
-import { useProfilesFilter } from '@/components/modelos/FiltroTabla';
+import { useProfilesFilter } from '@/components/modelos/TableFilter';
 import { DataTable } from '@/components/modelos/table/dataTable';
 import { trpc } from '@/lib/trpc';
 import { useSearchParams, useRouter } from 'next/navigation';

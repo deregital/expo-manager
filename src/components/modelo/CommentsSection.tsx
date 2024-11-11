@@ -1,4 +1,4 @@
-import { useProfileData } from '@/components/modelo/ModeloPageContent';
+import { useProfileData } from '@/components/modelo/ProfilePageContent';
 import { trpc } from '@/lib/trpc';
 import { useSession } from 'next-auth/react';
 import React, { FormEvent, useState } from 'react';

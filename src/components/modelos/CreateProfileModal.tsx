@@ -1,14 +1,14 @@
 'use client';
-import CreateProfileForm from '@/components/modelos/FormCrearModelo';
+import CreateProfileForm from '@/components/modelos/CreateProfileForm';
 import { trpc } from '@/lib/trpc';
 import clsx from 'clsx';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent } from '../ui/dialog';
 import Loader from '../ui/loader';
-import { useCreateProfileModal } from './CrearModelo';
+import { useCreateProfileModal } from './CreateProfile';
 import { useEffect, useRef, useState } from 'react';
-import SimilarProfiles from '@/components/modelos/ModelosSimilares';
+import SimilarProfiles from '@/components/modelos/SimilarProfiles';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { type SimilarityProfile } from 'expo-backend-types';
 

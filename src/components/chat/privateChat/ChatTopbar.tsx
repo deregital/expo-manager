@@ -1,8 +1,8 @@
 import * as React from 'react';
-import ProfilePic from '@/components/ui/FotoModelo';
+import ProfilePic from '@/components/ui/ProfilePic';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
-import ProfileFillIcon from '@/components/icons/ModeloFillIcon';
+import ProfileFillIcon from '@/components/icons/ProfileFillIcon';
 import WhatsappIcon from '@/components/icons/WhatsappIcon';
 import { parsePhoneNumber } from 'libphonenumber-js';
 

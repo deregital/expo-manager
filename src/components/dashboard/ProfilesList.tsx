@@ -1,4 +1,4 @@
-import ProfilePic from '@/components/ui/FotoModelo';
+import ProfilePic from '@/components/ui/ProfilePic';
 import { Card, CardTitle } from '@/components/ui/card';
 import Loader from '@/components/ui/loader';
 import { RouterOutputs } from '@/server';

@@ -1,5 +1,5 @@
-import AddTagsToProfile from '@/components/modelo/AgregarEtiquetasAModelo';
-import { useProfileData } from '@/components/modelo/ModeloPageContent';
+import AddTagsToProfile from '@/components/modelo/AddTagsToProfile';
+import { useProfileData } from '@/components/modelo/ProfilePageContent';
 import ListaEtiquetas from '@/components/ui/ListaEtiquetas';
 import { trpc } from '@/lib/trpc';
 import { TagWithGroupColor } from '@/server/types/etiquetas';
