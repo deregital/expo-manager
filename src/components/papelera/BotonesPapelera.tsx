@@ -40,8 +40,6 @@ const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
 
   const sendToTrashMutation = trpc.profile.edit.useMutation({
     onSuccess: async (data) => {
-      console.log(data);
-
       await addCommentMutation.mutateAsync({
         profileId: id,
         content: 'Participante enviada a la papelera',
