@@ -13,17 +13,15 @@ import RaiseHand from '@/components/icons/RaiseHand';
 import Filter from '@/components/ui/filtro/Filtro';
 import { FuncionFiltrar, filterProfiles } from '@/lib/filter';
 
-interface EventoPageProps {
+interface EventPageProps {
   params: {
-    eventoId: string;
+    eventId: string;
   };
 }
 
-const EventoPage = ({ params }: EventoPageProps) => {
-  const { data: evento, isLoading: isLoadingEvento } =
-    trpc.evento.getById.useQuery({
-      id: params.eventoId,
-    });
+const EventPage = ({ params }: EventPageProps) => {
+  const { data: event, isLoading: isLoadingEvent } =
+    trpc.event.getById.useQuery(params.eventId);
   const { data: profiles } = trpc.profile.getAll.useQuery();
 
   const router = useRouter();
@@ -36,7 +34,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
     setprofilesData(filterProfiles(profiles, filter));
   };
 
-  if (isLoadingEvento)
+  if (isLoadingEvent)
     return (
       <div className='flex items-center justify-center pt-5'>
         <Loader />
@@ -55,18 +53,18 @@ const EventoPage = ({ params }: EventoPageProps) => {
       </div>
       <div className='grid auto-rows-auto grid-cols-3 items-center justify-center gap-x-3 pb-3 sm:flex'>
         <div className='col-span-3 p-2'>
-          <h3 className='text-center text-2xl font-bold'>{evento?.nombre}</h3>
+          <h3 className='text-center text-2xl font-bold'>{event?.name}</h3>
         </div>
         <h3 className='p-2 text-center text-sm sm:text-base'>
-          {format(evento!.fecha, 'yyyy-MM-dd')}
+          {format(event!.date, 'yyyy-MM-dd')}
         </h3>
         <h3 className='p-2 text-center text-sm sm:text-base'>
-          {evento?.ubicacion}
+          {event?.location}
         </h3>
 
         <Button
           className='aspect-square justify-self-center rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500'
-          onClick={() => router.push(`/eventos/${evento?.id}/presentismo`)}
+          onClick={() => router.push(`/eventos/${event?.id}/presentismo`)}
         >
           <RaiseHand />
         </Button>
@@ -79,10 +77,7 @@ const EventoPage = ({ params }: EventoPageProps) => {
         <Filter showInput showTag filterFunction={filtrar} />
       </div>
       <DataTable
-        columns={generateColumns(
-          evento!.etiquetaConfirmoId,
-          evento!.etiquetaAsistioId
-        )}
+        columns={generateColumns(event!.tagConfirmedId, event!.tagAssistedId)}
         data={profilesData}
         initialSortingColumn={{ id: 'created_at', desc: true }}
       />
@@ -90,4 +85,4 @@ const EventoPage = ({ params }: EventoPageProps) => {
   );
 };
 
-export default EventoPage;
+export default EventPage;

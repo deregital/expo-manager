@@ -2,21 +2,21 @@ import { useExpandEventos } from '@/components/eventos/expandcontracteventos';
 import { Accordion } from '@/components/ui/accordion';
 import React, { useEffect } from 'react';
 import { RouterOutputs } from '@/server';
-import EventoAccordion from '@/components/eventos/EventAccordion';
+import EventAccordion from '@/components/eventos/EventAccordion';
 import EventFolderAccordion from '@/components/eventos/EventFolderAccordion';
 
-interface EventosListProps {
-  eventos: RouterOutputs['evento']['getAll'];
+interface EventsListProps {
+  events: RouterOutputs['event']['getAll'];
 }
 
-const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
+const EventsList: React.FC<EventsListProps> = ({ events }) => {
   const { state, active, setActive } = useExpandEventos((s) => ({
     state: s.state,
     setActive: s.setActive,
     active: s.active,
   }));
 
-  const { carpetas: folders, sinCarpetas: eventsWithoutFolder } = eventos;
+  const { folders, withoutFolder: eventsWithoutFolder } = events;
 
   useEffect(() => {
     if (state === 'EXPAND') {
@@ -30,7 +30,7 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
     } else {
       setActive([]);
     }
-  }, [folders, eventos, eventsWithoutFolder, setActive, state]);
+  }, [folders, eventsWithoutFolder, setActive, state]);
 
   if (folders.length === 0 && eventsWithoutFolder.length === 0) {
     return (
@@ -55,10 +55,10 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
           <EventFolderAccordion key={folder.id} folder={folder} />
         ))}
         {eventsWithoutFolder.map((event) => (
-          <EventoAccordion
+          <EventAccordion
             isOpen={active.includes(event.id)}
             key={event.id}
-            evento={event}
+            event={event}
           />
         ))}
       </Accordion>
@@ -66,4 +66,4 @@ const EventosList: React.FC<EventosListProps> = ({ eventos }) => {
   );
 };
 
-export default EventosList;
+export default EventsList;

@@ -15,7 +15,7 @@ import { RouterOutputs } from '@/server';
 
 interface EventsFolderModalProps {
   action: 'EDIT' | 'CREATE';
-  eventsFolder?: RouterOutputs['evento']['getAll']['carpetas'][number];
+  eventsFolder?: RouterOutputs['event']['getAll']['folders'][number];
 }
 
 type EventsFolderModalData = {
@@ -88,7 +88,7 @@ const EventsFolderModal = ({
         .mutateAsync({ name, color })
         .then(() => {
           setOpen(false);
-          utils.evento.getAll.invalidate();
+          utils.event.getAll.invalidate();
           utils.eventFolder.getAll.invalidate();
           toast.success('Carpeta de eventos creada con éxito');
         })
@@ -101,7 +101,7 @@ const EventsFolderModal = ({
         .mutateAsync({ id: folderId, name, color })
         .then(() => {
           setOpen(false);
-          utils.evento.getAll.invalidate();
+          utils.event.getAll.invalidate();
           utils.eventFolder.getAll.invalidate();
           toast.success('Carpeta de eventos editada con éxito');
         })
@@ -121,7 +121,7 @@ const EventsFolderModal = ({
 
   async function handleDelete() {
     if (eventsFolder) {
-      if (eventsFolder.eventos && eventsFolder.eventos.length > 0) {
+      if (eventsFolder.events && eventsFolder.events.length > 0) {
         toast.error('No se puede eliminar la carpeta, contiene eventos.');
         setOpen(true);
         return;
@@ -180,7 +180,7 @@ const EventsFolderModal = ({
                 useEventsFolderModalData.setState({
                   type: 'EDIT',
                   folderId: eventsFolder?.id ?? '',
-                  name: eventsFolder?.nombre ?? '',
+                  name: eventsFolder?.name ?? '',
                   color: eventsFolder?.color ?? '',
                 });
               }}

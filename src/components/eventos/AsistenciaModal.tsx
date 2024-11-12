@@ -11,12 +11,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 type PresentismoModal = {
   isOpen: boolean;
-  evento: RouterOutputs['evento']['getById'] | null;
+  event: RouterOutputs['event']['getById'] | null;
   profileId: string;
 };
 export const usePresentismoModal = create<PresentismoModal>((set) => ({
   isOpen: false,
-  evento: null,
+  event: null,
   profileId: '',
 }));
 
@@ -35,14 +35,14 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
       .filter((profile) =>
         profile.tags.every(
           (tag) =>
-            tag.id !== modalPresentismo.evento?.etiquetaAsistioId &&
-            tag.id !== modalPresentismo.evento?.etiquetaConfirmoId
+            tag.id !== modalPresentismo.event?.tagAssistedId &&
+            tag.id !== modalPresentismo.event?.tagConfirmedId
         )
       )
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
   }, [
-    modalPresentismo.evento?.etiquetaAsistioId,
-    modalPresentismo.evento?.etiquetaConfirmoId,
+    modalPresentismo.event?.tagAssistedId,
+    modalPresentismo.event?.tagConfirmedId,
     profiles,
   ]);
 
@@ -51,7 +51,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
       toast.error('Debes seleccionar un participante');
     }
 
-    if (modalPresentismo.evento === null) {
+    if (modalPresentismo.event === null) {
       toast.error('No se ha encontrado el evento');
     }
 
@@ -66,9 +66,9 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
 
     const participantTagsId = profile?.tags
       .map((tag) => tag.id)
-      .filter((tagId) => tagId !== modalPresentismo.evento?.etiquetaConfirmoId);
+      .filter((tagId) => tagId !== modalPresentismo.event?.tagConfirmedId);
 
-    const tagAssistedId = modalPresentismo.evento!.etiquetaAsistioId;
+    const tagAssistedId = modalPresentismo.event!.tagAssistedId;
 
     await editProfile.mutateAsync({
       id: modalPresentismo.profileId,
@@ -79,7 +79,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
     usePresentismoModal.setState({ isOpen: false, profileId: '' });
   }
 
-  if (!modalPresentismo.evento || modalPresentismo.evento === null) return;
+  if (!modalPresentismo.event || modalPresentismo.event === null) return;
 
   return (
     <Dialog
@@ -137,7 +137,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
           className='cursor-pointer text-right text-lg underline underline-offset-4 hover:text-blue-500'
           onClick={() => {
             searchParams.set('modal', 'true');
-            searchParams.set('evento', modalPresentismo.evento?.id ?? '');
+            searchParams.set('evento', modalPresentismo.event?.id ?? '');
             router.push(`/modelos?${searchParams.toString()}`);
           }}
         >

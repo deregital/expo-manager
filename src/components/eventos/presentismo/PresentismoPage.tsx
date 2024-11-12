@@ -23,21 +23,19 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 interface PresentismoPageProps {
-  eventoId: string;
+  eventId: string;
   baseUrl: string;
 }
 
-const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
-  const { data: evento, isLoading: isLoadingEvento } =
-    trpc.evento.getById.useQuery({
-      id: eventoId,
-    });
+const PresentismoPage = ({ baseUrl, eventId }: PresentismoPageProps) => {
+  const { data: event, isLoading: isLoadingEvent } =
+    trpc.event.getById.useQuery(eventId);
 
   const { data: profiles, isLoading: isLoadingProfiles } =
     trpc.profile.getByTags.useQuery(
-      evento ? [evento.etiquetaConfirmoId, evento.etiquetaAsistioId] : [],
+      event ? [event.tagConfirmedId, event.tagAssistedId] : [],
       {
-        enabled: !!evento,
+        enabled: !!event,
       }
     );
 
@@ -65,32 +63,31 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
   }, [search, profiles]);
 
   const profileCount = useMemo(() => {
-    if (!profiles || !evento) return 0;
+    if (!profiles || !event) return 0;
     return profiles.filter((profile) =>
-      profile.tags.find((tag) => tag.id === evento.etiquetaAsistioId)
+      profile.tags.find((tag) => tag.id === event.tagAssistedId)
     ).length;
-  }, [evento, profiles]);
+  }, [event, profiles]);
 
   useEffect(() => {
-    if (!evento) return;
-    usePresentismoModal.setState({ evento: evento });
-  }, [evento]);
+    if (!event) return;
+    usePresentismoModal.setState({ event: event });
+  }, [event]);
 
   useEffect(() => {
     usePresentismoModal.setState({ isOpen: false });
     urlSearchParams.delete('persona');
-    router.push(`/eventos/${eventoId}/presentismo`);
-  }, [eventoId, router, urlSearchParams]);
+    router.push(`/eventos/${eventId}/presentismo`);
+  }, [eventId, router, urlSearchParams]);
 
-  const progress = useProgress(profiles ?? [], evento?.etiquetaAsistioId ?? '');
+  const progress = useProgress(profiles ?? [], event?.tagAssistedId ?? '');
 
   const handleGeneratePDF = async () => {
     const confirmedProfiles = profilesData
       .filter((profile) =>
         profile.tags.find(
           (tag) =>
-            tag.id === evento?.etiquetaConfirmoId ||
-            tag.id === evento?.etiquetaAsistioId
+            tag.id === event?.tagConfirmedId || tag.id === event?.tagAssistedId
         )
       )
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
@@ -102,7 +99,7 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
           profile.shortId ? profile.shortId.toString() : '',
           profile.phoneNumber,
           profile.dni ?? '',
-          (profile.tags.some((tag) => tag.id === evento?.etiquetaAsistioId)
+          (profile.tags.some((tag) => tag.id === event?.tagAssistedId)
             ? 'SI'
             : '') as string,
         ] as PDFData[0]['datos'][number]
@@ -120,11 +117,11 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
 
     const inputs: PDFData = [
       {
-        nombre: `${evento?.nombre}`,
-        fecha: `${format(evento!.fecha, 'dd/MM/yyyy')}`,
-        ubicacion: `${evento?.ubicacion}`,
+        nombre: `${event?.name}`,
+        fecha: `${format(event!.date, 'dd/MM/yyyy')}`,
+        ubicacion: `${event?.location}`,
         datos: tableContent,
-        qr: `${baseUrl}/eventos/${eventoId}/presentismo`,
+        qr: `${baseUrl}/eventos/${eventId}/presentismo`,
       },
     ];
 
@@ -138,13 +135,13 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `Evento_${evento?.nombre}.pdf`;
+    link.download = `Evento_${event?.name}.pdf`;
 
     toast.success('PDF generado con éxito');
     link.click();
   };
 
-  if (isLoadingEvento)
+  if (isLoadingEvent)
     return (
       <div className='flex items-center justify-center pt-5'>
         <Loader />
@@ -157,7 +154,7 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
         <ArrowLeftIcon
           className='h-10 w-10 pt-3 hover:cursor-pointer'
           onClick={() => {
-            router.replace(`/eventos/${eventoId}`);
+            router.replace(`/eventos/${eventId}`);
           }}
         />
       </div>
@@ -166,13 +163,13 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
       </div>
       <div className='grid auto-rows-auto grid-cols-2 items-center justify-center gap-x-3 pb-3 sm:flex'>
         <h3 className='col-span-2 p-2 text-center text-2xl font-semibold'>
-          {evento?.nombre}
+          {event?.name}
         </h3>
         <h3 className='p-2 text-center text-sm sm:text-base'>
-          {format(evento!.fecha, 'yyyy-MM-dd')}
+          {format(event!.date, 'yyyy-MM-dd')}
         </h3>
         <h3 className='p-2 text-center text-sm sm:text-base'>
-          {evento?.ubicacion}
+          {event?.location}
         </h3>
       </div>
       <div className='flex flex-col items-center justify-around gap-x-5 pb-5 sm:flex-row'>
@@ -195,8 +192,8 @@ const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
       </div>
       <DataTable
         columns={generateColumnsPresentismo({
-          asistenciaId: evento!.etiquetaAsistioId,
-          confirmoId: evento!.etiquetaConfirmoId,
+          asistenciaId: event!.tagAssistedId,
+          confirmoId: event!.tagConfirmedId,
         })}
         data={profilesData}
         isLoading={isLoadingProfiles}

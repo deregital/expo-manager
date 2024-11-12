@@ -15,7 +15,7 @@ const Presentismo = ({ params }: PresentismoProps) => {
     return null;
   }
 
-  return <PresentismoPage eventoId={params.eventoId} baseUrl={hostname} />;
+  return <PresentismoPage eventId={params.eventoId} baseUrl={hostname} />;
 };
 
 export default Presentismo;
