@@ -51,16 +51,11 @@ const ModalCreateProfile = ({ open }: { open: boolean }) => {
   const [similarityProfiles, setSimilarityProfiles] = useState<
     SimilarityProfile[]
   >([]);
-  const { data: etiquetaEvento } = trpc.evento.getById.useQuery(
-    {
-      id: eventId ?? '',
-    },
-    {
-      enabled: !!eventId,
-    }
-  );
+  const { data: etiquetaEvento } = trpc.event.getById.useQuery(eventId ?? '', {
+    enabled: !!eventId,
+  });
   const { data: etiquetaAsistio } = trpc.tag.getById.useQuery(
-    etiquetaEvento?.etiquetaAsistioId ?? '',
+    etiquetaEvento?.tagAssistedId ?? '',
     {
       enabled: !!etiquetaEvento,
     }

@@ -25,7 +25,7 @@ const EventosPage = () => {
     : data!;
 
   const eventosFiltrados = useMemo(() => {
-    if (isLoading) return { carpetas: [], sinCarpetas: [] };
+    if (isLoading) return { folders: [], withoutFolder: [] };
 
     let filteredFolders = folders.filter((folder) => {
       return (
@@ -65,10 +65,10 @@ const EventosPage = () => {
     }
 
     const orderedEvents = {
-      carpetas: filteredFolders.sort((a, b) => {
+      folders: filteredFolders.sort((a, b) => {
         return a.name.localeCompare(b.name);
       }),
-      sinCarpetas: filteredEventsWithoutFolder.sort((a, b) => {
+      withoutFolder: filteredEventsWithoutFolder.sort((a, b) => {
         return a.name.localeCompare(b.name);
       }),
     };
