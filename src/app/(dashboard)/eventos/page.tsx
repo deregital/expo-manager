@@ -10,7 +10,7 @@ import ExpandContractEventos, {
 import { searchNormalize } from '@/lib/utils';
 import { XIcon } from 'lucide-react';
 import EventsFolderModal from '@/components/eventos/EventsFolderModal';
-import EventosList from '@/components/eventos/eventoslist';
+import EventsList from '@/components/eventos/eventslist';
 
 const EventosPage = () => {
   const [search, setSearch] = useState('');
@@ -24,7 +24,7 @@ const EventosPage = () => {
     ? { folders: [], withoutFolder: [] }
     : data!;
 
-  const eventosFiltrados = useMemo(() => {
+  const eventsFiltered = useMemo(() => {
     if (isLoading) return { folders: [], withoutFolder: [] };
 
     let filteredFolders = folders.filter((folder) => {
@@ -118,7 +118,7 @@ const EventosPage = () => {
           </div>
         ) : (
           <div>
-            <EventosList eventos={eventosFiltrados} />
+            <EventsList events={eventsFiltered} />
           </div>
         )}
       </div>

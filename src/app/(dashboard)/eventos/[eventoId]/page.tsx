@@ -29,7 +29,7 @@ const EventPage = ({ params }: EventPageProps) => {
     RouterOutputs['profile']['getAll']
   >(profiles ?? []);
 
-  const filtrar: FuncionFiltrar = (filter) => {
+  const filter: FuncionFiltrar = (filter) => {
     if (!profiles) return;
     setprofilesData(filterProfiles(profiles, filter));
   };
@@ -74,7 +74,7 @@ const EventPage = ({ params }: EventPageProps) => {
           onChange={setSearch}
           placeholder='Buscar por nombre o ID legible'
         /> */}
-        <Filter showInput showTag filterFunction={filtrar} />
+        <Filter showInput showTag filterFunction={filter} />
       </div>
       <DataTable
         columns={generateColumns(event!.tagConfirmedId, event!.tagAssistedId)}
