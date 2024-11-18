@@ -168,6 +168,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
         .then(() => {
           setOpen(!open);
           toast.success('Evento eliminado con éxito');
+          utils.event.getAll.invalidate();
         })
         .catch((error) => {
           console.log(error);
@@ -427,10 +428,12 @@ const EventModal = ({ action, event }: EventModalProps) => {
                   })}
                   onClick={handleDelete}
                   disabled={
-                    event?.subEvents !== undefined && event.subEvents.length > 0
+                    deleteEvent.isLoading ||
+                    (modalData.subEvents !== undefined &&
+                      modalData.subEvents.length > 0)
                   }
                 >
-                  {event?.subEvents.length === 0
+                  {modalData.subEvents.length === 0
                     ? wantToDelete
                       ? '¿Estás seguro?'
                       : 'Eliminar'
