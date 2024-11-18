@@ -39,7 +39,7 @@ const ModalCreateProfile = ({ open }: { open: boolean }) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const searchParams = new URLSearchParams(useSearchParams());
-  const [eventId, setEventoId] = useState<string | null>(
+  const [eventId, setEventId] = useState<string | null>(
     searchParams.get('evento') ?? null
   );
   const pathname = usePathname();
@@ -61,7 +61,7 @@ const ModalCreateProfile = ({ open }: { open: boolean }) => {
     }
   );
   useEffect(() => {
-    setEventoId(
+    setEventId(
       searchParams.get('evento') !== '' ? searchParams.get('evento') : null
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps

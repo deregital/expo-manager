@@ -22,16 +22,20 @@ interface EventPageProps {
 const EventPage = ({ params }: EventPageProps) => {
   const { data: event, isLoading: isLoadingEvent } =
     trpc.event.getById.useQuery(params.eventId);
-  const { data: profiles } = trpc.profile.getAll.useQuery();
+  const { data: profiles } = trpc.profile.getAll.useQuery(undefined, {
+    onSuccess(data) {
+      setProfilesData(data);
+    },
+  });
+  const [profilesData, setProfilesData] = useState<
+    RouterOutputs['profile']['getAll']
+  >([]);
 
   const router = useRouter();
-  const [profilesData, setprofilesData] = useState<
-    RouterOutputs['profile']['getAll']
-  >(profiles ?? []);
 
   const filter: FuncionFiltrar = (filter) => {
     if (!profiles) return;
-    setprofilesData(filterProfiles(profiles, filter));
+    setProfilesData(filterProfiles(profiles, filter));
   };
 
   if (isLoadingEvent)
