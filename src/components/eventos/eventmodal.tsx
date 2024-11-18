@@ -136,9 +136,14 @@ const EventModal = ({ action, event }: EventModalProps) => {
           utils.event.getAll.invalidate();
           utils.eventFolder.getAll.invalidate();
         })
-        .catch((error: any) => {
-          console.log(error);
-          toast.error('Error al editar el evento');
+        .catch((error) => {
+          const errorString = JSON.parse(error.shape.message)[0].message;
+
+          if (errorString) {
+            toast.error(`Error al editar el evento, ${errorString}`);
+          } else {
+            toast.error('Error al editar el evento');
+          }
         });
     }
 
@@ -308,12 +313,6 @@ const EventModal = ({ action, event }: EventModalProps) => {
               </div>
             </div>
           </div>
-          {createEvent.isError || createEvent.isError ? (
-            <p className='text-sm font-semibold text-red-500'>
-              {createEvent.isError ? 'Error al crear el evento' : ''}
-              {updateEvent.isError ? 'Error al editar el evento' : ''}
-            </p>
-          ) : null}
           <div className='flex h-full max-h-64 flex-col gap-y-3 overflow-y-auto'>
             {modalData.subEvents.map((subevent, index) => (
               <div key={index}>
@@ -396,6 +395,18 @@ const EventModal = ({ action, event }: EventModalProps) => {
           >
             Agregar subevento
           </Button>
+          {createEvent.isError || updateEvent.isError ? (
+            <p className='text-sm font-semibold text-red-500'>
+              {createEvent.isError
+                ? JSON.parse(createEvent.error.shape?.message ?? '[]')[0]
+                    .message
+                : ''}
+              {updateEvent.isError
+                ? JSON.parse(updateEvent.error.shape?.message ?? '[]')[0]
+                    .message
+                : ''}
+            </p>
+          ) : null}
           <div className='flex gap-x-4'>
             <Button
               className='w-full max-w-32'
