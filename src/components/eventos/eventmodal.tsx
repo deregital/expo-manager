@@ -47,7 +47,7 @@ type ModalData = {
 export const useEventModalData = create<ModalData>((set) => ({
   type: 'CREATE',
   name: '',
-  date: '',
+  date: new Date().toISOString(),
   location: '',
   folderId: null,
   subEvents: [],
@@ -55,9 +55,9 @@ export const useEventModalData = create<ModalData>((set) => ({
     set({
       type: 'CREATE',
       name: '',
-      date: '',
+      date: new Date().toISOString(),
       location: '',
-      folderId: undefined,
+      folderId: null,
       subEvents: [],
     }),
 }));
@@ -208,7 +208,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
                     name: event.name,
                     date: event.date,
                     location: event.location,
-                    folderId: event.folderId || '',
+                    folderId: event.folderId,
                     subEvents: event.subEvents.map((subevent) => ({
                       id: subevent.id,
                       name: subevent.name,
