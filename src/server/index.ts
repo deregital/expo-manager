@@ -3,7 +3,7 @@ import { profileRouter } from '@/server/routers/profileRouter';
 import { tagRouter } from '@/server/routers/tagRouter';
 import { whatsappRouter } from '@/server/routers/whatsappRouter';
 import { tagGroupRouter } from '@/server/routers/tagGroupRouter';
-import { inferRouterOutputs } from '@trpc/server';
+import { type inferRouterOutputs } from '@trpc/server';
 import { csvRouter } from '@/server/routers/csvRouter';
 import { eventRouter } from '@/server/routers/eventRouter';
 import { cuentaRouter } from '@/server/routers/cuentaRouter';

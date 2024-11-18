@@ -15,9 +15,9 @@ import {
 } from '@/components/ui/select';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { differenceInYears } from 'date-fns';
-import { Profile, UpdateProfileDto } from 'expo-backend-types';
+import { type Profile, type UpdateProfileDto } from 'expo-backend-types';
 import { TrashIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';

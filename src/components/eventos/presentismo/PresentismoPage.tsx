@@ -16,7 +16,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { generate } from '@pdfme/generator';
 import type { Plugin } from '@pdfme/common';
 import { barcodes, text, line, tableBeta, readOnlyText } from '@pdfme/schemas';
-import { PDFData, presentismoPDFSchema } from '@/lib/presentismoPDFSchema';
+import { type PDFData, presentismoPDFSchema } from '@/lib/presentismoPDFSchema';
 import { useProgress } from '@/hooks/eventos/presentismo/useProgress';
 import PDFIcon from '@/components/icons/PDFIcon';
 import { Button } from '@/components/ui/button';

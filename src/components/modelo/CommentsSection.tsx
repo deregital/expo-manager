@@ -1,12 +1,12 @@
 import { useProfileData } from '@/components/modelo/ProfilePageContent';
 import { trpc } from '@/lib/trpc';
 import { useSession } from 'next-auth/react';
-import React, { FormEvent, useState } from 'react';
+import React, { type FormEvent, useState } from 'react';
 // Asegúrate de tener un componente Switch adecuado
 import { Checkbox } from '../ui/checkbox';
 import { toast } from 'sonner';
 import CreateComment from './CreateComment';
-import { GetByProfileCommentResponseDto } from 'expo-backend-types';
+import { type GetByProfileCommentResponseDto } from 'expo-backend-types';
 
 interface CommentsSectionProps {
   profileId: string;

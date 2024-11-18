@@ -8,7 +8,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { cn, getTextColorByBg } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import React, { useState } from 'react';
 
 interface EventFolderAccordionProps {

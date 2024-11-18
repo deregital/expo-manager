@@ -1,10 +1,10 @@
 'use client';
-import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { type PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import { XIcon } from 'lucide-react';
 import {
   type Filtro as FiltroType,
-  FuncionFiltrar,
+  type FuncionFiltrar,
   defaultAdvancedFilter,
 } from '@/lib/filter';
 import { cn } from '@/lib/utils';

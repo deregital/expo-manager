@@ -1,9 +1,9 @@
 import ProfilePic from '@/components/ui/ProfilePic';
 import { cn } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { useChatSidebar } from '@/components/chat/layout/ChatSidebarMobile';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction, useRef } from 'react';
+import React, { type Dispatch, type SetStateAction, useRef } from 'react';
 import {
   AccordionContent,
   AccordionItem,

@@ -4,11 +4,11 @@ import CheckIcon from '@/components/icons/CheckIcon';
 import DoubleCheckIcon from '@/components/icons/DoubleCheckIcon';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import {
-  MessageJson,
-  TemplateMessage,
-  TextMessage,
+  type MessageJson,
+  type TemplateMessage,
+  type TextMessage,
 } from '@/server/types/whatsapp';
 import Link from 'next/link';
 import React, { useEffect, useMemo, useRef, useState } from 'react';

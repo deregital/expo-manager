@@ -6,7 +6,7 @@ import ComboBox from '../ui/ComboBox';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 type PresentismoModal = {

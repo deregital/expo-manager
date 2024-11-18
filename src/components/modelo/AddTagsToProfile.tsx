@@ -1,7 +1,7 @@
 import AddEtiquetaCombos from '@/components/ui/AddEtiquetaCombos';
 import { useProfileData } from '@/components/modelo/ProfilePageContent';
 import { trpc } from '@/lib/trpc';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import React from 'react';
 import { toast } from 'sonner';
 

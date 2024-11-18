@@ -1,6 +1,6 @@
 import ComboBox from '@/components/ui/ComboBox';
 import { cn } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { Trash } from 'lucide-react';
 import React from 'react';
 import { create } from 'zustand';

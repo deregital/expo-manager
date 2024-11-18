@@ -1,7 +1,7 @@
 import EventsFolderModal from '@/components/eventos/EventsFolderModal';
 import FolderIcon from '@/components/icons/FolderIcon';
 import { getTextColorByBg } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import React from 'react';
 
 interface EventFolderListTriggerProps {

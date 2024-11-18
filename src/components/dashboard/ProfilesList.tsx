@@ -1,7 +1,7 @@
 import ProfilePic from '@/components/ui/ProfilePic';
 import { Card, CardTitle } from '@/components/ui/card';
 import Loader from '@/components/ui/loader';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import React from 'react';

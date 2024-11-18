@@ -1,12 +1,13 @@
 import { Marker } from '@adamscybot/react-leaflet-component-marker';
 import React from 'react';
 import { Popup } from 'react-leaflet';
+import type { Icon, DivIcon, IconOptions } from 'leaflet';
 
 interface MapMarkerProps {
   icon:
     | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-    | import('leaflet').Icon<import('leaflet').IconOptions>
-    | import('leaflet').DivIcon
+    | Icon<IconOptions>
+    | DivIcon
     | React.ComponentType
     | undefined;
   marker: {

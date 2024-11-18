@@ -6,7 +6,7 @@ import ComboBox from '@/components/ui/ComboBox';
 import { notChoosableTagTypes } from '@/lib/constants';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { Trash } from 'lucide-react';
 import React, { useMemo } from 'react';
 

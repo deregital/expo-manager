@@ -1,4 +1,9 @@
-import { FirebaseOptions, getApp, getApps, initializeApp } from 'firebase/app';
+import {
+  type FirebaseOptions,
+  getApp,
+  getApps,
+  initializeApp,
+} from 'firebase/app';
 import { getMessaging, getToken, isSupported } from 'firebase/messaging';
 
 let firebaseConfig: FirebaseOptions;

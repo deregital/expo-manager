@@ -5,7 +5,7 @@ import DeleteTemplateModal, {
 import EnviarTemplate from '@/components/mensajes/EnviarTemplate';
 import PlantillasList from '@/components/mensajes/PlantillasList';
 import SendTemplateModal from '@/components/mensajes/SendTemplateModal';
-import { GetTemplatesData } from '@/server/types/whatsapp';
+import { type GetTemplatesData } from '@/server/types/whatsapp';
 import React, { useState } from 'react';
 
 const MensajesPage = () => {

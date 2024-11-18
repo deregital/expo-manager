@@ -2,8 +2,8 @@ import AddTagsToProfile from '@/components/modelo/AddTagsToProfile';
 import { useProfileData } from '@/components/modelo/ProfilePageContent';
 import ListaEtiquetas from '@/components/ui/ListaEtiquetas';
 import { trpc } from '@/lib/trpc';
-import { TagWithGroupColor } from '@/server/types/etiquetas';
-import { GetGlobalFilterResponseDto } from 'expo-backend-types';
+import { type TagWithGroupColor } from '@/server/types/etiquetas';
+import { type GetGlobalFilterResponseDto } from 'expo-backend-types';
 import { useState } from 'react';
 import { toast } from 'sonner';
 

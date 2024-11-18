@@ -1,7 +1,7 @@
 import { useExpandEventos } from '@/components/eventos/expandcontracteventos';
 import { Accordion } from '@/components/ui/accordion';
 import React, { useEffect } from 'react';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import EventAccordion from '@/components/eventos/EventAccordion';
 import EventFolderAccordion from '@/components/eventos/EventFolderAccordion';
 

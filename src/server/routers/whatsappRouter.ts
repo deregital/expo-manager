@@ -3,18 +3,18 @@ import { z } from 'zod';
 import fs from 'fs';
 import { join as pathJoin } from 'path';
 import {
-  Template,
-  Buttons,
-  TemplateResponse,
-  TemplateEdit,
-  TemplateEditResponse,
-  GetTemplatesResponse,
-  GetTemplateResponse,
-  MessageJson,
+  type Template,
+  type Buttons,
+  type TemplateResponse,
+  type TemplateEdit,
+  type TemplateEditResponse,
+  type GetTemplatesResponse,
+  type GetTemplateResponse,
+  type MessageJson,
 } from '@/server/types/whatsapp';
 import { TRPCError } from '@trpc/server';
 import { subDays } from 'date-fns';
-import { Mensaje, PrismaClient } from '@prisma/client';
+import { type Mensaje, type PrismaClient } from '@prisma/client';
 
 export const whatsappRouter = router({
   createTemplate: protectedProcedure

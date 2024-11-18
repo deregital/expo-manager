@@ -1,5 +1,5 @@
 'use client';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import React from 'react';
 import EventModal from './eventmodal';

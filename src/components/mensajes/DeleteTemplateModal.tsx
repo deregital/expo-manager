@@ -7,7 +7,7 @@ import {
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { create } from 'zustand';
-import { GetTemplatesData } from '@/server/types/whatsapp';
+import { type GetTemplatesData } from '@/server/types/whatsapp';
 import Loader from '../ui/loader';
 
 export const useTemplateDelete = create<{

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ComboBox from '@/components/ui/ComboBox';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';

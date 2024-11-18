@@ -1,4 +1,4 @@
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ProfileTagsList from '@/components/modelo/ProfileTagsList';
 import { create } from 'zustand';
@@ -20,8 +20,8 @@ import InstagramIcon from '@/components/icons/InstagramIcon';
 import MailIcon from '@/components/icons/MailIcon';
 import DNIIcon from '@/components/icons/DNIIcon';
 import TrashCanButtons from '@/components/papelera/BotonesPapelera';
-import { GetByProfileCommentResponseDto } from 'expo-backend-types';
-import { TagWithGroupColor } from '@/server/types/etiquetas';
+import { type GetByProfileCommentResponseDto } from 'expo-backend-types';
+import { type TagWithGroupColor } from '@/server/types/etiquetas';
 import { notChoosableTagTypes } from '@/lib/constants';
 
 interface ProfilePageContentProps {

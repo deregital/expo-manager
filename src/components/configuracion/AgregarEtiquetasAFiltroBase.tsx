@@ -1,7 +1,7 @@
 import { useTagsGlobalFilter } from '@/components/configuracion/ActualizarFiltroBase';
 import AddEtiquetaCombos from '@/components/ui/AddEtiquetaCombos';
 import { trpc } from '@/lib/trpc';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import React from 'react';
 import { toast } from 'sonner';
 

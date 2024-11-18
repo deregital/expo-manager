@@ -11,7 +11,7 @@ import Loader from '@/components/ui/loader';
 import ColorPicker from '@/components/ui/ColorPicker';
 import { cn, randomColor } from '@/lib/utils';
 import FolderIcon from '@/components/icons/FolderIcon';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 
 interface EventsFolderModalProps {
   action: 'EDIT' | 'CREATE';

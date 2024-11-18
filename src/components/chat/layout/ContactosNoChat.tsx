@@ -1,6 +1,6 @@
 import VirtualizedContactsList from '@/components/chat/layout/VirtualizedContactsList';
 import { Accordion } from '@/components/ui/accordion';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import React, { useState } from 'react';
 
 interface ContactosNoChatProps {

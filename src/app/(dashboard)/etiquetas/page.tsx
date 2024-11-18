@@ -2,7 +2,9 @@
 import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 
-import TagsList, { GroupWithMatch } from '@/components/etiquetas/list/TagsList';
+import TagsList, {
+  type GroupWithMatch,
+} from '@/components/etiquetas/list/TagsList';
 import SearchInput from '@/components/ui/SearchInput';
 import TagGroupModal from '@/components/etiquetas/modal/TagGroupModal';
 import TagModal from '@/components/etiquetas/modal/TagModal';

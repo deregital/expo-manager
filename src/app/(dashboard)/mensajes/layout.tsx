@@ -4,7 +4,7 @@ import ChatSidebarMobile from '@/components/chat/layout/ChatSidebarMobile';
 import Filter from '@/components/ui/filtro/Filtro';
 import {
   type Filtro as FiltroType,
-  FuncionFiltrar,
+  type FuncionFiltrar,
   defaultAdvancedFilter,
 } from '@/lib/filter';
 import React, { useState } from 'react';

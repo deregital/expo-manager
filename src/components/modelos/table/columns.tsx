@@ -4,8 +4,8 @@ import { ageFromBirthDate } from '@/components/modelo/ProfileEditModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { getTextColorByBg } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
-import { ColumnDef, SortDirection } from '@tanstack/react-table';
+import { type RouterOutputs } from '@/server';
+import { type ColumnDef, type SortDirection } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
 export function generateColumns(

@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { create } from 'zustand';
 import { generateColumns } from '@/components/modelos/table/columns';
-import { Filtro, filterProfiles } from '@/lib/filter';
+import { type Filtro, filterProfiles } from '@/lib/filter';
 import { useSearchQuery } from '@/lib/useSearchQuery';
 import { notChoosableTagTypes } from '@/lib/constants';
 

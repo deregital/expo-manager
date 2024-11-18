@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { cn, getTextColorByBg } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import React from 'react';

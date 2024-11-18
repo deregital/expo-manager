@@ -4,8 +4,11 @@ import ComboBox from '@/components/ui/ComboBox';
 import { Button } from '@/components/ui/button';
 import { notChoosableTagTypes } from '@/lib/constants';
 import { trpc } from '@/lib/trpc';
-import { RouterOutputs } from '@/server';
-import { GetGlobalFilterResponseDto, type TagType } from 'expo-backend-types';
+import { type RouterOutputs } from '@/server';
+import {
+  type GetGlobalFilterResponseDto,
+  type TagType,
+} from 'expo-backend-types';
 import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 

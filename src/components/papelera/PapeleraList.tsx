@@ -1,6 +1,6 @@
 import Loader from '@/components/ui/loader';
 import React from 'react';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import PapeleraRow from '@/components/papelera/PapeleraRow';
 
 interface PapeleraListProps {
