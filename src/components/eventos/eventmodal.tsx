@@ -22,8 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { format } from 'date-fns/format';
 
-interface EventoModalProps {
+interface EventModalProps {
   action: 'CREATE' | 'EDIT';
   event?: RouterOutputs['event']['getAll']['withoutFolder'][number];
 }
@@ -61,7 +62,7 @@ export const useEventModalData = create<ModalData>((set) => ({
     }),
 }));
 
-const EventoModal = ({ action, event }: EventoModalProps) => {
+const EventModal = ({ action, event }: EventModalProps) => {
   const utils = trpc.useUtils();
   const modalData = useEventModalData((state) => ({
     type: state.type,
@@ -81,7 +82,7 @@ const EventoModal = ({ action, event }: EventoModalProps) => {
   const updateEvent = trpc.event.update.useMutation();
   const { data: eventFolders } = trpc.eventFolder.getAll.useQuery();
 
-  async function sendEvento() {
+  async function sendEvent() {
     if (modalData.type === 'CREATE') {
       await createEvent
         .mutateAsync({
@@ -250,7 +251,10 @@ const EventoModal = ({ action, event }: EventoModalProps) => {
                   name='fecha'
                   id='fecha'
                   placeholder='Fecha del evento'
-                  value={modalData.date}
+                  value={format(
+                    modalData.date.length > 0 ? modalData.date : new Date(),
+                    "yyyy-MM-dd'T'HH:mm"
+                  )}
                   onChange={(e) =>
                     useEventModalData.setState({ date: e.target.value })
                   }
@@ -395,7 +399,7 @@ const EventoModal = ({ action, event }: EventoModalProps) => {
           <div className='flex gap-x-4'>
             <Button
               className='w-full max-w-32'
-              onClick={sendEvento}
+              onClick={sendEvent}
               disabled={updateEvent.isLoading || createEvent.isLoading}
             >
               {((updateEvent.isLoading || createEvent.isLoading) && (
@@ -440,4 +444,4 @@ const EventoModal = ({ action, event }: EventoModalProps) => {
   );
 };
 
-export default EventoModal;
+export default EventModal;
