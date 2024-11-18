@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import Loader from '@/components/ui/loader';
 import { trpc } from '@/lib/trpc';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { ArrowLeftIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
@@ -11,7 +11,7 @@ import { DataTable } from '@/components/modelos/table/dataTable';
 import { generateColumns } from '@/components/eventos/table/columnsEvento';
 import RaiseHand from '@/components/icons/RaiseHand';
 import Filter from '@/components/ui/filtro/Filtro';
-import { FuncionFiltrar, filterProfiles } from '@/lib/filter';
+import { type FuncionFiltrar, filterProfiles } from '@/lib/filter';
 
 interface EventPageProps {
   params: {
