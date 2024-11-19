@@ -24,6 +24,13 @@ const EventsList: React.FC<EventsListProps> = ({ events }) => {
         folders
           .map((folder) => folder.id)
           .concat(eventsWithoutFolder.map((event) => event.id))
+          .concat(
+            folders
+              .flatMap((folder) =>
+                folder.events.filter((e) => e.subEvents.length > 0)
+              )
+              .map((event) => event.id)
+          )
       );
     } else if (state === 'NONE') {
       setActive(folders.map((folder) => folder.id));

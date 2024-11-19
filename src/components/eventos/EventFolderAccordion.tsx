@@ -9,16 +9,16 @@ import {
 } from '@/components/ui/accordion';
 import { cn, getTextColorByBg } from '@/lib/utils';
 import { type RouterOutputs } from '@/server';
-import React, { useState } from 'react';
+import React from 'react';
 
 interface EventFolderAccordionProps {
   folder: RouterOutputs['event']['getAll']['folders'][number];
 }
 
 const EventFolderAccordion = ({ folder }: EventFolderAccordionProps) => {
-  const [active, setActive] = useState<string[]>([]);
-  const { clickTrigger } = useExpandEventos((s) => ({
+  const { clickTrigger, active } = useExpandEventos((s) => ({
     clickTrigger: s.clickTrigger,
+    active: s.active,
   }));
 
   return (
@@ -50,11 +50,7 @@ const EventFolderAccordion = ({ folder }: EventFolderAccordionProps) => {
           {folder.events.map((event) => (
             <EventAccordion
               onClick={() => {
-                if (active.includes(event.id)) {
-                  setActive(active.filter((id) => id !== event.id));
-                } else {
-                  setActive([...active, event.id]);
-                }
+                clickTrigger(event.id);
               }}
               color={folder.color}
               isOpen={active.includes(event.id)}
