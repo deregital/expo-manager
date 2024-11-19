@@ -94,7 +94,6 @@ const EventsFolderModal = ({
         })
         .catch(() => {
           setOpen(true);
-          console.log('error');
         });
     } else if (type === 'EDIT') {
       await updateEventFolder

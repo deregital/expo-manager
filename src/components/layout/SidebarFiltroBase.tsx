@@ -11,13 +11,13 @@ interface SidebarFiltroBaseProps {}
 const SidebarFiltroBase = ({}: SidebarFiltroBaseProps) => {
   const utils = trpc.useUtils();
   const { data: globalFilterData, isLoading: globalFilterLoading } =
-    trpc.cuenta.getFiltroBase.useQuery(undefined, {
+    trpc.account.getGlobalFilter.useQuery(undefined, {
       onSuccess(data) {
         setIsChecked(data.isGlobalFilterActive);
       },
     });
   const { mutateAsync: updateGlobalFilter } =
-    trpc.cuenta.updateFiltroBase.useMutation();
+    trpc.account.updateGlobalFilter.useMutation();
 
   const [isChecked, setIsChecked] = useState(
     globalFilterData?.isGlobalFilterActive ?? false
@@ -55,17 +55,17 @@ const SidebarFiltroBase = ({}: SidebarFiltroBaseProps) => {
       <Switch
         disabled={globalFilterLoading}
         checked={isChecked}
-        onCheckedChange={async (activo) => {
-          setIsChecked(activo);
+        onCheckedChange={async (active) => {
+          setIsChecked(active);
           await updateGlobalFilter({
-            activo,
-            etiquetas: globalFilterData?.globalFilter?.map((e) => e.id),
+            active,
+            tagsIds: globalFilterData?.globalFilter?.map((e) => e.id) ?? [],
           }).catch(() => {
-            setIsChecked(!activo);
+            setIsChecked(!active);
           });
-          utils.cuenta.getFiltroBase.invalidate();
+          utils.account.getGlobalFilter.invalidate();
           utils.profile.invalidate();
-          toast.success(activo ? 'Filtro activado' : 'Filtro desactivado');
+          toast.success(active ? 'Filtro activado' : 'Filtro desactivado');
         }}
       />
     </div>

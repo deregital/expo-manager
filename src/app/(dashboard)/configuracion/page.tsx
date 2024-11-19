@@ -1,5 +1,5 @@
 'use client';
-import ActualizarFiltroBase from '@/components/configuracion/ActualizarFiltroBase';
+import UpdateGlobalFilter from '@/components/configuracion/ActualizarFiltroBase';
 import DescargarDB from '@/components/configuracion/DescargarDB';
 //import DispositivoComoNoti from '@/components/configuracion/DispositivoComoNoti';
 
@@ -8,7 +8,7 @@ const ConfiguracionPage = () => {
     <div className='flex flex-col gap-y-5 p-3 md:p-5 '>
       <p className='text-xl font-bold md:text-3xl'>Configuración</p>
       <DescargarDB />
-      <ActualizarFiltroBase />
+      <UpdateGlobalFilter />
       {/* <DispositivoComoNoti /> */}
     </div>
   );

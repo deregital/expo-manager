@@ -6,7 +6,7 @@ import { tagGroupRouter } from '@/server/routers/tagGroupRouter';
 import { type inferRouterOutputs } from '@trpc/server';
 import { csvRouter } from '@/server/routers/csvRouter';
 import { eventRouter } from '@/server/routers/eventRouter';
-import { cuentaRouter } from '@/server/routers/cuentaRouter';
+import { accountRouter } from '@/server/routers/cuentaRouter';
 import { notificacionRouter } from '@/server/routers/notificacionRouter';
 import { locationRouter } from '@/server/routers/locationRouter';
 import { eventFolderRouter } from '@/server/routers/event-folderRouter';
@@ -21,7 +21,7 @@ export const appRouter = router({
   csv: csvRouter,
   event: eventRouter,
   eventFolder: eventFolderRouter,
-  cuenta: cuentaRouter,
+  account: accountRouter,
   notificacion: notificacionRouter,
   location: locationRouter,
   cannedResponse: cannedResponseRouter,

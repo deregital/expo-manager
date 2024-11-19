@@ -98,7 +98,7 @@ const ProfileEditModal = ({ profile }: ProfileEditModalProps) => {
   const { data: allCountries } = trpc.location.getCountries.useQuery();
   const { data: statesBySelectedCountry } =
     trpc.location.getStateByCountry.useQuery(countryIsoCode, {
-      enabled: !!birth.country,
+      enabled: countryIsoCode.length > 0,
     });
 
   const { data: argStates } = trpc.location.getArgStates.useQuery();

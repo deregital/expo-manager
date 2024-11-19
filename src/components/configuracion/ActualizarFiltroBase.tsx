@@ -9,29 +9,29 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 
-interface ActualizarFiltroBaseProps {}
+interface UpdateGlobalFilterProps {}
 
 export const useTagsGlobalFilter = create<{
-  tags: RouterOutputs['cuenta']['getFiltroBase']['globalFilter'];
+  tags: RouterOutputs['account']['getGlobalFilter']['globalFilter'];
   active: boolean;
   addTag: (
-    tag: RouterOutputs['cuenta']['getFiltroBase']['globalFilter'][number]
+    tag: RouterOutputs['account']['getGlobalFilter']['globalFilter'][number]
   ) => void;
   removeTag: (
-    tag: RouterOutputs['cuenta']['getFiltroBase']['globalFilter'][number]
+    tag: RouterOutputs['account']['getGlobalFilter']['globalFilter'][number]
   ) => void;
 }>((set) => ({
   tags: [],
   active: false,
   addTag: (
-    tag: RouterOutputs['cuenta']['getFiltroBase']['globalFilter'][number]
+    tag: RouterOutputs['account']['getGlobalFilter']['globalFilter'][number]
   ) => {
     set((state) => ({
       tags: [...state.tags, tag],
     }));
   },
   removeTag: (
-    tag: RouterOutputs['cuenta']['getFiltroBase']['globalFilter'][number]
+    tag: RouterOutputs['account']['getGlobalFilter']['globalFilter'][number]
   ) => {
     set((state) => ({
       tags: state.tags.filter((e) => e.id !== tag.id),
@@ -39,11 +39,11 @@ export const useTagsGlobalFilter = create<{
   },
 }));
 
-const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
+const UpdateGlobalFilter = ({}: UpdateGlobalFilterProps) => {
   const utils = trpc.useUtils();
-  const filtroBaseMutation = trpc.cuenta.updateFiltroBase.useMutation();
+  const globalFilterMutation = trpc.account.updateGlobalFilter.useMutation();
   const { data: globalFilterData, isLoading: globalFilterActive } =
-    trpc.cuenta.getFiltroBase.useQuery(undefined, {
+    trpc.account.getGlobalFilter.useQuery(undefined, {
       onSuccess: (data) => {
         useTagsGlobalFilter.setState({
           active: data?.isGlobalFilterActive,
@@ -58,17 +58,17 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
     tag: GetGlobalFilterResponseDto['globalFilter'][number]
   ) {
     removeTag(tag);
-    await filtroBaseMutation
+    await globalFilterMutation
       .mutateAsync({
-        activo: active,
-        etiquetas: globalFilterData?.globalFilter
+        active,
+        tagsIds: globalFilterData?.globalFilter
           ?.filter((t) => t.id !== tag.id)
-          .map((t) => t.id),
+          .map((t) => t.id) as string[],
       })
       .then(() => {
         toast.success(`Etiqueta ${tag.name} eliminada`);
         utils.profile.invalidate();
-        utils.cuenta.getFiltroBase.invalidate();
+        utils.account.getGlobalFilter.invalidate();
       })
       .catch(() => {
         addTag(tag);
@@ -85,17 +85,16 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
             disabled={globalFilterActive}
             checked={active}
             onCheckedChange={async (checked: boolean | 'indeterminate') => {
-              // if (checked === 'indeterminate') return;
               useTagsGlobalFilter.setState({
                 active: checked === 'indeterminate' ? active : checked,
               });
-              await filtroBaseMutation
+              await globalFilterMutation
                 .mutateAsync({
-                  activo: checked === 'indeterminate' ? false : checked,
-                  etiquetas: tags.map((e) => e.id),
+                  active: checked === 'indeterminate' ? false : checked,
+                  tagsIds: tags.map((e) => e.id),
                 })
                 .then(() => {
-                  utils.cuenta.getFiltroBase.invalidate();
+                  utils.account.getGlobalFilter.invalidate();
                   utils.profile.invalidate();
                   toast.success(
                     checked ? 'Filtro activado' : 'Filtro desactivado'
@@ -126,4 +125,4 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
   );
 };
 
-export default ActualizarFiltroBase;
+export default UpdateGlobalFilter;
