@@ -2,7 +2,7 @@ import CirclePlus from '@/components/icons/CirclePlus';
 import CircleXIcon from '@/components/icons/CircleX';
 import { Badge } from '@/components/ui/badge';
 import { getTextColorByBg } from '@/lib/utils';
-import { TagWithGroupColor } from '@/server/types/etiquetas';
+import { type TagWithGroupColor } from '@/server/types/etiquetas';
 import React from 'react';
 
 interface ListaEtiquetasProps {

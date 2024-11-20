@@ -1,6 +1,6 @@
 import admin from 'firebase-admin';
-import { MulticastMessage } from 'firebase-admin/messaging';
-import { NextRequest, NextResponse } from 'next/server';
+import { type MulticastMessage } from 'firebase-admin/messaging';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {

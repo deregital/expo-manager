@@ -7,9 +7,9 @@ import ProfilesComboAndList, {
 import Filter from '@/components/ui/filtro/Filtro';
 import { Button } from '@/components/ui/button';
 import Loader from '@/components/ui/loader';
-import { FuncionFiltrar, filterProfiles } from '@/lib/filter';
+import { type FuncionFiltrar, filterProfiles } from '@/lib/filter';
 import { trpc } from '@/lib/trpc';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';

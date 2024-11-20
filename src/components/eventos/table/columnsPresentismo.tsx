@@ -1,8 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { RouterOutputs } from '@/server';
-import { ColumnDef, SortDirection } from '@tanstack/react-table';
+import { type RouterOutputs } from '@/server';
+import { type ColumnDef, type SortDirection } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import CellPresentismo from './CellPresentismo';
 

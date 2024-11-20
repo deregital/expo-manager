@@ -12,9 +12,9 @@ import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import EditFillIcon from '@/components/icons/EditFillIcon';
 import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import ProfilesConflict from '@/components/etiquetas/modal/ProfilesConflict';
-import { GroupWithMatch } from '@/components/etiquetas/list/TagsList';
+import { type GroupWithMatch } from '@/components/etiquetas/list/TagsList';
 
 interface TagGroupModalProps {
   action: 'EDIT' | 'CREATE';

@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { ShieldQuestionIcon } from 'lucide-react';
 import React, { useState } from 'react';
 

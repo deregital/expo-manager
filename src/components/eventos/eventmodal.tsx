@@ -13,7 +13,7 @@ import EditFillIcon from '@/components/icons/EditFillIcon';
 import { toast } from 'sonner';
 import Loader from '@/components/ui/loader';
 import { cn } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import EventFillIcon from '../icons/EventFillIcon';
 import {
   Select,
@@ -22,79 +22,85 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { format } from 'date-fns/format';
 
-interface EventoModalProps {
+interface EventModalProps {
   action: 'CREATE' | 'EDIT';
-  evento?: RouterOutputs['evento']['getAll']['sinCarpetas'][number];
+  event?: RouterOutputs['event']['getAll']['withoutFolder'][number];
 }
 
 type ModalData = {
-  tipo: 'CREATE' | 'EDIT';
-  nombre: string;
-  fecha: string;
-  ubicacion: string;
-  carpetaId: string | undefined;
-  subeventos: {
+  type: 'CREATE' | 'EDIT';
+  name: string;
+  date: string;
+  location: string;
+  folderId: string | null;
+  subEvents: {
     id: string;
-    nombre: string;
-    fecha: string;
-    ubicacion: string;
+    name: string;
+    date: string;
+    location: string;
   }[];
   reset: () => void;
 };
 
-export const useEventoModalData = create<ModalData>((set) => ({
-  tipo: 'CREATE',
-  nombre: '',
-  fecha: '',
-  ubicacion: '',
-  carpetaId: undefined,
-  subeventos: [],
+export const useEventModalData = create<ModalData>((set) => ({
+  type: 'CREATE',
+  name: '',
+  date: new Date().toISOString(),
+  location: '',
+  folderId: null,
+  subEvents: [],
   reset: () =>
     set({
-      tipo: 'CREATE',
-      nombre: '',
-      fecha: '',
-      ubicacion: '',
-      carpetaId: undefined,
-      subeventos: [],
+      type: 'CREATE',
+      name: '',
+      date: new Date().toISOString(),
+      location: '',
+      folderId: null,
+      subEvents: [],
     }),
 }));
 
-const EventoModal = ({ action, evento }: EventoModalProps) => {
+const EventModal = ({ action, event }: EventModalProps) => {
   const utils = trpc.useUtils();
-  const modalData = useEventoModalData((state) => ({
-    tipo: state.tipo,
-    nombre: state.nombre,
-    fecha: state.fecha,
-    carpetaId: state.carpetaId,
-    ubicacion: state.ubicacion,
-    subeventos: state.subeventos,
+  const modalData = useEventModalData((state) => ({
+    type: state.type,
+    name: state.name,
+    date: state.date,
+    folderId: state.folderId,
+    location: state.location,
+    subEvents: state.subEvents,
     reset: state.reset,
   }));
 
   const [open, setOpen] = useState(false);
-  const [carpetaSelectOpen, setCarpetaSelectOpen] = useState(false);
-  const [quiereEliminar, setQuiereEliminar] = useState(false);
-  const createEvento = trpc.evento.create.useMutation();
-  const deleteEvento = trpc.evento.delete.useMutation();
-  const editEvento = trpc.evento.update.useMutation();
+  const [folderSelectOpen, setFolderSelectOpen] = useState(false);
+  const [wantToDelete, setWantToDelete] = useState(false);
+  const createEvent = trpc.event.create.useMutation();
+  const deleteEvent = trpc.event.delete.useMutation();
+  const updateEvent = trpc.event.update.useMutation();
   const { data: eventFolders } = trpc.eventFolder.getAll.useQuery();
 
-  async function sendEvento() {
-    if (modalData.tipo === 'CREATE') {
-      await createEvento
+  async function sendEvent() {
+    if (modalData.type === 'CREATE') {
+      await createEvent
         .mutateAsync({
-          nombre: modalData.nombre,
-          fecha: modalData.fecha,
-          ubicacion: modalData.ubicacion,
-          carpetaId: modalData.carpetaId,
-          subeventos: modalData.subeventos,
+          name: modalData.name,
+          date: new Date(modalData.date),
+          location: modalData.location,
+          folderId: modalData.folderId,
+          subEvents: modalData.subEvents.map((subevento) => ({
+            id: subevento.id,
+            name: subevento.name,
+            date: new Date(subevento.date),
+            location: subevento.location,
+          })),
         })
         .then(() => {
           setOpen(!open);
           toast.success('Evento creado con éxito');
-          utils.evento.getAll.invalidate();
+          utils.event.getAll.invalidate();
           utils.eventFolder.getAll.invalidate();
         })
         .catch((error) => {
@@ -107,68 +113,74 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
             toast.error('Error al crear el evento');
           }
         });
-    } else if (modalData.tipo === 'EDIT') {
-      if (!evento) return;
+    } else if (modalData.type === 'EDIT') {
+      if (!event) return;
 
-      await editEvento
+      await updateEvent
         .mutateAsync({
-          id: evento.id,
-          fecha: modalData.fecha,
-          ubicacion: modalData.ubicacion,
-          nombre: modalData.nombre,
-          carpetaId: modalData.carpetaId,
-          subeventos: modalData.subeventos.map((subevento) => ({
+          id: event.id,
+          date: new Date(modalData.date),
+          location: modalData.location,
+          name: modalData.name,
+          folderId: modalData.folderId,
+          subEvents: modalData.subEvents.map((subevento) => ({
             id: subevento.id,
-            nombre: subevento.nombre,
-            fecha: subevento.fecha,
-            ubicacion: subevento.ubicacion,
+            name: subevento.name,
+            date: new Date(subevento.date),
+            location: subevento.location,
           })),
         })
         .then(() => {
           setOpen(!open);
           toast.success('Evento editado con éxito');
-          utils.evento.getAll.invalidate();
+          utils.event.getAll.invalidate();
           utils.eventFolder.getAll.invalidate();
         })
-        .catch((error: any) => {
-          console.log(error);
-          toast.error('Error al editar el evento');
+        .catch((error) => {
+          const errorString = JSON.parse(error.shape.message)[0].message;
+
+          if (errorString) {
+            toast.error(`Error al editar el evento, ${errorString}`);
+          } else {
+            toast.error('Error al editar el evento');
+          }
         });
     }
 
-    if (createEvento.isSuccess || editEvento.isSuccess) {
+    if (createEvent.isSuccess || updateEvent.isSuccess) {
       modalData.reset();
     }
 
-    utils.evento.getById.invalidate();
+    utils.event.getById.invalidate();
   }
 
   async function handleCancel() {
     modalData.reset();
-    createEvento.reset();
-    editEvento.reset();
+    createEvent.reset();
+    updateEvent.reset();
   }
 
   async function handleDelete() {
-    if (!evento) return;
-    if (quiereEliminar) {
-      await deleteEvento
-        .mutateAsync({ id: evento.id })
+    if (!event) return;
+    if (wantToDelete) {
+      await deleteEvent
+        .mutateAsync(event.id)
         .then(() => {
           setOpen(!open);
           toast.success('Evento eliminado con éxito');
+          utils.event.getAll.invalidate();
         })
         .catch((error) => {
           console.log(error);
           toast.error('Error al eliminar el evento');
         });
 
-      if (createEvento.isSuccess || editEvento.isSuccess) {
+      if (createEvent.isSuccess || updateEvent.isSuccess) {
         modalData.reset();
       }
-      utils.evento.getById.invalidate();
+      utils.event.getById.invalidate();
     } else {
-      setQuiereEliminar(true);
+      setWantToDelete(true);
     }
   }
 
@@ -192,24 +204,22 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
             ) : (
               <ModalTriggerEdit
                 onClick={(e) => {
-                  if (!evento) return;
+                  if (!event) return;
                   e.preventDefault();
                   e.stopPropagation();
                   setOpen(true);
 
-                  useEventoModalData.setState({
-                    tipo: 'EDIT',
-                    nombre: evento.nombre,
-                    // @ts-expect-error FIX: fecha is not a string
-                    fecha: evento.fecha,
-                    ubicacion: evento.ubicacion,
-                    carpetaId: evento.carpetaId || '',
-                    // @ts-expect-error FIX: fecha is not a string
-                    subeventos: evento.subEventos.map((subevento) => ({
-                      id: subevento.id,
-                      nombre: subevento.nombre,
-                      fecha: subevento.fecha,
-                      ubicacion: subevento.ubicacion,
+                  useEventModalData.setState({
+                    type: 'EDIT',
+                    name: event.name,
+                    date: event.date,
+                    location: event.location,
+                    folderId: event.folderId,
+                    subEvents: event.subEvents.map((subevent) => ({
+                      id: subevent.id,
+                      name: subevent.name,
+                      date: subevent.date,
+                      location: subevent.location,
                     })),
                   });
                 }}
@@ -225,8 +235,8 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
         >
           <div className='flex flex-col gap-y-0.5'>
             <p className='w-fit py-1.5 text-base font-semibold'>
-              {(modalData.tipo === 'CREATE' && 'Crear evento') ||
-                (modalData.tipo === 'EDIT' && 'Editar evento')}
+              {(modalData.type === 'CREATE' && 'Crear evento') ||
+                (modalData.type === 'EDIT' && 'Editar evento')}
             </p>
             <div className='flex flex-col gap-3'>
               <div className='flex gap-3'>
@@ -236,9 +246,9 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   name='evento'
                   id='evento'
                   placeholder='Nombre del evento'
-                  value={modalData.nombre}
+                  value={modalData.name}
                   onChange={(e) =>
-                    useEventoModalData.setState({ nombre: e.target.value })
+                    useEventModalData.setState({ name: e.target.value })
                   }
                   required
                 />
@@ -247,9 +257,12 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   name='fecha'
                   id='fecha'
                   placeholder='Fecha del evento'
-                  value={modalData.fecha}
+                  value={format(
+                    modalData.date.length > 0 ? modalData.date : new Date(),
+                    "yyyy-MM-dd'T'HH:mm"
+                  )}
                   onChange={(e) =>
-                    useEventoModalData.setState({ fecha: e.target.value })
+                    useEventModalData.setState({ date: e.target.value })
                   }
                   required
                 />
@@ -261,29 +274,29 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                   name='ubicacion'
                   id='ubicacion'
                   placeholder='Ubicación'
-                  value={modalData.ubicacion}
+                  value={modalData.location}
                   onChange={(e) =>
-                    useEventoModalData.setState({ ubicacion: e.target.value })
+                    useEventModalData.setState({ location: e.target.value })
                   }
                   required
                 />
                 <Select
-                  open={carpetaSelectOpen}
-                  onOpenChange={setCarpetaSelectOpen}
-                  value={modalData.carpetaId ?? 'N/A'}
+                  open={folderSelectOpen}
+                  onOpenChange={setFolderSelectOpen}
+                  value={modalData.folderId ?? 'N/A'}
                   onValueChange={(value) => {
-                    useEventoModalData.setState({
-                      carpetaId: value === 'N/A' ? undefined : value,
+                    useEventModalData.setState({
+                      folderId: value === 'N/A' ? undefined : value,
                     });
                   }}
-                  defaultValue={modalData.carpetaId ?? 'N/A'}
+                  defaultValue={modalData.folderId ?? 'N/A'}
                 >
                   <SelectTrigger>
                     <SelectValue
                       placeholder={
-                        modalData.carpetaId
+                        modalData.folderId
                           ? eventFolders?.find(
-                              (c) => c.id === modalData.carpetaId
+                              (c) => c.id === modalData.folderId
                             )?.name
                           : 'Seleccione carpeta'
                       }
@@ -301,14 +314,8 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
               </div>
             </div>
           </div>
-          {createEvento.isError || createEvento.isError ? (
-            <p className='text-sm font-semibold text-red-500'>
-              {createEvento.isError ? 'Error al crear el evento' : ''}
-              {editEvento.isError ? 'Error al editar el evento' : ''}
-            </p>
-          ) : null}
           <div className='flex h-full max-h-64 flex-col gap-y-3 overflow-y-auto'>
-            {modalData.subeventos.map((subevento, index) => (
+            {modalData.subEvents.map((subevent, index) => (
               <div key={index}>
                 <hr className='mb-2 bg-slate-400' />
                 <div
@@ -319,12 +326,12 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     <Input
                       type='text'
                       placeholder='Nombre del subevento'
-                      value={subevento.nombre}
+                      value={subevent.name}
                       onChange={(e) => {
-                        const updatedSubeventos = [...modalData.subeventos];
-                        updatedSubeventos[index].nombre = e.target.value;
-                        useEventoModalData.setState({
-                          subeventos: updatedSubeventos,
+                        const updatedSubevents = [...modalData.subEvents];
+                        updatedSubevents[index].name = e.target.value;
+                        useEventModalData.setState({
+                          subEvents: updatedSubevents,
                         });
                       }}
                       required // Atributo required agregado aquí
@@ -332,12 +339,12 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     <Input
                       type='datetime-local'
                       placeholder='Fecha del subevento'
-                      value={subevento.fecha.replace('Z', '')}
+                      value={subevent.date.replace('Z', '')}
                       onChange={(e) => {
-                        const updatedSubeventos = [...modalData.subeventos];
-                        updatedSubeventos[index].fecha = e.target.value;
-                        useEventoModalData.setState({
-                          subeventos: updatedSubeventos,
+                        const updatedSubevents = [...modalData.subEvents];
+                        updatedSubevents[index].date = e.target.value;
+                        useEventModalData.setState({
+                          subEvents: updatedSubevents,
                         });
                       }}
                       required // Atributo required agregado aquí
@@ -347,12 +354,12 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     <Input
                       type='text'
                       placeholder='Ubicación del subevento'
-                      value={subevento.ubicacion}
+                      value={subevent.location}
                       onChange={(e) => {
-                        const updatedSubeventos = [...modalData.subeventos];
-                        updatedSubeventos[index].ubicacion = e.target.value;
-                        useEventoModalData.setState({
-                          subeventos: updatedSubeventos,
+                        const updatedSubevents = [...modalData.subEvents];
+                        updatedSubevents[index].location = e.target.value;
+                        useEventModalData.setState({
+                          subEvents: updatedSubevents,
                         });
                       }}
                       required
@@ -360,10 +367,10 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
                     <Button
                       variant='destructive'
                       onClick={() => {
-                        const updatedSubeventos = [...modalData.subeventos];
-                        updatedSubeventos.splice(index, 1);
-                        useEventoModalData.setState({
-                          subeventos: updatedSubeventos,
+                        const updatedSubevents = [...modalData.subEvents];
+                        updatedSubevents.splice(index, 1);
+                        useEventModalData.setState({
+                          subEvents: updatedSubevents,
                         });
                       }}
                     >
@@ -377,53 +384,66 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
 
           <Button
             onClick={() => {
-              const updatedSubeventos = [...modalData.subeventos];
-              updatedSubeventos.push({
+              const updatedSubevents = [...modalData.subEvents];
+              updatedSubevents.push({
                 id: '',
-                nombre: '',
-                fecha: '',
-                ubicacion: '',
+                name: '',
+                date: '',
+                location: '',
               });
-              useEventoModalData.setState({ subeventos: updatedSubeventos });
+              useEventModalData.setState({ subEvents: updatedSubevents });
             }}
           >
             Agregar subevento
           </Button>
+          {createEvent.isError || updateEvent.isError ? (
+            <p className='text-sm font-semibold text-red-500'>
+              {createEvent.isError
+                ? JSON.parse(createEvent.error.shape?.message ?? '[]')[0]
+                    .message
+                : ''}
+              {updateEvent.isError
+                ? JSON.parse(updateEvent.error.shape?.message ?? '[]')[0]
+                    .message
+                : ''}
+            </p>
+          ) : null}
           <div className='flex gap-x-4'>
             <Button
               className='w-full max-w-32'
-              onClick={sendEvento}
-              disabled={editEvento.isLoading || createEvento.isLoading}
+              onClick={sendEvent}
+              disabled={updateEvent.isLoading || createEvent.isLoading}
             >
-              {((editEvento.isLoading || createEvento.isLoading) && (
+              {((updateEvent.isLoading || createEvent.isLoading) && (
                 <Loader />
               )) ||
-                (modalData.tipo === 'CREATE' ? 'Crear' : 'Confirmar Edición')}
+                (modalData.type === 'CREATE' ? 'Crear' : 'Confirmar Edición')}
             </Button>
-            {modalData.tipo === 'EDIT' && (
+            {modalData.type === 'EDIT' && (
               <>
                 <Button
                   variant='destructive'
                   className={cn({
-                    'bg-red-700 hover:bg-red-500': quiereEliminar,
+                    'bg-red-700 hover:bg-red-500': wantToDelete,
                   })}
                   onClick={handleDelete}
                   disabled={
-                    evento?.subEventos !== undefined &&
-                    evento.subEventos.length > 0
+                    deleteEvent.isLoading ||
+                    (modalData.subEvents !== undefined &&
+                      modalData.subEvents.length > 0)
                   }
                 >
-                  {evento?.subEventos.length === 0
-                    ? quiereEliminar
+                  {modalData.subEvents.length === 0
+                    ? wantToDelete
                       ? '¿Estás seguro?'
                       : 'Eliminar'
                     : 'No se puede eliminar, primero elimine subeventos.'}
                 </Button>
-                {quiereEliminar && (
+                {wantToDelete && (
                   <Button
                     variant='secondary'
                     onClick={() => {
-                      setQuiereEliminar(false);
+                      setWantToDelete(false);
                     }}
                   >
                     Cancelar
@@ -438,4 +458,4 @@ const EventoModal = ({ action, evento }: EventoModalProps) => {
   );
 };
 
-export default EventoModal;
+export default EventModal;

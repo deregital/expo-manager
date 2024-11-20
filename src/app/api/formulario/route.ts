@@ -1,7 +1,7 @@
 import { getHighestIdLegible } from '@/lib/server';
 import { prisma } from '@/server/db';
-import { TipoEtiqueta, Prisma } from '@prisma/client';
-import { NextRequest, NextResponse } from 'next/server';
+import { TipoEtiqueta, type Prisma } from '@prisma/client';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 const schema = z.object({

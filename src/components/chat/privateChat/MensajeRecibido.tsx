@@ -1,4 +1,4 @@
-import { TextMessage } from '@/server/types/whatsapp';
+import { type TextMessage } from '@/server/types/whatsapp';
 import React from 'react';
 
 interface MensajeRecibidoProps {

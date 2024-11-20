@@ -16,7 +16,7 @@ import {
 import { getTextColorByBg } from '@/lib/utils';
 import { TrashIcon } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';

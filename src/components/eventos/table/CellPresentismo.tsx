@@ -1,8 +1,8 @@
 'use client';
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
-import { RouterOutputs } from '@/server';
-import { Row } from '@tanstack/react-table';
+import { type RouterOutputs } from '@/server';
+import { type Row } from '@tanstack/react-table';
 import { toast } from 'sonner';
 
 export const CellPresentismo = ({

@@ -39,7 +39,7 @@ const ModalCreateProfile = ({ open }: { open: boolean }) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const searchParams = new URLSearchParams(useSearchParams());
-  const [eventId, setEventoId] = useState<string | null>(
+  const [eventId, setEventId] = useState<string | null>(
     searchParams.get('evento') ?? null
   );
   const pathname = usePathname();
@@ -51,22 +51,17 @@ const ModalCreateProfile = ({ open }: { open: boolean }) => {
   const [similarityProfiles, setSimilarityProfiles] = useState<
     SimilarityProfile[]
   >([]);
-  const { data: etiquetaEvento } = trpc.evento.getById.useQuery(
-    {
-      id: eventId ?? '',
-    },
-    {
-      enabled: !!eventId,
-    }
-  );
+  const { data: etiquetaEvento } = trpc.event.getById.useQuery(eventId ?? '', {
+    enabled: !!eventId,
+  });
   const { data: etiquetaAsistio } = trpc.tag.getById.useQuery(
-    etiquetaEvento?.etiquetaAsistioId ?? '',
+    etiquetaEvento?.tagAssistedId ?? '',
     {
       enabled: !!etiquetaEvento,
     }
   );
   useEffect(() => {
-    setEventoId(
+    setEventId(
       searchParams.get('evento') !== '' ? searchParams.get('evento') : null
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps

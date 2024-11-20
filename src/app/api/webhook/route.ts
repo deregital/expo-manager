@@ -1,13 +1,13 @@
 import { verifyWebhook } from '@/lib/verify';
 import fs from 'fs';
 import {
-  ReceivedMessage,
-  StatusChange,
-  WebHookRequest,
+  type ReceivedMessage,
+  type StatusChange,
+  type WebHookRequest,
 } from '@/server/types/webhooks';
 import { headers } from 'next/headers';
 import { prisma } from '@/server/db';
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { MensajeStatus } from '@prisma/client';
 import { join as pathJoin } from 'path';
 import { enviarMensajeUnaSolaVez } from '@/server/routers/whatsappRouter';

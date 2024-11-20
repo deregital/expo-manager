@@ -10,35 +10,35 @@ import ExpandContractEventos, {
 import { searchNormalize } from '@/lib/utils';
 import { XIcon } from 'lucide-react';
 import EventsFolderModal from '@/components/eventos/EventsFolderModal';
-import EventosList from '@/components/eventos/eventoslist';
+import EventsList from '@/components/eventos/eventslist';
 
 const EventosPage = () => {
   const [search, setSearch] = useState('');
-  const { data, isLoading } = trpc.evento.getAll.useQuery();
+  const { data, isLoading } = trpc.event.getAll.useQuery();
   const { expandState, setNone } = useExpandEventos((s) => ({
     setNone: s.none,
     expandState: s.state,
   }));
 
-  const { carpetas: folders, sinCarpetas: eventsWithoutFolder } = isLoading
-    ? { carpetas: [], sinCarpetas: [] }
+  const { folders: folders, withoutFolder: eventsWithoutFolder } = isLoading
+    ? { folders: [], withoutFolder: [] }
     : data!;
 
-  const eventosFiltrados = useMemo(() => {
-    if (isLoading) return { carpetas: [], sinCarpetas: [] };
+  const eventsFiltered = useMemo(() => {
+    if (isLoading) return { folders: [], withoutFolder: [] };
 
     let filteredFolders = folders.filter((folder) => {
       return (
-        searchNormalize(folder.nombre, search) ||
-        folder.eventos.some((evento) => {
+        searchNormalize(folder.name, search) ||
+        folder.events.some((event) => {
           return (
-            searchNormalize(evento.nombre, search) ||
-            searchNormalize(evento.ubicacion, search) ||
-            evento.subEventos.some((subevento) =>
-              searchNormalize(subevento.nombre, search)
+            searchNormalize(event.name, search) ||
+            searchNormalize(event.location, search) ||
+            event.subEvents.some((subevent) =>
+              searchNormalize(subevent.name, search)
             ) ||
-            evento.subEventos.some((subevento) =>
-              searchNormalize(subevento.ubicacion, search)
+            event.subEvents.some((subevent) =>
+              searchNormalize(subevent.location, search)
             )
           );
         })
@@ -46,30 +46,30 @@ const EventosPage = () => {
     });
 
     let filteredEventsWithoutFolder = eventsWithoutFolder.filter((event) => {
-      return !event.eventoPadreId;
+      return !event.supraEventId;
     });
 
     if (search !== '') {
       filteredEventsWithoutFolder = eventsWithoutFolder.filter((event) => {
         return (
-          searchNormalize(event.nombre, search) ||
-          searchNormalize(event.ubicacion, search) ||
-          event.subEventos.some((subevent) =>
-            searchNormalize(subevent.nombre, search)
+          searchNormalize(event.name, search) ||
+          searchNormalize(event.location, search) ||
+          event.subEvents.some((subevent) =>
+            searchNormalize(subevent.name, search)
           ) ||
-          event.subEventos.some((subevent) =>
-            searchNormalize(subevent.ubicacion, search)
+          event.subEvents.some((subevent) =>
+            searchNormalize(subevent.location, search)
           )
         );
       });
     }
 
     const orderedEvents = {
-      carpetas: filteredFolders.sort((a, b) => {
-        return a.nombre.localeCompare(b.nombre);
+      folders: filteredFolders.sort((a, b) => {
+        return a.name.localeCompare(b.name);
       }),
-      sinCarpetas: filteredEventsWithoutFolder.sort((a, b) => {
-        return a.nombre.localeCompare(b.nombre);
+      withoutFolder: filteredEventsWithoutFolder.sort((a, b) => {
+        return a.name.localeCompare(b.name);
       }),
     };
 
@@ -101,7 +101,7 @@ const EventosPage = () => {
               }
             }}
             placeholder='Buscar evento o subevento'
-            className='pr-5'
+            className='pr-1.5'
           />
           <XIcon
             className='h-6 w-6 cursor-pointer'
@@ -118,7 +118,7 @@ const EventosPage = () => {
           </div>
         ) : (
           <div>
-            <EventosList eventos={eventosFiltrados} />
+            <EventsList events={eventsFiltered} />
           </div>
         )}
       </div>

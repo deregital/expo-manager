@@ -1,4 +1,4 @@
-import { GroupWithMatch } from '@/components/etiquetas/list/TagsList';
+import { type GroupWithMatch } from '@/components/etiquetas/list/TagsList';
 import TagModal from '@/components/etiquetas/modal/TagModal';
 import ProfileIcon from '@/components/icons/ProfileIcon';
 import { cn } from '@/lib/utils';

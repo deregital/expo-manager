@@ -3,7 +3,7 @@ import { headers } from 'next/headers';
 
 interface PresentismoProps {
   params: {
-    eventoId: string;
+    eventId: string;
   };
 }
 
@@ -15,7 +15,7 @@ const Presentismo = ({ params }: PresentismoProps) => {
     return null;
   }
 
-  return <PresentismoPage eventoId={params.eventoId} baseUrl={hostname} />;
+  return <PresentismoPage eventId={params.eventId} baseUrl={hostname} />;
 };
 
 export default Presentismo;

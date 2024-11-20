@@ -5,7 +5,7 @@ import Loader from '../ui/loader';
 import { useTemplateDelete } from './DeleteTemplateModal';
 import { useRouter } from 'next/navigation';
 import { useTemplate } from './CrearTemplate';
-import { GetTemplatesData } from '@/server/types/whatsapp';
+import { type GetTemplatesData } from '@/server/types/whatsapp';
 import IconClockRotateLeft from '../icons/IconClockRotateLeft';
 
 const PlantillasList = () => {

@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import {
-  ColumnDef,
-  SortingState,
-  PaginationState,
+  type ColumnDef,
+  type SortingState,
+  type PaginationState,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,

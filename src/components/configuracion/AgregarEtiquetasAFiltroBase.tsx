@@ -1,7 +1,7 @@
 import { useTagsGlobalFilter } from '@/components/configuracion/ActualizarFiltroBase';
 import AddEtiquetaCombos from '@/components/ui/AddEtiquetaCombos';
 import { trpc } from '@/lib/trpc';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import React from 'react';
 import { toast } from 'sonner';
 
@@ -15,7 +15,7 @@ const AgregarEtiquetasAFiltroBase = ({
   openAddTag,
 }: AgregarEtiquetasAFiltroBaseProps) => {
   const { tags, addTag, removeTag, active } = useTagsGlobalFilter();
-  const addTagMutation = trpc.cuenta.updateFiltroBase.useMutation();
+  const addTagMutation = trpc.account.updateGlobalFilter.useMutation();
   const utils = trpc.useUtils();
 
   async function handleAddTag(
@@ -25,13 +25,13 @@ const AgregarEtiquetasAFiltroBase = ({
     closeAddTag();
     await addTagMutation
       .mutateAsync({
-        activo: active,
-        etiquetas: tags.map((e) => e.id).concat(addedTag.id),
+        active,
+        tagsIds: tags.map((e) => e.id).concat(addedTag.id),
       })
       .then(() => {
         toast.success(`Etiqueta ${addedTag.name} agregada con éxito`);
         utils.profile.invalidate();
-        utils.cuenta.getFiltroBase.invalidate();
+        utils.account.getGlobalFilter.invalidate();
       })
       .catch(() => {
         removeTag(addedTag);

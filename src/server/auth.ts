@@ -7,7 +7,7 @@ import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '@/server/db';
 import { fetchClient } from '@/server/fetchClient';
-import { JWT } from 'next-auth/jwt';
+import { type JWT } from 'next-auth/jwt';
 
 declare module 'next-auth/jwt' {
   // eslint-disable-next-line no-unused-vars

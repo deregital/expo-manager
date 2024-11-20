@@ -3,13 +3,13 @@ import { useChatSidebar } from '@/components/chat/layout/ChatSidebarMobile';
 import ContactoCard from '@/components/chat/layout/ContactoCard';
 import ContactosNoChat from '@/components/chat/layout/ContactosNoChat';
 import Loader from '@/components/ui/loader';
-import { Filtro, filterProfiles } from '@/lib/filter';
+import { type Filtro, filterProfiles } from '@/lib/filter';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import React, { useMemo } from 'react';
 import CannedResponsesModal from '../CannedResponsesModal';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 
 type ChatSidebarProps = {
   filter: Filtro;

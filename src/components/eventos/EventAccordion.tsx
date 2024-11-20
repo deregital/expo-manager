@@ -1,4 +1,4 @@
-import EventoListTrigger from '@/components/eventos/EventoListTrigger';
+import EventListTrigger from '@/components/eventos/EventListTrigger';
 import { useExpandEventos } from '@/components/eventos/expandcontracteventos';
 import EventIcon from '@/components/icons/EventIcon';
 import {
@@ -7,80 +7,80 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { cn, getTextColorByBg } from '@/lib/utils';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
-interface EventoAccordionProps {
-  evento: RouterOutputs['evento']['getAll']['sinCarpetas'][number];
+interface EventAccordionProps {
+  event: RouterOutputs['event']['getAll']['withoutFolder'][number];
   color?: string;
   onClick?: () => void;
   isOpen: boolean;
 }
 
-const EventoAccordion = ({
-  evento,
+const EventAccordion = ({
+  event,
   color,
   onClick,
   isOpen,
-}: EventoAccordionProps) => {
+}: EventAccordionProps) => {
   const router = useRouter();
   const { clickTrigger } = useExpandEventos((s) => ({
     clickTrigger: s.clickTrigger,
   }));
 
-  function redirectToEvent(subeventoId: string) {
-    router.push(`/eventos/${subeventoId}`);
+  function redirectToEvent(subeventId: string) {
+    router.push(`/eventos/${subeventId}`);
   }
 
   return (
     <AccordionItem
-      value={evento.id}
-      key={evento.id}
-      title={evento.nombre}
+      value={event.id}
+      key={event.id}
+      title={event.name}
       className='my-2 border-0'
     >
       <AccordionTrigger
         className={cn(
           'flex max-w-full justify-between gap-x-2 rounded-xl px-2 py-1.5',
-          evento.subEventos.length > 0 ? 'cursor-pointer' : 'cursor-default',
+          event.subEvents.length > 0 ? 'cursor-pointer' : 'cursor-default',
           isOpen && 'rounded-br-none'
         )}
-        showArrow={evento.subEventos.length > 0}
+        showArrow={event.subEvents.length > 0}
         style={{
           backgroundColor: color ? `${color}80` : '#4B5563',
           color: color ? getTextColorByBg(color) : '#FFFFFF',
         }}
         onClick={() => {
-          if (evento.subEventos.length === 0) return;
-          onClick ? onClick() : clickTrigger(evento.id);
+          if (event.subEvents.length === 0) return;
+          onClick ? onClick() : clickTrigger(event.id);
         }}
       >
-        <EventoListTrigger evento={evento} />
+        <EventListTrigger event={event} />
       </AccordionTrigger>
       <AccordionContent className='pb-0 pl-2'>
-        {evento.subEventos.map((subevento) => (
+        {event.subEvents.map((subevent) => (
           <div
-            key={subevento.nombre}
+            key={subevent.name}
             className='mb-1.5 ml-5 rounded-b-md p-2.5'
             style={{
-              backgroundColor: color ? `${color}4b` : `#4B55634b`,
+              backgroundColor: color ? `${color}4b` : '#4B55634b',
             }}
           >
             <p className='font-semibold'>
               Nombre del subevento:{' '}
-              <span className='font-normal'>{subevento.nombre}</span>
+              <span className='font-normal'>{subevent.name}</span>
             </p>
             <p className='font-semibold'>
               Fecha del subevento:{' '}
               <span className='font-normal'>
-                {format(subevento.fecha, 'dd/MM/yyyy hh:mm')}
+                {format(subevent.date, 'dd/MM/yyyy hh:mm')}
               </span>
             </p>
             <p className='font-semibold'>
               Ubicación del subevento:{' '}
-              <span className='font-normal'>{subevento.ubicacion}</span>
+              <span className='font-normal'>{subevent.location}</span>
             </p>
             <p className='flex gap-x-1 font-semibold'>
               Confirmación de asistencia al subevento:
@@ -88,7 +88,7 @@ const EventoAccordion = ({
                 className='h-5 w-5 hover:cursor-pointer hover:text-black/60'
                 onClick={(e) => {
                   e.stopPropagation();
-                  redirectToEvent(subevento.id);
+                  redirectToEvent(subevent.id);
                 }}
               />
             </p>
@@ -99,4 +99,4 @@ const EventoAccordion = ({
   );
 };
 
-export default EventoAccordion;
+export default EventAccordion;

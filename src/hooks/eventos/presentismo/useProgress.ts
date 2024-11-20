@@ -1,4 +1,4 @@
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { useMemo } from 'react';
 
 export function useProgress(

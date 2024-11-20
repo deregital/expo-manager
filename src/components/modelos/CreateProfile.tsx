@@ -1,11 +1,11 @@
 'use client';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { Button } from '../ui/button';
 import ModalCreateProfile from './CreateProfileModal';
 import { create } from 'zustand';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Comment, Profile } from 'expo-backend-types';
+import { type Comment, type Profile } from 'expo-backend-types';
 
 type ProfileModal = {
   open: boolean;

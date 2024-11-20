@@ -6,7 +6,7 @@ import SharedCard from '@/components/dashboard/SharedCard';
 import ComboBox from '@/components/ui/ComboBox';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { trpc } from '@/lib/trpc';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { addDays, format, startOfMonth } from 'date-fns';
 import { XIcon } from 'lucide-react';
 import React, { useMemo, useState } from 'react';

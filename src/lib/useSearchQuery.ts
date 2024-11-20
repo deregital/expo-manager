@@ -1,5 +1,5 @@
-import { FiltroTraducido } from '@/lib/filter';
-import { ReadonlyURLSearchParams } from 'next/navigation';
+import { type FiltroTraducido } from '@/lib/filter';
+import { type ReadonlyURLSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 
 export const useSearchQuery = <T extends keyof FiltroTraducido>(

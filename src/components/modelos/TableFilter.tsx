@@ -6,7 +6,7 @@ import { create } from 'zustand';
 import Filter from '@/components/ui/filtro/Filtro';
 import {
   type Filtro as FiltroType,
-  FuncionFiltrar,
+  type FuncionFiltrar,
   type FiltroTraducido,
 } from '@/lib/filter';
 import { useMemo } from 'react';

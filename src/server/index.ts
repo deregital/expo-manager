@@ -3,10 +3,10 @@ import { profileRouter } from '@/server/routers/profileRouter';
 import { tagRouter } from '@/server/routers/tagRouter';
 import { whatsappRouter } from '@/server/routers/whatsappRouter';
 import { tagGroupRouter } from '@/server/routers/tagGroupRouter';
-import { inferRouterOutputs } from '@trpc/server';
+import { type inferRouterOutputs } from '@trpc/server';
 import { csvRouter } from '@/server/routers/csvRouter';
-import { eventoRouter } from '@/server/routers/eventoRouter';
-import { cuentaRouter } from '@/server/routers/cuentaRouter';
+import { eventRouter } from '@/server/routers/eventRouter';
+import { accountRouter } from '@/server/routers/cuentaRouter';
 import { notificacionRouter } from '@/server/routers/notificacionRouter';
 import { locationRouter } from '@/server/routers/locationRouter';
 import { eventFolderRouter } from '@/server/routers/event-folderRouter';
@@ -19,9 +19,9 @@ export const appRouter = router({
   whatsapp: whatsappRouter,
   tagGroup: tagGroupRouter,
   csv: csvRouter,
-  evento: eventoRouter,
+  event: eventRouter,
   eventFolder: eventFolderRouter,
-  cuenta: cuentaRouter,
+  account: accountRouter,
   notificacion: notificacionRouter,
   location: locationRouter,
   cannedResponse: cannedResponseRouter,

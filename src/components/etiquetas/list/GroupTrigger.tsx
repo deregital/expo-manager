@@ -1,4 +1,4 @@
-import { GroupWithMatch } from '@/components/etiquetas/list/TagsList';
+import { type GroupWithMatch } from '@/components/etiquetas/list/TagsList';
 import TagGroupModal from '@/components/etiquetas/modal/TagGroupModal';
 import { cn } from '@/lib/utils';
 import { LockIcon } from 'lucide-react';

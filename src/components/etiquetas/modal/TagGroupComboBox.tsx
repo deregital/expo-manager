@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { useTagModalData } from './TagModal';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import ComboBox from '@/components/ui/ComboBox';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 
