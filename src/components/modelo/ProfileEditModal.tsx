@@ -518,7 +518,7 @@ const ProfileEditModal = ({ profile }: ProfileEditModalProps) => {
                 },
               });
             }}
-            defaultValue={birth.country === '' ? undefined : birth.country}
+            defaultValue={birth?.country === '' ? undefined : birth?.country}
           >
             <SelectTrigger>
               <SelectValue placeholder='País' />
@@ -547,15 +547,15 @@ const ProfileEditModal = ({ profile }: ProfileEditModalProps) => {
               useProfileModalData.setState({
                 birth: {
                   ...birth,
-                  latitude: isNaN(numberLat) ? 0 : numberLat,
-                  longitude: isNaN(numberLong) ? 0 : numberLong,
+                  latitude: numberLat,
+                  longitude: numberLong,
                   city: state.name,
                   state: '',
                 },
               });
             }}
-            disabled={!birth.country || birth.country === ''}
-            defaultValue={birth.city}
+            disabled={!birth?.country || birth?.country === ''}
+            defaultValue={birth?.city}
           >
             <SelectTrigger>
               <SelectValue placeholder='Provincia' />
