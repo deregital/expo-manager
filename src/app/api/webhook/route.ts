@@ -10,7 +10,7 @@ import { prisma } from '@/server/db';
 import { type NextRequest, NextResponse } from 'next/server';
 import { MensajeStatus } from '@prisma/client';
 import { join as pathJoin } from 'path';
-import { enviarMensajeUnaSolaVez } from '@/server/routers/messageRouter';
+import { sendMessageOnce } from '@/server/routers/messageRouter';
 import { getHighestIdLegible } from '@/lib/server';
 import { getAdminNotificationTokens } from '@/lib/notifications';
 
@@ -291,7 +291,7 @@ async function enviarRespuestaAutomatica(
 ) {
   const mensaje = `¡Hola ${nombreDePila}! Muchas gracias por participar de Expo Desfiles. ¡Ya estás dentro! En los próximos días vas a recibir más información acerca de los próximos desfiles. Podés seguirnos en nuestro Instagram @expodesfiles para enterarte de todas las novedades. ¡Saludos!  `;
 
-  const res = enviarMensajeUnaSolaVez(telefono, mensaje, prisma);
+  const res = sendMessageOnce(telefono, mensaje, prisma);
 
   return res;
 }
