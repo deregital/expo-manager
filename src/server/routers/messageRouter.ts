@@ -199,8 +199,8 @@ export const messageRouter = router({
   }),
 });
 
-export async function enviarMensajeUnaSolaVez(
-  telefono: string,
+export async function sendMessageOnce(
+  phoneNumber: string,
   text: string,
   db: PrismaClient
 ) {
@@ -214,7 +214,7 @@ export async function enviarMensajeUnaSolaVez(
       },
       body: JSON.stringify({
         messaging_product: 'whatsapp',
-        to: `${telefono}`,
+        to: `${phoneNumber}`,
         type: 'text',
         text: {
           body: `${text}`,
@@ -242,14 +242,14 @@ export async function enviarMensajeUnaSolaVez(
           body: text,
         },
         type: 'text',
-        to: telefono,
+        to: phoneNumber,
         timestamp: new Date().getTime(),
       },
       visto: true,
       wamId: messageId,
       perfil: {
         connect: {
-          telefono: telefono,
+          telefono: phoneNumber,
         },
       },
     },
