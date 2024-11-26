@@ -47,7 +47,7 @@ const CreateTemplate = ({
   typeTemplate: string;
 }) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-  const { type, name, id, button1, button2, button3, content, clearTemplate } =
+  const { type, name, button1, button2, button3, content, clearTemplate } =
     useTemplate();
   const router = useRouter();
   const { data } = trpc.message.findTemplateById.useQuery(templateName ?? '', {
