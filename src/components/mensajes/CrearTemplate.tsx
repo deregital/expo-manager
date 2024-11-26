@@ -113,7 +113,7 @@ const CrearTemplate = ({
     } else if (type === 'EDIT') {
       await editTemplate
         .mutateAsync({
-          id: id ?? '',
+          id: name ?? '',
           content: content ?? '',
           buttons: [button1 ?? '', button2 ?? '', button3 ?? ''],
         })
