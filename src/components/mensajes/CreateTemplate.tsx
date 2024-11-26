@@ -108,7 +108,9 @@ const CreateTemplate = ({
           router.push('/plantilla');
         })
         .catch((error) => {
-          toast.error(error.message);
+          const errorMessage = JSON.parse(error.message)[0].message;
+
+          toast.error(errorMessage);
         });
     } else if (type === 'EDIT') {
       await editTemplate
@@ -123,7 +125,9 @@ const CreateTemplate = ({
           router.push('/plantilla');
         })
         .catch((error) => {
-          toast.error(error.message);
+          const errorMessage = JSON.parse(error.message)[0].message;
+
+          toast.error(errorMessage);
         });
     }
   }

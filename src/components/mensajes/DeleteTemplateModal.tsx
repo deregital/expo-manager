@@ -36,7 +36,9 @@ const DeleteTemplateModal = ({
         utils.message.findTemplates.invalidate();
       })
       .catch((error) => {
-        toast.error(error.message);
+        const errorMessage = JSON.parse(error.message)[0].message;
+
+        toast.error(errorMessage);
       });
   }
   function close() {

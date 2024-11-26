@@ -33,8 +33,10 @@ const SendMessageUI = ({ phone, inChat }: SendMessageUIProps) => {
             setMessage('');
             utils.message.findMessagesByPhone.refetch(phone);
           })
-          .catch(() => {
-            toast.error('Error al enviar mensaje');
+          .catch((error) => {
+            const errorMessage = JSON.parse(error.message)[0].message;
+
+            toast.error(errorMessage);
           });
       }}
     >
