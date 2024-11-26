@@ -9,22 +9,19 @@ import { type GetTemplatesData } from '@/server/types/whatsapp';
 import IconClockRotateLeft from '../icons/IconClockRotateLeft';
 
 const PlantillasList = () => {
-  const { data, isLoading } = trpc.whatsapp.getTemplates.useQuery();
+  const { data, isLoading } = trpc.message.findTemplates.useQuery();
   const { clearTemplate } = useTemplate();
   const router = useRouter();
 
-  function openModal(plantilla: GetTemplatesData) {
-    useTemplateDelete.setState({ open: true, plantilla: plantilla });
+  function openModal(template: GetTemplatesData) {
+    useTemplateDelete.setState({ open: true, template: template });
   }
 
-  function goToCreateTemplate(
-    plantilla: GetTemplatesData | null,
-    type: string
-  ) {
+  function goToCreateTemplate(template: GetTemplatesData | null, type: string) {
     clearTemplate();
     useTemplate.setState({ type: type });
     if (type === 'VIEW' || type === 'EDIT') {
-      router.push(`/plantilla/${plantilla?.name}`);
+      router.push(`/plantilla/${template?.name}`);
     } else {
       router.push(`/plantilla/crearplantilla`);
     }
@@ -49,46 +46,46 @@ const PlantillasList = () => {
           <div className='mx-auto mt-2 w-fit'>
             <Loader />
           </div>
-        ) : data?.data ? (
-          data.data.map((p) => {
-            const plantilla = p;
-            if (plantilla.status === 'APPROVED') {
+        ) : data?.templates ? (
+          data.templates.map((p) => {
+            const template = p;
+            if (template.status === 'APRROVED') {
               return (
                 <div
-                  key={plantilla.id}
+                  key={template.id}
                   className='flex items-center justify-start gap-x-2 bg-gray-400 pr-2 hover:bg-gray-700 hover:transition hover:ease-in-out sm:justify-center'
-                  onClick={() => goToCreateTemplate(plantilla, 'VIEW')}
+                  onClick={() => goToCreateTemplate(template, 'VIEW')}
                 >
                   <button className='w-full p-2 text-white hover:cursor-default'>
-                    {plantilla.name}
+                    {template.name}
                   </button>
                   <Edit2Icon
                     onClick={(e) => {
                       e.stopPropagation();
-                      goToCreateTemplate(plantilla, 'EDIT');
+                      goToCreateTemplate(template, 'EDIT');
                     }}
                     className='hover:cursor-pointer hover:text-white'
                   />
                   <Trash2Icon
                     onClick={(e) => {
                       e.stopPropagation();
-                      openModal(plantilla);
+                      openModal(template);
                     }}
                     className='hover:cursor-pointer hover:text-white'
                   />
                 </div>
               );
-            } else if (plantilla.status === 'PENDING') {
+            } else if (template.status === 'PENDING') {
               return (
                 <div
-                  key={plantilla.id}
+                  key={template.id}
                   className='flex items-center justify-center gap-x-2 bg-gray-400 pr-2'
                 >
                   <button
-                    onClick={() => goToCreateTemplate(plantilla, 'VIEW')}
+                    onClick={() => goToCreateTemplate(template, 'VIEW')}
                     className='w-full p-2 text-white hover:bg-gray-700 hover:transition hover:ease-in-out'
                   >
-                    {plantilla.name}
+                    {template.name}
                   </button>
                   <IconClockRotateLeft className='h-5 w-5' />
                 </div>

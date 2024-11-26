@@ -8,21 +8,21 @@ import SendTemplateModal from '@/components/mensajes/SendTemplateModal';
 import { type GetTemplatesData } from '@/server/types/whatsapp';
 import React, { useState } from 'react';
 
-const MensajesPage = () => {
+const MessagesPage = () => {
   const [open, setOpen] = useState(false);
-  const [plantilla, setPlantilla] = useState<GetTemplatesData | null>(null);
-  useTemplateDelete.subscribe(({ open, plantilla }) => {
+  const [template, setTemplate] = useState<GetTemplatesData | null>(null);
+  useTemplateDelete.subscribe(({ open, template }) => {
     setOpen(open);
-    setPlantilla(plantilla);
+    setTemplate(template);
   });
   return (
     <div className='px-2'>
       <PlantillasList />
       <EnviarTemplate />
-      <DeleteTemplateModal open={open} plantilla={plantilla} />
+      <DeleteTemplateModal open={open} template={template} />
       <SendTemplateModal />
     </div>
   );
 };
 
-export default MensajesPage;
+export default MessagesPage;

@@ -10,39 +10,38 @@ import React, { useEffect } from 'react';
 interface ChatPageProps {}
 
 const ChatPage = ({}: ChatPageProps) => {
-  const { telefono } = useParams<{ telefono: string }>();
+  const { phone } = useParams<{ phone: string }>();
 
-  const { mutateAsync: leerMensajes } =
-    trpc.whatsapp.readMensajes.useMutation();
-  const { data } = trpc.whatsapp.getMessagesByTelefono.useQuery(telefono, {
-    enabled: !!telefono,
+  const { mutateAsync: leerMensajes } = trpc.message.readMessages.useMutation();
+  const { data } = trpc.message.findMessagesByPhone.useQuery(phone, {
+    enabled: !!phone,
     refetchInterval: 5000,
     onSuccess: () => {
-      leerMensajitos();
+      readMessages();
     },
   });
   const utils = trpc.useUtils();
-  async function leerMensajitos() {
-    await leerMensajes(telefono);
-    utils.whatsapp.mensajesNoLeidos.invalidate();
+  async function readMessages() {
+    await leerMensajes(phone);
+    utils.message.nonReadMessages.invalidate();
     utils.profile.getAllWithActiveChat.invalidate();
   }
 
   useEffect(() => {
-    leerMensajitos();
+    readMessages();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [telefono]);
+  }, [phone]);
 
   return (
     <div className='relative w-full bg-[url(/img/whatsapp_background.png)]'>
       <div className='flex h-full flex-col'>
-        <ChatTopbar inChat={data?.inChat ?? false} phoneNumber={telefono} />
+        <ChatTopbar inChat={data?.inChat ?? false} phoneNumber={phone} />
         <div className='h-full overflow-y-auto'>
-          {data?.mensajes != null && (
-            <MensajesList telefono={telefono} mensajes={data?.mensajes ?? []} />
+          {data?.messages != null && (
+            <MensajesList phone={phone} messages={data?.messages ?? []} />
           )}
         </div>
-        <EnviarMensajeUI telefono={telefono} inChat={data?.inChat ?? false} />
+        <EnviarMensajeUI phone={phone} inChat={data?.inChat ?? false} />
       </div>
     </div>
   );

@@ -40,17 +40,17 @@ export const useTemplate = create<{
 }));
 
 const CrearTemplate = ({
-  plantillaName,
+  templateName,
   typeTemplate,
 }: {
-  plantillaName?: string;
+  templateName?: string;
   typeTemplate: string;
 }) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const { type, name, id, button1, button2, button3, content, clearTemplate } =
     useTemplate();
   const router = useRouter();
-  const { data } = trpc.whatsapp.getTemplateById.useQuery(plantillaName, {
+  const { data } = trpc.message.findTemplateById.useQuery(templateName ?? '', {
     enabled: type === 'VIEW' || type === 'EDIT',
   });
 
@@ -60,17 +60,17 @@ const CrearTemplate = ({
 
   useEffect(() => {
     useTemplate.setState({ type: typeTemplate });
-    if (type === '' || (typeTemplate === '' && plantillaName !== undefined))
+    if (type === '' || (typeTemplate === '' && templateName !== undefined))
       useTemplate.setState({ type: 'VIEW' });
     if (typeTemplate === 'CREATE') useTemplate.setState({ type: 'CREATE' });
     if (type === 'VIEW' || type === 'EDIT')
-      useTemplate.setState({ name: plantillaName });
-  }, [plantillaName, type, typeTemplate]);
+      useTemplate.setState({ name: templateName });
+  }, [templateName, type, typeTemplate]);
 
   useEffect(() => {
-    useTemplate.setState({ id: data?.data[0].id });
-    if (data?.data[0].components) {
-      data.data[0].components.map((component) => {
+    useTemplate.setState({ id: data?.id });
+    if (data?.components) {
+      data.components.map((component) => {
         if (component.type === 'BODY') {
           useTemplate.setState({ content: component.text });
         } else if (component.type === 'BUTTONS') {
@@ -88,15 +88,15 @@ const CrearTemplate = ({
     }
   }, [data]);
 
-  const crearTemplate = trpc.whatsapp.createTemplate.useMutation();
-  const editTemplate = trpc.whatsapp.editTemplate.useMutation();
+  const crearTemplate = trpc.message.createTemplate.useMutation();
+  const editTemplate = trpc.message.updateTemplate.useMutation();
 
   async function handleCreateTemplate() {
     if (type === 'CREATE') {
       await crearTemplate
         .mutateAsync({
-          name: name ? name : undefined,
-          content: content ? content : '',
+          name: name ?? '',
+          content: content ?? '',
           buttons: [button1 ?? '', button2 ?? '', button3 ?? ''],
         })
         .then(() => {
@@ -113,7 +113,7 @@ const CrearTemplate = ({
     } else if (type === 'EDIT') {
       await editTemplate
         .mutateAsync({
-          metaId: id ?? '',
+          id: id ?? '',
           content: content ?? '',
           buttons: [button1 ?? '', button2 ?? '', button3 ?? ''],
         })

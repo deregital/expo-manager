@@ -10,7 +10,7 @@ import { prisma } from '@/server/db';
 import { type NextRequest, NextResponse } from 'next/server';
 import { MensajeStatus } from '@prisma/client';
 import { join as pathJoin } from 'path';
-import { enviarMensajeUnaSolaVez } from '@/server/routers/whatsappRouter';
+import { enviarMensajeUnaSolaVez } from '@/server/routers/messageRouter';
 import { getHighestIdLegible } from '@/lib/server';
 import { getAdminNotificationTokens } from '@/lib/notifications';
 

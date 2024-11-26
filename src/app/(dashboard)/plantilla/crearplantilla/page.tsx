@@ -3,12 +3,12 @@ import CrearTemplate from '@/components/mensajes/CrearTemplate';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-interface PlantillaPageParams {
+interface TemplatePageParams {
   params: {
-    plantillaName: string;
+    templateName: string;
   };
 }
-const PlantillaPage = ({ params }: PlantillaPageParams) => {
+const TemplatePage = ({ params }: TemplatePageParams) => {
   const router = useRouter();
   return (
     <div className='px-4 pt-4'>
@@ -20,4 +20,4 @@ const PlantillaPage = ({ params }: PlantillaPageParams) => {
   );
 };
 
-export default PlantillaPage;
+export default TemplatePage;

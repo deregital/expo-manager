@@ -5,13 +5,13 @@ import { toast } from 'sonner';
 import ResponsesList from './ResponsesList';
 
 interface EnviarMensajeUIProps {
-  telefono: string;
+  phone: string;
   inChat: boolean;
 }
 
-const EnviarMensajeUI = ({ telefono, inChat }: EnviarMensajeUIProps) => {
+const EnviarMensajeUI = ({ phone, inChat }: EnviarMensajeUIProps) => {
   const utils = trpc.useUtils();
-  const sendMessage = trpc.whatsapp.sendMessageToTelefono.useMutation();
+  const sendMessage = trpc.message.sendMessageToPhone.useMutation();
   const [message, setMessage] = useState('');
 
   const handleSelectRespuesta = (descripcion: string) => {
@@ -26,12 +26,12 @@ const EnviarMensajeUI = ({ telefono, inChat }: EnviarMensajeUIProps) => {
         event.preventDefault();
         await sendMessage
           .mutateAsync({
-            telefono,
-            text: message,
+            phone: phone,
+            message,
           })
           .then(async (res) => {
             setMessage('');
-            utils.whatsapp.getMessagesByTelefono.refetch(telefono);
+            utils.message.findMessagesByPhone.refetch(phone);
           })
           .catch(() => {
             toast.error('Error al enviar mensaje');

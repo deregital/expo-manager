@@ -10,17 +10,17 @@ import { Badge } from '@/components/ui/badge';
 interface SidebarLinkMensajesProps {}
 
 const SidebarLinkMensajes = ({}: SidebarLinkMensajesProps) => {
-  const { data } = trpc.whatsapp.mensajesNoLeidos.useQuery();
+  const { data } = trpc.message.nonReadMessages.useQuery();
 
-  const { mensajesNoLeidos } = useMemo(() => {
-    if (!data) return { mensajesNoLeidos: 0 };
-    const totalUnreadMessages = data.reduce(
+  const { nonReadMessages } = useMemo(() => {
+    if (!data) return { nonReadMessages: 0 };
+    const totalUnreadMessages = data.messages.reduce(
       (total, current) => total + current._count.id,
       0
     );
 
     return {
-      mensajesNoLeidos: totalUnreadMessages,
+      nonReadMessages: totalUnreadMessages,
     };
   }, [data]);
 
@@ -31,9 +31,9 @@ const SidebarLinkMensajes = ({}: SidebarLinkMensajesProps) => {
         icon={<ChatIcon height={24} width={24} />}
         iconActive={<ChatFillIcon height={24} width={24} />}
         endDecorator={
-          mensajesNoLeidos > 0 ? (
+          nonReadMessages > 0 ? (
             <Badge className='flex aspect-square h-6 w-6 items-center justify-center bg-red-500 text-xs hover:bg-red-500'>
-              {mensajesNoLeidos}
+              {nonReadMessages}
             </Badge>
           ) : (
             <></>

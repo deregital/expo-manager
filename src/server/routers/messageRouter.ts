@@ -8,8 +8,10 @@ import {
   templateSchema,
   updateTemplateSchema,
 } from 'expo-backend-types';
+import type { PrismaClient } from '@prisma/client';
+import { TRPCError } from '@trpc/server';
 
-export const whatsappRouter = router({
+export const messageRouter = router({
   createTemplate: protectedProcedure
     .input(createTemplateSchema)
     .mutation(async ({ input, ctx }) => {
@@ -186,4 +188,71 @@ export const whatsappRouter = router({
 
       return data;
     }),
+  nonReadMessages: protectedProcedure.query(async ({ ctx }) => {
+    const { data, error } = await ctx.fetch.GET('/message/non-read-messages');
+
+    if (error) {
+      throw handleError(error);
+    }
+
+    return data;
+  }),
 });
+
+export async function enviarMensajeUnaSolaVez(
+  telefono: string,
+  text: string,
+  db: PrismaClient
+) {
+  const res = await fetch(
+    `https://graph.facebook.com/v19.0/${process.env.META_WHATSAPP_API_PHONE_NUMBER_ID}/messages`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.META_TOKEN}`,
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: `${telefono}`,
+        type: 'text',
+        text: {
+          body: `${text}`,
+        },
+      }),
+    }
+  );
+  if (!res.ok) {
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Failed to send message',
+    });
+  }
+  const resJson = await res.json();
+  const messageId = (
+    resJson as {
+      messages: { id: string }[];
+    }
+  ).messages[0].id;
+  await db.mensaje.create({
+    data: {
+      message: {
+        id: messageId,
+        text: {
+          body: text,
+        },
+        type: 'text',
+        to: telefono,
+        timestamp: new Date().getTime(),
+      },
+      visto: true,
+      wamId: messageId,
+      perfil: {
+        connect: {
+          telefono: telefono,
+        },
+      },
+    },
+  });
+  return res;
+}

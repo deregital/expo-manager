@@ -19,18 +19,18 @@ const precioTemplate = {
 const EnviarTemplate = () => {
   const templateData = useTemplateSend((state) => ({
     open: state.open,
-    plantilla: state.plantilla,
+    template: state.template,
     tags: state.tags,
   }));
-  const { data } = trpc.whatsapp.getTemplates.useQuery();
+  const { data } = trpc.message.findTemplates.useQuery();
   const { data: tags } = trpc.tag.getAll.useQuery();
   const { data: profiles } = trpc.profile.getByTags.useQuery(
     templateData.tags.map((et) => et.id)
   );
-  const { data: template } = trpc.whatsapp.getTemplateById.useQuery(
-    templateData.plantilla,
+  const { data: template } = trpc.message.findTemplateById.useQuery(
+    templateData.template,
     {
-      enabled: templateData.plantilla !== '',
+      enabled: templateData.template !== '',
     }
   );
 
@@ -38,16 +38,16 @@ const EnviarTemplate = () => {
   const [openTag, setOpenTag] = useState(false);
 
   const currentPrecio = useMemo(() => {
-    if (templateData.plantilla === '') return 0;
-    let categoria: keyof typeof precioTemplate = template?.data[0]
-      .category as keyof typeof precioTemplate;
+    if (templateData.template === '') return 0;
+    let categoria: keyof typeof precioTemplate =
+      template?.category as keyof typeof precioTemplate;
 
     if (!categoria) {
       categoria = 'MARKETING';
     }
 
     return precioTemplate[categoria] * (profiles ? profiles.length : 0);
-  }, [profiles, template?.data, templateData.plantilla]);
+  }, [profiles, template, templateData.template]);
 
   const currentTags = useMemo(() => {
     return tags?.filter(
@@ -56,7 +56,7 @@ const EnviarTemplate = () => {
   }, [tags, templateData.tags]);
 
   async function handleSubmit() {
-    if (templateData.plantilla === '') {
+    if (templateData.template === '') {
       toast.error('Por favor seleccione una plantilla');
       return;
     }
@@ -79,7 +79,7 @@ const EnviarTemplate = () => {
       <div className='flex items-start justify-around p-5'>
         <div>
           <ComboBox
-            data={data?.data ? data.data : []}
+            data={data ? data.templates : []}
             id={'name'}
             value={'name'}
             open={openPlantilla}
@@ -87,27 +87,27 @@ const EnviarTemplate = () => {
             triggerChildren={
               <>
                 <span className='max-w-[calc(100%-30px)] truncate'>
-                  {templateData.plantilla !== ''
-                    ? templateData.plantilla
+                  {templateData.template !== ''
+                    ? templateData.template
                     : 'Buscar plantilla...'}
                 </span>
                 <TemplateIcon className='h-5 w-5' />
               </>
             }
             onSelect={(id) => {
-              if (templateData.plantilla === id) {
+              if (templateData.template === id) {
                 useTemplateSend.setState({
-                  plantilla: '',
+                  template: '',
                 });
                 setOpenPlantilla(false);
                 return;
               }
               useTemplateSend.setState({
-                plantilla: id,
+                template: id,
               });
               setOpenPlantilla(false);
             }}
-            selectedIf={templateData.plantilla}
+            selectedIf={templateData.template}
             wFullMobile
           />
         </div>

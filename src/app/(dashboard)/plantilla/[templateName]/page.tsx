@@ -5,12 +5,12 @@ import CrearTemplate, {
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-interface PlantillaPageParams {
+interface TemplatePageParams {
   params: {
-    plantillaName: string;
+    templateName: string;
   };
 }
-const PlantillaPage = ({ params }: PlantillaPageParams) => {
+const TemplatePage = ({ params }: TemplatePageParams) => {
   const { type } = useTemplate();
   const router = useRouter();
   return (
@@ -19,11 +19,11 @@ const PlantillaPage = ({ params }: PlantillaPageParams) => {
         <ArrowLeft className='cursor-pointer' onClick={() => router.back()} />
       </div>
       <CrearTemplate
-        plantillaName={`${params.plantillaName}`}
+        templateName={`${params.templateName}`}
         typeTemplate={type}
       />
     </div>
   );
 };
 
-export default PlantillaPage;
+export default TemplatePage;
