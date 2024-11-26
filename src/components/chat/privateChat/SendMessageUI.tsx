@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import { toast } from 'sonner';
 import ResponsesList from './ResponsesList';
 
-interface EnviarMensajeUIProps {
+interface SendMessageUIProps {
   phone: string;
   inChat: boolean;
 }
 
-const EnviarMensajeUI = ({ phone, inChat }: EnviarMensajeUIProps) => {
+const SendMessageUI = ({ phone, inChat }: SendMessageUIProps) => {
   const utils = trpc.useUtils();
   const sendMessage = trpc.message.sendMessageToPhone.useMutation();
   const [message, setMessage] = useState('');
@@ -57,4 +57,4 @@ const EnviarMensajeUI = ({ phone, inChat }: EnviarMensajeUIProps) => {
   );
 };
 
-export default EnviarMensajeUI;
+export default SendMessageUI;

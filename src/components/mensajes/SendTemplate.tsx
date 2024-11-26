@@ -16,7 +16,7 @@ const precioTemplate = {
   AUTHENTICATION: 0.0367,
 } as const;
 
-const EnviarTemplate = () => {
+const SendTemplate = () => {
   const templateData = useTemplateSend((state) => ({
     open: state.open,
     template: state.template,
@@ -197,4 +197,4 @@ const EnviarTemplate = () => {
   );
 };
 
-export default EnviarTemplate;
+export default SendTemplate;

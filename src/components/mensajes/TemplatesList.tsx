@@ -4,11 +4,11 @@ import { Edit2Icon, Trash2Icon } from 'lucide-react';
 import Loader from '../ui/loader';
 import { useTemplateDelete } from './DeleteTemplateModal';
 import { useRouter } from 'next/navigation';
-import { useTemplate } from './CrearTemplate';
+import { useTemplate } from './CreateTemplate';
 import { type GetTemplatesData } from '@/server/types/whatsapp';
 import IconClockRotateLeft from '../icons/IconClockRotateLeft';
 
-const PlantillasList = () => {
+const TemplatesList = () => {
   const { data, isLoading } = trpc.message.findTemplates.useQuery();
   const { clearTemplate } = useTemplate();
   const router = useRouter();
@@ -49,7 +49,7 @@ const PlantillasList = () => {
         ) : data?.templates ? (
           data.templates.map((p) => {
             const template = p;
-            if (template.status === 'APRROVED') {
+            if (template.status === 'APPROVED') {
               return (
                 <div
                   key={template.id}
@@ -102,4 +102,4 @@ const PlantillasList = () => {
   );
 };
 
-export default PlantillasList;
+export default TemplatesList;

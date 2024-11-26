@@ -1,4 +1,4 @@
-import MensajeRecibido from '@/components/chat/privateChat/MensajeRecibido';
+import MensajeRecibido from '@/components/chat/privateChat/MessageReceived';
 import TailWrapper from '@/components/chat/privateChat/TailWrapper';
 import CheckIcon from '@/components/icons/CheckIcon';
 import DoubleCheckIcon from '@/components/icons/DoubleCheckIcon';

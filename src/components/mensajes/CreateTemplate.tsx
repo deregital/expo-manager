@@ -39,7 +39,7 @@ export const useTemplate = create<{
   },
 }));
 
-const CrearTemplate = ({
+const CreateTemplate = ({
   templateName,
   typeTemplate,
 }: {
@@ -203,4 +203,4 @@ const CrearTemplate = ({
   );
 };
 
-export default CrearTemplate;
+export default CreateTemplate;

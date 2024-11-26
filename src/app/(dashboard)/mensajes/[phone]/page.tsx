@@ -1,8 +1,8 @@
 'use client';
 
 import ChatTopbar from '@/components/chat/privateChat/ChatTopbar';
-import EnviarMensajeUI from '@/components/chat/privateChat/EnviarMensajeUI';
-import MensajesList from '@/components/chat/privateChat/MensajesList';
+import EnviarMensajeUI from '@/components/chat/privateChat/SendMessageUI';
+import MensajesList from '@/components/chat/privateChat/MessagesList';
 import { trpc } from '@/lib/trpc';
 import { useParams } from 'next/navigation';
 import React, { useEffect } from 'react';

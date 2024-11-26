@@ -7,9 +7,9 @@ import ChatFillIcon from '@/components/icons/ChatFillIcon';
 import { trpc } from '@/lib/trpc';
 import { Badge } from '@/components/ui/badge';
 
-interface SidebarLinkMensajesProps {}
+interface SidebarLinkMessagesProps {}
 
-const SidebarLinkMensajes = ({}: SidebarLinkMensajesProps) => {
+const SidebarLinkMessages = ({}: SidebarLinkMessagesProps) => {
   const { data } = trpc.message.nonReadMessages.useQuery();
 
   const { nonReadMessages } = useMemo(() => {
@@ -46,4 +46,4 @@ const SidebarLinkMensajes = ({}: SidebarLinkMensajesProps) => {
   );
 };
 
-export default SidebarLinkMensajes;
+export default SidebarLinkMessages;

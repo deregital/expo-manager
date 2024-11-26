@@ -1,7 +1,7 @@
 'use client';
 import CrearTemplate, {
   useTemplate,
-} from '@/components/mensajes/CrearTemplate';
+} from '@/components/mensajes/CreateTemplate';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
