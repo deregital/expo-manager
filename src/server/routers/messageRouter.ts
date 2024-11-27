@@ -8,8 +8,6 @@ import {
   templateSchema,
   updateTemplateSchema,
 } from 'expo-backend-types';
-import type { PrismaClient } from '@prisma/client';
-import { TRPCError } from '@trpc/server';
 
 export const messageRouter = router({
   createTemplate: protectedProcedure
@@ -198,61 +196,3 @@ export const messageRouter = router({
     return data;
   }),
 });
-
-export async function sendMessageOnce(
-  phoneNumber: string,
-  text: string,
-  db: PrismaClient
-) {
-  const res = await fetch(
-    `https://graph.facebook.com/v19.0/${process.env.META_WHATSAPP_API_PHONE_NUMBER_ID}/messages`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.META_TOKEN}`,
-      },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        to: `${phoneNumber}`,
-        type: 'text',
-        text: {
-          body: `${text}`,
-        },
-      }),
-    }
-  );
-  if (!res.ok) {
-    throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Failed to send message',
-    });
-  }
-  const resJson = await res.json();
-  const messageId = (
-    resJson as {
-      messages: { id: string }[];
-    }
-  ).messages[0].id;
-  await db.mensaje.create({
-    data: {
-      message: {
-        id: messageId,
-        text: {
-          body: text,
-        },
-        type: 'text',
-        to: phoneNumber,
-        timestamp: new Date().getTime(),
-      },
-      visto: true,
-      wamId: messageId,
-      perfil: {
-        connect: {
-          telefono: phoneNumber,
-        },
-      },
-    },
-  });
-  return res;
-}

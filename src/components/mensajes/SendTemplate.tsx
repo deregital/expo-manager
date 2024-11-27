@@ -10,7 +10,7 @@ import CircleXIcon from '../icons/CircleX';
 import { getTextColorByBg } from '@/lib/utils';
 import { useTemplateSend } from './SendTemplateModal';
 
-const precioTemplate = {
+const templatePrice = {
   MARKETING: 0.0618,
   UTILITY: 0.0408,
   AUTHENTICATION: 0.0367,
@@ -34,19 +34,19 @@ const SendTemplate = () => {
     }
   );
 
-  const [openPlantilla, setOpenPlantilla] = useState(false);
+  const [openTemplate, setOpenTemplate] = useState(false);
   const [openTag, setOpenTag] = useState(false);
 
-  const currentPrecio = useMemo(() => {
+  const currentPrice = useMemo(() => {
     if (templateData.template === '') return 0;
-    let categoria: keyof typeof precioTemplate =
-      template?.category as keyof typeof precioTemplate;
+    let category: keyof typeof templatePrice =
+      template?.category as keyof typeof templatePrice;
 
-    if (!categoria) {
-      categoria = 'MARKETING';
+    if (!category) {
+      category = 'MARKETING';
     }
 
-    return precioTemplate[categoria] * (profiles ? profiles.length : 0);
+    return templatePrice[category] * (profiles ? profiles.length : 0);
   }, [profiles, template, templateData.template]);
 
   const currentTags = useMemo(() => {
@@ -67,7 +67,7 @@ const SendTemplate = () => {
     useTemplateSend.setState({
       open: true,
       profiles: profiles?.length ?? 0,
-      precio: currentPrecio,
+      price: currentPrice,
     });
   }
 
@@ -82,8 +82,8 @@ const SendTemplate = () => {
             data={data ? data.templates : []}
             id={'name'}
             value={'name'}
-            open={openPlantilla}
-            setOpen={setOpenPlantilla}
+            open={openTemplate}
+            setOpen={setOpenTemplate}
             triggerChildren={
               <>
                 <span className='max-w-[calc(100%-30px)] truncate'>
@@ -99,13 +99,13 @@ const SendTemplate = () => {
                 useTemplateSend.setState({
                   template: '',
                 });
-                setOpenPlantilla(false);
+                setOpenTemplate(false);
                 return;
               }
               useTemplateSend.setState({
                 template: id,
               });
-              setOpenPlantilla(false);
+              setOpenTemplate(false);
             }}
             selectedIf={templateData.template}
             wFullMobile
@@ -184,7 +184,7 @@ const SendTemplate = () => {
           <span>{profiles?.length} participantes encontrados</span>
         </div>
         <div>
-          <span>USD${currentPrecio.toFixed(3)} precio estimado</span>
+          <span>USD${currentPrice.toFixed(3)} precio estimado</span>
         </div>
         <Button
           onClick={handleSubmit}

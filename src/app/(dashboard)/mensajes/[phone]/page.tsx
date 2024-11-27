@@ -1,8 +1,8 @@
 'use client';
 
 import ChatTopbar from '@/components/chat/privateChat/ChatTopbar';
-import EnviarMensajeUI from '@/components/chat/privateChat/SendMessageUI';
-import MensajesList from '@/components/chat/privateChat/MessagesList';
+import SendMessageUI from '@/components/chat/privateChat/SendMessageUI';
+import MessagesList from '@/components/chat/privateChat/MessagesList';
 import { trpc } from '@/lib/trpc';
 import { useParams } from 'next/navigation';
 import React, { useEffect } from 'react';
@@ -12,7 +12,8 @@ interface ChatPageProps {}
 const ChatPage = ({}: ChatPageProps) => {
   const { phone } = useParams<{ phone: string }>();
 
-  const { mutateAsync: leerMensajes } = trpc.message.readMessages.useMutation();
+  const { mutateAsync: readMessagesMutation } =
+    trpc.message.readMessages.useMutation();
   const { data } = trpc.message.findMessagesByPhone.useQuery(phone, {
     enabled: !!phone,
     refetchInterval: 5000,
@@ -22,7 +23,7 @@ const ChatPage = ({}: ChatPageProps) => {
   });
   const utils = trpc.useUtils();
   async function readMessages() {
-    await leerMensajes(phone);
+    await readMessagesMutation(phone);
     utils.message.nonReadMessages.invalidate();
     utils.profile.getAllWithActiveChat.invalidate();
   }
@@ -38,10 +39,10 @@ const ChatPage = ({}: ChatPageProps) => {
         <ChatTopbar inChat={data?.inChat ?? false} phoneNumber={phone} />
         <div className='h-full overflow-y-auto'>
           {data?.messages != null && (
-            <MensajesList phone={phone} messages={data?.messages ?? []} />
+            <MessagesList phone={phone} messages={data?.messages ?? []} />
           )}
         </div>
-        <EnviarMensajeUI phone={phone} inChat={data?.inChat ?? false} />
+        <SendMessageUI phone={phone} inChat={data?.inChat ?? false} />
       </div>
     </div>
   );
