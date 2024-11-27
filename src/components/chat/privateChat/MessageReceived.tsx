@@ -1,12 +1,12 @@
 import { type TextMessage } from '@/server/types/whatsapp';
 import React from 'react';
 
-interface MensajeRecibidoProps {
+interface MessageReceivedProps {
   mensaje: TextMessage;
 }
 
-const MensajeRecibido = ({ mensaje }: MensajeRecibidoProps) => {
+const MessageReceived = ({ mensaje }: MessageReceivedProps) => {
   return <>{mensaje.text.body}</>;
 };
 
-export default MensajeRecibido;
+export default MessageReceived;

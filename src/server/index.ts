@@ -1,7 +1,7 @@
 import { router } from './trpc';
 import { profileRouter } from '@/server/routers/profileRouter';
 import { tagRouter } from '@/server/routers/tagRouter';
-import { whatsappRouter } from '@/server/routers/whatsappRouter';
+import { messageRouter } from '@/server/routers/messageRouter';
 import { tagGroupRouter } from '@/server/routers/tagGroupRouter';
 import { type inferRouterOutputs } from '@trpc/server';
 import { csvRouter } from '@/server/routers/csvRouter';
@@ -16,7 +16,7 @@ import { commentRouter } from '@/server/routers/commentRouter';
 export const appRouter = router({
   profile: profileRouter,
   tag: tagRouter,
-  whatsapp: whatsappRouter,
+  message: messageRouter,
   tagGroup: tagGroupRouter,
   csv: csvRouter,
   event: eventRouter,

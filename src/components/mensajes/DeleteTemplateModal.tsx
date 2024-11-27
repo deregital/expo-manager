@@ -12,38 +12,38 @@ import Loader from '../ui/loader';
 
 export const useTemplateDelete = create<{
   open: boolean;
-  plantilla: GetTemplatesData | null;
+  template: GetTemplatesData | null;
 }>((set) => ({
   open: false,
-  plantilla: null,
+  template: null,
 }));
 
 const DeleteTemplateModal = ({
   open,
-  plantilla,
+  template,
 }: {
   open: boolean;
-  plantilla: GetTemplatesData | null;
+  template: GetTemplatesData | null;
 }) => {
-  const deleteTemplate = trpc.whatsapp.deleteTemplate.useMutation();
+  const deleteTemplate = trpc.message.deleteTemplate.useMutation();
   const utils = trpc.useUtils();
   async function handleDelete() {
     await deleteTemplate
-      .mutateAsync({
-        titulo: plantilla ? plantilla.name : '',
-      })
+      .mutateAsync(template?.id ?? '')
       .then(() => {
-        useTemplateDelete.setState({ open: false, plantilla: null });
+        useTemplateDelete.setState({ open: false, template: null });
         toast.success('Plantilla eliminada');
-        utils.whatsapp.getTemplates.invalidate();
+        utils.message.findTemplates.invalidate();
       })
       .catch((error) => {
-        toast.error(error.message);
+        const errorMessage = JSON.parse(error.message)[0].message;
+
+        toast.error(errorMessage);
       });
   }
   function close() {
     // useTemplateDelete.setState({open: false, plantilla: null})
-    useTemplateDelete.setState({ open: false, plantilla: null });
+    useTemplateDelete.setState({ open: false, template: null });
   }
   return (
     <AlertDialog open={open}>
@@ -52,7 +52,7 @@ const DeleteTemplateModal = ({
         <h1 className='font-bold'>Eliminar plantilla</h1>
         <p>
           ¿Estás seguro de que deseas eliminar la plantilla{' '}
-          {plantilla ? plantilla.name : '-'}?
+          {template ? template.name : '-'}?
         </p>
         <div className='flex items-center justify-end gap-x-2'>
           <button

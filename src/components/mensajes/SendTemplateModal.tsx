@@ -18,33 +18,33 @@ interface TagProps {
 export const useTemplateSend = create<{
   open: boolean;
   tags: TagProps[];
-  plantilla: string;
+  template: string;
   profiles: number;
-  precio: number;
+  price: number;
 }>(() => ({
   open: false,
   tags: [],
-  plantilla: '',
+  template: '',
   profiles: 0,
-  precio: 0,
+  price: 0,
 }));
 
 const SendTemplateModal = () => {
   const templateData = useTemplateSend();
-  const sendTemplate = trpc.whatsapp.sendMessageToEtiqueta.useMutation();
+  const sendTemplate = trpc.message.sendMessageToTags.useMutation();
   async function handleSubmit() {
     const res = await sendTemplate.mutateAsync({
-      plantillaName: templateData.plantilla,
-      etiquetas: templateData.tags.map((et) => et.id),
+      templateName: templateData.template,
+      tags: templateData.tags.map((et) => et.id),
     });
-    if (res === 'Mensajes enviados') {
+    if (res.success) {
       toast.success('Plantilla enviada correctamente');
       useTemplateSend.setState({
         open: false,
-        plantilla: '',
+        template: '',
         tags: [],
         profiles: 0,
-        precio: 0,
+        price: 0,
       });
       return;
     } else {
@@ -62,10 +62,10 @@ const SendTemplateModal = () => {
         <h1 className='font-bold'>Enviar plantilla</h1>
         <p>
           ¿Estás seguro de que deseas enviar la plantilla{' '}
-          {templateData.plantilla ? templateData.plantilla : '-'} a{' '}
+          {templateData.template ? templateData.template : '-'} a{' '}
           {templateData.profiles}{' '}
           {templateData.profiles !== 1 ? 'participantes' : 'participante'} a un
-          valor de USD${templateData.precio.toFixed(3)}?
+          valor de USD${templateData.price.toFixed(3)}?
         </p>
         <div className='flex items-center justify-end gap-x-2'>
           <button

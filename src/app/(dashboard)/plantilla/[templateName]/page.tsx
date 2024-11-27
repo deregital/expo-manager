@@ -1,16 +1,16 @@
 'use client';
-import CrearTemplate, {
+import CreateTemplate, {
   useTemplate,
-} from '@/components/mensajes/CrearTemplate';
+} from '@/components/mensajes/CreateTemplate';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-interface PlantillaPageParams {
+interface TemplatePageParams {
   params: {
-    plantillaName: string;
+    templateName: string;
   };
 }
-const PlantillaPage = ({ params }: PlantillaPageParams) => {
+const TemplatePage = ({ params }: TemplatePageParams) => {
   const { type } = useTemplate();
   const router = useRouter();
   return (
@@ -18,12 +18,12 @@ const PlantillaPage = ({ params }: PlantillaPageParams) => {
       <div className='flex items-center gap-x-4'>
         <ArrowLeft className='cursor-pointer' onClick={() => router.back()} />
       </div>
-      <CrearTemplate
-        plantillaName={`${params.plantillaName}`}
+      <CreateTemplate
+        templateName={`${params.templateName}`}
         typeTemplate={type}
       />
     </div>
   );
 };
 
-export default PlantillaPage;
+export default TemplatePage;

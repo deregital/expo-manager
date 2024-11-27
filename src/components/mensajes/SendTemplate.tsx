@@ -10,44 +10,44 @@ import CircleXIcon from '../icons/CircleX';
 import { getTextColorByBg } from '@/lib/utils';
 import { useTemplateSend } from './SendTemplateModal';
 
-const precioTemplate = {
+const templatePrice = {
   MARKETING: 0.0618,
   UTILITY: 0.0408,
   AUTHENTICATION: 0.0367,
 } as const;
 
-const EnviarTemplate = () => {
+const SendTemplate = () => {
   const templateData = useTemplateSend((state) => ({
     open: state.open,
-    plantilla: state.plantilla,
+    template: state.template,
     tags: state.tags,
   }));
-  const { data } = trpc.whatsapp.getTemplates.useQuery();
+  const { data } = trpc.message.findTemplates.useQuery();
   const { data: tags } = trpc.tag.getAll.useQuery();
   const { data: profiles } = trpc.profile.getByTags.useQuery(
     templateData.tags.map((et) => et.id)
   );
-  const { data: template } = trpc.whatsapp.getTemplateById.useQuery(
-    templateData.plantilla,
+  const { data: template } = trpc.message.findTemplateById.useQuery(
+    templateData.template,
     {
-      enabled: templateData.plantilla !== '',
+      enabled: templateData.template !== '',
     }
   );
 
-  const [openPlantilla, setOpenPlantilla] = useState(false);
+  const [openTemplate, setOpenTemplate] = useState(false);
   const [openTag, setOpenTag] = useState(false);
 
-  const currentPrecio = useMemo(() => {
-    if (templateData.plantilla === '') return 0;
-    let categoria: keyof typeof precioTemplate = template?.data[0]
-      .category as keyof typeof precioTemplate;
+  const currentPrice = useMemo(() => {
+    if (templateData.template === '') return 0;
+    let category: keyof typeof templatePrice =
+      template?.category as keyof typeof templatePrice;
 
-    if (!categoria) {
-      categoria = 'MARKETING';
+    if (!category) {
+      category = 'MARKETING';
     }
 
-    return precioTemplate[categoria] * (profiles ? profiles.length : 0);
-  }, [profiles, template?.data, templateData.plantilla]);
+    return templatePrice[category] * (profiles ? profiles.length : 0);
+  }, [profiles, template, templateData.template]);
 
   const currentTags = useMemo(() => {
     return tags?.filter(
@@ -56,7 +56,7 @@ const EnviarTemplate = () => {
   }, [tags, templateData.tags]);
 
   async function handleSubmit() {
-    if (templateData.plantilla === '') {
+    if (templateData.template === '') {
       toast.error('Por favor seleccione una plantilla');
       return;
     }
@@ -67,7 +67,7 @@ const EnviarTemplate = () => {
     useTemplateSend.setState({
       open: true,
       profiles: profiles?.length ?? 0,
-      precio: currentPrecio,
+      price: currentPrice,
     });
   }
 
@@ -79,35 +79,35 @@ const EnviarTemplate = () => {
       <div className='flex items-start justify-around p-5'>
         <div>
           <ComboBox
-            data={data?.data ? data.data : []}
+            data={data ? data.templates : []}
             id={'name'}
             value={'name'}
-            open={openPlantilla}
-            setOpen={setOpenPlantilla}
+            open={openTemplate}
+            setOpen={setOpenTemplate}
             triggerChildren={
               <>
                 <span className='max-w-[calc(100%-30px)] truncate'>
-                  {templateData.plantilla !== ''
-                    ? templateData.plantilla
+                  {templateData.template !== ''
+                    ? templateData.template
                     : 'Buscar plantilla...'}
                 </span>
                 <TemplateIcon className='h-5 w-5' />
               </>
             }
             onSelect={(id) => {
-              if (templateData.plantilla === id) {
+              if (templateData.template === id) {
                 useTemplateSend.setState({
-                  plantilla: '',
+                  template: '',
                 });
-                setOpenPlantilla(false);
+                setOpenTemplate(false);
                 return;
               }
               useTemplateSend.setState({
-                plantilla: id,
+                template: id,
               });
-              setOpenPlantilla(false);
+              setOpenTemplate(false);
             }}
-            selectedIf={templateData.plantilla}
+            selectedIf={templateData.template}
             wFullMobile
           />
         </div>
@@ -184,7 +184,7 @@ const EnviarTemplate = () => {
           <span>{profiles?.length} participantes encontrados</span>
         </div>
         <div>
-          <span>USD${currentPrecio.toFixed(3)} precio estimado</span>
+          <span>USD${currentPrice.toFixed(3)} precio estimado</span>
         </div>
         <Button
           onClick={handleSubmit}
@@ -197,4 +197,4 @@ const EnviarTemplate = () => {
   );
 };
 
-export default EnviarTemplate;
+export default SendTemplate;

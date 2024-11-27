@@ -15,7 +15,7 @@ import ProfileFillIcon from '../icons/ProfileFillIcon';
 import ProfileIcon from '../icons/ProfileIcon';
 import PapeleraIcon from '../icons/PapeleraIcon';
 import PapeleraFillIcon from '../icons/PapeleraFillIcon';
-import SidebarLinkMensajes from '@/components/layout/SidebarLinkMensajes';
+import SidebarLinkMensajes from '@/components/layout/SidebarLinkMessages';
 import MapIcon from '../icons/MapIcon';
 import MapFillIcon from '../icons/MapFillIcon';
 

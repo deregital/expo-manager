@@ -1,4 +1,4 @@
-import MensajeRecibido from '@/components/chat/privateChat/MensajeRecibido';
+import MensajeRecibido from '@/components/chat/privateChat/MessageReceived';
 import TailWrapper from '@/components/chat/privateChat/TailWrapper';
 import CheckIcon from '@/components/icons/CheckIcon';
 import DoubleCheckIcon from '@/components/icons/DoubleCheckIcon';
@@ -13,12 +13,12 @@ import {
 import Link from 'next/link';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-type UIMessageModel = MensajesListProps['mensajes'][number] & {
+type UIMessageModel = MessagesListProps['messages'][number] & {
   msgDate: string;
 };
 
 function addDateToMessages(
-  withoutDateArray: MensajesListProps['mensajes']
+  withoutDateArray: MessagesListProps['messages']
 ): UIMessageModel[] {
   return withoutDateArray.map((messageWithoutDate) => {
     const withDate: UIMessageModel = {
@@ -29,25 +29,25 @@ function addDateToMessages(
   });
 }
 
-interface MensajesListProps {
-  mensajes: RouterOutputs['whatsapp']['getMessagesByTelefono']['mensajes'];
-  telefono: string;
+interface MessagesListProps {
+  messages: RouterOutputs['message']['findMessagesByPhone']['messages'];
+  phone: string;
 }
 
-const MensajesList = ({ mensajes, telefono }: MensajesListProps) => {
+const MessagesList = ({ messages, phone }: MessagesListProps) => {
   const [lastMessageSent, setLastMessageSent] = useState(Date.now());
   const utils = trpc.useUtils();
   const stateMessages = useMemo(() => {
-    return addDateToMessages(mensajes);
-  }, [mensajes]);
+    return addDateToMessages(messages);
+  }, [messages]);
 
-  trpc.whatsapp.getLastMessageTimestamp.useQuery(telefono, {
-    enabled: !!telefono,
+  trpc.message.getLastMessageTimestamp.useQuery(phone, {
+    enabled: !!phone,
     refetchInterval: 1000,
     onSuccess: (data) => {
-      if (data !== lastMessageSent) {
-        setLastMessageSent(data);
-        utils.whatsapp.getMessagesByTelefono.invalidate(telefono);
+      if (data.timestamp !== lastMessageSent) {
+        setLastMessageSent(data.timestamp);
+        utils.message.findMessagesByPhone.invalidate(phone);
       }
     },
   });
@@ -73,7 +73,7 @@ const MensajesList = ({ mensajes, telefono }: MensajesListProps) => {
         const messageDateTime = new Date(message.created_at);
 
         return (
-          <div key={message.id}>
+          <div key={message.message.id}>
             {(() => {
               if (
                 index === 0
@@ -132,13 +132,13 @@ const MensajesList = ({ mensajes, telefono }: MensajesListProps) => {
                   <span className='absolute bottom-0 end-0 pb-2 pe-2 text-[0.66rem] leading-[0.75rem] text-[#667781]'>
                     {messageDateTime.toLocaleTimeString().toLowerCase()}
                     {messageBody.to &&
-                      (message.status === 'ENVIADO' ? (
+                      (message.state === 'SENT' ? (
                         <CheckIcon className='inline-block h-3 w-3' />
                       ) : (
                         <DoubleCheckIcon
                           className={cn(
                             'inline-block h-3 w-3',
-                            message.status === 'RECIBIDO'
+                            message.state === 'RECEIVED'
                               ? 'text-[#667781]'
                               : 'text-[#1e90ff]'
                           )}
@@ -155,4 +155,4 @@ const MensajesList = ({ mensajes, telefono }: MensajesListProps) => {
   );
 };
 
-export default MensajesList;
+export default MessagesList;
