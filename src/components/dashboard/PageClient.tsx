@@ -1,12 +1,13 @@
 'use client';
-import ProfilesChartCard from '@/components/dashboard/ProfilesChartCard';
+import GraficoCard from '@/components/dashboard/GraficoCard';
 import MensajesCard from '@/components/dashboard/MensajesCard';
-import ProfilesList from '@/components/dashboard/ProfilesList';
+import ModelosList from '@/components/dashboard/ModelosList';
 import SharedCard from '@/components/dashboard/SharedCard';
 import ComboBox from '@/components/ui/ComboBox';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { trpc } from '@/lib/trpc';
-import { type RouterOutputs } from '@/server';
+import { RouterOutputs } from '@/server';
+import { MessageJson } from '@/server/types/whatsapp';
 import { addDays, format, startOfMonth } from 'date-fns';
 import { XIcon } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
@@ -17,115 +18,113 @@ interface PageClientProps {}
 export const useDashboardData = create<{
   from: Date;
   to: Date;
-  tagGroupId: string;
-  tagId: string;
+  grupoEtiquetaId: string;
+  etiquetaId: string;
   resetFilters: () => void;
 }>((set) => ({
   from: startOfMonth(new Date()),
   to: new Date(),
-  tagGroupId: '',
-  tagId: '',
+  grupoEtiquetaId: '',
+  etiquetaId: '',
   resetFilters: () => {
     set({
       from: startOfMonth(new Date()),
       to: new Date(),
-      tagGroupId: '',
-      tagId: '',
+      grupoEtiquetaId: '',
+      etiquetaId: '',
     });
   },
 }));
 
-function filterProfiles(
-  profiles: NonNullable<RouterOutputs['profile']['getByDateRange'][string]>,
-  search: { tagId?: string; groupId?: string }
+function filterModelos(
+  modelos: RouterOutputs['modelo']['getByDateRange'][string],
+  search: { etiquetaId?: string; grupoId?: string }
 ) {
-  if (search.tagId === '' && search.groupId === '') return profiles;
-  const mod = profiles.filter((profile) => {
+  if (search.etiquetaId === '' && search.grupoId === '') return modelos;
+  // @ts-ignore
+  const mod = modelos.filter((modelo) => {
     return (
-      (search.tagId === '' ||
-        profile.tags.some((tag) => tag.id === search.tagId)) &&
-      (search.groupId === '' ||
-        profile.tags.some((tag) => tag.groupId === search.groupId))
+      (search.etiquetaId === '' ||
+        modelo.etiquetas.some(
+          (etiqueta) => etiqueta.id === search.etiquetaId
+        )) &&
+      (search.grupoId === '' ||
+        modelo.etiquetas.some(
+          (etiqueta) => etiqueta.grupoId === search.grupoId
+        ))
     );
   });
   return mod;
 }
 
 const PageClient = ({}: PageClientProps) => {
-  const { from, to, tagId, tagGroupId, resetFilters } = useDashboardData(
-    (s) => ({
-      from: s.from,
-      to: s.to,
-      tagId: s.tagId,
-      tagGroupId: s.tagGroupId,
-      resetFilters: s.resetFilters,
-    })
-  );
+  const { from, to, etiquetaId, grupoEtiquetaId, resetFilters } =
+    useDashboardData();
 
-  const [groupOpen, setGroupOpen] = useState(false);
-  const [tagOpen, setTagOpen] = useState(false);
+  const [grupoOpen, setGrupoOpen] = useState(false);
+  const [etiquetaOpen, setEtiquetaOpen] = useState(false);
 
-  const { data: tagGroupsData, isLoading: tagGroupsLoading } =
-    trpc.tagGroup.getAll.useQuery();
-  const { data: tagsData, isLoading: tagsLoading } = trpc.tag.getAll.useQuery();
-  const { data: profilesData, isLoading: isLoadingProfiles } =
-    trpc.profile.getByDateRange.useQuery({
-      from: format(from, 'yyyy-MM-dd'),
-      to: format(addDays(to, 1), 'yyyy-MM-dd'),
+  const { data: grupoEtiquetasData, isLoading: grupoEtiquetasLoading } =
+    trpc.grupoEtiqueta.getAll.useQuery();
+  const { data: etiquetasData, isLoading: etiquetasLoading } =
+    trpc.etiqueta.getAll.useQuery();
+  const { data: modelosData, isLoading: modelosLoading } =
+    trpc.modelo.getByDateRange.useQuery({
+      start: format(from, 'yyyy-MM-dd'),
+      end: format(addDays(to, 1), 'yyyy-MM-dd'),
     });
 
-  const currentGroup = useMemo(() => {
-    if (!tagGroupsData) return;
-    return tagGroupsData.find((group) => group.id === tagGroupId);
-  }, [tagGroupsData, tagGroupId]);
+  const currentGrupo = useMemo(() => {
+    if (!grupoEtiquetasData) return;
+    return grupoEtiquetasData.find((grupo) => grupo.id === grupoEtiquetaId);
+  }, [grupoEtiquetasData, grupoEtiquetaId]);
 
-  const currentTag = useMemo(() => {
-    if (!tagsData) return;
-    return tagsData.find((tag) => tag.id === tagId);
-  }, [tagsData, tagId]);
+  const currentEtiqueta = useMemo(() => {
+    if (!etiquetasData) return;
+    return etiquetasData.find((etiqueta) => etiqueta.id === etiquetaId);
+  }, [etiquetasData, etiquetaId]);
 
-  const tags = useMemo(() => {
-    if (!currentGroup) return tagsData;
-    return tagsData ? tagsData.filter((tag) => tag.groupId === tagGroupId) : [];
-  }, [currentGroup, tagsData, tagGroupId]);
+  const etiquetas = useMemo(() => {
+    if (!currentGrupo) return etiquetasData;
+    return etiquetasData
+      ? etiquetasData.filter((etiqueta) => etiqueta.grupoId === grupoEtiquetaId)
+      : [];
+  }, [currentGrupo, etiquetasData, grupoEtiquetaId]);
 
-  const profilesForChart = useMemo(() => {
-    const modReturn: { date: string; profiles: number }[] = [];
-    if (!profilesData) return [];
+  const modelosParaGrafico = useMemo(() => {
+    const modReturn: { fecha: string; modelos: number }[] = [];
+    if (!modelosData) return [];
 
-    for (const [day, profiles] of Object.entries(profilesData)) {
-      if (!profiles) continue;
-      const filteredProfiles = filterProfiles(profiles, {
-        tagId,
-        groupId: tagGroupId,
+    for (const [day, modelos] of Object.entries(modelosData)) {
+      const modelosFiltradas = filterModelos(modelos, {
+        etiquetaId,
+        grupoId: grupoEtiquetaId,
       });
 
-      modReturn.push({ profiles: filteredProfiles.length, date: day });
+      modReturn.push({ modelos: modelosFiltradas.length, fecha: day });
     }
     return modReturn;
-  }, [profilesData, tagId, tagGroupId]);
+  }, [etiquetaId, grupoEtiquetaId, modelosData]);
 
-  const relevantProfiles = useMemo(() => {
-    if (!profilesData) return [];
-    const profs = Object.values(profilesData).flatMap((m) => {
-      return m ?? [];
-    });
-    if (!profs) return [];
-    if (!tagId && !tagGroupId) {
-      return profs;
+  const modelosQueCuentan = useMemo(() => {
+    if (!modelosData) return [];
+    const mod = Object.values(modelosData ?? {}).flatMap((m) => m);
+    if (!etiquetaId && !grupoEtiquetaId) {
+      return mod;
     }
-    return filterProfiles(profs, { tagId, groupId: tagGroupId });
-  }, [profilesData, tagId, tagGroupId]);
+    return filterModelos(mod, { etiquetaId, grupoId: grupoEtiquetaId });
+  }, [etiquetaId, grupoEtiquetaId, modelosData]);
 
-  // const retencion = useMemo(() => {
-  //   return (
-  //     (relevantProfiles.filter((modelo) =>
-  //       modelo.messages.filter((m) => 'from' in (m.message as MessageJson))
-  //     ).length /
-  //       relevantProfiles.length) *
-  //     100
-  //   );
-  // }, [relevantProfiles]);
+  const retencion = useMemo(() => {
+    return (
+      (modelosQueCuentan.filter((modelo) =>
+        // @ts-ignore
+        modelo.mensajes.filter((m) => 'from' in (m.message as MessageJson))
+      ).length /
+        modelosQueCuentan.length) *
+      100
+    );
+  }, [modelosQueCuentan]);
 
   return (
     <>
@@ -152,29 +151,29 @@ const PageClient = ({}: PageClientProps) => {
       </section>
       <section className='w-full grid-in-grupo'>
         <ComboBox
-          data={tagGroupsData ?? []}
+          data={grupoEtiquetasData ?? []}
           id='id'
-          open={groupOpen}
-          setOpen={setGroupOpen}
+          open={grupoOpen}
+          setOpen={setGrupoOpen}
           onSelect={(value) => {
-            if (value === tagGroupId) {
-              useDashboardData.setState({ tagGroupId: '' });
+            if (value === grupoEtiquetaId) {
+              useDashboardData.setState({ grupoEtiquetaId: '' });
             } else {
-              useDashboardData.setState({ tagGroupId: value });
-              useDashboardData.setState({ tagId: '' });
+              useDashboardData.setState({ grupoEtiquetaId: value });
+              useDashboardData.setState({ etiquetaId: '' });
             }
-            setGroupOpen(false);
+            setGrupoOpen(false);
           }}
-          selectedIf={tagGroupId}
-          value='name'
+          selectedIf={grupoEtiquetaId}
+          value='nombre'
           triggerChildren={
             <>
               <span className='max-w-[calc(100%-30px)] truncate'>
-                {tagGroupId ? currentGroup?.name : 'Buscar grupo...'}
+                {grupoEtiquetaId ? currentGrupo?.nombre : 'Buscar grupo...'}
               </span>
             </>
           }
-          isLoading={tagGroupsLoading}
+          isLoading={grupoEtiquetasLoading}
           wFullMobile
           buttonClassName='w-full sm:min-w-full h-[44px]'
           contentClassName='sm:max-w-[--radix-popper-anchor-width]'
@@ -182,28 +181,28 @@ const PageClient = ({}: PageClientProps) => {
       </section>
       <section className='flex w-full items-center gap-x-2 self-start grid-in-etiqueta'>
         <ComboBox
-          data={tags ?? []}
+          data={etiquetas ?? []}
           id='id'
-          open={tagOpen}
-          setOpen={setTagOpen}
+          open={etiquetaOpen}
+          setOpen={setEtiquetaOpen}
           onSelect={(value) => {
-            if (value === tagId) {
-              useDashboardData.setState({ tagId: '' });
+            if (value === etiquetaId) {
+              useDashboardData.setState({ etiquetaId: '' });
             } else {
-              useDashboardData.setState({ tagId: value });
+              useDashboardData.setState({ etiquetaId: value });
             }
-            setTagOpen(false);
+            setEtiquetaOpen(false);
           }}
-          selectedIf={tagId ?? ''}
-          value='name'
+          selectedIf={etiquetaId ?? ''}
+          value='nombre'
           triggerChildren={
             <>
               <span className='max-w-[calc(100%-30px)] truncate'>
-                {tagId ? currentTag?.name : 'Buscar etiqueta...'}
+                {etiquetaId ? currentEtiqueta?.nombre : 'Buscar etiqueta...'}
               </span>
             </>
           }
-          isLoading={tagsLoading}
+          isLoading={etiquetasLoading}
           wFullMobile
           buttonClassName='w-full sm:min-w-[calc(100%-2rem)] h-[44px]'
           contentClassName='sm:max-w-[--radix-popper-anchor-width]'
@@ -216,15 +215,12 @@ const PageClient = ({}: PageClientProps) => {
         />
       </section>
       <section className='rounded-md grid-in-grafico sm:h-full'>
-        <ProfilesChartCard
-          isLoading={isLoadingProfiles}
-          profiles={profilesForChart}
-        />
+        <GraficoCard isLoading={modelosLoading} modelos={modelosParaGrafico} />
       </section>
       <section className='rounded-md grid-in-listaModelos sm:h-full sm:max-h-full'>
-        <ProfilesList
-          isLoading={isLoadingProfiles}
-          profiles={relevantProfiles
+        <ModelosList
+          isLoading={modelosLoading}
+          modelos={modelosQueCuentan
             .sort(
               (a, b) =>
                 new Date(b.created_at).getTime() -
@@ -237,8 +233,8 @@ const PageClient = ({}: PageClientProps) => {
         <SharedCard
           popoverText='Cantidad de participantes que cuentan con la etiqueta seleccionada'
           title='Participantes'
-          content={relevantProfiles.length.toString()}
-          isLoading={isLoadingProfiles}
+          content={modelosQueCuentan.length.toString()}
+          isLoading={modelosLoading}
         />
       </section>
       <section className='rounded-md grid-in-cardRetencion sm:self-end sm:pb-2'>
@@ -246,18 +242,17 @@ const PageClient = ({}: PageClientProps) => {
           popoverText='Porcentaje de participantes que aceptaron ser contactados'
           title='Retención de participantes'
           content={
-            '0%'
-            // isNaN(retencion)
-            //   ? '0%'
-            //   : retencion % 1 === 0
-            //     ? `${retencion}%`
-            //     : `${retencion.toFixed(2)}%`
+            isNaN(retencion)
+              ? '0%'
+              : retencion % 1 === 0
+                ? `${retencion}%`
+                : `${retencion.toFixed(2)}%`
           }
-          isLoading={isLoadingProfiles}
+          isLoading={modelosLoading}
         />
       </section>
       <section className='rounded-md pb-2 grid-in-cardMensajes sm:self-end'>
-        <MensajesCard isLoading={isLoadingProfiles} cantMensajes={0} />
+        <MensajesCard isLoading={modelosLoading} cantMensajes={0} />
       </section>
     </>
   );

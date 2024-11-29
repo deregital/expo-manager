@@ -2,27 +2,27 @@
 import DeleteTemplateModal, {
   useTemplateDelete,
 } from '@/components/mensajes/DeleteTemplateModal';
-import SendTemplate from '@/components/mensajes/SendTemplate';
-import TemplatesList from '@/components/mensajes/TemplatesList';
+import EnviarTemplate from '@/components/mensajes/EnviarTemplate';
+import PlantillasList from '@/components/mensajes/PlantillasList';
 import SendTemplateModal from '@/components/mensajes/SendTemplateModal';
-import { type GetTemplatesData } from '@/server/types/whatsapp';
+import { GetTemplatesData } from '@/server/types/whatsapp';
 import React, { useState } from 'react';
 
-const MessagesPage = () => {
+const MensajesPage = () => {
   const [open, setOpen] = useState(false);
-  const [template, setTemplate] = useState<GetTemplatesData | null>(null);
-  useTemplateDelete.subscribe(({ open, template }) => {
+  const [plantilla, setPlantilla] = useState<GetTemplatesData | null>(null);
+  useTemplateDelete.subscribe(({ open, plantilla }) => {
     setOpen(open);
-    setTemplate(template);
+    setPlantilla(plantilla);
   });
   return (
     <div className='px-2'>
-      <TemplatesList />
-      <SendTemplate />
-      <DeleteTemplateModal open={open} template={template} />
+      <PlantillasList />
+      <EnviarTemplate />
+      <DeleteTemplateModal open={open} plantilla={plantilla} />
       <SendTemplateModal />
     </div>
   );
 };
 
-export default MessagesPage;
+export default MensajesPage;

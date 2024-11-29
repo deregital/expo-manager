@@ -9,7 +9,7 @@ import {
 } from '../ui/alert-dialog';
 import Loader from '../ui/loader';
 
-interface TagProps {
+interface EtiquetasProps {
   id: string;
   name: string;
   color?: string;
@@ -17,34 +17,34 @@ interface TagProps {
 
 export const useTemplateSend = create<{
   open: boolean;
-  tags: TagProps[];
-  template: string;
-  profiles: number;
-  price: number;
+  etiquetas: EtiquetasProps[];
+  plantilla: string;
+  modelos: number;
+  precio: number;
 }>(() => ({
   open: false,
-  tags: [],
-  template: '',
-  profiles: 0,
-  price: 0,
+  etiquetas: [],
+  plantilla: '',
+  modelos: 0,
+  precio: 0,
 }));
 
 const SendTemplateModal = () => {
   const templateData = useTemplateSend();
-  const sendTemplate = trpc.message.sendMessageToTags.useMutation();
+  const sendTemplate = trpc.whatsapp.sendMessageToEtiqueta.useMutation();
   async function handleSubmit() {
     const res = await sendTemplate.mutateAsync({
-      templateName: templateData.template,
-      tags: templateData.tags.map((et) => et.id),
+      plantillaName: templateData.plantilla,
+      etiquetas: templateData.etiquetas.map((et) => et.id),
     });
-    if (res.success) {
+    if (res === 'Mensajes enviados') {
       toast.success('Plantilla enviada correctamente');
       useTemplateSend.setState({
         open: false,
-        template: '',
-        tags: [],
-        profiles: 0,
-        price: 0,
+        plantilla: '',
+        etiquetas: [],
+        modelos: 0,
+        precio: 0,
       });
       return;
     } else {
@@ -62,10 +62,10 @@ const SendTemplateModal = () => {
         <h1 className='font-bold'>Enviar plantilla</h1>
         <p>
           ¿Estás seguro de que deseas enviar la plantilla{' '}
-          {templateData.template ? templateData.template : '-'} a{' '}
-          {templateData.profiles}{' '}
-          {templateData.profiles !== 1 ? 'participantes' : 'participante'} a un
-          valor de USD${templateData.price.toFixed(3)}?
+          {templateData.plantilla ? templateData.plantilla : '-'} a{' '}
+          {templateData.modelos}{' '}
+          {templateData.modelos !== 1 ? 'participantes' : 'participante'} a un
+          valor de USD${templateData.precio.toFixed(3)}?
         </p>
         <div className='flex items-center justify-end gap-x-2'>
           <button

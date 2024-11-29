@@ -1,7 +1,7 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { type FormEvent, type PropsWithChildren, useState } from 'react';
+import { FormEvent, PropsWithChildren, useState } from 'react';
 
 interface ModalPasswordProps {
   onSubmit: (password: string) => void;

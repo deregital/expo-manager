@@ -1,6 +1,6 @@
 import ChatSidebar from '@/components/chat/layout/ChatSidebar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { type Filtro } from '@/lib/filter';
+import { Filtro } from '@/lib/filter';
 import { HamburgerMenuIcon } from '@radix-ui/react-icons';
 import React from 'react';
 import { create } from 'zustand';
@@ -27,7 +27,7 @@ const ChatSidebarMobile = ({ filtro }: ChatSidebarMobileProps) => {
         <HamburgerMenuIcon />
       </SheetTrigger>
       <SheetContent className='px-0' side={'left'}>
-        <ChatSidebar filter={filtro} />
+        <ChatSidebar filtro={filtro} />
       </SheetContent>
     </Sheet>
   );

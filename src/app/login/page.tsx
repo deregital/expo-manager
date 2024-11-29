@@ -25,8 +25,8 @@ const LoginPage = () => {
       redirect('/modelos');
     }
 
-    if (res?.error) {
-      setError(res.error);
+    if (res?.status === 401) {
+      setError('Credenciales inválidas');
     }
   }
 

@@ -6,59 +6,59 @@ import React from 'react';
 import { toast } from 'sonner';
 import { useRouter, usePathname } from 'next/navigation';
 
-interface TrashCanButtonsProps {
-  isInTrash: boolean;
+interface BotonesPapeleraProps {
+  esPapelera: boolean;
   id: string;
 }
 
-const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
+const BotonesPapelera = ({ esPapelera, id }: BotonesPapeleraProps) => {
   const utils = trpc.useUtils();
   const router = useRouter();
   const pathname = usePathname();
 
-  const addCommentMutation = trpc.comment.create.useMutation({
-    onError: (error) => {
-      toast.error(error.message);
+  const agregarComentarioMutation = trpc.comentario.create.useMutation({
+    onError: () => {
+      toast.error('Error al agregar comentario');
     },
   });
 
-  const restoreMutation = trpc.profile.edit.useMutation({
+  const restoreMutation = trpc.modelo.edit.useMutation({
     onSuccess: async () => {
-      await addCommentMutation.mutateAsync({
-        profileId: id,
-        content: 'Participante restaurada de la papelera',
+      await agregarComentarioMutation.mutateAsync({
+        perfilId: id,
+        contenido: 'Participante restaurada de la papelera',
       });
       toast.success('Participante restaurada de la papelera');
-      utils.profile.getById.invalidate();
-      utils.profile.getProfilesInTrash.invalidate();
-      utils.comment.getByProfileId.invalidate(id);
+      utils.modelo.getById.invalidate();
+      utils.modelo.getModelosPapelera.invalidate();
+      utils.comentario.getByPerfilId.invalidate({ perfilId: id });
     },
     onError: () => {
       toast.error('Error al restaurar el participante de la papelera');
     },
   });
 
-  const sendToTrashMutation = trpc.profile.edit.useMutation({
-    onSuccess: async (data) => {
-      await addCommentMutation.mutateAsync({
-        profileId: id,
-        content: 'Participante enviada a la papelera',
+  const sendToTrashMutation = trpc.modelo.edit.useMutation({
+    onSuccess: async () => {
+      await agregarComentarioMutation.mutateAsync({
+        perfilId: id,
+        contenido: 'Participante enviada a la papelera',
       });
       toast.success('Participante enviada la papelera');
-      utils.profile.getById.invalidate(id);
-      utils.profile.getProfilesInTrash.invalidate();
-      utils.comment.getByProfileId.invalidate(id);
+      utils.modelo.getById.invalidate();
+      utils.modelo.getModelosPapelera.invalidate();
+      utils.comentario.getByPerfilId.invalidate({ perfilId: id });
     },
-    onError: (error) => {
+    onError: () => {
       toast.error('Error al enviar el participante a la papelera');
     },
   });
 
-  const deleteMutation = trpc.profile.delete.useMutation({
+  const deleteMutation = trpc.modelo.delete.useMutation({
     onSuccess: () => {
       toast.success('Participante eliminado definitivamente');
-      utils.profile.getProfilesInTrash.invalidate();
-      utils.profile.getById.invalidate();
+      utils.modelo.getModelosPapelera.invalidate();
+      utils.modelo.getById.invalidate();
 
       if (pathname !== '/papelera') {
         router.replace('/modelos');
@@ -71,22 +71,21 @@ const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
 
   async function handleSendToTrash() {
     try {
-      if (isInTrash) {
+      if (esPapelera) {
         toast.info('Este Participante ya fue agregado a la papelera');
         return;
       }
-
       await sendToTrashMutation.mutateAsync({
         id: id,
-        isInTrash: true,
-        movedToTrashDate: new Date(),
+        esPapelera: true,
+        fechaPapelera: new Date().toISOString(),
       });
     } catch (error) {}
   }
 
   async function handleDeletePermanently() {
     try {
-      if (!isInTrash) {
+      if (!esPapelera) {
         toast.info(
           'El participante debe estar en la papelera para eliminarlo definitivamente'
         );
@@ -98,22 +97,22 @@ const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
 
   async function handleRestoreFromTrash() {
     try {
-      if (!isInTrash) {
+      if (!esPapelera) {
         toast.info('Este Participante no está en la papelera');
         return;
       }
 
       await restoreMutation.mutateAsync({
         id: id,
-        isInTrash: false,
-        movedToTrashDate: null,
+        esPapelera: false,
+        fechaPapelera: null,
       });
     } catch (error) {}
   }
 
   return (
     <>
-      {isInTrash ? (
+      {esPapelera ? (
         <div className='flex gap-x-4'>
           <Button
             disabled={restoreMutation.isLoading || deleteMutation.isLoading}
@@ -154,4 +153,4 @@ const TrashCanButtons = ({ isInTrash, id }: TrashCanButtonsProps) => {
   );
 };
 
-export default TrashCanButtons;
+export default BotonesPapelera;

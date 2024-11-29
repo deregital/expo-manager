@@ -2,79 +2,79 @@
 import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import SearchInput from '@/components/ui/SearchInput';
-import EventModal from '@/components/eventos/eventmodal';
+import EventoModal from '@/components/eventos/eventomodal';
 import Loader from '@/components/ui/loader';
 import ExpandContractEventos, {
   useExpandEventos,
 } from '@/components/eventos/expandcontracteventos';
 import { searchNormalize } from '@/lib/utils';
 import { XIcon } from 'lucide-react';
-import EventsFolderModal from '@/components/eventos/EventsFolderModal';
-import EventsList from '@/components/eventos/eventslist';
+import EventosCarpetaModal from '@/components/eventos/EventosCarpetaModal';
+import EventosList from '@/components/eventos/eventoslist';
 
 const EventosPage = () => {
   const [search, setSearch] = useState('');
-  const { data, isLoading } = trpc.event.getAll.useQuery();
+  const { data, isLoading } = trpc.evento.getAll.useQuery();
   const { expandState, setNone } = useExpandEventos((s) => ({
     setNone: s.none,
     expandState: s.state,
   }));
 
-  const { folders: folders, withoutFolder: eventsWithoutFolder } = isLoading
-    ? { folders: [], withoutFolder: [] }
+  const { carpetas, sinCarpetas: eventosSinCarpeta } = isLoading
+    ? { carpetas: [], sinCarpetas: [] }
     : data!;
 
-  const eventsFiltered = useMemo(() => {
-    if (isLoading) return { folders: [], withoutFolder: [] };
+  const eventosFiltrados = useMemo(() => {
+    if (isLoading) return { carpetas: [], sinCarpetas: [] };
 
-    let filteredFolders = folders.filter((folder) => {
+    let filteredCarpetas = carpetas.filter((carp) => {
       return (
-        searchNormalize(folder.name, search) ||
-        folder.events.some((event) => {
+        searchNormalize(carp.nombre, search) ||
+        carp.eventos.some((evento) => {
           return (
-            searchNormalize(event.name, search) ||
-            searchNormalize(event.location, search) ||
-            event.subEvents.some((subevent) =>
-              searchNormalize(subevent.name, search)
+            searchNormalize(evento.nombre, search) ||
+            searchNormalize(evento.ubicacion, search) ||
+            evento.subEventos.some((subevento) =>
+              searchNormalize(subevento.nombre, search)
             ) ||
-            event.subEvents.some((subevent) =>
-              searchNormalize(subevent.location, search)
+            evento.subEventos.some((subevento) =>
+              searchNormalize(subevento.ubicacion, search)
             )
           );
         })
       );
     });
 
-    let filteredEventsWithoutFolder = eventsWithoutFolder.filter((event) => {
-      return !event.supraEventId;
+    let filteredEventosSinCarpeta = eventosSinCarpeta.filter((evento) => {
+      return !evento.eventoPadreId;
     });
 
     if (search !== '') {
-      filteredEventsWithoutFolder = eventsWithoutFolder.filter((event) => {
+      filteredEventosSinCarpeta = eventosSinCarpeta.filter((evento) => {
         return (
-          searchNormalize(event.name, search) ||
-          searchNormalize(event.location, search) ||
-          event.subEvents.some((subevent) =>
-            searchNormalize(subevent.name, search)
+          searchNormalize(evento.nombre, search) ||
+          searchNormalize(evento.ubicacion, search) ||
+          evento.subEventos.some((subevento) =>
+            searchNormalize(subevento.nombre, search)
           ) ||
-          event.subEvents.some((subevent) =>
-            searchNormalize(subevent.location, search)
+          evento.subEventos.some((subevento) =>
+            searchNormalize(subevento.ubicacion, search)
           )
         );
       });
     }
 
-    const orderedEvents = {
-      folders: filteredFolders.sort((a, b) => {
-        return a.name.localeCompare(b.name);
+    const eventosOrdenados = {
+      carpetas: filteredCarpetas.sort((a, b) => {
+        return a.nombre.localeCompare(b.nombre);
       }),
-      withoutFolder: filteredEventsWithoutFolder.sort((a, b) => {
-        return a.name.localeCompare(b.name);
+      sinCarpetas: filteredEventosSinCarpeta.sort((a, b) => {
+        return a.nombre.localeCompare(b.nombre);
       }),
     };
 
-    return orderedEvents;
-  }, [folders, eventsWithoutFolder, isLoading, search]);
+    return eventosOrdenados;
+  }, [carpetas, eventosSinCarpeta, isLoading, search]);
 
   return (
     <>
@@ -83,8 +83,8 @@ const EventosPage = () => {
       </p>
       <div className='flex flex-col justify-between gap-4 px-3 md:flex-row md:px-5'>
         <div className='flex flex-col gap-4 md:flex-row'>
-          <EventModal action='CREATE' />
-          <EventsFolderModal action='CREATE' /> {}
+          <EventoModal action='CREATE' />
+          <EventosCarpetaModal action='CREATE' /> {}
         </div>
         <div className='flex items-center gap-x-2'>
           <ExpandContractEventos />
@@ -101,7 +101,7 @@ const EventosPage = () => {
               }
             }}
             placeholder='Buscar evento o subevento'
-            className='pr-1.5'
+            className='pr-5'
           />
           <XIcon
             className='h-6 w-6 cursor-pointer'
@@ -118,7 +118,7 @@ const EventosPage = () => {
           </div>
         ) : (
           <div>
-            <EventsList events={eventsFiltered} />
+            <EventosList eventos={eventosFiltrados} />
           </div>
         )}
       </div>

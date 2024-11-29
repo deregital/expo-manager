@@ -2,65 +2,77 @@
 import React, { useMemo, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 
-import TagsList, {
-  type GroupWithMatch,
-} from '@/components/etiquetas/list/TagsList';
+import EtiquetasList, {
+  GrupoConMatch,
+} from '@/components/etiquetas/list/EtiquetasList';
 import SearchInput from '@/components/ui/SearchInput';
-import TagGroupModal from '@/components/etiquetas/modal/TagGroupModal';
-import TagModal from '@/components/etiquetas/modal/TagModal';
+import GrupoEtiquetaModal from '@/components/etiquetas/modal/GrupoEtiquetaModal';
+import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
 import Loader from '@/components/ui/loader';
 import { normalize, searchNormalize } from '@/lib/utils';
-import ExpandContractTags, {
-  useTagsSettings,
-} from '@/components/etiquetas/list/ExpandContractTags';
+import ExpandContractEtiquetas, {
+  useEtiquetasSettings,
+} from '@/components/etiquetas/list/ExpandContractEtiquetas';
 import { ModalTriggerCreate } from '@/components/etiquetas/modal/ModalTrigger';
 import Link from 'next/link';
 import StampIcon from '@/components/icons/StampIcon';
+import { TipoEtiqueta } from '@prisma/client';
 import SwitchEventos from '@/components/ui/SwitchEventos';
 import { XIcon } from 'lucide-react';
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useState('');
-  const { data: groups, isLoading } = trpc.tag.getByNombre.useQuery();
-  const { state: expandState, none: setNone, showEventos } = useTagsSettings();
+  const { data: grupos, isLoading } = trpc.etiqueta.getByNombre.useQuery();
+  const {
+    state: expandState,
+    none: setNone,
+    showEventos,
+  } = useEtiquetasSettings();
 
-  const filteredGroups = useMemo(() => {
-    if (!groups) return [];
+  const gruposFiltrados = useMemo(() => {
+    if (!grupos) return [];
 
     let g = showEventos
-      ? groups
-      : groups.filter((group) => {
-          return group.tags.some((tag) => tag.type !== 'EVENT');
+      ? grupos
+      : grupos.filter((grupo) => {
+          return grupo.etiquetas.some(
+            (etiqueta) => etiqueta.tipo !== TipoEtiqueta.EVENTO
+          );
         });
 
     if (search !== '') {
-      g = g.filter((group) => {
+      g = g.filter((grupo) => {
         return (
-          group.tags.some((tag) => searchNormalize(tag.name, search)) ||
-          searchNormalize(group.name, search)
+          grupo.etiquetas.some((etiqueta) =>
+            searchNormalize(etiqueta.nombre, search)
+          ) || searchNormalize(grupo.nombre, search)
         );
       });
 
       if (!g) return [];
     }
 
-    return g.map((group) => {
+    return g.map((grupo) => {
       return {
-        ...group,
+        ...grupo,
         match:
           search.length > 0 &&
-          (normalize(group.name).toLowerCase().includes(search.toLowerCase()) ||
-            group.name.toLowerCase().includes(search.toLowerCase())),
-        tags: group.tags.map((tag) => ({
-          ...tag,
+          (normalize(grupo.nombre)
+            .toLowerCase()
+            .includes(search.toLowerCase()) ||
+            grupo.nombre.toLowerCase().includes(search.toLowerCase())),
+        etiquetas: grupo.etiquetas.map((etiqueta) => ({
+          ...etiqueta,
           match:
             search.length > 0 &&
-            (normalize(tag.name).toLowerCase().includes(search.toLowerCase()) ||
-              tag.name.toLowerCase().includes(search.toLowerCase())),
+            (normalize(etiqueta.nombre)
+              .toLowerCase()
+              .includes(search.toLowerCase()) ||
+              etiqueta.nombre.toLowerCase().includes(search.toLowerCase())),
         })),
       };
     });
-  }, [groups, search, showEventos]);
+  }, [grupos, search, showEventos]);
 
   return (
     <>
@@ -69,8 +81,8 @@ const EtiquetasPage = () => {
       </p>
       <div className='flex flex-col justify-between gap-4 px-3 md:flex-row md:px-5'>
         <div className='flex flex-col gap-4 md:flex-row'>
-          <TagGroupModal action='CREATE' />
-          <TagModal action='CREATE' />
+          <GrupoEtiquetaModal action='CREATE' />
+          <EtiquetaModal action='CREATE' />
           <Link href='/asignacion'>
             <ModalTriggerCreate className='w-full md:w-fit' onClick={() => {}}>
               <StampIcon className='mr-3 h-6 w-6' />
@@ -82,10 +94,10 @@ const EtiquetasPage = () => {
           <SwitchEventos
             showEventos={showEventos}
             setShowEventos={(value) => {
-              useTagsSettings.setState({ showEventos: value });
+              useEtiquetasSettings.setState({ showEventos: value });
             }}
           />
-          <ExpandContractTags />
+          <ExpandContractEtiquetas />
           <div className='flex items-center gap-x-4'>
             <SearchInput
               value={search}
@@ -112,7 +124,7 @@ const EtiquetasPage = () => {
             <Loader />
           </div>
         ) : (
-          <TagsList groups={(filteredGroups ?? []) as GroupWithMatch[]} />
+          <EtiquetasList grupos={gruposFiltrados ?? ([] as GrupoConMatch[])} />
         )}
       </div>
     </>

@@ -1,9 +1,9 @@
-import ProfilePic from '@/components/ui/ProfilePic';
+import FotoModelo from '@/components/ui/FotoModelo';
 import { cn } from '@/lib/utils';
-import { type RouterOutputs } from '@/server';
+import { RouterOutputs } from '@/server';
 import { useChatSidebar } from '@/components/chat/layout/ChatSidebarMobile';
 import Link from 'next/link';
-import React, { type Dispatch, type SetStateAction, useRef } from 'react';
+import React, { Dispatch, SetStateAction, useRef } from 'react';
 import {
   AccordionContent,
   AccordionItem,
@@ -14,22 +14,22 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 interface VirtualizedContactsListProps {
   isOpen: string;
   setIsOpen: Dispatch<SetStateAction<string>>;
-  phoneNumberSelected: string;
-  profiles: RouterOutputs['profile']['getAllWithActiveChat'];
+  telefonoSelected: string;
+  contactos: RouterOutputs['modelo']['getAllWithInChat'];
   title: string;
 }
 
 const VirtualizedContactsList = ({
-  profiles,
+  contactos,
   isOpen,
   setIsOpen,
   title,
-  phoneNumberSelected,
+  telefonoSelected,
 }: VirtualizedContactsListProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const rowVirtualizer = useVirtualizer({
-    count: profiles.length,
+    count: contactos.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 52, // Estimación del tamaño en píxeles por cada item
   });
@@ -62,12 +62,12 @@ const VirtualizedContactsList = ({
       >
         <div className='space-y-2'>
           {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-            const profile = profiles[virtualItem.index];
-            const inPage = phoneNumberSelected === profile.phoneNumber;
+            const contacto = contactos[virtualItem.index];
+            const inPage = telefonoSelected === contacto.telefono;
             return (
               <Link
                 prefetch={false}
-                href={`/mensajes/${profile.phoneNumber}`}
+                href={`/mensajes/${contacto.telefono}`}
                 ref={rowVirtualizer.measureElement}
                 data-index={virtualItem.index}
                 onClick={() => {
@@ -88,17 +88,12 @@ const VirtualizedContactsList = ({
                   height: `${virtualItem.size}px`,
                 }}
               >
-                <ProfilePic
-                  url={profile.profilePictureUrl}
-                  className='h-8 w-8'
-                />
+                <FotoModelo url={contacto.fotoUrl} className='h-8 w-8' />
                 <div>
                   <p className='truncate text-sm font-semibold'>
-                    {profile.fullName}
+                    {contacto.nombreCompleto}
                   </p>
-                  <p className='text-xs text-slate-400'>
-                    {profile.phoneNumber}
-                  </p>
+                  <p className='text-xs text-slate-400'>{contacto.telefono}</p>
                 </div>
               </Link>
             );

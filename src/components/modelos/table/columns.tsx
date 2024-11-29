@@ -1,19 +1,20 @@
 'use client';
 
-import { ageFromBirthDate } from '@/components/modelo/ProfileEditModal';
+import { edadFromFechaNacimiento } from '@/components/modelo/ModeloEditModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { getTextColorByBg } from '@/lib/utils';
-import { type RouterOutputs } from '@/server';
-import { type ColumnDef, type SortDirection } from '@tanstack/react-table';
+import { RouterOutputs } from '@/server';
+import { TipoEtiqueta } from '@prisma/client';
+import { ColumnDef, SortDirection } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
 export function generateColumns(
   showEventos: boolean
-): ColumnDef<RouterOutputs['profile']['getAll'][number]>[] {
+): ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] {
   return [
     {
-      accessorKey: 'shortId',
+      accessorKey: 'idLegible',
       header: ({ column }) => {
         return (
           <div className='mx-auto w-14'>
@@ -35,15 +36,16 @@ export function generateColumns(
       maxSize: 50,
       enableResizing: false,
       cell: ({ row }) => {
-        return <p className='w-full text-center'>{row.original.shortId}</p>;
+        return <p className='w-full text-center'>{row.original.idLegible}</p>;
       },
     },
     {
-      accessorKey: 'fullName',
+      accessorKey: 'nombreCompleto',
       sortingFn: (rowA, rowB, dir) => {
         return (
-          rowA.original.fullName.localeCompare(rowB.original.fullName) *
-          (dir === 'asc' ? -1 : 1)
+          rowA.original.nombreCompleto.localeCompare(
+            rowB.original.nombreCompleto
+          ) * (dir === 'asc' ? -1 : 1)
         );
       },
       header: ({ column }) => {
@@ -59,7 +61,7 @@ export function generateColumns(
         );
       },
       cell: ({ row }) => {
-        return <p className='w-40 truncate'>{row.original.fullName}</p>;
+        return <p className='w-40 truncate'>{row.original.nombreCompleto}</p>;
       },
     },
     {
@@ -69,20 +71,20 @@ export function generateColumns(
       minSize: 50,
       maxSize: 50,
       cell: ({ row }) => {
-        if (row.original.birthDate === null) return <></>;
-        const edad = ageFromBirthDate(row.original.birthDate);
+        if (row.original.fechaNacimiento === null) return <></>;
+        const edad = edadFromFechaNacimiento(row.original.fechaNacimiento);
         return <p className='whitespace-nowrap'>{`${edad} años`}</p>;
       },
     },
     {
-      accessorKey: 'gender',
+      accessorKey: 'genero',
       header: 'Género',
       size: 100,
       minSize: 100,
       maxSize: 100,
     },
     {
-      accessorKey: 'phoneNumber',
+      accessorKey: 'telefono',
       header: 'Teléfono',
       size: 150,
       minSize: 150,
@@ -124,34 +126,43 @@ export function generateColumns(
       },
     },
     {
-      accessorKey: 'tags',
+      accessorKey: 'etiquetas',
       header: 'Etiquetas',
       cell: ({ row }) => {
-        const tags = row.original.tags;
+        const etiquetas = row.original.etiquetas;
 
         return (
           <div className='flex flex-1'>
-            {tags
-              .filter((etiqueta) => showEventos || etiqueta.type !== 'EVENT')
+            {etiquetas
+              .filter(
+                (etiqueta) =>
+                  showEventos || etiqueta.tipo !== TipoEtiqueta.EVENTO
+              )
               .sort((a, b) => {
-                if (a.type === 'PROFILE' && b.type !== 'PROFILE') {
+                if (
+                  a.tipo === TipoEtiqueta.PERSONAL &&
+                  b.tipo !== TipoEtiqueta.PERSONAL
+                ) {
                   return -1;
-                } else if (a.type !== 'PROFILE' && b.type === 'PROFILE') {
+                } else if (
+                  a.tipo !== TipoEtiqueta.PERSONAL &&
+                  b.tipo === TipoEtiqueta.PERSONAL
+                ) {
                   return 1;
                 } else {
                   return 0;
                 }
               })
-              .map((tag) => (
+              .map((etiqueta) => (
                 <Badge
-                  key={tag.id}
+                  key={etiqueta.id}
                   style={{
-                    backgroundColor: tag.group.color,
-                    color: getTextColorByBg(tag.group.color),
+                    backgroundColor: etiqueta.grupo.color,
+                    color: getTextColorByBg(etiqueta.grupo.color),
                   }}
                   className='mr-1 max-w-24'
                 >
-                  <span className='truncate'>{tag.name}</span>
+                  <span className='truncate'>{etiqueta.nombre}</span>
                 </Badge>
               ))}
           </div>

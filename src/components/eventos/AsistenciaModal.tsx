@@ -6,80 +6,104 @@ import ComboBox from '../ui/ComboBox';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
-import { type RouterOutputs } from '@/server';
+import { RouterOutputs } from '@/server';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 type PresentismoModal = {
   isOpen: boolean;
-  event: RouterOutputs['event']['getById'] | null;
-  profileId: string;
+  evento: RouterOutputs['evento']['getById'] | null;
+  modeloId: string;
 };
 export const usePresentismoModal = create<PresentismoModal>((set) => ({
   isOpen: false,
-  event: null,
-  profileId: '',
+  evento: null,
+  modeloId: '',
 }));
 
 const AsistenciaModal = ({ open }: { open: boolean }) => {
   const modalPresentismo = usePresentismoModal();
-  const [openProfiles, setOpenProfiles] = useState(false);
-  const { data: profiles } = trpc.profile.getAll.useQuery();
+  const [openModelos, setOpenModelos] = useState(false);
+  const { data: modelos } = trpc.modelo.getAll.useQuery();
   const utils = trpc.useUtils();
   const router = useRouter();
   const searchParams = new URLSearchParams(useSearchParams());
-  const editProfile = trpc.profile.edit.useMutation();
+  const editModelo = trpc.modelo.edit.useMutation();
 
-  const profilesData = useMemo(() => {
-    if (!profiles) return [];
-    return profiles
-      .filter((profile) =>
-        profile.tags.every(
-          (tag) =>
-            tag.id !== modalPresentismo.event?.tagAssistedId &&
-            tag.id !== modalPresentismo.event?.tagConfirmedId
+  const { data: EtiquetaAsistencia } = trpc.etiqueta.getById.useQuery(
+    modalPresentismo.evento?.etiquetaAsistioId ?? '',
+    {
+      enabled: !!modalPresentismo.evento,
+    }
+  );
+
+  const modelosData = useMemo(() => {
+    if (!modelos) return [];
+    return modelos
+      .filter((modelo) =>
+        modelo.etiquetas.every(
+          (etiqueta) =>
+            etiqueta.id !== modalPresentismo.evento?.etiquetaAsistioId &&
+            etiqueta.id !== modalPresentismo.evento?.etiquetaConfirmoId
         )
       )
-      .sort((a, b) => a.fullName.localeCompare(b.fullName));
+      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
   }, [
-    modalPresentismo.event?.tagAssistedId,
-    modalPresentismo.event?.tagConfirmedId,
-    profiles,
+    modalPresentismo.evento?.etiquetaAsistioId,
+    modalPresentismo.evento?.etiquetaConfirmoId,
+    modelos,
   ]);
 
   async function handleSubmit() {
-    if (modalPresentismo.profileId === '') {
+    if (modalPresentismo.modeloId === '') {
       toast.error('Debes seleccionar un participante');
     }
 
-    if (modalPresentismo.event === null) {
+    if (modalPresentismo.evento === null) {
       toast.error('No se ha encontrado el evento');
     }
 
-    const profile = profiles?.find(
-      (profile) => profile.id === modalPresentismo.profileId
+    const modelo = modelos?.find(
+      (modelo) => modelo.id === modalPresentismo.modeloId
     );
 
-    if (!profile) {
+    if (!modelo) {
       toast.error('No se ha encontrado el participante');
       return;
     }
 
-    const participantTagsId = profile?.tags
-      .map((tag) => tag.id)
-      .filter((tagId) => tagId !== modalPresentismo.event?.tagConfirmedId);
+    const etiquetasModelo = modelo?.etiquetas
+      .map((etiqueta) => ({
+        id: etiqueta.id,
+        nombre: etiqueta.nombre,
+        grupo: {
+          id: etiqueta.grupoId,
+          esExclusivo: etiqueta.grupo.esExclusivo,
+        },
+      }))
+      .filter(
+        (etiqueta) =>
+          etiqueta.id !== modalPresentismo.evento?.etiquetaConfirmoId
+      );
 
-    const tagAssistedId = modalPresentismo.event!.tagAssistedId;
+    const etiquetaAsistio = {
+      id: modalPresentismo.evento!.etiquetaAsistioId,
+      nombre: EtiquetaAsistencia!.nombre,
+      grupo: {
+        id: EtiquetaAsistencia!.grupo.id,
+        esExclusivo: EtiquetaAsistencia!.grupo.esExclusivo,
+      },
+    };
 
-    await editProfile.mutateAsync({
-      id: modalPresentismo.profileId,
-      tags: [...participantTagsId, tagAssistedId],
+    await editModelo.mutateAsync({
+      id: modalPresentismo.modeloId,
+      etiquetas: [...etiquetasModelo!, etiquetaAsistio],
     });
     toast.success('Participante añadido correctamente');
-    utils.profile.getByTags.invalidate();
-    usePresentismoModal.setState({ isOpen: false, profileId: '' });
+    utils.modelo.getByEtiqueta.invalidate();
+    usePresentismoModal.setState({ isOpen: false, modeloId: '' });
   }
 
-  if (!modalPresentismo.event || modalPresentismo.event === null) return;
+  if (!modalPresentismo.evento || modalPresentismo.evento === null) return;
 
   return (
     <Dialog
@@ -100,36 +124,36 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
             <ComboBox
               buttonClassName='md:w-full'
               contentClassName='sm:max-w-[--radix-popover-trigger-width]'
-              data={profilesData}
+              data={modelosData}
               id={'id'}
-              value='fullName'
-              open={openProfiles}
-              setOpen={setOpenProfiles}
+              value='nombreCompleto'
+              open={openModelos}
+              setOpen={setOpenModelos}
               wFullMobile
               triggerChildren={
                 <>
                   <span className='max-w-[calc(100%-30px)] truncate'>
-                    {modalPresentismo.profileId !== ''
-                      ? profiles?.find(
-                          (profile) => profile.id === modalPresentismo.profileId
-                        )?.fullName
+                    {modalPresentismo.modeloId !== ''
+                      ? modelos?.find(
+                          (modelo) => modelo.id === modalPresentismo.modeloId
+                        )?.nombreCompleto
                       : 'Buscar participante...'}
                   </span>
                 </>
               }
               onSelect={(id) => {
-                if (modalPresentismo.profileId === id) {
-                  usePresentismoModal.setState({ profileId: '' });
-                  setOpenProfiles(false);
+                if (modalPresentismo.modeloId === id) {
+                  usePresentismoModal.setState({ modeloId: '' });
+                  setOpenModelos(false);
                   return;
                 }
-                usePresentismoModal.setState({ profileId: id });
-                setOpenProfiles(false);
+                usePresentismoModal.setState({ modeloId: id });
+                setOpenModelos(false);
               }}
-              selectedIf={modalPresentismo.profileId}
+              selectedIf={modalPresentismo.modeloId}
             />
           </div>
-          <Button disabled={editProfile.isLoading} onClick={handleSubmit}>
+          <Button disabled={editModelo.isLoading} onClick={handleSubmit}>
             Añadir
           </Button>
         </div>
@@ -137,7 +161,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
           className='cursor-pointer text-right text-lg underline underline-offset-4 hover:text-blue-500'
           onClick={() => {
             searchParams.set('modal', 'true');
-            searchParams.set('evento', modalPresentismo.event?.id ?? '');
+            searchParams.set('evento', modalPresentismo.evento?.id ?? '');
             router.push(`/modelos?${searchParams.toString()}`);
           }}
         >

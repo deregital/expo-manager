@@ -16,26 +16,28 @@ import { useEffect, useMemo, useState } from 'react';
 import { generate } from '@pdfme/generator';
 import type { Plugin } from '@pdfme/common';
 import { barcodes, text, line, tableBeta, readOnlyText } from '@pdfme/schemas';
-import { type PDFData, presentismoPDFSchema } from '@/lib/presentismoPDFSchema';
+import { PDFData, presentismoPDFSchema } from '@/lib/presentismoPDFSchema';
 import { useProgress } from '@/hooks/eventos/presentismo/useProgress';
 import PDFIcon from '@/components/icons/PDFIcon';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 interface PresentismoPageProps {
-  eventId: string;
+  eventoId: string;
   baseUrl: string;
 }
 
-const PresentismoPage = ({ baseUrl, eventId }: PresentismoPageProps) => {
-  const { data: event, isLoading: isLoadingEvent } =
-    trpc.event.getById.useQuery(eventId);
+const PresentismoPage = ({ baseUrl, eventoId }: PresentismoPageProps) => {
+  const { data: evento, isLoading: isLoadingEvento } =
+    trpc.evento.getById.useQuery({
+      id: eventoId,
+    });
 
-  const { data: profiles, isLoading: isLoadingProfiles } =
-    trpc.profile.getByTags.useQuery(
-      event ? [event.tagConfirmedId, event.tagAssistedId] : [],
+  const { data: modelos, isLoading: modelosIsLoading } =
+    trpc.modelo.getByEtiqueta.useQuery(
+      evento ? [evento.etiquetaConfirmoId, evento.etiquetaAsistioId] : [],
       {
-        enabled: !!event,
+        enabled: !!evento,
       }
     );
 
@@ -49,57 +51,62 @@ const PresentismoPage = ({ baseUrl, eventId }: PresentismoPageProps) => {
   const [search, setSearch] = useState('');
   const router = useRouter();
 
-  const profilesData = useMemo(() => {
-    if (!profiles) return [];
-    return profiles.filter((profile) => {
-      if (profile.shortId !== null) {
+  const modelosData = useMemo(() => {
+    if (!modelos) return [];
+    return modelos.filter((modelo) => {
+      if (modelo.idLegible !== null) {
         return (
-          searchNormalize(profile.shortId.toString(), search) ||
-          searchNormalize(profile.fullName, search)
+          searchNormalize(modelo.idLegible.toString(), search) ||
+          searchNormalize(modelo.nombreCompleto, search)
         );
       }
-      return searchNormalize(profile.fullName, search);
+      return searchNormalize(modelo.nombreCompleto, search);
     });
-  }, [search, profiles]);
+  }, [search, modelos]);
 
-  const profileCount = useMemo(() => {
-    if (!profiles || !event) return 0;
-    return profiles.filter((profile) =>
-      profile.tags.find((tag) => tag.id === event.tagAssistedId)
+  const countModelos = useMemo(() => {
+    if (!modelos || !evento) return 0;
+    return modelos.filter((modelo) =>
+      modelo.etiquetas.find(
+        (etiqueta) => etiqueta.id === evento.etiquetaAsistioId
+      )
     ).length;
-  }, [event, profiles]);
+  }, [evento, modelos]);
 
   useEffect(() => {
-    if (!event) return;
-    usePresentismoModal.setState({ event: event });
-  }, [event]);
+    if (!evento) return;
+    usePresentismoModal.setState({ evento: evento });
+  }, [evento]);
 
   useEffect(() => {
     usePresentismoModal.setState({ isOpen: false });
     urlSearchParams.delete('persona');
-    router.push(`/eventos/${eventId}/presentismo`);
-  }, [eventId, router, urlSearchParams]);
+    router.push(`/eventos/${eventoId}/presentismo`);
+  }, [eventoId, router, urlSearchParams]);
 
-  const progress = useProgress(profiles ?? [], event?.tagAssistedId ?? '');
+  const progress = useProgress(modelos ?? [], evento?.etiquetaAsistioId ?? '');
 
   const handleGeneratePDF = async () => {
-    const confirmedProfiles = profilesData
-      .filter((profile) =>
-        profile.tags.find(
-          (tag) =>
-            tag.id === event?.tagConfirmedId || tag.id === event?.tagAssistedId
+    const modelosConfirmados = modelosData
+      .filter((modelo) =>
+        modelo.etiquetas.find(
+          (etiqueta) =>
+            etiqueta.id === evento?.etiquetaConfirmoId ||
+            etiqueta.id === evento?.etiquetaAsistioId
         )
       )
-      .sort((a, b) => a.fullName.localeCompare(b.fullName));
+      .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto));
 
-    const tableContent = confirmedProfiles.map(
-      (profile) =>
+    const tableContent = modelosConfirmados.map(
+      (modelo) =>
         [
-          profile.fullName,
-          profile.shortId ? profile.shortId.toString() : '',
-          profile.phoneNumber,
-          profile.dni ?? '',
-          (profile.tags.some((tag) => tag.id === event?.tagAssistedId)
+          modelo.nombreCompleto,
+          modelo.idLegible ? modelo.idLegible.toString() : '',
+          modelo.telefono,
+          modelo.dni ?? '',
+          (modelo.etiquetas.some(
+            (etiqueta) => etiqueta.id === evento?.etiquetaAsistioId
+          )
             ? 'SI'
             : '') as string,
         ] as PDFData[0]['datos'][number]
@@ -117,11 +124,11 @@ const PresentismoPage = ({ baseUrl, eventId }: PresentismoPageProps) => {
 
     const inputs: PDFData = [
       {
-        nombre: `${event?.name}`,
-        fecha: `${format(event!.date, 'dd/MM/yyyy')}`,
-        ubicacion: `${event?.location}`,
+        nombre: `${evento?.nombre}`,
+        fecha: `${format(evento!.fecha, 'dd/MM/yyyy')}`,
+        ubicacion: `${evento?.ubicacion}`,
         datos: tableContent,
-        qr: `${baseUrl}/eventos/${eventId}/presentismo`,
+        qr: `${baseUrl}/eventos/${eventoId}/presentismo`,
       },
     ];
 
@@ -135,13 +142,13 @@ const PresentismoPage = ({ baseUrl, eventId }: PresentismoPageProps) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `Evento_${event?.name}.pdf`;
+    link.download = `Evento_${evento?.nombre}.pdf`;
 
     toast.success('PDF generado con éxito');
     link.click();
   };
 
-  if (isLoadingEvent)
+  if (isLoadingEvento)
     return (
       <div className='flex items-center justify-center pt-5'>
         <Loader />
@@ -154,7 +161,7 @@ const PresentismoPage = ({ baseUrl, eventId }: PresentismoPageProps) => {
         <ArrowLeftIcon
           className='h-10 w-10 pt-3 hover:cursor-pointer'
           onClick={() => {
-            router.replace(`/eventos/${eventId}`);
+            router.replace(`/eventos/${eventoId}`);
           }}
         />
       </div>
@@ -163,13 +170,13 @@ const PresentismoPage = ({ baseUrl, eventId }: PresentismoPageProps) => {
       </div>
       <div className='grid auto-rows-auto grid-cols-2 items-center justify-center gap-x-3 pb-3 sm:flex'>
         <h3 className='col-span-2 p-2 text-center text-2xl font-semibold'>
-          {event?.name}
+          {evento?.nombre}
         </h3>
         <h3 className='p-2 text-center text-sm sm:text-base'>
-          {format(event!.date, 'yyyy-MM-dd')}
+          {format(evento!.fecha, 'yyyy-MM-dd')}
         </h3>
         <h3 className='p-2 text-center text-sm sm:text-base'>
-          {event?.location}
+          {evento?.ubicacion}
         </h3>
       </div>
       <div className='flex flex-col items-center justify-around gap-x-5 pb-5 sm:flex-row'>
@@ -179,8 +186,8 @@ const PresentismoPage = ({ baseUrl, eventId }: PresentismoPageProps) => {
         </div>
         <div>
           <h3 className='text-sm sm:text-lg'>
-            Confirmaron: {profileCount}{' '}
-            {profileCount === 1 ? 'participante' : 'participantes'}
+            Confirmaron: {countModelos}{' '}
+            {countModelos === 1 ? 'participante' : 'participantes'}
           </h3>
         </div>
       </div>
@@ -192,13 +199,13 @@ const PresentismoPage = ({ baseUrl, eventId }: PresentismoPageProps) => {
       </div>
       <DataTable
         columns={generateColumnsPresentismo({
-          asistenciaId: event!.tagAssistedId,
-          confirmoId: event!.tagConfirmedId,
+          asistenciaId: evento!.etiquetaAsistioId,
+          confirmoId: evento!.etiquetaConfirmoId,
         })}
-        data={profilesData}
-        isLoading={isLoadingProfiles}
+        data={modelosData}
+        isLoading={modelosIsLoading}
         initialSortingColumn={{
-          id: '¿Vino?' as keyof (typeof profilesData)[number],
+          id: '¿Vino?' as keyof (typeof modelosData)[number],
           desc: false,
         }}
       />

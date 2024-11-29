@@ -1,12 +1,12 @@
 import VirtualizedContactsList from '@/components/chat/layout/VirtualizedContactsList';
 import { Accordion } from '@/components/ui/accordion';
-import { type RouterOutputs } from '@/server';
+import { RouterOutputs } from '@/server';
 import React, { useState } from 'react';
 
 interface ContactosNoChatProps {
   telefonoSelected: string;
   items: {
-    contactos: RouterOutputs['profile']['getAllWithActiveChat'];
+    contactos: RouterOutputs['modelo']['getAllWithInChat'];
     title: string;
   }[];
 }
@@ -19,11 +19,11 @@ const ContactosNoChat = ({ telefonoSelected, items }: ContactosNoChatProps) => {
         {items.map(({ contactos, title }) => (
           <VirtualizedContactsList
             key={title}
-            profiles={contactos}
+            contactos={contactos}
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             title={title}
-            phoneNumberSelected={telefonoSelected}
+            telefonoSelected={telefonoSelected}
           />
         ))}
       </div>

@@ -1,5 +1,5 @@
 import * as https from 'https';
-import { type NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { Duplex } from 'stream';
 import { prisma } from '@/server/db';
 

@@ -1,11 +1,11 @@
-import { type FiltroTraducido } from '@/lib/filter';
-import { type ReadonlyURLSearchParams } from 'next/navigation';
+import { Filtro } from '@/lib/filter';
+import { ReadonlyURLSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 
-export const useSearchQuery = <T extends keyof FiltroTraducido>(
+export const useSearchQuery = <T extends keyof Filtro>(
   searchParams: ReadonlyURLSearchParams,
   query: T
-): FiltroTraducido[T] | null => {
+): Filtro[T] | null => {
   return useMemo(() => {
     const queryString = searchParams.get(query);
     if (!queryString) {
@@ -15,13 +15,13 @@ export const useSearchQuery = <T extends keyof FiltroTraducido>(
     try {
       const parsed = JSON.parse(queryString);
       if (Array.isArray(parsed)) {
-        return parsed as FiltroTraducido[T];
+        return parsed as Filtro[T];
       } else if (Number.isInteger(parsed) && typeof parsed === 'number') {
-        return parsed.toString() as FiltroTraducido[T];
+        return parsed.toString() as Filtro[T];
       }
-      return parsed as FiltroTraducido[T];
+      return parsed as Filtro[T];
     } catch (error) {
-      return queryString as FiltroTraducido[T];
+      return queryString as Filtro[T];
     }
   }, [query, searchParams]);
 };

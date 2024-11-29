@@ -1,19 +1,19 @@
-import { type RouterOutputs } from '@/server';
+import { RouterOutputs } from '@/server';
 import { useMemo } from 'react';
 
 export function useProgress(
-  profiles: RouterOutputs['profile']['getByTags'],
-  tagAssistedId: string
+  modelos: RouterOutputs['modelo']['getByEtiqueta'],
+  etiquetaAsistioId: string
 ) {
   return useMemo(() => {
-    if (!profiles) return 0;
-    const assisted = profiles.filter((profile) =>
-      profile.tags.find((tag) => tag.id === tagAssistedId)
+    if (!modelos) return 0;
+    const asistieron = modelos.filter((modelo) =>
+      modelo.etiquetas.find((etiqueta) => etiqueta.id === etiquetaAsistioId)
     ).length;
 
-    const percentage = (assisted / profiles.length) * 100;
+    const porcentaje = (asistieron / modelos.length) * 100;
 
-    if (isNaN(percentage)) return 0;
-    return percentage % 1 === 0 ? percentage : Number(percentage.toFixed(2));
-  }, [tagAssistedId, profiles]);
+    if (isNaN(porcentaje)) return 0;
+    return porcentaje % 1 === 0 ? porcentaje : Number(porcentaje.toFixed(2));
+  }, [etiquetaAsistioId, modelos]);
 }

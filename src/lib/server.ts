@@ -1,4 +1,4 @@
-import { type PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 export async function getHighestIdLegible(prisma: PrismaClient) {
   const perfilMayorIdLegible = await prisma.perfil.findFirst({

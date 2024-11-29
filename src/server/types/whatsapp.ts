@@ -1,4 +1,4 @@
-import { type CategoriaPlantilla, type EstadoPlantilla } from '@prisma/client';
+import { CategoriaPlantilla, EstadoPlantilla } from '@prisma/client';
 
 export type Body = {
   type: 'BODY';

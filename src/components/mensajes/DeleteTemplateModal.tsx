@@ -7,43 +7,43 @@ import {
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { create } from 'zustand';
-import { type GetTemplatesData } from '@/server/types/whatsapp';
+import { GetTemplatesData } from '@/server/types/whatsapp';
 import Loader from '../ui/loader';
 
 export const useTemplateDelete = create<{
   open: boolean;
-  template: GetTemplatesData | null;
+  plantilla: GetTemplatesData | null;
 }>((set) => ({
   open: false,
-  template: null,
+  plantilla: null,
 }));
 
 const DeleteTemplateModal = ({
   open,
-  template,
+  plantilla,
 }: {
   open: boolean;
-  template: GetTemplatesData | null;
+  plantilla: GetTemplatesData | null;
 }) => {
-  const deleteTemplate = trpc.message.deleteTemplate.useMutation();
+  const deleteTemplate = trpc.whatsapp.deleteTemplate.useMutation();
   const utils = trpc.useUtils();
   async function handleDelete() {
     await deleteTemplate
-      .mutateAsync(template?.id ?? '')
+      .mutateAsync({
+        titulo: plantilla ? plantilla.name : '',
+      })
       .then(() => {
-        useTemplateDelete.setState({ open: false, template: null });
+        useTemplateDelete.setState({ open: false, plantilla: null });
         toast.success('Plantilla eliminada');
-        utils.message.findTemplates.invalidate();
+        utils.whatsapp.getTemplates.invalidate();
       })
       .catch((error) => {
-        const errorMessage = JSON.parse(error.message)[0].message;
-
-        toast.error(errorMessage);
+        toast.error(error.message);
       });
   }
   function close() {
     // useTemplateDelete.setState({open: false, plantilla: null})
-    useTemplateDelete.setState({ open: false, template: null });
+    useTemplateDelete.setState({ open: false, plantilla: null });
   }
   return (
     <AlertDialog open={open}>
@@ -52,7 +52,7 @@ const DeleteTemplateModal = ({
         <h1 className='font-bold'>Eliminar plantilla</h1>
         <p>
           ¿Estás seguro de que deseas eliminar la plantilla{' '}
-          {template ? template.name : '-'}?
+          {plantilla ? plantilla.name : '-'}?
         </p>
         <div className='flex items-center justify-end gap-x-2'>
           <button

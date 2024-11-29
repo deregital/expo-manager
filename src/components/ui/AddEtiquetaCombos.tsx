@@ -2,34 +2,35 @@ import EtiquetaFillIcon from '@/components/icons/EtiquetaFillIcon';
 import EtiquetasFillIcon from '@/components/icons/EtiquetasFillIcon';
 import ComboBox from '@/components/ui/ComboBox';
 import { Button } from '@/components/ui/button';
-import { notChoosableTagTypes } from '@/lib/constants';
 import { trpc } from '@/lib/trpc';
-import { type RouterOutputs } from '@/server';
-import {
-  type GetGlobalFilterResponseDto,
-  type TagType,
-} from 'expo-backend-types';
+import { RouterOutputs } from '@/server';
+import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
+import { TipoEtiqueta } from '@prisma/client';
 import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-function availableGroups(
-  tags: GetGlobalFilterResponseDto['globalFilter'],
-  groupsData: NonNullable<RouterOutputs['tagGroup']['getAll']>
+function availableGrupos(
+  etiquetas: EtiquetaBaseConGrupoColor[],
+  gruposData: NonNullable<RouterOutputs['grupoEtiqueta']['getAll']>
 ) {
-  const internalTagTypes: TagType[] = ['PARTICIPANT', 'NOT_IN_SYSTEM'];
-
-  return groupsData.filter((group) => {
-    if (group.tags.length === 0) return false;
-    if (group.tags.every((tag) => internalTagTypes.includes(tag.type))) {
+  return gruposData.filter((grupo) => {
+    if (grupo.etiquetas.length === 0) return false;
+    if (
+      grupo.etiquetas.every(
+        (etiqueta) =>
+          etiqueta.tipo === TipoEtiqueta.MODELO ||
+          etiqueta.tipo === TipoEtiqueta.TENTATIVA
+      )
+    ) {
       return false;
     }
-    if (group.isExclusive) {
-      const tagIds = tags.map((tag) => tag.group.id);
-      return !tagIds.includes(group.id);
+    if (grupo.esExclusivo) {
+      const etiquetasIds = etiquetas.map((etiqueta) => etiqueta.grupo.id);
+      return !etiquetasIds.includes(grupo.id);
     } else {
       if (
-        group.tags.length ===
-        tags.filter((tag) => tag.group.id === group.id).length
+        grupo.etiquetas.length ===
+        etiquetas.filter((etiqueta) => etiqueta.grupo.id === grupo.id).length
       )
         return false;
     }
@@ -37,113 +38,123 @@ function availableGroups(
   });
 }
 
-function availableTags(
-  tags: GetGlobalFilterResponseDto['globalFilter'],
-  tagsData: NonNullable<RouterOutputs['tag']['getAll']>,
-  groups: ReturnType<typeof availableGroups>
+function availableEtiquetas(
+  etiquetas: EtiquetaBaseConGrupoColor[],
+  etiquetasData: NonNullable<RouterOutputs['etiqueta']['getAll']>,
+  grupos: ReturnType<typeof availableGrupos>
 ) {
-  return tagsData.filter((tag) => {
-    if (notChoosableTagTypes.includes(tag.type)) return false;
-    if (!groups.map((g) => g.id).includes(tag.group.id)) return false;
-    return !tags.map((tag) => tag.id).includes(tag.id);
+  return etiquetasData.filter((etiqueta) => {
+    if (
+      etiqueta.tipo === TipoEtiqueta.MODELO ||
+      etiqueta.tipo === TipoEtiqueta.TENTATIVA
+    )
+      return false;
+    if (!grupos.map((g) => g.id).includes(etiqueta.grupo.id)) return false;
+    return !etiquetas.map((etiqueta) => etiqueta.id).includes(etiqueta.id);
   });
 }
 
-interface AddTagCombosProps {
-  tags: GetGlobalFilterResponseDto['globalFilter'];
-  handleAddTag: (
-    addedTag: NonNullable<RouterOutputs['profile']['getById']>['tags'][number]
+interface AddEtiquetaCombosProps {
+  etiquetas: EtiquetaBaseConGrupoColor[];
+  handleAddEtiqueta: (
+    addedEtiqueta: NonNullable<
+      RouterOutputs['modelo']['getById']
+    >['etiquetas'][number]
   ) => void;
 }
 
-const AddEtiquetaCombos = ({ tags, handleAddTag }: AddTagCombosProps) => {
-  const [{ groupId, tagId }, setTagAndGroup] = useState({
-    groupId: '',
-    tagId: '',
+const AddEtiquetaCombos = ({
+  etiquetas,
+  handleAddEtiqueta,
+}: AddEtiquetaCombosProps) => {
+  const [{ grupoId, etiquetaId }, setGrupoYEtiquetas] = useState({
+    grupoId: '',
+    etiquetaId: '',
   });
-  const [groupOpen, setGroupOpen] = useState(false);
-  const [openTag, setOpenTag] = useState(false);
+  const [openGrupo, setOpenGrupo] = useState(false);
+  const [openEtiqueta, setOpenEtiqueta] = useState(false);
 
-  const { data: tagGroupsData } = trpc.tagGroup.getAll.useQuery();
-  const { data: tagsData, isLoading: isLoadingTags } =
-    groupId === ''
-      ? trpc.tag.getAll.useQuery()
-      : trpc.tag.getByGroupId.useQuery(groupId);
+  const { data: gruposData } = trpc.grupoEtiqueta.getAll.useQuery();
+  const { data: etiquetasData, isLoading: isLoadingEtiquetas } =
+    grupoId === ''
+      ? trpc.etiqueta.getAll.useQuery()
+      : trpc.etiqueta.getByGrupoEtiqueta.useQuery(grupoId);
 
-  const currentGroup = useMemo(() => {
-    return tagGroupsData?.find((group) => group.id === groupId);
-  }, [groupId, tagGroupsData]);
+  const currentGrupo = useMemo(() => {
+    return gruposData?.find((grupo) => grupo.id === grupoId);
+  }, [grupoId, gruposData]);
 
-  const availableGroupsData = useMemo(
-    () => availableGroups(tags, tagGroupsData ?? []),
-    [tags, tagGroupsData]
+  const availableGruposData = useMemo(
+    () => availableGrupos(etiquetas, gruposData ?? []),
+    [etiquetas, gruposData]
   );
 
-  const availableTagsData = useMemo(
-    () => availableTags(tags, tagsData ?? [], availableGroupsData),
-    [tags, tagsData, availableGroupsData]
+  const availableEtiquetasData = useMemo(
+    () =>
+      availableEtiquetas(etiquetas, etiquetasData ?? [], availableGruposData),
+    [etiquetas, etiquetasData, availableGruposData]
   );
 
-  const selectedTag = useMemo(() => {
-    return tagsData?.find((tag) => tag.id === tagId);
-  }, [tagId, tagsData]);
+  const selectedEtiqueta = useMemo(() => {
+    return etiquetasData?.find((etiqueta) => etiqueta.id === etiquetaId);
+  }, [etiquetaId, etiquetasData]);
 
   return (
     <div className='mt-2 flex flex-col gap-2 md:flex-row'>
       <ComboBox
-        open={groupOpen}
-        setOpen={setGroupOpen}
-        data={availableGroupsData ?? []}
+        open={openGrupo}
+        setOpen={setOpenGrupo}
+        data={availableGruposData ?? []}
         id='id'
         wFullMobile
         triggerChildren={
           <>
             <span className='max-w-[calc(100%-30px)] truncate'>
-              {groupId ? currentGroup?.name : 'Buscar grupo...'}
+              {grupoId ? currentGrupo?.nombre : 'Buscar grupo...'}
             </span>
             <EtiquetasFillIcon className='h-5 w-5' />
           </>
         }
-        value='name'
+        value='nombre'
         onSelect={(value) => {
-          if (value === groupId) {
-            setTagAndGroup({
-              groupId: '',
-              tagId,
+          if (value === grupoId) {
+            setGrupoYEtiquetas({
+              grupoId: '',
+              etiquetaId: etiquetaId,
             });
           } else {
-            setTagAndGroup({
-              groupId: value,
-              tagId,
+            setGrupoYEtiquetas({
+              grupoId: value,
+              etiquetaId: etiquetaId,
             });
           }
-          setGroupOpen(false);
+          setOpenGrupo(false);
         }}
-        enabled={availableGroupsData.map((group) => group.id)}
-        selectedIf={groupId}
+        enabled={availableGruposData.map((grupo) => grupo.id)}
+        selectedIf={grupoId}
       />
       <ComboBox
-        open={openTag}
-        setOpen={setOpenTag}
-        data={availableTagsData ?? []}
+        open={openEtiqueta}
+        setOpen={setOpenEtiqueta}
+        data={availableEtiquetasData ?? []}
         id='id'
-        value='name'
+        value='nombre'
         onSelect={(value) => {
-          setTagAndGroup({
-            groupId: groupId,
-            tagId: value,
+          setGrupoYEtiquetas({
+            grupoId: grupoId,
+            etiquetaId: value,
           });
-          setOpenTag(false);
+          setOpenEtiqueta(false);
         }}
         wFullMobile
-        isLoading={isLoadingTags}
-        selectedIf={tagId}
+        isLoading={isLoadingEtiquetas}
+        selectedIf={etiquetaId}
         triggerChildren={
           <>
             <span className='truncate'>
-              {tagId !== ''
-                ? (tagsData?.find((tag) => tag.id === tagId)?.name ??
-                  'Buscar etiqueta...')
+              {etiquetaId !== ''
+                ? (etiquetasData?.find((etiqueta) => etiqueta.id === etiquetaId)
+                    ?.nombre ?? 'Buscar etiqueta...')
                 : 'Buscar etiqueta...'}
             </span>
             <EtiquetaFillIcon className='h-5 w-5' />
@@ -152,11 +163,8 @@ const AddEtiquetaCombos = ({ tags, handleAddTag }: AddTagCombosProps) => {
       />
       <Button
         onClick={() => {
-          if (selectedTag) {
-            handleAddTag(
-              // TODO: Fix this type
-              selectedTag
-            );
+          if (selectedEtiqueta) {
+            handleAddEtiqueta(selectedEtiqueta);
           } else {
             toast.error('Selecciona una etiqueta');
           }
