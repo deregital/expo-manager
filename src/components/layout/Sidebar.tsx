@@ -11,11 +11,11 @@ import TemplateIcon from '@/components/icons/TemplateIcon';
 import SidebarFiltroBase from '@/components/layout/SidebarFiltroBase';
 import SidebarLink from '@/components/layout/SidebarLink';
 import Image from 'next/image';
-import ModeloFillIcon from '../icons/ModeloFillIcon';
-import ModeloIcon from '../icons/ModeloIcon';
+import ProfileFillIcon from '../icons/ProfileFillIcon';
+import ProfileIcon from '../icons/ProfileIcon';
 import PapeleraIcon from '../icons/PapeleraIcon';
 import PapeleraFillIcon from '../icons/PapeleraFillIcon';
-import SidebarLinkMensajes from '@/components/layout/SidebarLinkMensajes';
+import SidebarLinkMensajes from '@/components/layout/SidebarLinkMessages';
 import MapIcon from '../icons/MapIcon';
 import MapFillIcon from '../icons/MapFillIcon';
 
@@ -41,8 +41,8 @@ const Sidebar = () => {
           <SidebarLinkMensajes />
           <SidebarLink
             to={['/modelos', '/modelo']}
-            icon={<ModeloIcon height={24} width={24} />}
-            iconActive={<ModeloFillIcon height={24} width={24} />}
+            icon={<ProfileIcon height={24} width={24} />}
+            iconActive={<ProfileFillIcon height={24} width={24} />}
           >
             Base de Datos
           </SidebarLink>

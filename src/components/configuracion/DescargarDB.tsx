@@ -105,7 +105,7 @@ const DescargarDB = ({}: DescargarDBProps) => {
         return;
       }
 
-      const uint8Array = new Uint8Array(zipData.data);
+      const uint8Array = new Uint8Array(zipData);
 
       const blob = new Blob([uint8Array], { type: 'application/zip' });
       const url = window.URL.createObjectURL(blob);

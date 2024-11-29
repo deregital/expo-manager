@@ -1,78 +1,28 @@
-import { protectedProcedure, router } from '@/server/trpc';
-import { z } from 'zod';
+import { handleError, protectedProcedure, router } from '@/server/trpc';
+import { updateGlobalFilterSchema } from 'expo-backend-types';
 
-export const cuentaRouter = router({
-  updateFiltroBase: protectedProcedure
-    .input(
-      z.object({
-        activo: z.boolean(),
-        etiquetas: z.array(z.string().uuid()).optional(),
-      })
-    )
+export const accountRouter = router({
+  updateGlobalFilter: protectedProcedure
+    .input(updateGlobalFilterSchema)
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.session?.user?.id;
-      if (!userId) {
-        throw new Error('No se ha encontrado el usuario');
-      }
-
-      await ctx.prisma.cuenta.update({
-        where: {
-          id: userId,
-        },
-        data: {
-          filtroBaseActivo: input.activo,
-          filtroBase: {
-            set: input.etiquetas ? input.etiquetas.map((id) => ({ id })) : [],
-          },
-        },
+      const { data } = await ctx.fetch.PATCH('/account/global-filter', {
+        body: input,
       });
 
-      return true;
+      return data!;
     }),
-  getFiltroBase: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session?.user?.id;
-    if (!userId) {
-      throw new Error('No se ha encontrado el usuario');
+  getGlobalFilter: protectedProcedure.query(async ({ ctx }) => {
+    const { data, error } = await ctx.fetch.GET('/account/global-filter');
+
+    if (error) {
+      throw handleError(error);
     }
 
-    const cuenta = await ctx.prisma.cuenta.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        filtroBaseActivo: true,
-        filtroBase: {
-          select: {
-            id: true,
-            nombre: true,
-            tipo: true,
-            grupo: {
-              select: {
-                id: true,
-                esExclusivo: true,
-                color: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    return {
-      activo: cuenta?.filtroBaseActivo ?? false,
-      etiquetas: cuenta?.filtroBase,
-    };
+    return data!;
   }),
   getMe: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session?.user?.id;
-    if (!userId) {
-      throw new Error('No se ha encontrado el usuario');
-    }
+    const { data } = await ctx.fetch.GET('/account/me');
 
-    return ctx.prisma.cuenta.findUnique({
-      where: {
-        id: userId,
-      },
-    });
+    return data;
   }),
 });

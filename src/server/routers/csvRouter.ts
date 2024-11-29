@@ -83,7 +83,7 @@ export const csvRouter = router({
           if (table.charAt(0) === '_' || table.charAt(0) === '$') {
             continue;
           }
-          if (table === 'perfil' || table === 'cuenta') {
+          if (table === 'profile' || table === 'account') {
             dataTables.push(
               await (ctx.prisma as any)[table].findMany({
                 include: {
@@ -113,13 +113,11 @@ export const csvRouter = router({
             dataTables[i][0] ? Object.keys(dataTables[i][0]) : undefined
           );
           dataTables[i].forEach((row: any) => {
-            row.etiquetas = row.etiquetas
-              ? row.etiquetas.map((etiqueta: any) => etiqueta.id).join('+')
+            row.tags = row.tags
+              ? row.tags.map((etiqueta: any) => etiqueta.id).join('+')
               : undefined;
-            row.comentarios = row.comentarios
-              ? row.comentarios
-                  .map((comentario: any) => comentario.id)
-                  .join('+')
+            row.comments = row.comments
+              ? row.comments.map((comment: any) => comment.id).join('+')
               : undefined;
             csvStream.write(row);
             worksheet.addRow(Object.values(row));

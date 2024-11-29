@@ -1,15 +1,15 @@
 'use client';
 
-import EtiquetasComboYList from '@/components/etiquetas/asignacion/EtiquetasComboYList';
-import ModelosComboYList, {
-  asignacionSelectedData,
-} from '@/components/etiquetas/asignacion/ModelosComboYList';
-import Filtro from '@/components/ui/filtro/Filtro';
+import TagsComboAndList from '@/components/etiquetas/allocation/TagsComboAndList';
+import ProfilesComboAndList, {
+  allocationSelectedData,
+} from '@/components/etiquetas/allocation/ProfilesComboAndList';
+import Filter from '@/components/ui/filtro/Filtro';
 import { Button } from '@/components/ui/button';
 import Loader from '@/components/ui/loader';
-import { FuncionFiltrar, filterModelos } from '@/lib/filter';
+import { type FuncionFiltrar, filterProfiles } from '@/lib/filter';
 import { trpc } from '@/lib/trpc';
-import { RouterOutputs } from '@/server';
+import { type RouterOutputs } from '@/server';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
@@ -19,96 +19,96 @@ interface AsignacionPageProps {}
 
 const AsignacionPage = ({}: AsignacionPageProps) => {
   const utils = trpc.useUtils();
-  const asignar = trpc.etiqueta.setMasivo.useMutation();
-  const desasignar = trpc.etiqueta.unsetMasivo.useMutation();
+  const allocate = trpc.tag.massiveAllocation.useMutation();
+  const deallocate = trpc.tag.masiveDeallocation.useMutation();
   const router = useRouter();
 
-  const { data: modelos, isLoading: modelosLoading } =
-    trpc.modelo.getAll.useQuery();
+  const { data: profiles, isLoading: isLoadingProfiles } =
+    trpc.profile.getAll.useQuery();
 
-  const [modelosFiltradas, setModelosFiltradas] = useState<
-    RouterOutputs['modelo']['getAll']
-  >(modelos ?? []);
+  const [filteredProfiles, setFilteredProfiles] = useState<
+    RouterOutputs['profile']['getAll']
+  >(profiles ?? []);
 
   const {
-    etiquetas: etiquetasList,
-    modelos: modelosList,
-    clearEtiquetas,
-    clearModelos,
-    clearGrupo,
-  } = asignacionSelectedData();
+    tagsList,
+    profiles: profileList,
+    clearTags,
+    clearProfiles,
+    clearGroup,
+  } = allocationSelectedData();
 
-  const filtrarModelos: FuncionFiltrar = (filter) => {
-    if (!modelos) return;
-    setModelosFiltradas(filterModelos(modelos, filter));
+  const filter: FuncionFiltrar = (filter) => {
+    if (!profiles) return;
+    setFilteredProfiles(filterProfiles(profiles, filter));
   };
 
-  async function asignarEtiquetas() {
-    const etiquetaIds = etiquetasList.map((e) => e.id);
-    const modeloIds = modelosList.map((m) => m.id);
+  async function allocateTags() {
+    const tagIds = tagsList.map((t) => t.id);
+    const profileIds = profileList.map((m) => m.id);
 
     // chequeo para no agregar etiquetas bloqueantes a modelos que ya tengan etiquetas bloqueantes
-    for (const modelo of modelosList) {
-      const etiquetasNuevas = etiquetasList.filter(
-        (e) => !modelo.etiquetas.find((et) => et.id === e.id)
+    for (const profile of profileList) {
+      const newTags = tagsList.filter(
+        (t) => !profile.tags.find((et) => et.id === t.id)
       );
 
-      if (etiquetasNuevas.length === 0) continue;
+      if (newTags.length === 0) continue;
 
-      const etiquetasConMismoGrupo = etiquetasNuevas.filter((e) =>
-        modelo.etiquetas.map((et) => et.grupoId).includes(e.grupoId)
+      const tagsSameGroup = newTags.filter((t) =>
+        profile.tags.map((tag) => tag.groupId).includes(t.groupId)
       );
 
-      const etiquetasCoincidentes = [
-        ...etiquetasConMismoGrupo.filter((e) => e.grupo.esExclusivo),
-        ...modelo.etiquetas.filter(
-          (et) =>
-            etiquetasConMismoGrupo.map((e) => e.grupoId).includes(et.grupoId) &&
-            et.grupo.esExclusivo
+      const sameTags = [
+        ...tagsSameGroup.filter((e) => e.group.isExclusive),
+        ...profile.tags.filter(
+          (tag) =>
+            tagsSameGroup.map((t) => t.groupId).includes(tag.groupId) &&
+            tag.group.isExclusive
         ),
       ];
 
-      if (etiquetasCoincidentes.filter((e) => e.grupo.esExclusivo).length > 0) {
+      if (sameTags.filter((t) => t.group.isExclusive).length > 0) {
         toast.error(
-          `El participante ${modelo.nombreCompleto} ya tiene asignadas etiquetas exclusivas del mismo grupo: ` +
-            etiquetasCoincidentes
-              .filter((e) => e.grupo.esExclusivo)
-              .map((e) => e.nombre)
+          `El participante ${profile.fullName} ya tiene asignadas etiquetas exclusivas del mismo grupo: ` +
+            sameTags
+              .filter((e) => e.group.isExclusive)
+              .map((e) => e.name)
               .join(', ')
         );
         return;
       }
     }
 
-    await asignar
+    await allocate
       .mutateAsync({
-        etiquetaIds,
-        modeloIds,
+        tagIds,
+        profileIds: profileIds,
       })
       .then(() => {
         toast.success('Etiquetas asignadas correctamente');
-        clearModelos();
-        clearEtiquetas();
-        clearGrupo();
-        utils.modelo.getAll.invalidate();
+        clearProfiles();
+        clearTags();
+        clearGroup();
+        utils.profile.getAll.invalidate();
       });
   }
 
   async function desasignarEtiquetas() {
-    const etiquetaIds = etiquetasList.map((e) => e.id);
-    const modeloIds = modelosList.map((m) => m.id);
+    const tagIds = tagsList.map((e) => e.id);
+    const profileIds = profileList.map((m) => m.id);
 
-    await desasignar
+    await deallocate
       .mutateAsync({
-        etiquetaIds,
-        modeloIds,
+        tagIds,
+        profileIds: profileIds,
       })
       .then(() => {
         toast.success('Etiquetas desasignadas correctamente');
-        clearModelos();
-        clearEtiquetas();
-        clearGrupo();
-        utils.modelo.getAll.invalidate();
+        clearProfiles();
+        clearTags();
+        clearGroup();
+        utils.profile.getAll.invalidate();
       });
   }
 
@@ -123,19 +123,14 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
           Asignación masiva de etiquetas
         </h1>
       </div>
-      <Filtro
-        className='py-1'
-        funcionFiltrado={filtrarModelos}
-        mostrarEtiq
-        mostrarInput
-      />
+      <Filter className='py-1' filterFunction={filter} showTag showInput />
       <div className='flex h-auto gap-x-2 border-t-[1px] border-t-black/20 p-3 md:p-5 '>
         <div className='flex-1'>
-          <ModelosComboYList
-            modelos={modelosFiltradas}
-            modelosLoading={modelosLoading}
+          <ProfilesComboAndList
+            profiles={filteredProfiles}
+            profilesLoading={isLoadingProfiles}
           />
-          {modelosList.length === 0 && (
+          {profileList.length === 0 && (
             <p className='mt-2'>
               Seleccione los participantes a los que quiere asignarle o
               desasignarle etiquetas
@@ -143,8 +138,8 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
           )}
         </div>
         <div className='flex-1'>
-          <EtiquetasComboYList />
-          {etiquetasList.length === 0 && (
+          <TagsComboAndList />
+          {tagsList.length === 0 && (
             <p className='mt-2'>
               Seleccione las etiquetas que quiere asignar o desasignar de los
               participantes
@@ -155,27 +150,27 @@ const AsignacionPage = ({}: AsignacionPageProps) => {
       <div className='ml-4 flex gap-x-4'>
         <Button
           className='mt-4'
-          onClick={() => asignarEtiquetas()}
+          onClick={() => allocateTags()}
           disabled={
-            etiquetasList.length === 0 ||
-            modelosList.length === 0 ||
-            desasignar.isLoading ||
-            asignar.isLoading
+            tagsList.length === 0 ||
+            profileList.length === 0 ||
+            deallocate.isLoading ||
+            allocate.isLoading
           }
         >
-          {asignar.isLoading ? <Loader /> : 'Asignar'}
+          {allocate.isLoading ? <Loader /> : 'Asignar'}
         </Button>
         <Button
           className='mt-4'
           onClick={() => desasignarEtiquetas()}
           disabled={
-            etiquetasList.length === 0 ||
-            modelosList.length === 0 ||
-            desasignar.isLoading ||
-            asignar.isLoading
+            tagsList.length === 0 ||
+            profileList.length === 0 ||
+            deallocate.isLoading ||
+            allocate.isLoading
           }
         >
-          {desasignar.isLoading || asignar.isLoading ? (
+          {deallocate.isLoading || allocate.isLoading ? (
             <Loader />
           ) : (
             'Desasignar'

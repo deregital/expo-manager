@@ -1,69 +1,68 @@
 import * as React from 'react';
-import FotoModelo from '@/components/ui/FotoModelo';
+import ProfilePic from '@/components/ui/ProfilePic';
 import { trpc } from '@/lib/trpc';
 import Link from 'next/link';
-import ModeloFillIcon from '@/components/icons/ModeloFillIcon';
+import ProfileFillIcon from '@/components/icons/ProfileFillIcon';
 import WhatsappIcon from '@/components/icons/WhatsappIcon';
 import { parsePhoneNumber } from 'libphonenumber-js';
 
 interface ChatTopbarProps {
-  telefono: string;
+  phoneNumber: string;
   inChat: boolean;
 }
 
-const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
-  const { data: perfil } = trpc.modelo.getByTelefono.useQuery(telefono, {
-    enabled: !!telefono,
-  });
+const ChatTopbar = ({ phoneNumber: phoneNumber, inChat }: ChatTopbarProps) => {
+  const { data: profile } = trpc.profile.getByPhoneNumber.useQuery(
+    phoneNumber,
+    {
+      enabled: !!phoneNumber,
+    }
+  );
 
-  const formatTelefono = (telefono: string) => {
+  const formatPhoneNumber = (phone: string) => {
     try {
-      const numberWithPlus = telefono.startsWith('+')
-        ? telefono
-        : `+${telefono}`;
-      const phoneNumber = parsePhoneNumber(numberWithPlus);
+      const numberWithPlus = phone.startsWith('+') ? phone : `+${phone}`;
+      const parsedPhoneNumber = parsePhoneNumber(numberWithPlus);
 
-      if (phoneNumber?.isValid()) {
-        return phoneNumber.formatInternational().replace('+', '');
+      if (parsedPhoneNumber?.isValid()) {
+        return parsedPhoneNumber.formatInternational().replace('+', '');
       }
 
-      return telefono;
+      return phone;
     } catch (error) {
       console.error('Error al formatear el número:', error);
-      return telefono;
+      return phone;
     }
   };
 
   return (
     <div className='flex min-h-14 w-full items-center justify-between bg-white px-2'>
-      {perfil && (
+      {profile && (
         <div className='flex w-full items-center justify-between'>
           <div className='flex items-center gap-x-2'>
             <div className='flex items-center gap-x-2'>
-              <FotoModelo
+              <ProfilePic
                 className='my-0.5'
-                alt={`Foto de ${perfil.nombreCompleto}`}
-                url={perfil.fotoUrl}
+                alt={`Foto de ${profile.fullName}`}
+                url={profile.profilePictureUrl}
               />
-              <p className='font-bold'>{perfil.nombreCompleto}</p>
-              <p className='text-nowrap text-gray-500'>
-                ID: {perfil.idLegible}
-              </p>
+              <p className='font-bold'>{profile.fullName}</p>
+              <p className='text-nowrap text-gray-500'>ID: {profile.shortId}</p>
             </div>
             <div className='flex flex-1 items-center gap-x-2'>
               <Link
-                href={`/modelo/${perfil.id}`}
+                href={`/modelo/${profile.id}`}
                 className='flex items-center justify-center rounded bg-gray-200 p-1'
                 title='Ir a la vista de la modelo'
               >
-                <ModeloFillIcon className='size-5' />
+                <ProfileFillIcon className='size-5' />
               </Link>
             </div>
           </div>
           <div className='flex items-center gap-x-1'>
             <Link
               title='Enviar mensaje por WhatsApp'
-              href={`https://wa.me/${perfil.telefono}`}
+              href={`https://wa.me/${profile.phoneNumber}`}
               target='_blank'
               rel='noreferrer'
               className='flex items-center justify-center rounded bg-gray-200 p-1'
@@ -71,7 +70,7 @@ const ChatTopbar = ({ telefono, inChat }: ChatTopbarProps) => {
               <WhatsappIcon className='size-5 fill-lime-600' />
             </Link>
             <p className='text-nowrap'>
-              <span>{formatTelefono(perfil.telefono)}</span>
+              <span>{formatPhoneNumber(profile.phoneNumber)}</span>
               <span className='ml-2 hidden text-gray-400 md:inline-block'>
                 {inChat ? 'Activo' : 'Inactivo'}
               </span>

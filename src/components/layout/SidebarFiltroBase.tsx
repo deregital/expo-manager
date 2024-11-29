@@ -10,16 +10,18 @@ interface SidebarFiltroBaseProps {}
 
 const SidebarFiltroBase = ({}: SidebarFiltroBaseProps) => {
   const utils = trpc.useUtils();
-  const { data: filtroBaseData, isLoading: filtroBaseLoading } =
-    trpc.cuenta.getFiltroBase.useQuery(undefined, {
+  const { data: globalFilterData, isLoading: globalFilterLoading } =
+    trpc.account.getGlobalFilter.useQuery(undefined, {
       onSuccess(data) {
-        setIsChecked(data.activo);
+        setIsChecked(data.isGlobalFilterActive);
       },
     });
-  const { mutateAsync: updateFiltroBase } =
-    trpc.cuenta.updateFiltroBase.useMutation();
+  const { mutateAsync: updateGlobalFilter } =
+    trpc.account.updateGlobalFilter.useMutation();
 
-  const [isChecked, setIsChecked] = useState(filtroBaseData?.activo ?? false);
+  const [isChecked, setIsChecked] = useState(
+    globalFilterData?.isGlobalFilterActive ?? false
+  );
 
   return (
     <div
@@ -38,11 +40,11 @@ const SidebarFiltroBase = ({}: SidebarFiltroBaseProps) => {
             isChecked ? 'text-black/85' : 'text-gray-400'
           )}
         >
-          {filtroBaseData?.etiquetas?.length ? (
-            filtroBaseData?.etiquetas?.length > 0 && (
+          {globalFilterData?.globalFilter?.length ? (
+            globalFilterData?.globalFilter?.length > 0 && (
               <span>
-                {filtroBaseData?.etiquetas?.length}{' '}
-                {`etiqueta${filtroBaseData?.etiquetas?.length > 1 ? 's' : ''}`}
+                {globalFilterData?.globalFilter?.length}{' '}
+                {`etiqueta${globalFilterData?.globalFilter?.length > 1 ? 's' : ''}`}
               </span>
             )
           ) : (
@@ -51,19 +53,19 @@ const SidebarFiltroBase = ({}: SidebarFiltroBaseProps) => {
         </p>
       </div>
       <Switch
-        disabled={filtroBaseLoading}
+        disabled={globalFilterLoading}
         checked={isChecked}
-        onCheckedChange={async (activo) => {
-          setIsChecked(activo);
-          await updateFiltroBase({
-            activo,
-            etiquetas: filtroBaseData?.etiquetas?.map((e) => e.id),
+        onCheckedChange={async (active) => {
+          setIsChecked(active);
+          await updateGlobalFilter({
+            active,
+            tagsIds: globalFilterData?.globalFilter?.map((e) => e.id) ?? [],
           }).catch(() => {
-            setIsChecked(!activo);
+            setIsChecked(!active);
           });
-          utils.cuenta.getFiltroBase.invalidate();
-          utils.modelo.invalidate();
-          toast.success(activo ? 'Filtro activado' : 'Filtro desactivado');
+          utils.account.getGlobalFilter.invalidate();
+          utils.profile.invalidate();
+          toast.success(active ? 'Filtro activado' : 'Filtro desactivado');
         }}
       />
     </div>

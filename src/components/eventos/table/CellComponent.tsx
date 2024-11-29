@@ -1,70 +1,42 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
-import { RouterOutputs } from '@/server';
-import { Row } from '@tanstack/react-table';
+import { type RouterOutputs } from '@/server';
+import { type Row } from '@tanstack/react-table';
 import { CheckIcon, PlusIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const CellComponent = ({
   row,
-  confirmoAsistenciaId,
-  asistioId,
+  confirmedAssistanceId,
+  assistedId,
 }: {
-  row: Row<RouterOutputs['modelo']['getAll'][number]>;
-  confirmoAsistenciaId: string;
-  asistioId: string;
+  row: Row<RouterOutputs['profile']['getAll'][number]>;
+  confirmedAssistanceId: string;
+  assistedId: string;
 }) => {
-  const etiquetasId = row.original.etiquetas.map(
-    (etiqueta: any) => etiqueta.id
-  );
-  const { data: etiquetaConfirmo } = trpc.etiqueta.getById.useQuery(
-    confirmoAsistenciaId,
-    {
-      enabled: !!row.original,
-    }
-  );
-  const editModelo = trpc.modelo.edit.useMutation();
+  const tagsId = row.original.tags.map((tag) => tag.id);
+  const editProfile = trpc.profile.edit.useMutation();
   const useUtils = trpc.useUtils();
 
   async function addPresentismo(
-    modelo: RouterOutputs['modelo']['getAll'][number]
+    profile: RouterOutputs['profile']['getAll'][number]
   ) {
     toast.loading('Agregando al presentismo');
-    const etiquetasId = modelo.etiquetas.map((etiqueta) => {
-      return {
-        id: etiqueta.id,
-        grupo: {
-          id: etiqueta.grupoId,
-          esExclusivo: etiqueta.grupo.esExclusivo,
-        },
-        nombre: etiqueta.nombre,
-      };
-    });
-    await editModelo.mutateAsync({
-      id: modelo.id,
-      etiquetas: [
-        ...etiquetasId,
-        {
-          id: etiquetaConfirmo!.id,
-          grupo: {
-            id: etiquetaConfirmo!.grupo.id,
-            esExclusivo: etiquetaConfirmo!.grupo.esExclusivo,
-          },
-          nombre: etiquetaConfirmo!.nombre,
-        },
-      ],
+    const tagsId = profile.tags.map((tag) => tag.id);
+    await editProfile.mutateAsync({
+      id: profile.id,
+      tags: [...tagsId, confirmedAssistanceId],
     });
     toast.dismiss();
     toast.success('Se agregó al presentismo');
-    useUtils.modelo.getAll.invalidate();
-    useUtils.modelo.getByEtiqueta.invalidate();
+    useUtils.profile.getAll.invalidate();
+    useUtils.profile.getByTags.invalidate();
   }
 
   return (
     <div className='flex flex-wrap items-center justify-center gap-1'>
-      {etiquetasId.includes(confirmoAsistenciaId) ||
-      etiquetasId.includes(asistioId) ? (
+      {tagsId.includes(confirmedAssistanceId) || tagsId.includes(assistedId) ? (
         <div className='flex items-center justify-center gap-x-2'>
           <p>En presentismo</p>
           <CheckIcon className='h-6 w-6' />
@@ -72,7 +44,7 @@ export const CellComponent = ({
       ) : (
         <>
           <Button
-            disabled={editModelo.isLoading}
+            disabled={editProfile.isLoading}
             className='px-1'
             onClick={() => {
               if (!row.original.id) {

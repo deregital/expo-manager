@@ -1,47 +1,49 @@
 'use client';
-import ModeloPageContent, {
-  useModeloData,
-} from '@/components/modelo/ModeloPageContent';
+import ProfilePageContent, {
+  useProfileData,
+} from '@/components/modelo/ProfilePageContent';
 import Loader from '@/components/ui/loader';
 import { trpc } from '@/lib/trpc';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
-interface ModeloPageProps {
+interface ProfilePageProps {
   params: {
     modeloId: string;
   };
 }
 
-const ModeloPage = ({ params }: ModeloPageProps) => {
-  const { data: modelo, isLoading: isLoadingModelo } =
-    trpc.modelo.getById.useQuery(params.modeloId);
+const ProfilePage = ({ params }: ProfilePageProps) => {
+  const { data: profile, isLoading: isLoadingProfile } =
+    trpc.profile.getById.useQuery(params.modeloId, {
+      enabled: !!params.modeloId,
+    });
   const {
-    data: comentarios,
-    isLoading: isLoadingComentarios,
-    isRefetching: isRefetchingComentarios,
-  } = trpc.comentario.getByPerfilId.useQuery({ perfilId: params.modeloId });
+    data: comments,
+    isLoading: isLoadingComments,
+    isRefetching: isRefetchingComments,
+  } = trpc.comment.getByProfileId.useQuery(params.modeloId);
 
   const router = useRouter();
 
   useEffect(() => {
-    if (isRefetchingComentarios) return;
-    if (isLoadingModelo || isLoadingComentarios) return;
+    if (isRefetchingComments) return;
+    if (isLoadingProfile || isLoadingComments) return;
 
-    if (!modelo || !comentarios) return;
+    if (!profile || !comments) return;
 
-    useModeloData.setState({
-      id: modelo.id,
-      etiquetas: modelo.etiquetas,
-      comentarios: comentarios,
+    useProfileData.setState({
+      id: profile.id,
+      tags: profile.tags,
+      comments: comments.comments,
     });
   }, [
-    modelo,
-    isLoadingModelo,
-    isLoadingComentarios,
-    comentarios,
-    isRefetchingComentarios,
+    profile,
+    isLoadingProfile,
+    isLoadingComments,
+    comments,
+    isRefetchingComments,
   ]);
 
   return (
@@ -54,15 +56,15 @@ const ModeloPage = ({ params }: ModeloPageProps) => {
           }}
         />
       </div>
-      {isLoadingModelo || isLoadingComentarios || !modelo || !comentarios ? (
+      {isLoadingProfile || isLoadingComments || !profile || !comments ? (
         <div className='flex h-full w-full items-center justify-center'>
           <Loader />
         </div>
       ) : (
-        <ModeloPageContent modelo={modelo} />
+        <ProfilePageContent profile={profile} />
       )}
     </div>
   );
 };
 
-export default ModeloPage;
+export default ProfilePage;

@@ -3,65 +3,75 @@ import ListaEtiquetas from '@/components/ui/ListaEtiquetas';
 import Loader from '@/components/ui/loader';
 import { Switch } from '@/components/ui/switch';
 import { trpc } from '@/lib/trpc';
-import { EtiquetaBaseConGrupoColor } from '@/server/types/etiquetas';
+import { type RouterOutputs } from '@/server';
+import { type GetGlobalFilterResponseDto } from 'expo-backend-types';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 
-interface ActualizarFiltroBaseProps {}
+interface UpdateGlobalFilterProps {}
 
-export const useEtiquetasFiltroBase = create<{
-  etiquetas: EtiquetaBaseConGrupoColor[];
-  activo: boolean;
-  agregarEtiqueta: (etiqueta: EtiquetaBaseConGrupoColor) => void;
-  eliminarEtiqueta: (etiqueta: EtiquetaBaseConGrupoColor) => void;
+export const useTagsGlobalFilter = create<{
+  tags: RouterOutputs['account']['getGlobalFilter']['globalFilter'];
+  active: boolean;
+  addTag: (
+    tag: RouterOutputs['account']['getGlobalFilter']['globalFilter'][number]
+  ) => void;
+  removeTag: (
+    tag: RouterOutputs['account']['getGlobalFilter']['globalFilter'][number]
+  ) => void;
 }>((set) => ({
-  etiquetas: [],
-  activo: false,
-  agregarEtiqueta: (etiqueta: EtiquetaBaseConGrupoColor) => {
+  tags: [],
+  active: false,
+  addTag: (
+    tag: RouterOutputs['account']['getGlobalFilter']['globalFilter'][number]
+  ) => {
     set((state) => ({
-      etiquetas: [...state.etiquetas, etiqueta],
+      tags: [...state.tags, tag],
     }));
   },
-  eliminarEtiqueta: (etiqueta: EtiquetaBaseConGrupoColor) => {
+  removeTag: (
+    tag: RouterOutputs['account']['getGlobalFilter']['globalFilter'][number]
+  ) => {
     set((state) => ({
-      etiquetas: state.etiquetas.filter((e) => e.id !== etiqueta.id),
+      tags: state.tags.filter((e) => e.id !== tag.id),
     }));
   },
 }));
 
-const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
+const UpdateGlobalFilter = ({}: UpdateGlobalFilterProps) => {
   const utils = trpc.useUtils();
-  const filtroBaseMutation = trpc.cuenta.updateFiltroBase.useMutation();
-  const { data: filtroBaseData, isLoading: filtroBaseLoading } =
-    trpc.cuenta.getFiltroBase.useQuery(undefined, {
+  const globalFilterMutation = trpc.account.updateGlobalFilter.useMutation();
+  const { data: globalFilterData, isLoading: globalFilterActive } =
+    trpc.account.getGlobalFilter.useQuery(undefined, {
       onSuccess: (data) => {
-        useEtiquetasFiltroBase.setState({
-          activo: data.activo,
-          etiquetas: data.etiquetas,
+        useTagsGlobalFilter.setState({
+          active: data?.isGlobalFilterActive,
+          tags: data?.globalFilter || [],
         });
       },
     });
   const [open, setOpen] = useState(false);
-  const { eliminarEtiqueta, etiquetas, agregarEtiqueta, activo } =
-    useEtiquetasFiltroBase();
+  const { removeTag, tags, addTag, active } = useTagsGlobalFilter();
 
-  async function handleDelete(etiqueta: EtiquetaBaseConGrupoColor) {
-    eliminarEtiqueta(etiqueta);
-    await filtroBaseMutation
+  async function handleDelete(
+    tag: GetGlobalFilterResponseDto['globalFilter'][number]
+  ) {
+    removeTag(tag);
+    await globalFilterMutation
       .mutateAsync({
-        activo,
-        etiquetas: filtroBaseData?.etiquetas
-          ?.filter((e) => e.id !== etiqueta.id)
-          .map((e) => e.id),
+        active,
+        tagsIds: globalFilterData?.globalFilter
+          ?.filter((t) => t.id !== tag.id)
+          .map((t) => t.id) as string[],
       })
       .then(() => {
-        toast.success(`Etiqueta ${etiqueta.nombre} eliminada`);
-        utils.modelo.invalidate();
-        utils.cuenta.getFiltroBase.invalidate();
+        toast.success(`Etiqueta ${tag.name} eliminada`);
+        utils.profile.invalidate();
+        utils.account.getGlobalFilter.invalidate();
       })
       .catch(() => {
-        agregarEtiqueta(etiqueta);
+        addTag(tag);
         toast.error('Error al eliminar etiqueta');
       });
   }
@@ -72,21 +82,20 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
         <div className='flex items-center gap-x-3'>
           <h1 className='text-2xl font-bold'>Filtro base</h1>
           <Switch
-            disabled={filtroBaseLoading}
-            checked={activo}
+            disabled={globalFilterActive}
+            checked={active}
             onCheckedChange={async (checked: boolean | 'indeterminate') => {
-              // if (checked === 'indeterminate') return;
-              useEtiquetasFiltroBase.setState({
-                activo: checked === 'indeterminate' ? activo : checked,
+              useTagsGlobalFilter.setState({
+                active: checked === 'indeterminate' ? active : checked,
               });
-              await filtroBaseMutation
+              await globalFilterMutation
                 .mutateAsync({
-                  activo: checked === 'indeterminate' ? false : checked,
-                  etiquetas: etiquetas.map((e) => e.id),
+                  active: checked === 'indeterminate' ? false : checked,
+                  tagsIds: tags.map((e) => e.id),
                 })
                 .then(() => {
-                  utils.cuenta.getFiltroBase.invalidate();
-                  utils.modelo.invalidate();
+                  utils.account.getGlobalFilter.invalidate();
+                  utils.profile.invalidate();
                   toast.success(
                     checked ? 'Filtro activado' : 'Filtro desactivado'
                   );
@@ -94,19 +103,19 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
             }}
           />
         </div>
-        {filtroBaseLoading ? (
+        {globalFilterActive ? (
           <Loader />
         ) : (
-          filtroBaseData && (
+          globalFilterData && (
             <ListaEtiquetas
               open={open}
               setOpen={setOpen}
               handleDelete={handleDelete}
-              etiquetas={etiquetas}
+              tags={tags}
             >
               <AgregarEtiquetasAFiltroBase
-                closeAddEtiqueta={() => setOpen(false)}
-                openAddEtiqueta={() => setOpen(true)}
+                closeAddTag={() => setOpen(false)}
+                openAddTag={() => setOpen(true)}
               />
             </ListaEtiquetas>
           )
@@ -116,4 +125,4 @@ const ActualizarFiltroBase = ({}: ActualizarFiltroBaseProps) => {
   );
 };
 
-export default ActualizarFiltroBase;
+export default UpdateGlobalFilter;

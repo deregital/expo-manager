@@ -1,15 +1,18 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { RouterOutputs } from '@/server';
-import { ColumnDef, SortDirection } from '@tanstack/react-table';
+import { type RouterOutputs } from '@/server';
+import { type ColumnDef, type SortDirection } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import CellComponent from './CellComponent';
 
-export function generateColumns(idConfirmo: string, idAsistio: string) {
-  const columns: ColumnDef<RouterOutputs['modelo']['getAll'][number]>[] = [
+export function generateColumns(
+  confirmedAssitanceId: string,
+  assistedId: string
+) {
+  const columns: ColumnDef<RouterOutputs['profile']['getAll'][number]>[] = [
     {
-      accessorKey: 'idLegible',
+      accessorKey: 'shortId',
       header: ({ column }) => {
         return (
           <div
@@ -36,11 +39,11 @@ export function generateColumns(idConfirmo: string, idAsistio: string) {
       maxSize: 50,
       enableResizing: false,
       cell: ({ row }) => {
-        return <p className='w-full text-center'>{row.original.idLegible}</p>;
+        return <p className='w-full text-center'>{row.original.shortId}</p>;
       },
     },
     {
-      accessorKey: 'nombreCompleto',
+      accessorKey: 'fullName',
       header: ({ column }) => {
         return (
           <Button
@@ -90,8 +93,8 @@ export function generateColumns(idConfirmo: string, idAsistio: string) {
       cell: ({ row }) => (
         <CellComponent
           row={row}
-          asistioId={idAsistio}
-          confirmoAsistenciaId={idConfirmo}
+          assistedId={assistedId}
+          confirmedAssistanceId={confirmedAssitanceId}
         />
       ),
       size: 100,
@@ -99,14 +102,16 @@ export function generateColumns(idConfirmo: string, idAsistio: string) {
       minSize: 100,
       sortingFn: (rowA, rowB) => {
         // This is a custom sorting function that sorts rows that contain id in etiquetas first
-        const a = rowA.original.etiquetas.map((etiqueta) => etiqueta.id);
-        const b = rowB.original.etiquetas.map((etiqueta) => etiqueta.id);
+        const a = rowA.original.tags.map((tag) => tag.id);
+        const b = rowB.original.tags.map((tag) => tag.id);
 
-        const hasEtiquetaA = a.includes(idConfirmo) || a.includes(idAsistio);
-        const hasEtiquetaB = b.includes(idConfirmo) || b.includes(idAsistio);
+        const hasTagA =
+          a.includes(confirmedAssitanceId) || a.includes(assistedId);
+        const hasTagB =
+          b.includes(confirmedAssitanceId) || b.includes(assistedId);
 
-        if (hasEtiquetaA && !hasEtiquetaB) return -1;
-        if (!hasEtiquetaA && hasEtiquetaB) return 1;
+        if (hasTagA && !hasTagB) return -1;
+        if (!hasTagA && hasTagB) return 1;
         return 0;
       },
       header: ({ column }) => {

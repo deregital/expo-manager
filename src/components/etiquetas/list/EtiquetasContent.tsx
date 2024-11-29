@@ -1,29 +1,28 @@
-import { GrupoConMatch } from '@/components/etiquetas/list/EtiquetasList';
-import EtiquetaModal from '@/components/etiquetas/modal/EtiquetaModal';
-import ModeloIcon from '@/components/icons/ModeloIcon';
+import { type GroupWithMatch } from '@/components/etiquetas/list/TagsList';
+import TagModal from '@/components/etiquetas/modal/TagModal';
+import ProfileIcon from '@/components/icons/ProfileIcon';
 import { cn } from '@/lib/utils';
-import { TipoEtiqueta } from '@prisma/client';
 import Link from 'next/link';
 import React from 'react';
+import { type Filtro as FiltroType } from '@/lib/filter';
 
-interface EtiquetasContentProps {
-  etiqueta: GrupoConMatch['etiquetas'][number];
+interface TagsContentProps {
+  tag: GroupWithMatch['tags'][number];
   background: string;
 }
 
-const EtiquetasContent = ({ etiqueta, background }: EtiquetasContentProps) => {
+const TagsContent = ({ tag, background }: TagsContentProps) => {
   const searchParams = new URLSearchParams();
 
   function setSearchParams() {
-    // etiqueta=${etiqueta.id}&grupoId=${grupoId}
     searchParams.set(
       'etiquetas',
       JSON.stringify([
         {
-          etiqueta: { id: etiqueta.id, nombre: etiqueta.nombre },
+          tag: { id: tag.id, name: tag.name },
           include: true,
         },
-      ])
+      ] satisfies FiltroType['tags'])
     );
     return searchParams.toString();
   }
@@ -35,20 +34,16 @@ const EtiquetasContent = ({ etiqueta, background }: EtiquetasContentProps) => {
         backgroundColor: `${background}50`,
       }}
     >
-      <p className={cn('capitalize', etiqueta.match && 'underline')}>
-        {etiqueta.nombre}
-      </p>
+      <p className={cn('capitalize', tag.match && 'underline')}>{tag.name}</p>
       <div className='flex items-center gap-x-2'>
-        {etiqueta.tipo === TipoEtiqueta.PERSONAL && (
-          <EtiquetaModal action='EDIT' etiqueta={etiqueta} />
-        )}
-        <p className='text-sm font-semibold'>{etiqueta._count.perfiles}</p>
+        {tag.type === 'PROFILE' && <TagModal action='EDIT' tag={tag} />}
+        <p className='text-sm font-semibold'>{tag._count.profiles}</p>
         <Link href={`/modelos?${setSearchParams()}`}>
-          <ModeloIcon className='h-4 w-4 hover:cursor-pointer hover:text-gray-700' />
+          <ProfileIcon className='h-4 w-4 hover:cursor-pointer hover:text-gray-700' />
         </Link>
       </div>
     </div>
   );
 };
 
-export default EtiquetasContent;
+export default TagsContent;

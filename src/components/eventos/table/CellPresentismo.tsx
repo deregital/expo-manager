@@ -1,114 +1,66 @@
 'use client';
+import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
-import { RouterOutputs } from '@/server';
-import { Row } from '@tanstack/react-table';
+import { type RouterOutputs } from '@/server';
+import { type Row } from '@tanstack/react-table';
 import { toast } from 'sonner';
 
 export const CellPresentismo = ({
   row,
-  confirmoId,
-  asistioId,
+  confirmedId,
+  assistedId,
 }: {
-  row: Row<RouterOutputs['modelo']['getByEtiqueta'][number]>;
-  confirmoId: string;
-  asistioId: string;
+  row: Row<RouterOutputs['profile']['getByTags'][number]>;
+  confirmedId: string;
+  assistedId: string;
 }) => {
-  const etiquetasId = row.original.etiquetas.map(
-    (etiqueta: any) => etiqueta.id
-  );
-  const { data: etiquetaAsistio } = trpc.etiqueta.getById.useQuery(asistioId, {
-    enabled: !!row.original,
-  });
-  const { data: etiquetaConfirmo } = trpc.etiqueta.getById.useQuery(
-    confirmoId,
-    {
-      enabled: !!row.original,
-    }
-  );
-  const editModelo = trpc.modelo.edit.useMutation();
+  const tagsId = row.original.tags.map((tag) => tag.id);
+  const editProfile = trpc.profile.edit.useMutation();
   const useUtils = trpc.useUtils();
 
   async function addAsistencia(
-    modelo: RouterOutputs['modelo']['getByEtiqueta'][number]
+    profile: RouterOutputs['profile']['getByTags'][number]
   ) {
     toast.loading('Confirmando asistencia');
-    const etiquetasId = modelo.etiquetas
-      .map((etiqueta) => {
-        return {
-          id: etiqueta.id,
-          grupo: {
-            id: etiqueta.grupoId,
-            esExclusivo: etiqueta.grupo.esExclusivo,
-          },
-          nombre: etiqueta.nombre,
-        };
-      })
-      .filter((et) => et.id !== confirmoId);
+    const tagsId = profile.tags
+      .map((tag) => tag.id)
+      .filter((tagId) => tagId !== confirmedId);
 
-    await editModelo.mutateAsync({
-      id: modelo.id,
-      etiquetas: [
-        ...etiquetasId,
-        {
-          id: etiquetaAsistio!.id,
-          grupo: {
-            id: etiquetaAsistio!.grupo.id,
-            esExclusivo: etiquetaAsistio!.grupo.esExclusivo,
-          },
-          nombre: etiquetaAsistio!.nombre,
-        },
-      ],
+    await editProfile.mutateAsync({
+      id: profile.id,
+      tags: [...tagsId, assistedId],
     });
     toast.dismiss();
     toast.success('Se confirmó su asistencia');
-    useUtils.modelo.getByEtiqueta.invalidate();
+    useUtils.profile.getByTags.invalidate();
   }
 
   async function deleteAsistencia(
-    modelo: RouterOutputs['modelo']['getByEtiqueta'][number]
+    profile: RouterOutputs['profile']['getByTags'][number]
   ) {
     toast.loading('Eliminando presentismo');
-    const etiquetasId = modelo.etiquetas
-      .map((etiqueta) => {
-        return {
-          id: etiqueta.id,
-          grupo: {
-            id: etiqueta.grupoId,
-            esExclusivo: etiqueta.grupo.esExclusivo,
-          },
-          nombre: etiqueta.nombre,
-        };
-      })
-      .filter((et) => et.id !== asistioId);
+    const tagsId = profile.tags
+      .map((tag) => tag.id)
+      .filter((tagId) => tagId !== assistedId);
 
-    await editModelo.mutateAsync({
-      id: modelo.id,
-      etiquetas: [
-        ...etiquetasId,
-        {
-          id: confirmoId,
-          grupo: {
-            id: etiquetaConfirmo!.grupo.id,
-            esExclusivo: etiquetaConfirmo!.grupo.esExclusivo,
-          },
-          nombre: etiquetaConfirmo!.nombre,
-        },
-      ],
+    await editProfile.mutateAsync({
+      id: profile.id,
+      tags: [...tagsId, confirmedId],
     });
     toast.dismiss();
     toast.success('Se eliminó del presentismo');
-    useUtils.modelo.getByEtiqueta.invalidate();
+    useUtils.profile.getByTags.invalidate();
   }
 
   return (
     <div className='flex items-center justify-center gap-x-2'>
-      <input
+      <Input
         type='checkbox'
-        disabled={editModelo.isLoading}
+        disabled={editProfile.isLoading}
         className='h-6 w-6'
-        checked={etiquetasId.includes(asistioId)}
+        checked={tagsId.includes(assistedId)}
         onChange={() =>
-          etiquetasId.includes(asistioId)
+          tagsId.includes(assistedId)
             ? deleteAsistencia(row.original)
             : addAsistencia(row.original)
         }
