@@ -7,9 +7,10 @@ import EventFolderAccordion from '@/components/eventos/EventFolderAccordion';
 
 interface EventsListProps {
   events: RouterOutputs['event']['getAll'];
+  baseUrl: string;
 }
 
-const EventsList: React.FC<EventsListProps> = ({ events }) => {
+const EventsList: React.FC<EventsListProps> = ({ events, baseUrl }) => {
   const { state, active, setActive } = useExpandEventos((s) => ({
     state: s.state,
     setActive: s.setActive,
@@ -59,10 +60,15 @@ const EventsList: React.FC<EventsListProps> = ({ events }) => {
         value={active}
       >
         {folders.map((folder) => (
-          <EventFolderAccordion key={folder.id} folder={folder} />
+          <EventFolderAccordion
+            baseUrl={baseUrl}
+            key={folder.id}
+            folder={folder}
+          />
         ))}
         {eventsWithoutFolder.map((event) => (
           <EventAccordion
+            baseUrl={baseUrl}
             isOpen={active.includes(event.id)}
             key={event.id}
             event={event}

@@ -5,12 +5,23 @@ import React from 'react';
 import EventModal from './eventmodal';
 import EventIcon from '../icons/EventIcon';
 import { useRouter } from 'next/navigation';
+import GeneratePDFButton from '@/components/eventos/GeneratePDFButton';
 
 interface EventListTriggerProps {
   event: RouterOutputs['event']['getAll']['withoutFolder'][number];
+  baseUrl: string;
+  iconColor?: string;
+  profilesData: RouterOutputs['profile']['getByTags'];
+  isLoadingProfiles: boolean;
 }
 
-const EventListTrigger = ({ event }: EventListTriggerProps) => {
+const EventListTrigger = ({
+  event,
+  baseUrl,
+  iconColor,
+  profilesData,
+  isLoadingProfiles,
+}: EventListTriggerProps) => {
   const router = useRouter();
 
   function redirectToEvent() {
@@ -31,6 +42,14 @@ const EventListTrigger = ({ event }: EventListTriggerProps) => {
         </div>
       </div>
       <div className='flex items-center justify-center gap-x-2'>
+        <GeneratePDFButton
+          event={event}
+          profilesData={profilesData ?? []}
+          baseUrl={baseUrl}
+          disabled={isLoadingProfiles}
+          className='h-6 bg-transparent fill-white p-0 hover:bg-transparent hover:[&>svg]:scale-110'
+          style={{ color: iconColor }}
+        />
         <EventIcon
           className='h-5 w-5 hover:text-black'
           onClick={(e) => {

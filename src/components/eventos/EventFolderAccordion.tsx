@@ -13,9 +13,13 @@ import React from 'react';
 
 interface EventFolderAccordionProps {
   folder: RouterOutputs['event']['getAll']['folders'][number];
+  baseUrl: string;
 }
 
-const EventFolderAccordion = ({ folder }: EventFolderAccordionProps) => {
+const EventFolderAccordion = ({
+  folder,
+  baseUrl,
+}: EventFolderAccordionProps) => {
   const { clickTrigger, active } = useExpandEventos((s) => ({
     clickTrigger: s.clickTrigger,
     active: s.active,
@@ -52,6 +56,7 @@ const EventFolderAccordion = ({ folder }: EventFolderAccordionProps) => {
               onClick={() => {
                 clickTrigger(event.id);
               }}
+              baseUrl={baseUrl}
               color={folder.color}
               isOpen={active.includes(event.id)}
               key={event.id}
