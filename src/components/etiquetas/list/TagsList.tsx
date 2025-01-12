@@ -7,7 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { getTextColorByBg } from '@/lib/utils';
+import { cn, getTextColorByBg } from '@/lib/utils';
 import { type FindAllWithTagsResponseDto } from 'expo-backend-types';
 import React, { useEffect, useState } from 'react';
 
@@ -80,6 +80,7 @@ const TagsList = ({ groups }: TagsListProps) => {
           className='my-2 border-0'
         >
           <AccordionTrigger
+            showArrow={group.tags.length > 0}
             onClick={() => {
               if (active.includes(group.id)) {
                 setActive(active.filter((id) => id !== group.id));
@@ -94,7 +95,9 @@ const TagsList = ({ groups }: TagsListProps) => {
                 setActive(newActive);
               }
             }}
-            className='rounded-xl px-2 py-1.5'
+            className={cn('rounded-xl px-2 py-1.5', {
+              'cursor-default': group.tags.length === 0,
+            })}
             style={{
               backgroundColor: group.color,
               color: getTextColorByBg(group.color),

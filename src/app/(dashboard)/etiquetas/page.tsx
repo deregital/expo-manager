@@ -30,7 +30,10 @@ const EtiquetasPage = () => {
     let g = showEventos
       ? groups
       : groups.filter((group) => {
-          return group.tags.some((tag) => tag.type !== 'EVENT');
+          return (
+            group.tags.length === 0 ||
+            group.tags.some((tag) => tag.type !== 'EVENT')
+          );
         });
 
     if (search !== '') {

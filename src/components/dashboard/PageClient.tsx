@@ -7,7 +7,13 @@ import ComboBox from '@/components/ui/ComboBox';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { trpc } from '@/lib/trpc';
 import { type RouterOutputs } from '@/server';
-import { addDays, format, startOfMonth } from 'date-fns';
+import {
+  addDays,
+  eachDayOfInterval,
+  format,
+  formatDate,
+  startOfMonth,
+} from 'date-fns';
 import { XIcon } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { create } from 'zustand';
@@ -93,17 +99,25 @@ const PageClient = ({}: PageClientProps) => {
     const modReturn: { date: string; profiles: number }[] = [];
     if (!profilesData) return [];
 
-    for (const [day, profiles] of Object.entries(profilesData)) {
-      if (!profiles) continue;
-      const filteredProfiles = filterProfiles(profiles, {
-        tagId,
-        groupId: tagGroupId,
-      });
+    const range = eachDayOfInterval({ start: from, end: to }).map((d) =>
+      formatDate(d, 'yyyy-MM-dd')
+    );
+
+    for (const day of range) {
+      const profiles = profilesData[day];
+
+      // if (!profiles) continue;
+      const filteredProfiles = profiles
+        ? filterProfiles(profiles, {
+            tagId,
+            groupId: tagGroupId,
+          })
+        : [];
 
       modReturn.push({ profiles: filteredProfiles.length, date: day });
     }
     return modReturn;
-  }, [profilesData, tagId, tagGroupId]);
+  }, [profilesData, from, to, tagId, tagGroupId]);
 
   const relevantProfiles = useMemo(() => {
     if (!profilesData) return [];
@@ -116,16 +130,6 @@ const PageClient = ({}: PageClientProps) => {
     }
     return filterProfiles(profs, { tagId, groupId: tagGroupId });
   }, [profilesData, tagId, tagGroupId]);
-
-  // const retencion = useMemo(() => {
-  //   return (
-  //     (relevantProfiles.filter((modelo) =>
-  //       modelo.messages.filter((m) => 'from' in (m.message as MessageJson))
-  //     ).length /
-  //       relevantProfiles.length) *
-  //     100
-  //   );
-  // }, [relevantProfiles]);
 
   return (
     <>

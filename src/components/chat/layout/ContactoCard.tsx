@@ -3,6 +3,8 @@ import ProfilePic from '@/components/ui/ProfilePic';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { type RouterOutputs } from '@/server';
+import { formatDistance } from 'date-fns';
+import { es } from 'date-fns/locale/es';
 import React from 'react';
 
 interface ContactoCardProps {
@@ -12,6 +14,11 @@ interface ContactoCardProps {
 }
 
 const ContactoCard = ({ profile, inPage, nonRead }: ContactoCardProps) => {
+  const mostRecentMessage = profile.messages.sort(
+    (a, b) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  )[profile.messages.length - 1];
+
   return (
     <div
       className={cn('flex items-center justify-between gap-2 p-2', {
@@ -26,7 +33,19 @@ const ContactoCard = ({ profile, inPage, nonRead }: ContactoCardProps) => {
         </Badge>
       </div>
       <div className='flex w-full items-center justify-between gap-x-2 overflow-x-hidden'>
-        <p className='truncate'>{profile.fullName}</p>
+        <div className='flex w-full flex-col gap-y-0'>
+          <p className='truncate'>{profile.fullName}</p>
+          <span className='truncate whitespace-nowrap align-baseline text-xs text-gray-500'>
+            {formatDistance(
+              new Date(mostRecentMessage.created_at),
+              new Date(),
+              {
+                locale: es,
+                addSuffix: true,
+              }
+            )}
+          </span>
+        </div>
         {profile.inChat && <ChatFillIcon />}
       </div>
     </div>

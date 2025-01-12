@@ -13,14 +13,8 @@ import { format } from 'date-fns';
 import { ArrowLeftIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { generate } from '@pdfme/generator';
-import type { Plugin } from '@pdfme/common';
-import { barcodes, text, line, tableBeta, readOnlyText } from '@pdfme/schemas';
-import { type PDFData, presentismoPDFSchema } from '@/lib/presentismoPDFSchema';
 import { useProgress } from '@/hooks/eventos/presentismo/useProgress';
-import PDFIcon from '@/components/icons/PDFIcon';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import GeneratePDFButton from '@/components/eventos/GeneratePDFButton';
 
 interface PresentismoPageProps {
   eventId: string;
@@ -81,65 +75,6 @@ const PresentismoPage = ({ baseUrl, eventId }: PresentismoPageProps) => {
   }, [eventId, router, urlSearchParams]);
 
   const progress = useProgress(profiles ?? [], event?.tagAssistedId ?? '');
-
-  const handleGeneratePDF = async () => {
-    const confirmedProfiles = profilesData
-      .filter((profile) =>
-        profile.tags.find(
-          (tag) =>
-            tag.id === event?.tagConfirmedId || tag.id === event?.tagAssistedId
-        )
-      )
-      .sort((a, b) => a.fullName.localeCompare(b.fullName));
-
-    const tableContent = confirmedProfiles.map(
-      (profile) =>
-        [
-          profile.fullName,
-          profile.shortId ? profile.shortId.toString() : '',
-          profile.phoneNumber,
-          profile.dni ?? '',
-          (profile.tags.some((tag) => tag.id === event?.tagAssistedId)
-            ? 'SI'
-            : '') as string,
-        ] as PDFData[0]['datos'][number]
-    );
-
-    const plugins: {
-      [key: string]: Plugin<any>;
-    } = {
-      qrcode: barcodes.qrcode,
-      text,
-      line,
-      Table: tableBeta,
-      readOnlyText,
-    };
-
-    const inputs: PDFData = [
-      {
-        nombre: `${event?.name}`,
-        fecha: `${format(event!.date, 'dd/MM/yyyy')}`,
-        ubicacion: `${event?.location}`,
-        datos: tableContent,
-        qr: `${baseUrl}/eventos/${eventId}/presentismo`,
-      },
-    ];
-
-    const pdf = await generate({
-      template: presentismoPDFSchema,
-      inputs,
-      plugins,
-    });
-
-    const blob = new Blob([pdf.buffer], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Evento_${event?.name}.pdf`;
-
-    toast.success('PDF generado con éxito');
-    link.click();
-  };
 
   if (isLoadingEvent)
     return (
@@ -205,12 +140,18 @@ const PresentismoPage = ({ baseUrl, eventId }: PresentismoPageProps) => {
       <div className='mt-5 flex h-fit items-center justify-end'>
         <AsistenciaModal open={modalPresentismo.isOpen} />
         <div className='m-5 flex justify-end'>
-          <Button
-            onClick={handleGeneratePDF}
-            className='rounded-lg bg-gray-400 text-2xl font-bold text-black hover:bg-gray-500'
-          >
-            <PDFIcon />
-          </Button>
+          <GeneratePDFButton
+            baseUrl={baseUrl}
+            event={{
+              id: event!.id,
+              name: event!.name,
+              date: event!.date,
+              location: event!.location,
+              tagAssistedId: event!.tagAssistedId,
+              tagConfirmedId: event!.tagConfirmedId,
+            }}
+            profilesData={profilesData}
+          />
         </div>
       </div>
     </div>
