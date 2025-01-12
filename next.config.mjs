@@ -3,6 +3,7 @@ const nextConfig = {
   images: {
     remotePatterns: [{ protocol: 'https', hostname: 'expo-manager.b-cdn.net' }],
   },
+  staticPageGenerationTimeout: 120,
   async headers() {
     return [
       {
