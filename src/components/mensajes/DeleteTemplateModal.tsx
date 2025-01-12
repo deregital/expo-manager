@@ -29,7 +29,7 @@ const DeleteTemplateModal = ({
   const utils = trpc.useUtils();
   async function handleDelete() {
     await deleteTemplate
-      .mutateAsync(template?.id ?? '')
+      .mutateAsync(template?.name ?? '')
       .then(() => {
         useTemplateDelete.setState({ open: false, template: null });
         toast.success('Plantilla eliminada');

@@ -25,7 +25,10 @@ const SendTemplate = () => {
   const { data } = trpc.message.findTemplates.useQuery();
   const { data: tags } = trpc.tag.getAll.useQuery();
   const { data: profiles } = trpc.profile.getByTags.useQuery(
-    templateData.tags.map((et) => et.id)
+    templateData.tags.map((et) => et.id),
+    {
+      enabled: templateData.tags.length > 0,
+    }
   );
   const { data: template } = trpc.message.findTemplateById.useQuery(
     templateData.template,
@@ -36,6 +39,10 @@ const SendTemplate = () => {
 
   const [openTemplate, setOpenTemplate] = useState(false);
   const [openTag, setOpenTag] = useState(false);
+
+  const templatesAvaliable = data?.templates.filter((template) => {
+    return template.status === 'APPROVED';
+  });
 
   const currentPrice = useMemo(() => {
     if (templateData.template === '') return 0;
@@ -79,7 +86,7 @@ const SendTemplate = () => {
       <div className='flex items-start justify-around p-5'>
         <div>
           <ComboBox
-            data={data ? data.templates : []}
+            data={templatesAvaliable ?? []}
             id={'name'}
             value={'name'}
             open={openTemplate}
