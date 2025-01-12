@@ -103,6 +103,7 @@ const AsistenciaModal = ({ open }: { open: boolean }) => {
               data={profilesData}
               id={'id'}
               value='fullName'
+              placeholder='Buscar participante'
               open={openProfiles}
               setOpen={setOpenProfiles}
               wFullMobile
