@@ -340,7 +340,7 @@ const TagGroupModal = ({ action, group }: TagGroupModalProps) => {
 
           {conflict && <ProfilesConflict profiles={conflict} />}
 
-          <div className='flex gap-x-4'>
+          <div className='-z-[1] flex gap-x-4'>
             <Button
               className='w-full max-w-32'
               onClick={handleSubmit}
