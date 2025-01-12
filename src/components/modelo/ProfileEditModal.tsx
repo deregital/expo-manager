@@ -324,6 +324,7 @@ const ProfileEditModal = ({ profile }: ProfileEditModalProps) => {
               required
               className='w-full bg-background text-black'
               type='date'
+              max={new Date().toISOString().split('T')[0]}
               autoComplete='off'
               name='edad'
               id='fechaNacimiento'
