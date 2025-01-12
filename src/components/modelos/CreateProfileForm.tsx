@@ -238,6 +238,7 @@ const CreateProfileForm = ({
         type='date'
         placeholder='Fecha de nacimiento'
         className='py-4'
+        max={new Date().toISOString().split('T')[0]}
         value={
           createProfileModal.profile.birthDate
             ? isNaN(createProfileModal.profile.birthDate?.getTime())

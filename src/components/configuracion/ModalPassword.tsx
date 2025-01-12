@@ -39,10 +39,17 @@ const ModalPassword = ({
         }
       }}
     >
-      <DialogTrigger asChild>
+      <DialogTrigger
+        disabled // TODO: LIMPIAR ESTA LINEA
+        asChild
+      >
         <button
-          onClick={handleOpenModal}
-          className='cursor-pointer rounded bg-blue-500 px-4 py-2 text-lg font-bold text-white shadow-md transition duration-300 hover:bg-blue-600'
+          disabled // TODO: LIMPIAR ESTA LINEA
+          onClick={() => {
+            // handleOpenModal()
+            // TODO: LIMPIAR ESTA LINEA
+          }}
+          className='cursor-not-allowed rounded bg-blue-500 px-4 py-2 text-lg font-bold text-white opacity-50 shadow-md transition duration-300 hover:bg-blue-600'
         >
           {children}
         </button>

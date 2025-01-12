@@ -51,8 +51,7 @@ const EventPage = ({ params }: EventPageProps) => {
         <ArrowLeftIcon
           className='h-10 w-10 pt-3 hover:cursor-pointer'
           onClick={() => {
-            window.history.back();
-            router.back();
+            router.push('/eventos');
           }}
         />
       </div>

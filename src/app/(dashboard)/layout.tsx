@@ -1,14 +1,8 @@
-import type { Metadata } from 'next';
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
 import VerificarAuth from '@/components/auth/VerificarAuth';
 import { Toaster } from '@/components/ui/sonner';
 import { cn } from '@/lib/utils';
-
-export const metadata: Metadata = {
-  title: 'Expo Manager',
-  description: 'El mejor administrador de eventos',
-};
 
 const RootLayout = ({
   children,
