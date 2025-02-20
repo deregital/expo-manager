@@ -153,10 +153,7 @@ const AddEtiquetaCombos = ({ tags, handleAddTag }: AddTagCombosProps) => {
       <Button
         onClick={() => {
           if (selectedTag) {
-            handleAddTag(
-              // TODO: Fix this type
-              selectedTag
-            );
+            handleAddTag(selectedTag);
           } else {
             toast.error('Selecciona una etiqueta');
           }
