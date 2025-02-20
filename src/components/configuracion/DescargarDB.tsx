@@ -1,14 +1,10 @@
 import ModalPassword from '@/components/configuracion/ModalPassword';
-import { trpc } from '@/lib/trpc';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
-interface DescargarDBProps {}
+interface DownloadDBProps {}
 
-const DescargarDB = ({}: DescargarDBProps) => {
-  const exportModelos = trpc.csv.downloadModelos.useMutation();
-  const exportAllTables = trpc.csv.downloadAllTables.useMutation();
-
+const DownloadDB = ({}: DownloadDBProps) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [downloadType, setDownloadType] = useState('');
 
@@ -33,47 +29,40 @@ const DescargarDB = ({}: DescargarDBProps) => {
   };
 
   const handleDownloadCSV = async (password: string) => {
+    const today = new Date();
     try {
-      toast.loading('Descargando CSV de participantes...');
-      const csvData = await exportModelos
-        .mutateAsync(
-          { password },
-          {
-            onError: (error) => {
-              if (error.data?.code === 'UNAUTHORIZED') {
-                toast.dismiss();
-                toast.error('Contraseña incorrecta');
-                setModalOpen(true);
-                return;
-              }
-            },
-          }
-        )
-        .catch((error) => {
-          return;
-        });
+      toast.loading('Descargando CSV de participantes...', {
+        id: 'downloading-csv',
+      });
+      const response = await fetch('/api/configuration/profiles', {
+        method: 'POST',
+        body: JSON.stringify({ password }),
+      });
 
-      if (!csvData) {
+      if (!response.ok) {
+        const error = await response.json();
+
+        toast.dismiss();
+        toast.error(`Error al descargar CSV: ${error}`);
         return;
+        // throw new Error('Error al descargar el CSV');
       }
 
-      const now = new Date();
-      const filename = `PerfilModelos_${now.toISOString().slice(0, 19).replace(/:/g, '-').replace('T', '_')}.csv`;
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
 
-      const blob = new Blob([csvData], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `PerfilModelos_${today.toISOString().slice(0, 19).replace(/:/g, '-').replace('T', '_')}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
-      link.click();
-
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(link);
+      URL.revokeObjectURL(url); // Libera memoria
+      toast.dismiss('downloading-csv');
       toast.success('CSV descargado correctamente');
-      toast.dismiss();
     } catch (error) {
+      toast.dismiss('downloading-csv');
       console.error('Error al descargar CSV:', error);
       toast.error('Error al descargar CSV');
     }
@@ -83,29 +72,21 @@ const DescargarDB = ({}: DescargarDBProps) => {
     const today = new Date();
     try {
       toast.loading('Descargando ZIP...');
-      const zipData = await exportAllTables
-        .mutateAsync(
-          { password },
-          {
-            onError: (error) => {
-              if (error.data?.code === 'UNAUTHORIZED') {
-                toast.dismiss();
-                toast.error('Contraseña incorrecta');
-                setModalOpen(true);
-                return;
-              }
-            },
-          }
-        )
-        .catch((error) => {
-          return;
-        });
+      const response = await fetch('/api/configuration/all-tables', {
+        method: 'POST',
+        body: JSON.stringify({ password }),
+      });
 
-      if (!zipData) {
+      if (!response.ok) {
+        const error = await response.json();
+
+        toast.dismiss();
+        toast.error(`Error al descargar las tablas: ${error}`);
         return;
+        // throw new Error('Error al descargar el CSV');
       }
 
-      const uint8Array = new Uint8Array(zipData);
+      const uint8Array = new Uint8Array(await response.arrayBuffer());
 
       const blob = new Blob([uint8Array], { type: 'application/zip' });
       const url = window.URL.createObjectURL(blob);
@@ -150,4 +131,4 @@ const DescargarDB = ({}: DescargarDBProps) => {
   );
 };
 
-export default DescargarDB;
+export default DownloadDB;

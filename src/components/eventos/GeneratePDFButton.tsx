@@ -80,7 +80,9 @@ const GeneratePDFButton = ({
       plugins,
     });
 
-    const blob = new Blob([pdf.buffer], { type: 'application/pdf' });
+    const blob = new Blob([pdf.buffer as unknown as BlobPart], {
+      type: 'application/pdf',
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
