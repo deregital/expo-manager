@@ -29,6 +29,7 @@ const DownloadDB = ({}: DownloadDBProps) => {
   };
 
   const handleDownloadCSV = async (password: string) => {
+    const today = new Date();
     try {
       toast.loading('Descargando CSV de participantes...', {
         id: 'downloading-csv',
@@ -47,17 +48,19 @@ const DownloadDB = ({}: DownloadDBProps) => {
         // throw new Error('Error al descargar el CSV');
       }
 
-      const blobWop = await response.blob();
-      const urlWop = URL.createObjectURL(blobWop);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
 
       const a = document.createElement('a');
-      a.href = urlWop;
-      a.download = 'PerfilModelos.csv';
+      a.href = url;
+      a.download = `PerfilModelos_${today.toISOString().slice(0, 19).replace(/:/g, '-').replace('T', '_')}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
 
-      URL.revokeObjectURL(urlWop); // Libera memoria
+      URL.revokeObjectURL(url); // Libera memoria
+      toast.dismiss('downloading-csv');
+      toast.success('CSV descargado correctamente');
     } catch (error) {
       toast.dismiss('downloading-csv');
       console.error('Error al descargar CSV:', error);
@@ -78,7 +81,7 @@ const DownloadDB = ({}: DownloadDBProps) => {
         const error = await response.json();
 
         toast.dismiss();
-        toast.error(`Error al descargar CSV: ${error}`);
+        toast.error(`Error al descargar las tablas: ${error}`);
         return;
         // throw new Error('Error al descargar el CSV');
       }
