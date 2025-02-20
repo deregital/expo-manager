@@ -1,5 +1,4 @@
 import { getServerAuthSession } from '@/server/auth';
-//import { prisma } from '@/server/db';
 import { fetchClient } from '@/server/fetchClient';
 import { TRPCError, initTRPC } from '@trpc/server';
 import { type JWT } from 'next-auth/jwt';

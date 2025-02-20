@@ -7,7 +7,6 @@ import { type inferRouterOutputs } from '@trpc/server';
 import { csvRouter } from '@/server/routers/csvRouter';
 import { eventRouter } from '@/server/routers/eventRouter';
 import { accountRouter } from '@/server/routers/cuentaRouter';
-import { notificacionRouter } from '@/server/routers/notificacionRouter';
 import { locationRouter } from '@/server/routers/locationRouter';
 import { eventFolderRouter } from '@/server/routers/event-folderRouter';
 import { cannedResponseRouter } from '@/server/routers/canned-responseRouter';
@@ -22,7 +21,6 @@ export const appRouter = router({
   event: eventRouter,
   eventFolder: eventFolderRouter,
   account: accountRouter,
-  notificacion: notificacionRouter,
   location: locationRouter,
   cannedResponse: cannedResponseRouter,
   comment: commentRouter,
