@@ -1,4 +1,4 @@
-import { type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { fetchClient } from '@/server/fetchClient';
 
 export async function POST(req: NextRequest) {
@@ -10,18 +10,22 @@ export async function POST(req: NextRequest) {
     }
 
     // Llamada a la ruta de NestJS que expone el CSV
-    const { data, error } = await fetchClient.POST('/csv/download-profiles', {
-      body: {
-        password,
-      },
-    });
+    const { error, response } = await fetchClient.POST(
+      '/csv/download-profiles',
+      {
+        body: {
+          password,
+        },
+        parseAs: 'stream',
+      }
+    );
 
     if (error) {
-      return new Response('Error al generar el archivo', { status: 500 });
+      return NextResponse.json(error.message[0], { status: error.statusCode });
     }
 
     // Devolvemos el CSV como archivo descargable
-    return new Response(data, {
+    return new NextResponse(await response.blob(), {
       headers: {
         'Content-Type': 'text/csv',
         'Content-Disposition': 'attachment; filename=PerfilModelos.csv',

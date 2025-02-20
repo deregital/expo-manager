@@ -1,14 +1,10 @@
 import ModalPassword from '@/components/configuracion/ModalPassword';
-import { trpc } from '@/lib/trpc';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
 interface DownloadDBProps {}
 
 const DownloadDB = ({}: DownloadDBProps) => {
-  const exportProfiles = trpc.csv.downloadProfiles.useMutation();
-  const exportAllTables = trpc.csv.downloadAllTables.useMutation();
-
   const [isModalOpen, setModalOpen] = useState(false);
   const [downloadType, setDownloadType] = useState('');
 
@@ -34,14 +30,21 @@ const DownloadDB = ({}: DownloadDBProps) => {
 
   const handleDownloadCSV = async (password: string) => {
     try {
-      toast.loading('Descargando CSV de participantes...');
+      toast.loading('Descargando CSV de participantes...', {
+        id: 'downloading-csv',
+      });
       const response = await fetch('/api/configuration/profiles', {
         method: 'POST',
         body: JSON.stringify({ password }),
       });
 
       if (!response.ok) {
-        throw new Error('Error al descargar el CSV');
+        const error = await response.json();
+
+        toast.dismiss();
+        toast.error(`Error al descargar CSV: ${error}`);
+        return;
+        // throw new Error('Error al descargar el CSV');
       }
 
       const blobWop = await response.blob();
@@ -56,6 +59,7 @@ const DownloadDB = ({}: DownloadDBProps) => {
 
       URL.revokeObjectURL(urlWop); // Libera memoria
     } catch (error) {
+      toast.dismiss('downloading-csv');
       console.error('Error al descargar CSV:', error);
       toast.error('Error al descargar CSV');
     }
@@ -65,29 +69,21 @@ const DownloadDB = ({}: DownloadDBProps) => {
     const today = new Date();
     try {
       toast.loading('Descargando ZIP...');
-      const zipData = await exportAllTables
-        .mutateAsync(
-          { password },
-          {
-            onError: (error) => {
-              if (error.data?.code === 'CONFLICT') {
-                toast.dismiss();
-                toast.error('Contraseña incorrecta');
-                setModalOpen(true);
-                return;
-              }
-            },
-          }
-        )
-        .catch((error) => {
-          return;
-        });
+      const response = await fetch('/api/configuration/all-tables', {
+        method: 'POST',
+        body: JSON.stringify({ password }),
+      });
 
-      if (!zipData) {
+      if (!response.ok) {
+        const error = await response.json();
+
+        toast.dismiss();
+        toast.error(`Error al descargar CSV: ${error}`);
         return;
+        // throw new Error('Error al descargar el CSV');
       }
 
-      const uint8Array = new Uint8Array(zipData);
+      const uint8Array = new Uint8Array(await response.arrayBuffer());
 
       const blob = new Blob([uint8Array], { type: 'application/zip' });
       const url = window.URL.createObjectURL(blob);
