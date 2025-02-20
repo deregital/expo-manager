@@ -1,5 +1,5 @@
 import { getServerAuthSession } from '@/server/auth';
-import { prisma } from '@/server/db';
+//import { prisma } from '@/server/db';
 import { fetchClient } from '@/server/fetchClient';
 import { TRPCError, initTRPC } from '@trpc/server';
 import { type JWT } from 'next-auth/jwt';
@@ -62,7 +62,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 
   return {
     session,
-    prisma,
+    //prisma,
     ...opts,
   };
 };
@@ -189,7 +189,7 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
     ctx: {
       ...ctx,
       fetch: fetchClient,
-      prisma,
+      //prisma,
       etiquetasVisibles: [],
       filtroBase: [],
     },

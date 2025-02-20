@@ -3,10 +3,10 @@ import { trpc } from '@/lib/trpc';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
-interface DescargarDBProps {}
+interface DownloadDBProps {}
 
-const DescargarDB = ({}: DescargarDBProps) => {
-  const exportModelos = trpc.csv.downloadModelos.useMutation();
+const DownloadDB = ({}: DownloadDBProps) => {
+  const exportProfiles = trpc.csv.downloadProfiles.useMutation();
   const exportAllTables = trpc.csv.downloadAllTables.useMutation();
 
   const [isModalOpen, setModalOpen] = useState(false);
@@ -35,44 +35,26 @@ const DescargarDB = ({}: DescargarDBProps) => {
   const handleDownloadCSV = async (password: string) => {
     try {
       toast.loading('Descargando CSV de participantes...');
-      const csvData = await exportModelos
-        .mutateAsync(
-          { password },
-          {
-            onError: (error) => {
-              if (error.data?.code === 'UNAUTHORIZED') {
-                toast.dismiss();
-                toast.error('Contraseña incorrecta');
-                setModalOpen(true);
-                return;
-              }
-            },
-          }
-        )
-        .catch((error) => {
-          return;
-        });
+      const response = await fetch('/api/configuration/profiles', {
+        method: 'POST',
+        body: JSON.stringify({ password }),
+      });
 
-      if (!csvData) {
-        return;
+      if (!response.ok) {
+        throw new Error('Error al descargar el CSV');
       }
 
-      const now = new Date();
-      const filename = `PerfilModelos_${now.toISOString().slice(0, 19).replace(/:/g, '-').replace('T', '_')}.csv`;
+      const blobWop = await response.blob();
+      const urlWop = URL.createObjectURL(blobWop);
 
-      const blob = new Blob([csvData], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
+      const a = document.createElement('a');
+      a.href = urlWop;
+      a.download = 'PerfilModelos.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
-      link.click();
-
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(link);
-      toast.success('CSV descargado correctamente');
-      toast.dismiss();
+      URL.revokeObjectURL(urlWop); // Libera memoria
     } catch (error) {
       console.error('Error al descargar CSV:', error);
       toast.error('Error al descargar CSV');
@@ -88,7 +70,7 @@ const DescargarDB = ({}: DescargarDBProps) => {
           { password },
           {
             onError: (error) => {
-              if (error.data?.code === 'UNAUTHORIZED') {
+              if (error.data?.code === 'CONFLICT') {
                 toast.dismiss();
                 toast.error('Contraseña incorrecta');
                 setModalOpen(true);
@@ -150,4 +132,4 @@ const DescargarDB = ({}: DescargarDBProps) => {
   );
 };
 
-export default DescargarDB;
+export default DownloadDB;
