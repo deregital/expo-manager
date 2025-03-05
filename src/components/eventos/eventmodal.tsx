@@ -102,14 +102,17 @@ const EventModal = ({ action, event }: EventModalProps) => {
           startingDate: new Date(modalData.startingDate),
           endingDate: new Date(modalData.endingDate),
           location: modalData.location,
-          tags: modalData.tags,
+          tagsId: modalData.tags,
           folderId: modalData.folderId,
           subEvents: modalData.subEvents.map((subevento) => ({
             id: subevento.id,
             name: subevento.name,
             date: new Date(subevento.date),
+            endingDate: new Date(),
+            startingDate: new Date(),
             location: subevento.location,
           })),
+          eventTickets: [], // TODO: Implementar tickets
         })
         .then(() => {
           setOpen(!open);
@@ -139,12 +142,15 @@ const EventModal = ({ action, event }: EventModalProps) => {
           folderId: modalData.folderId,
           startingDate: new Date(modalData.startingDate),
           endingDate: new Date(modalData.endingDate),
-          subEvents: modalData.subEvents.map((subevento) => ({
-            id: subevento.id,
-            name: subevento.name,
-            date: new Date(subevento.date),
-            location: subevento.location,
+          subEvents: modalData.subEvents.map((subEvent) => ({
+            id: subEvent.id,
+            name: subEvent.name,
+            date: new Date(subEvent.date),
+            endingDate: new Date(),
+            startingDate: new Date(),
+            location: subEvent.location,
           })),
+          eventTickets: [], // TODO: Implementar tickets
         })
         .then(() => {
           setOpen(!open);
