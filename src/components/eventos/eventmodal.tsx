@@ -33,7 +33,10 @@ type ModalData = {
   type: 'CREATE' | 'EDIT';
   name: string;
   date: string;
+  startingDate: string;
+  endingDate: string;
   location: string;
+  tags: string[];
   folderId: string | null;
   subEvents: {
     id: string;
@@ -48,7 +51,10 @@ export const useEventModalData = create<ModalData>((set) => ({
   type: 'CREATE',
   name: '',
   date: new Date().toISOString(),
+  startingDate: new Date().toISOString(),
+  endingDate: new Date().toISOString(),
   location: '',
+  tags: [],
   folderId: null,
   subEvents: [],
   reset: () =>
@@ -56,6 +62,8 @@ export const useEventModalData = create<ModalData>((set) => ({
       type: 'CREATE',
       name: '',
       date: new Date().toISOString(),
+      startingDate: new Date().toISOString(),
+      endingDate: new Date().toISOString(),
       location: '',
       folderId: null,
       subEvents: [],
@@ -68,6 +76,9 @@ const EventModal = ({ action, event }: EventModalProps) => {
     type: state.type,
     name: state.name,
     date: state.date,
+    tags: state.tags,
+    startingDate: state.startingDate,
+    endingDate: state.endingDate,
     folderId: state.folderId,
     location: state.location,
     subEvents: state.subEvents,
@@ -88,7 +99,10 @@ const EventModal = ({ action, event }: EventModalProps) => {
         .mutateAsync({
           name: modalData.name,
           date: new Date(modalData.date),
+          startingDate: new Date(modalData.startingDate),
+          endingDate: new Date(modalData.endingDate),
           location: modalData.location,
+          tags: modalData.tags,
           folderId: modalData.folderId,
           subEvents: modalData.subEvents.map((subevento) => ({
             id: subevento.id,
@@ -123,6 +137,8 @@ const EventModal = ({ action, event }: EventModalProps) => {
           location: modalData.location,
           name: modalData.name,
           folderId: modalData.folderId,
+          startingDate: new Date(modalData.startingDate),
+          endingDate: new Date(modalData.endingDate),
           subEvents: modalData.subEvents.map((subevento) => ({
             id: subevento.id,
             name: subevento.name,
@@ -213,6 +229,8 @@ const EventModal = ({ action, event }: EventModalProps) => {
                     type: 'EDIT',
                     name: event.name,
                     date: event.date,
+                    startingDate: event.startingDate,
+                    endingDate: event.endingDate,
                     location: event.location,
                     folderId: event.folderId,
                     subEvents: event.subEvents.map((subevent) => ({
@@ -263,6 +281,33 @@ const EventModal = ({ action, event }: EventModalProps) => {
                   )}
                   onChange={(e) =>
                     useEventModalData.setState({ date: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              {}
+              <div className='flex gap-3'>
+                <Input
+                  className='text-black'
+                  type='datetime-local'
+                  name='startingDate'
+                  id='startingDate'
+                  placeholder='Fecha de inicio'
+                  value={modalData.startingDate}
+                  onChange={(e) =>
+                    useEventModalData.setState({ startingDate: e.target.value })
+                  }
+                  required
+                />
+                <Input
+                  className='text-black'
+                  type='datetime-local'
+                  name='endingDate'
+                  id='endingDate'
+                  placeholder='Fecha de cierre'
+                  value={modalData.endingDate}
+                  onChange={(e) =>
+                    useEventModalData.setState({ endingDate: e.target.value })
                   }
                   required
                 />
