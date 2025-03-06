@@ -2,7 +2,7 @@
 import { type RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import React from 'react';
-import EventModal from './eventmodal';
+import EventModal from './modal/eventmodal';
 import EventIcon from '../icons/EventIcon';
 import { useRouter } from 'next/navigation';
 import GeneratePDFButton from '@/components/eventos/GeneratePDFButton';
