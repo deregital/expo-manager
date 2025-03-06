@@ -79,12 +79,14 @@ const EventModalForm = ({ open, setOpen, event }: EventModalFormProps) => {
               label='Fecha'
               placeholder={format(new Date(2018, 11, 18), 'yyyy-MM-dd')}
               value={format(
-                modalData.date.length > 0 ? modalData.date : new Date(),
+                modalData.date.length > 0
+                  ? modalData.date.replace(/-/g, '/')
+                  : new Date().toString().replace(/-/g, '/'),
                 'yyyy-MM-dd'
               )}
-              onChange={(e) =>
-                useEventModalData.setState({ date: e.target.value })
-              }
+              onChange={(e) => {
+                useEventModalData.setState({ date: e.target.value });
+              }}
               required
             />
           </FieldRow>
@@ -138,7 +140,8 @@ const EventModalForm = ({ open, setOpen, event }: EventModalFormProps) => {
                 onChange={(e) => {
                   const date = new Date(modalData.date);
                   const [hours, minutes] = e.target.value.split(':');
-                  date.setUTCMinutes(Number(hours), Number(minutes));
+                  date.setMinutes(Number(minutes));
+                  date.setHours(Number(hours));
 
                   useEventModalData.setState({
                     startingDate: date.toISOString(),
@@ -161,7 +164,8 @@ const EventModalForm = ({ open, setOpen, event }: EventModalFormProps) => {
                 onChange={(e) => {
                   const date = new Date(modalData.date);
                   const [hours, minutes] = e.target.value.split(':');
-                  date.setUTCMinutes(Number(hours), Number(minutes));
+                  date.setMinutes(Number(minutes));
+                  date.setHours(Number(hours));
 
                   useEventModalData.setState({
                     endingDate: date.toISOString(),
