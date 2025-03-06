@@ -1,28 +1,26 @@
 'use client';
 import { trpc } from '@/lib/trpc';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { create } from 'zustand';
-import { Button } from '@/components/ui/button';
 import {
   ModalTriggerCreate,
   ModalTriggerEdit,
 } from '@/components/etiquetas/modal/ModalTrigger';
 import EditFillIcon from '@/components/icons/EditFillIcon';
-import { toast } from 'sonner';
-import Loader from '@/components/ui/loader';
-import { cn } from '@/lib/utils';
 import { type RouterOutputs } from '@/server';
-import EventFillIcon from '../icons/EventFillIcon';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { format } from 'date-fns/format';
+import EventFillIcon from '../../icons/EventFillIcon';
+
+import EventModalForm from '@/components/eventos/modal/EventModalForm';
+import { Button } from '@/components/ui/button';
+import { cn, getTextColorByBg } from '@/lib/utils';
+import Loader from '@/components/ui/loader';
+import { toast } from 'sonner';
+import { type Tag, type TagGroup, type EventTicket } from 'expo-backend-types';
+import TicketsTable from '@/components/eventos/modal/TicketsTable';
+import AddEtiquetaCombos from '@/components/ui/AddEtiquetaCombos';
+import { Badge } from '@/components/ui/badge';
+import CircleXIcon from '@/components/icons/CircleX';
 
 interface EventModalProps {
   action: 'CREATE' | 'EDIT';
@@ -36,42 +34,72 @@ type ModalData = {
   startingDate: string;
   endingDate: string;
   location: string;
-  tags: string[];
+  tags: (Pick<Tag, 'id' | 'name' | 'type'> & {
+    group: Pick<TagGroup, 'id' | 'color' | 'isExclusive'>;
+  })[];
   folderId: string | null;
   subEvents: {
     id: string;
     name: string;
     date: string;
     location: string;
+    startingDate: string;
+    endingDate: string;
   }[];
+  tickets: (Pick<EventTicket, 'amount' | 'price' | 'type'> & {
+    isFree: boolean;
+  })[];
   reset: () => void;
 };
+
+const defaultTickets: ModalData['tickets'] = [
+  {
+    amount: 0,
+    price: 0,
+    type: 'PARTICIPANT',
+    isFree: false,
+  },
+  {
+    amount: 0,
+    price: 0,
+    type: 'SPECTATOR',
+    isFree: false,
+  },
+  {
+    amount: 0,
+    price: 0,
+    type: 'STAFF',
+    isFree: false,
+  },
+];
 
 export const useEventModalData = create<ModalData>((set) => ({
   type: 'CREATE',
   name: '',
-  date: new Date().toISOString(),
-  startingDate: new Date().toISOString(),
-  endingDate: new Date().toISOString(),
+  date: '',
+  startingDate: '',
+  endingDate: '',
   location: '',
   tags: [],
   folderId: null,
   subEvents: [],
+  tickets: defaultTickets,
   reset: () =>
     set({
       type: 'CREATE',
       name: '',
-      date: new Date().toISOString(),
-      startingDate: new Date().toISOString(),
-      endingDate: new Date().toISOString(),
+      date: '',
+      startingDate: '',
+      endingDate: '',
       location: '',
       folderId: null,
+      tickets: defaultTickets,
       subEvents: [],
+      tags: [],
     }),
 }));
 
 const EventModal = ({ action, event }: EventModalProps) => {
-  const utils = trpc.useUtils();
   const modalData = useEventModalData((state) => ({
     type: state.type,
     name: state.name,
@@ -82,16 +110,22 @@ const EventModal = ({ action, event }: EventModalProps) => {
     folderId: state.folderId,
     location: state.location,
     subEvents: state.subEvents,
+    tickets: state.tickets,
     reset: state.reset,
   }));
 
-  const [open, setOpen] = useState(false);
-  const [folderSelectOpen, setFolderSelectOpen] = useState(false);
   const [wantToDelete, setWantToDelete] = useState(false);
-  const createEvent = trpc.event.create.useMutation();
+  const [open, setOpen] = useState(false);
+  const utils = trpc.useUtils();
   const deleteEvent = trpc.event.delete.useMutation();
+  const createEvent = trpc.event.create.useMutation();
   const updateEvent = trpc.event.update.useMutation();
-  const { data: eventFolders } = trpc.eventFolder.getAll.useQuery();
+
+  async function handleCancel() {
+    modalData.reset();
+    createEvent.reset();
+    updateEvent.reset();
+  }
 
   async function sendEvent() {
     if (modalData.type === 'CREATE') {
@@ -102,7 +136,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
           startingDate: new Date(modalData.startingDate),
           endingDate: new Date(modalData.endingDate),
           location: modalData.location,
-          tagsId: modalData.tags,
+          tagsId: modalData.tags.map((tag) => tag.id),
           folderId: modalData.folderId,
           subEvents: modalData.subEvents.map((subevento) => ({
             id: subevento.id,
@@ -172,14 +206,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
     if (createEvent.isSuccess || updateEvent.isSuccess) {
       modalData.reset();
     }
-
     utils.event.getById.invalidate();
-  }
-
-  async function handleCancel() {
-    modalData.reset();
-    createEvent.reset();
-    updateEvent.reset();
   }
 
   async function handleDelete() {
@@ -244,6 +271,8 @@ const EventModal = ({ action, event }: EventModalProps) => {
                       name: subevent.name,
                       date: subevent.date,
                       location: subevent.location,
+                      startingDate: subevent.startingDate,
+                      endingDate: subevent.endingDate,
                     })),
                   });
                 }}
@@ -255,198 +284,65 @@ const EventModal = ({ action, event }: EventModalProps) => {
         </DialogTrigger>
         <DialogContent
           onCloseAutoFocus={handleCancel}
-          className='flex w-full flex-col gap-y-3 rounded-md bg-slate-100 px-5 py-3 md:mx-auto md:max-w-2xl'
+          className='mx-2 flex w-full flex-col gap-y-3  rounded-md bg-slate-100 px-6 py-4 md:max-w-4xl'
         >
-          <div className='flex flex-col gap-y-0.5'>
-            <p className='w-fit py-1.5 text-base font-semibold'>
-              {(modalData.type === 'CREATE' && 'Crear evento') ||
-                (modalData.type === 'EDIT' && 'Editar evento')}
-            </p>
-            <div className='flex flex-col gap-3'>
-              <div className='flex gap-3'>
-                <Input
-                  className='text-black'
-                  type='text'
-                  name='evento'
-                  id='evento'
-                  placeholder='Nombre del evento'
-                  value={modalData.name}
-                  onChange={(e) =>
-                    useEventModalData.setState({ name: e.target.value })
-                  }
-                  required
-                />
-                <Input
-                  type='datetime-local'
-                  name='fecha'
-                  id='fecha'
-                  placeholder='Fecha del evento'
-                  value={format(
-                    modalData.date.length > 0 ? modalData.date : new Date(),
-                    "yyyy-MM-dd'T'HH:mm"
-                  )}
-                  onChange={(e) =>
-                    useEventModalData.setState({ date: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              {}
-              <div className='flex gap-3'>
-                <Input
-                  className='text-black'
-                  type='datetime-local'
-                  name='startingDate'
-                  id='startingDate'
-                  placeholder='Fecha de inicio'
-                  value={modalData.startingDate}
-                  onChange={(e) =>
-                    useEventModalData.setState({ startingDate: e.target.value })
-                  }
-                  required
-                />
-                <Input
-                  className='text-black'
-                  type='datetime-local'
-                  name='endingDate'
-                  id='endingDate'
-                  placeholder='Fecha de cierre'
-                  value={modalData.endingDate}
-                  onChange={(e) =>
-                    useEventModalData.setState({ endingDate: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div className='flex gap-3'>
-                <Input
-                  className='text-black'
-                  type='text'
-                  name='ubicacion'
-                  id='ubicacion'
-                  placeholder='Ubicación'
-                  value={modalData.location}
-                  onChange={(e) =>
-                    useEventModalData.setState({ location: e.target.value })
-                  }
-                  required
-                />
-                <Select
-                  open={folderSelectOpen}
-                  onOpenChange={setFolderSelectOpen}
-                  value={modalData.folderId ?? 'N/A'}
-                  onValueChange={(value) => {
+          <p className='w-fit py-1.5 text-base font-bold'>
+            {(modalData.type === 'CREATE' && 'Crear evento') ||
+              (modalData.type === 'EDIT' && 'Editar evento')}
+          </p>
+          <div className='flex max-h-[70vh] flex-col gap-y-4 overflow-y-auto'>
+            <EventModalForm open={open} setOpen={setOpen} event={event} />
+            <TicketsTable />
+            <div className='flex flex-col justify-between md:flex-row'>
+              <div className='order-last md:order-first'>
+                <AddEtiquetaCombos
+                  tags={modalData.tags}
+                  handleAddTag={(tag) => {
+                    if (modalData.tags.find((t) => t.id === tag.id)) return;
                     useEventModalData.setState({
-                      folderId: value === 'N/A' ? undefined : value,
+                      tags: [...modalData.tags, tag],
                     });
                   }}
-                  defaultValue={modalData.folderId ?? 'N/A'}
-                >
-                  <SelectTrigger>
-                    <SelectValue
-                      placeholder={
-                        modalData.folderId
-                          ? eventFolders?.find(
-                              (c) => c.id === modalData.folderId
-                            )?.name
-                          : 'Seleccione carpeta'
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='N/A'>Sin carpeta</SelectItem> {}
-                    {eventFolders?.map((folder) => (
-                      <SelectItem key={folder.id} value={folder.id}>
-                        {folder.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                />
+                <div className='mt-2 flex flex-wrap gap-2'>
+                  {modalData.tags?.map((tag) => (
+                    <Badge
+                      className='group whitespace-nowrap transition-transform duration-200 ease-in-out hover:shadow-md'
+                      style={{
+                        backgroundColor: tag.group.color,
+                        color: getTextColorByBg(tag.group.color),
+                      }}
+                      key={tag.id}
+                    >
+                      {tag.name}
+
+                      <CircleXIcon
+                        onClick={() => {
+                          useEventModalData.setState({
+                            tags: modalData.tags.filter((t) => t.id !== tag.id),
+                          });
+                        }}
+                        className='invisible w-0 cursor-pointer group-hover:visible group-hover:ml-1 group-hover:w-4'
+                        width={16}
+                        height={16}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className='order-first flex flex-col flex-nowrap md:order-last'>
+                <p className='whitespace-nowrap'>
+                  Total de tickets:{' '}
+                  {modalData.tickets.reduce(
+                    (acc, ticket) => acc + ticket.amount,
+                    0
+                  )}
+                </p>
               </div>
             </div>
           </div>
-          <div className='flex h-full max-h-64 flex-col gap-y-3 overflow-y-auto'>
-            {modalData.subEvents.map((subevent, index) => (
-              <div key={index}>
-                <hr className='mb-2 bg-slate-400' />
-                <div
-                  key={index}
-                  className='mx-auto flex w-[98%] flex-col gap-y-1.5'
-                >
-                  <div className='flex gap-3'>
-                    <Input
-                      type='text'
-                      placeholder='Nombre del subevento'
-                      value={subevent.name}
-                      onChange={(e) => {
-                        const updatedSubevents = [...modalData.subEvents];
-                        updatedSubevents[index].name = e.target.value;
-                        useEventModalData.setState({
-                          subEvents: updatedSubevents,
-                        });
-                      }}
-                      required // Atributo required agregado aquí
-                    />
-                    <Input
-                      type='datetime-local'
-                      placeholder='Fecha del subevento'
-                      value={subevent.date.replace('Z', '')}
-                      onChange={(e) => {
-                        const updatedSubevents = [...modalData.subEvents];
-                        updatedSubevents[index].date = e.target.value;
-                        useEventModalData.setState({
-                          subEvents: updatedSubevents,
-                        });
-                      }}
-                      required // Atributo required agregado aquí
-                    />
-                  </div>
-                  <div className='mb-1.5 flex gap-3'>
-                    <Input
-                      type='text'
-                      placeholder='Ubicación del subevento'
-                      value={subevent.location}
-                      onChange={(e) => {
-                        const updatedSubevents = [...modalData.subEvents];
-                        updatedSubevents[index].location = e.target.value;
-                        useEventModalData.setState({
-                          subEvents: updatedSubevents,
-                        });
-                      }}
-                      required
-                    />
-                    <Button
-                      variant='destructive'
-                      onClick={() => {
-                        const updatedSubevents = [...modalData.subEvents];
-                        updatedSubevents.splice(index, 1);
-                        useEventModalData.setState({
-                          subEvents: updatedSubevents,
-                        });
-                      }}
-                    >
-                      Eliminar subevento
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
 
-          <Button
-            onClick={() => {
-              const updatedSubevents = [...modalData.subEvents];
-              updatedSubevents.push({
-                id: '',
-                name: '',
-                date: '',
-                location: '',
-              });
-              useEventModalData.setState({ subEvents: updatedSubevents });
-            }}
-          >
-            Agregar subevento
-          </Button>
           {createEvent.isError || updateEvent.isError ? (
             <p className='text-sm font-semibold text-red-500'>
               {createEvent.isError
@@ -461,7 +357,25 @@ const EventModal = ({ action, event }: EventModalProps) => {
           ) : null}
           <div className='flex gap-x-4'>
             <Button
-              className='w-full max-w-32'
+              className='max-w-fit px-4'
+              variant={'outline'}
+              onClick={() => {
+                const updatedSubevents = [...modalData.subEvents];
+                updatedSubevents.push({
+                  id: '',
+                  name: '',
+                  date: '',
+                  location: '',
+                  endingDate: '',
+                  startingDate: '',
+                });
+                useEventModalData.setState({ subEvents: updatedSubevents });
+              }}
+            >
+              Agregar subevento
+            </Button>
+            <Button
+              className='w-full'
               onClick={sendEvent}
               disabled={updateEvent.isLoading || createEvent.isLoading}
             >
