@@ -59,6 +59,7 @@ export const eventRouter = router({
         startingDate: sub.startingDate.toISOString(),
         endingDate: sub.endingDate.toISOString(),
       }));
+
       const { data, error } = await ctx.fetch.PATCH('/event/{id}', {
         params: {
           path: {

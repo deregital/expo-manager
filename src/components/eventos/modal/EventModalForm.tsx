@@ -198,7 +198,14 @@ const EventModalForm = () => {
                   type='date'
                   label='Fecha del subevento'
                   placeholder={format(new Date(2018, 11, 18), 'yyyy-MM-dd')}
-                  value={subevent.date}
+                  value={
+                    subevent.date.length > 0
+                      ? format(
+                          toInputValueString(new Date(subevent.date)),
+                          'yyyy-MM-dd'
+                        )
+                      : subevent.date
+                  }
                   onChange={(e) => {
                     const updatedSubevents = [...modalData.subEvents];
                     updatedSubevents[index].date = e.target.value;
@@ -232,14 +239,15 @@ const EventModalForm = () => {
                   label='Horario de inicio'
                   disabled={modalData.subEvents[index].date === ''}
                   value={
-                    modalData.subEvents[index].startingDate
+                    modalData.subEvents[index].startingDate.length > 0
                       ? format(modalData.subEvents[index].startingDate, 'HH:mm')
                       : ''
                   }
                   onChange={(e) => {
                     const date = new Date(modalData.subEvents[index].date);
                     const [hours, minutes] = e.target.value.split(':');
-                    date.setUTCMinutes(Number(hours), Number(minutes));
+                    date.setMinutes(Number(minutes));
+                    date.setHours(Number(hours));
 
                     const updatedSubevents = [...modalData.subEvents];
                     updatedSubevents[index].startingDate = date.toISOString();
@@ -258,17 +266,18 @@ const EventModalForm = () => {
                   label='Horario de cierre'
                   disabled={modalData.subEvents[index].date === ''}
                   value={
-                    modalData.subEvents[index].endingDate
+                    modalData.subEvents[index].endingDate.length > 0
                       ? format(modalData.subEvents[index].endingDate, 'HH:mm')
                       : ''
                   }
                   onChange={(e) => {
                     const date = new Date(modalData.subEvents[index].date);
                     const [hours, minutes] = e.target.value.split(':');
-                    date.setUTCMinutes(Number(hours), Number(minutes));
+                    date.setMinutes(Number(minutes));
+                    date.setHours(Number(hours));
 
                     const updatedSubevents = [...modalData.subEvents];
-                    updatedSubevents[index].startingDate = date.toISOString();
+                    updatedSubevents[index].endingDate = date.toISOString();
 
                     useEventModalData.setState({
                       subEvents: updatedSubevents,
