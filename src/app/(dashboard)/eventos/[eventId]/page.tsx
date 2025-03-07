@@ -6,12 +6,16 @@ import { type RouterOutputs } from '@/server';
 import { ArrowLeftIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { DataTable } from '@/components/modelos/table/dataTable';
-import { generateColumns } from '@/components/eventos/table/columnsEvento';
+import {
+  generateParticipantColumns,
+  generateTicketColumns,
+} from '@/components/eventos/table/columnsEvento';
 import RaiseHand from '@/components/icons/RaiseHand';
 import Filter from '@/components/ui/filtro/Filtro';
 import { type FuncionFiltrar, filterProfiles } from '@/lib/filter';
+import CreateTicketModal from '@/components/eventos/modal/CreateTicketModal';
 
 interface EventPageProps {
   params: {
@@ -22,14 +26,26 @@ interface EventPageProps {
 const EventPage = ({ params }: EventPageProps) => {
   const { data: event, isLoading: isLoadingEvent } =
     trpc.event.getById.useQuery(params.eventId);
-  const { data: profiles } = trpc.profile.getAll.useQuery(undefined, {
-    onSuccess(data) {
-      setProfilesData(data);
-    },
-  });
+  const { data: ticketsData } = trpc.ticket.getByEventId.useQuery(
+    params.eventId
+  );
+  const { data: profiles } = trpc.profile.getByTags.useQuery(
+    event?.tags.map((t) => t.id) ?? [],
+    {
+      enabled: !!event,
+      onSuccess(data) {
+        setProfilesData(data);
+      },
+    }
+  );
+
   const [profilesData, setProfilesData] = useState<
-    RouterOutputs['profile']['getAll']
+    RouterOutputs['profile']['getByTags']
   >([]);
+  const eventTicketsTotal = useMemo(
+    () => event?.eventTickets.reduce((acc, curr) => acc + curr.amount, 0),
+    [event]
+  );
 
   const router = useRouter();
 
@@ -72,19 +88,39 @@ const EventPage = ({ params }: EventPageProps) => {
         >
           <RaiseHand />
         </Button>
+        <p>
+          Tickets emitidos: {ticketsData?.length} de {eventTicketsTotal}
+        </p>
       </div>
       <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
-        {/* <SearchInput
-          onChange={setSearch}
-          placeholder='Buscar por nombre o ID legible'
-        /> */}
         <Filter showInput showTag filterFunction={filter} />
       </div>
-      <DataTable
-        columns={generateColumns(event!.tagConfirmedId, event!.tagAssistedId)}
-        data={profilesData}
-        initialSortingColumn={{ id: 'created_at', desc: true }}
-      />
+      <div className='flex flex-col gap-2 md:flex-row [&>*]:flex-1'>
+        <div>
+          <h3 className='py-2 text-center text-xl font-bold'>
+            Participantes invitados
+          </h3>
+          <DataTable
+            columns={generateParticipantColumns(
+              event?.tags.map((t) => t.id) ?? [],
+              ticketsData ?? []
+            )}
+            data={profilesData}
+            initialSortingColumn={{ id: 'fullName', desc: true }}
+          />
+        </div>
+        <div>
+          <div className='relative w-full py-2'>
+            <h3 className='text-center text-xl font-bold'>Tickets emitidos</h3>
+            <CreateTicketModal eventId={event!.id} eventName={event!.name} />
+          </div>
+          <DataTable
+            columns={generateTicketColumns()}
+            data={ticketsData ?? []}
+            initialSortingColumn={{ id: 'type', desc: true }}
+          />
+        </div>
+      </div>
     </div>
   );
 };

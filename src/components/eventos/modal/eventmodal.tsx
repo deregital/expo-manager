@@ -311,7 +311,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
         </DialogTrigger>
         <DialogContent
           onCloseAutoFocus={handleCancel}
-          className='mx-2 flex w-full flex-col gap-y-3  rounded-md bg-slate-100 px-6 py-4 md:max-w-4xl'
+          className='mx-2 flex w-full flex-col gap-y-3 rounded-md bg-slate-100 px-6 py-4 md:max-w-4xl'
         >
           <p className='w-fit py-1.5 text-base font-bold'>
             {(modalData.type === 'CREATE' && 'Crear evento') ||

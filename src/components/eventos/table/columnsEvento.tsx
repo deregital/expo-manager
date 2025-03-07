@@ -4,13 +4,17 @@ import { Button } from '@/components/ui/button';
 import { type RouterOutputs } from '@/server';
 import { type ColumnDef, type SortDirection } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
-import CellComponent from './CellComponent';
+import { iconsAndTexts } from '@/components/ui/ticket/iconsAndTexts';
+import { Input } from '@/components/ui/input';
+import { type Tag } from 'expo-backend-types';
+import { Badge } from '@/components/ui/badge';
+import { getTextColorByBg } from '@/lib/utils';
 
-export function generateColumns(
-  confirmedAssitanceId: string,
-  assistedId: string
+export function generateParticipantColumns(
+  eventTagsId: Tag['id'][],
+  tickets: RouterOutputs['ticket']['getByEventId']
 ) {
-  const columns: ColumnDef<RouterOutputs['profile']['getAll'][number]>[] = [
+  const columns: ColumnDef<RouterOutputs['profile']['getByTags'][number]>[] = [
     {
       accessorKey: 'shortId',
       header: ({ column }) => {
@@ -58,7 +62,7 @@ export function generateColumns(
       },
     },
     {
-      accessorKey: 'created_at',
+      accessorKey: 'tags',
       header: ({ column }) => {
         return (
           <Button
@@ -66,7 +70,7 @@ export function generateColumns(
             className='pl-0'
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            Creado el
+            Etiquetas
             <SortingIcon isSorted={column.getIsSorted()} />
           </Button>
         );
@@ -75,59 +79,53 @@ export function generateColumns(
       minSize: 100,
       maxSize: 100,
       cell: ({ row }) => {
-        const date = new Date(row.original.created_at).toLocaleDateString(
-          undefined,
-          {
-            localeMatcher: 'best fit',
-          }
+        const matchingTags = row.original.tags.filter((tag) =>
+          eventTagsId.includes(tag.id)
         );
-
-        const month = date.split('/')[0];
-        const day = date.split('/')[1];
-        const year = date.split('/')[2];
-        return <p>{`${day}/${month}/${year}`}</p>;
+        return (
+          <div className='flex flex-nowrap gap-x-2'>
+            {matchingTags.map((tag) => (
+              <Badge
+                key={tag.id}
+                style={{
+                  backgroundColor: tag.group.color,
+                  color: getTextColorByBg(tag.group.color),
+                }}
+                className='mr-1 max-w-24'
+              >
+                <span className='truncate'>{tag.name}</span>
+              </Badge>
+            ))}
+          </div>
+        );
       },
     },
     {
-      accessorKey: 'Confirmó asistencia',
-      cell: ({ row }) => (
-        <CellComponent
-          row={row}
-          assistedId={assistedId}
-          confirmedAssistanceId={confirmedAssitanceId}
-        />
-      ),
-      size: 100,
-      maxSize: 100,
-      minSize: 100,
-      sortingFn: (rowA, rowB) => {
-        // This is a custom sorting function that sorts rows that contain id in etiquetas first
-        const a = rowA.original.tags.map((tag) => tag.id);
-        const b = rowB.original.tags.map((tag) => tag.id);
-
-        const hasTagA =
-          a.includes(confirmedAssitanceId) || a.includes(assistedId);
-        const hasTagB =
-          b.includes(confirmedAssitanceId) || b.includes(assistedId);
-
-        if (hasTagA && !hasTagB) return -1;
-        if (!hasTagA && hasTagB) return 1;
-        return 0;
-      },
       header: ({ column }) => {
         return (
-          <div className='flex justify-center'>
-            <Button
-              variant='ghost'
-              className='pl-0'
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === 'asc')
-              }
-            >
-              Confirmó asistencia
-              <SortingIcon isSorted={column.getIsSorted()} />
-            </Button>
-          </div>
+          <Button
+            variant='ghost'
+            className='pl-0'
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Tiene Ticket?
+            <SortingIcon isSorted={column.getIsSorted()} />
+          </Button>
+        );
+      },
+      size: 100,
+      minSize: 100,
+      maxSize: 100,
+      accessorKey: 'ticket',
+      cell: ({ row }) => {
+        const ticket = tickets.find((t) => t.profile?.id === row.original.id);
+        return (
+          <Input
+            type='checkbox'
+            className='size-6'
+            disabled
+            checked={!!ticket}
+          />
         );
       },
     },
@@ -149,3 +147,127 @@ const SortingIcon = ({ isSorted }: SortingIconProps) => {
     <ArrowUpDown className='ml-2 h-4 w-4' />
   );
 };
+
+export function generateTicketColumns() {
+  const columns: ColumnDef<RouterOutputs['ticket']['getByEventId'][number]>[] =
+    [
+      {
+        accessorKey: 'type',
+        header: ({ column }) => {
+          return (
+            <div
+              className='mx-auto w-full'
+              style={{
+                width: `${column.getSize()}px`,
+              }}
+            >
+              <Button
+                className='px-1'
+                variant='ghost'
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === 'asc')
+                }
+              >
+                Tipo
+                <SortingIcon isSorted={column.getIsSorted()} />
+              </Button>
+            </div>
+          );
+        },
+        minSize: 50,
+        size: 50,
+        maxSize: 50,
+        enableResizing: false,
+        cell: ({ row }) => {
+          const { icon, text } = iconsAndTexts[row.original.type];
+          return (
+            <div className='flex items-center justify-center gap-2 text-sm'>
+              {icon}
+              <span>{text}</span>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: 'fullName',
+        header: ({ column }) => {
+          return (
+            <Button
+              variant='ghost'
+              className='pl-0'
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+            >
+              Nombre
+              <SortingIcon isSorted={column.getIsSorted()} />
+            </Button>
+          );
+        },
+        minSize: 50,
+        size: 50,
+        maxSize: 50,
+        enableResizing: false,
+        cell: ({ row }) => {
+          return <p className='w-full'>{row.original.fullName}</p>;
+        },
+      },
+      {
+        accessorKey: 'mail',
+        header: ({ column }) => {
+          return (
+            <Button
+              variant='ghost'
+              className='pl-0'
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+            >
+              Correo
+              <SortingIcon isSorted={column.getIsSorted()} />
+            </Button>
+          );
+        },
+        minSize: 50,
+        size: 50,
+        maxSize: 50,
+        enableResizing: false,
+        cell: ({ row }) => {
+          return <p className='w-full'>{row.original.mail}</p>;
+        },
+      },
+      {
+        accessorKey: 'used',
+        header: ({ column }) => {
+          return (
+            <Button
+              variant='ghost'
+              className='pl-0'
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+            >
+              Usado
+              <SortingIcon isSorted={column.getIsSorted()} />
+            </Button>
+          );
+        },
+        minSize: 50,
+        size: 50,
+        maxSize: 50,
+        enableResizing: false,
+        cell: ({ row }) => {
+          return (
+            <Input
+              type='checkbox'
+              className='size-6'
+              disabled
+              checked={/*TODO: CHEQUEO DE SI FUE ESCANEADO*/ false}
+            />
+          );
+        },
+      },
+    ];
+
+  return columns;
+}

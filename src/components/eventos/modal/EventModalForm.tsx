@@ -1,6 +1,6 @@
 import { useEventModalData } from '@/components/eventos/modal/eventmodal';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { FieldRow, FormTextInput } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/select';
 import { toInputValueString } from '@/lib/date-utils';
 import { trpc } from '@/lib/trpc';
-import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Trash } from 'lucide-react';
 import { useState } from 'react';
@@ -308,33 +307,3 @@ const EventModalForm = () => {
 };
 
 export default EventModalForm;
-
-interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-}
-
-const FormTextInput = ({
-  label,
-  name,
-  className,
-  ...props
-}: FormInputProps) => (
-  <div className='flex flex-col gap-y-1'>
-    <Label className='slate-900 text-sm font-medium' htmlFor={name}>
-      {label}
-    </Label>
-    <Input id={name} className={cn('w-full', className)} {...props} />
-  </div>
-);
-
-const FieldRow = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => (
-  <div className={cn('flex items-end gap-3 md:gap-7 [&>*]:flex-1', className)}>
-    {children}
-  </div>
-);

@@ -1,7 +1,4 @@
 import { useEventModalData } from '@/components/eventos/modal/eventmodal';
-import PopcornIcon from '@/components/icons/PopcornIcon';
-import ProfileFillIcon from '@/components/icons/ProfileFillIcon';
-import StaffIcon from '@/components/icons/StaffIcon';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -12,24 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { type TicketType } from 'expo-backend-types';
-import { type ReactElement } from 'react';
-
-const iconsAndTexts: Record<TicketType, { icon: ReactElement; text: string }> =
-  {
-    PARTICIPANT: {
-      icon: <ProfileFillIcon className='size-6' />,
-      text: 'Participante',
-    },
-    SPECTATOR: {
-      icon: <PopcornIcon className='size-6' />,
-      text: 'Espectador',
-    },
-    STAFF: {
-      icon: <StaffIcon className='size-6' />,
-      text: 'Staff',
-    },
-  };
+import { iconsAndTexts } from '@/components/ui/ticket/iconsAndTexts';
 
 const TicketsTable = () => {
   const tickets = useEventModalData((s) => s.tickets);
