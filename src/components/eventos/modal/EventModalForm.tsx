@@ -9,20 +9,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { toInputValueString } from '@/lib/date-utils';
 import { trpc } from '@/lib/trpc';
 import { cn } from '@/lib/utils';
-import { type RouterOutputs } from '@/server';
 import { format } from 'date-fns';
 import { Trash } from 'lucide-react';
 import { useState } from 'react';
 
-interface EventModalFormProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  event?: RouterOutputs['event']['getAll']['withoutFolder'][number];
-}
-
-const EventModalForm = ({ open, setOpen, event }: EventModalFormProps) => {
+const EventModalForm = () => {
   const modalData = useEventModalData((state) => ({
     type: state.type,
     name: state.name,
@@ -79,8 +73,8 @@ const EventModalForm = ({ open, setOpen, event }: EventModalFormProps) => {
               label='Fecha'
               placeholder={format(new Date(2018, 11, 18), 'yyyy-MM-dd')}
               value={format(
-                modalData.date.length > 0
-                  ? modalData.date.replace(/-/g, '/')
+                modalData && modalData.date.length > 0
+                  ? toInputValueString(new Date(modalData.date))
                   : new Date().toString().replace(/-/g, '/'),
                 'yyyy-MM-dd'
               )}
@@ -138,7 +132,7 @@ const EventModalForm = ({ open, setOpen, event }: EventModalFormProps) => {
                     : ''
                 }
                 onChange={(e) => {
-                  const date = new Date(modalData.date);
+                  const date = new Date(modalData.date.replace(/-/g, '/'));
                   const [hours, minutes] = e.target.value.split(':');
                   date.setMinutes(Number(minutes));
                   date.setHours(Number(hours));
@@ -162,7 +156,7 @@ const EventModalForm = ({ open, setOpen, event }: EventModalFormProps) => {
                     : ''
                 }
                 onChange={(e) => {
-                  const date = new Date(modalData.date);
+                  const date = new Date(modalData.date.replace(/-/g, '/'));
                   const [hours, minutes] = e.target.value.split(':');
                   date.setMinutes(Number(minutes));
                   date.setHours(Number(hours));

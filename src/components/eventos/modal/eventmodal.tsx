@@ -1,5 +1,5 @@
 'use client';
-import { trpc } from '@/lib/trpc';
+import { getErrorMessage, trpc } from '@/lib/trpc';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { useState } from 'react';
 import { create } from 'zustand';
@@ -57,21 +57,37 @@ const defaultTickets: ModalData['tickets'] = [
     amount: 0,
     price: 0,
     type: 'PARTICIPANT',
-    isFree: false,
+    isFree: true,
   },
   {
     amount: 0,
     price: 0,
     type: 'SPECTATOR',
-    isFree: false,
+    isFree: true,
   },
   {
     amount: 0,
     price: 0,
     type: 'STAFF',
-    isFree: false,
+    isFree: true,
   },
 ];
+
+function generateTicketsArray(
+  tickets: Omit<ModalData['tickets'][number], 'isFree'>[]
+) {
+  return defaultTickets.map((ticket) => {
+    const ticketData = tickets.find((t) => t.type === ticket.type);
+    if (!ticketData) return ticket;
+
+    return {
+      ...ticket,
+      amount: ticketData.amount ?? 0,
+      price: ticketData.price,
+      isFree: ticketData.price === null,
+    };
+  });
+}
 
 export const useEventModalData = create<ModalData>((set) => ({
   type: 'CREATE',
@@ -116,6 +132,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
 
   const [wantToDelete, setWantToDelete] = useState(false);
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState('');
   const utils = trpc.useUtils();
   const deleteEvent = trpc.event.delete.useMutation();
   const createEvent = trpc.event.create.useMutation();
@@ -149,18 +166,19 @@ const EventModal = ({ action, event }: EventModalProps) => {
           eventTickets: [], // TODO: Implementar tickets
         })
         .then(() => {
+          setError('');
           setOpen(!open);
           toast.success('Evento creado con éxito');
           utils.event.getAll.invalidate();
           utils.eventFolder.getAll.invalidate();
         })
         .catch((error) => {
-          try {
-            const errorString = JSON.parse(error.shape.message)[0].message;
-            if (errorString) {
-              toast.error(`Error al crear el evento, ${errorString}`);
-            }
-          } catch (e) {
+          const errorString = getErrorMessage(error);
+          setError(errorString);
+
+          if (errorString) {
+            toast.error(`Error al crear el evento, ${errorString}`);
+          } else {
             toast.error('Error al crear el evento');
           }
         });
@@ -184,18 +202,25 @@ const EventModal = ({ action, event }: EventModalProps) => {
             startingDate: new Date(),
             location: subEvent.location,
           })),
-          eventTickets: [], // TODO: Implementar tickets
+          eventTickets: modalData.tickets.map((ticket) => ({
+            amount: ticket.amount,
+            price: ticket.price,
+            type: ticket.type,
+          })),
+          tagsId: modalData.tags.map((tag) => tag.id),
         })
         .then(() => {
+          setError('');
           setOpen(!open);
           toast.success('Evento editado con éxito');
           utils.event.getAll.invalidate();
           utils.eventFolder.getAll.invalidate();
         })
         .catch((error) => {
-          const errorString = JSON.parse(error.shape.message)[0].message;
+          const errorString = getErrorMessage(error);
+          setError(errorString);
 
-          if (errorString) {
+          if (error.message) {
             toast.error(`Error al editar el evento, ${errorString}`);
           } else {
             toast.error('Error al editar el evento');
@@ -266,6 +291,8 @@ const EventModal = ({ action, event }: EventModalProps) => {
                     endingDate: event.endingDate,
                     location: event.location,
                     folderId: event.folderId,
+                    tags: event.tags,
+                    tickets: generateTicketsArray(event.eventTickets),
                     subEvents: event.subEvents.map((subevent) => ({
                       id: subevent.id,
                       name: subevent.name,
@@ -291,7 +318,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
               (modalData.type === 'EDIT' && 'Editar evento')}
           </p>
           <div className='flex max-h-[70vh] flex-col gap-y-4 overflow-y-auto'>
-            <EventModalForm open={open} setOpen={setOpen} event={event} />
+            <EventModalForm />
             <TicketsTable />
             <div className='flex flex-col justify-between md:flex-row'>
               <div className='order-last md:order-first'>
@@ -345,14 +372,8 @@ const EventModal = ({ action, event }: EventModalProps) => {
 
           {createEvent.isError || updateEvent.isError ? (
             <p className='text-sm font-semibold text-red-500'>
-              {createEvent.isError
-                ? JSON.parse(createEvent.error.shape?.message ?? '[]')[0]
-                    .message
-                : ''}
-              {updateEvent.isError
-                ? JSON.parse(updateEvent.error.shape?.message ?? '[]')[0]
-                    .message
-                : ''}
+              {createEvent.isError && error}
+              {updateEvent.isError && error}
             </p>
           ) : null}
           <div className='flex gap-x-4'>

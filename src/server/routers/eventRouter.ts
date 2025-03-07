@@ -73,6 +73,7 @@ export const eventRouter = router({
           subEvents: sub,
         },
       });
+
       if (error) throw handleError(error);
       return data;
     }),
