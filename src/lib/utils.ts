@@ -75,3 +75,10 @@ export function addDays(date: string, days: number) {
   const daysInMs = days * 24 * 60 * 60 * 1000;
   return new Date(new Date(date).getTime() + daysInMs - 1);
 }
+
+type ValueOf<T> = T[keyof T];
+type Entries<T> = [keyof T, ValueOf<T>][];
+
+export function objectEntries<T extends object>(obj: T): Entries<T> {
+  return Object.entries(obj) as Entries<T>;
+}

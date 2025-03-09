@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import Loader from '@/components/ui/loader';
 import { trpc } from '@/lib/trpc';
 import { type RouterOutputs } from '@/server';
-import { ArrowLeftIcon } from 'lucide-react';
+import { ArrowLeftIcon, CalendarIcon, ClockIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
@@ -16,6 +16,16 @@ import RaiseHand from '@/components/icons/RaiseHand';
 import Filter from '@/components/ui/filtro/Filtro';
 import { type FuncionFiltrar, filterProfiles } from '@/lib/filter';
 import CreateTicketModal from '@/components/eventos/modal/CreateTicketModal';
+import LocationIcon from '@/components/icons/LocationIcon';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import InfoIcon from '@/components/icons/InfoIcon';
+import { type TicketType } from 'expo-backend-types';
+import { iconsAndTexts } from '@/components/ui/ticket/iconsAndTexts';
+import { objectEntries } from '@/lib/utils';
 
 interface EventPageProps {
   params: {
@@ -38,6 +48,8 @@ const EventPage = ({ params }: EventPageProps) => {
       },
     }
   );
+  const toggleActiveMutation = trpc.event.toggleActive.useMutation();
+  const utils = trpc.useUtils();
 
   const [profilesData, setProfilesData] = useState<
     RouterOutputs['profile']['getByTags']
@@ -62,7 +74,7 @@ const EventPage = ({ params }: EventPageProps) => {
     );
 
   return (
-    <div className=''>
+    <div>
       <div>
         <ArrowLeftIcon
           className='h-10 w-10 pt-3 hover:cursor-pointer'
@@ -71,26 +83,53 @@ const EventPage = ({ params }: EventPageProps) => {
           }}
         />
       </div>
-      <div className='grid auto-rows-auto grid-cols-3 items-center justify-center gap-x-3 pb-3 sm:flex'>
-        <div className='col-span-3 p-2'>
-          <h3 className='text-center text-2xl font-bold'>{event?.name}</h3>
-        </div>
-        <h3 className='p-2 text-center text-sm sm:text-base'>
+      <div className='col-span-3 p-2'>
+        <h3 className='text-center text-2xl font-bold'>{event?.name}</h3>
+      </div>
+      <div className='flex flex-wrap items-center justify-center gap-x-3 pb-3'>
+        <h3 className='flex items-center gap-x-1 p-2 text-center align-middle text-sm sm:text-base'>
+          <CalendarIcon className='inline h-5 w-5' />
           {format(event!.date, 'yyyy-MM-dd')}
         </h3>
-        <h3 className='p-2 text-center text-sm sm:text-base'>
+        <h3 className='flex items-center gap-x-1 p-2 text-center align-middle text-sm sm:text-base'>
+          <ClockIcon className='inline h-5 w-5' />
+          {format(event!.startingDate, 'HH:mm')} -{' '}
+          {format(event!.endingDate, 'HH:mm')}
+        </h3>
+        <h3 className='flex items-center p-2 text-center text-sm sm:text-base'>
+          <LocationIcon className='inline h-5 w-5' />
           {event?.location}
         </h3>
 
         <Button
+          title='Presentismo'
           className='aspect-square justify-self-center rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500'
           onClick={() => router.push(`/eventos/${event?.id}/presentismo`)}
         >
           <RaiseHand />
         </Button>
-        <p>
+        <p className='flex items-center gap-x-0.5'>
           Tickets emitidos: {ticketsData?.length} de {eventTicketsTotal}
+          <InfoPopover
+            eventTickets={event!.eventTickets}
+            tickets={ticketsData ?? []}
+          />
         </p>
+      </div>
+      <div className='flex items-center justify-center'>
+        <Button
+          variant={event?.active ? 'destructive' : 'default'}
+          onClick={() => {
+            toggleActiveMutation.mutate(event?.id ?? '');
+            utils.event.getById.invalidate(event?.id);
+          }}
+          disabled={
+            toggleActiveMutation.isLoading ||
+            ((ticketsData ?? []).length > 0 && event!.active)
+          }
+        >
+          {event?.active ? 'Desactivar' : 'Activar'}
+        </Button>
       </div>
       <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
         <Filter showInput showTag filterFunction={filter} />
@@ -126,3 +165,59 @@ const EventPage = ({ params }: EventPageProps) => {
 };
 
 export default EventPage;
+
+interface InfoPopoverProps {
+  eventTickets: RouterOutputs['event']['getById']['eventTickets'];
+  tickets: RouterOutputs['ticket']['getByEventId'];
+}
+
+const InfoPopover = ({ eventTickets, tickets }: InfoPopoverProps) => {
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  // { VIP: {total: 2, emitted: 1}, Regular: {total: 3, emitted: 2} }
+  const totalPerType = eventTickets.reduce(
+    (acc, curr) => {
+      acc[curr.type] = acc[curr.type] ?? {
+        total: curr.amount,
+        emitted: tickets.filter((t) => t.type === curr.type).length,
+      };
+      return acc;
+    },
+    {} as Record<TicketType, { total: number; emitted: number }>
+  );
+
+  const handleMouseEnter = () => {
+    setPopoverOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    setPopoverOpen(false);
+  };
+
+  return (
+    <Popover open={popoverOpen}>
+      <PopoverTrigger
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className='flex items-center justify-center outline-none'
+      >
+        <InfoIcon className='inline size-5 place-self-center' />
+      </PopoverTrigger>
+      <PopoverContent
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className='mt-3 w-72 text-balance border-2 border-stone-300 bg-white px-5 text-center shadow-md shadow-black/50 xl:-top-full xl:left-10 xl:right-0 2xl:w-80'
+        sideOffset={5}
+      >
+        {
+          <ul className='list-inside list-disc'>
+            {objectEntries(totalPerType).map(([type, { total, emitted }]) => (
+              <li key={type}>
+                {iconsAndTexts[type].text}: {emitted} de {total}
+              </li>
+            ))}
+          </ul>
+        }
+      </PopoverContent>
+    </Popover>
+  );
+};
