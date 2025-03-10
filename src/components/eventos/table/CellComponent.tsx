@@ -11,7 +11,7 @@ export const CellComponent = ({
   confirmedAssistanceId,
   assistedId,
 }: {
-  row: Row<RouterOutputs['profile']['getAll'][number]>;
+  row: Row<RouterOutputs['profile']['getByTags'][number]>;
   confirmedAssistanceId: string;
   assistedId: string;
 }) => {
@@ -20,7 +20,7 @@ export const CellComponent = ({
   const useUtils = trpc.useUtils();
 
   async function addPresentismo(
-    profile: RouterOutputs['profile']['getAll'][number]
+    profile: RouterOutputs['profile']['getByTags'][number]
   ) {
     toast.loading('Agregando al presentismo');
     const tagsId = profile.tags.map((tag) => tag.id);
@@ -35,7 +35,7 @@ export const CellComponent = ({
   }
 
   async function removePresentismo(
-    profile: RouterOutputs['profile']['getAll'][number]
+    profile: RouterOutputs['profile']['getByTags'][number]
   ) {
     toast.loading('Removiendo del presentismo');
     const tagsId = profile.tags.map((tag) => tag.id);

@@ -10,16 +10,19 @@ export const eventRouter = router({
   create: protectedProcedure
     .input(createEventSchema)
     .mutation(async ({ input, ctx }) => {
-      const eventDate = input.date.toISOString();
       const sub = input.subEvents?.map((sub) => ({
         ...sub,
         date: sub.date.toISOString(),
+        startingDate: sub.startingDate.toISOString(),
+        endingDate: sub.endingDate.toISOString(),
       }));
 
       const { data, error } = await ctx.fetch.POST('/event/create', {
         body: {
           ...input,
-          date: eventDate,
+          date: input.date.toISOString(),
+          startingDate: input.startingDate.toISOString(),
+          endingDate: input.endingDate.toISOString(),
           subEvents: sub,
         },
       });
@@ -50,11 +53,13 @@ export const eventRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const { id, ...body } = input;
-      const eventDate = input.date.toISOString();
       const sub = input.subEvents?.map((sub) => ({
         ...sub,
         date: sub.date.toISOString(),
+        startingDate: sub.startingDate.toISOString(),
+        endingDate: sub.endingDate.toISOString(),
       }));
+
       const { data, error } = await ctx.fetch.PATCH('/event/{id}', {
         params: {
           path: {
@@ -63,10 +68,13 @@ export const eventRouter = router({
         },
         body: {
           ...body,
-          date: eventDate,
+          date: input.date.toISOString(),
+          startingDate: input.startingDate.toISOString(),
+          endingDate: input.endingDate.toISOString(),
           subEvents: sub,
         },
       });
+
       if (error) throw handleError(error);
       return data;
     }),
