@@ -122,6 +122,7 @@ const EventPage = ({ params }: EventPageProps) => {
           onClick={() => {
             toggleActiveMutation.mutate(event?.id ?? '');
             utils.event.getById.invalidate(event?.id);
+            utils.ticket.getByEventId.invalidate(event?.id);
           }}
           disabled={
             toggleActiveMutation.isLoading ||

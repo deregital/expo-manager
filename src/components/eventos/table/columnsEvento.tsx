@@ -3,12 +3,28 @@
 import { Button } from '@/components/ui/button';
 import { type RouterOutputs } from '@/server';
 import { type ColumnDef, type SortDirection } from '@tanstack/react-table';
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  MoreHorizontal,
+  SendIcon,
+  TrashIcon,
+} from 'lucide-react';
 import { iconsAndTexts } from '@/components/ui/ticket/iconsAndTexts';
 import { Input } from '@/components/ui/input';
 import { type Tag } from 'expo-backend-types';
 import { Badge } from '@/components/ui/badge';
 import { getTextColorByBg } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useState } from 'react';
+import { trpc } from '@/lib/trpc';
 
 export function generateParticipantColumns(
   eventTagsId: Tag['id'][],
@@ -264,6 +280,65 @@ export function generateTicketColumns() {
               disabled
               checked={/*TODO: CHEQUEO DE SI FUE ESCANEADO*/ false}
             />
+          );
+        },
+      },
+      {
+        id: 'actions',
+        enableHiding: false,
+        size: 20,
+        cell: ({ row }) => {
+          const ticket = row.original;
+          // eslint-disable-next-line react-hooks/rules-of-hooks
+          const [sure, setSure] = useState(false);
+          // eslint-disable-next-line react-hooks/rules-of-hooks
+          const [open, setOpen] = useState(false);
+          const deleteTicketMutation = trpc.ticket.delete.useMutation();
+          const utils = trpc.useUtils();
+
+          return (
+            <DropdownMenu open={open} onOpenChange={setOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant='ghost'
+                  className='h-8 w-8 p-0 hover:bg-gray-500/20'
+                >
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end'>
+                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                <DropdownMenuItem
+                  className='flex cursor-pointer items-center justify-between'
+                  onClick={async (e) => {
+                    /*TODO: ENVIAR EMAIL*/
+                  }}
+                >
+                  <span>Reenviar</span>
+                  <SendIcon />
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (sure) {
+                      await deleteTicketMutation.mutateAsync(ticket.id);
+                      setSure(false);
+                      setOpen(false);
+                      utils.ticket.getByEventId.invalidate(ticket.eventId);
+                      utils.event.getById.invalidate(ticket.eventId);
+                      return;
+                    }
+                    setSure(true);
+                  }}
+                  data-sure={sure}
+                  disabled={deleteTicketMutation.isLoading}
+                  className='-mx-1 -mb-1 cursor-pointer bg-red-500 px-3 text-white focus:hover:bg-red-600 focus:hover:text-white data-[sure="true"]:bg-red-600 data-[sure="true"]:hover:bg-red-700'
+                >
+                  {sure ? 'Estás seguro?' : 'Eliminar ticket'}
+                  <TrashIcon />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           );
         },
       },
