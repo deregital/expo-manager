@@ -245,7 +245,8 @@ const EventModal = ({ action, event }: EventModalProps) => {
           utils.event.getAll.invalidate();
         })
         .catch((error) => {
-          toast.error('Error al eliminar el evento');
+          toast.error(`Error al eliminar el evento: ${getErrorMessage(error)}`);
+          setError(getErrorMessage(error));
         });
 
       if (createEvent.isSuccess || updateEvent.isSuccess) {
@@ -373,6 +374,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
             <p className='text-sm font-semibold text-red-500'>
               {createEvent.isError && error}
               {updateEvent.isError && error}
+              {deleteEvent.isError && error}
             </p>
           ) : null}
           <div className='flex gap-x-4'>

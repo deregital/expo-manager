@@ -6,6 +6,7 @@ import EventModal from './modal/eventmodal';
 import EventIcon from '../icons/EventIcon';
 import { useRouter } from 'next/navigation';
 import GeneratePDFButton from '@/components/eventos/GeneratePDFButton';
+import VerifiedIcon from '@/components/icons/VerifiedIcon';
 
 interface EventListTriggerProps {
   event: RouterOutputs['event']['getAll']['withoutFolder'][number];
@@ -30,9 +31,13 @@ const EventListTrigger = ({
 
   return (
     <div className='flex w-full items-center justify-between'>
-      <div className='block w-full justify-between gap-0.5 hover:no-underline sm:flex sm:items-stretch sm:gap-x-2'>
-        <p className='whitespace-nowrap text-start'>{event.name}</p>
-
+      <div className='block w-full items-center justify-between gap-0.5 hover:no-underline sm:flex sm:items-stretch sm:gap-x-2'>
+        <div className='flex gap-x-0.5'>
+          {event.active && (
+            <VerifiedIcon className='size-5 self-center fill-inherit' />
+          )}
+          <p className='whitespace-nowrap text-start'>{event.name}</p>
+        </div>
         <div className='flex w-full items-center gap-x-1'>
           <p className='text-xs text-inherit opacity-70'>
             {format(event.date, 'dd/MM/yyyy HH:mm')}

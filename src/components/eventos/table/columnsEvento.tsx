@@ -138,7 +138,7 @@ export function generateParticipantColumns(
         return (
           <Input
             type='checkbox'
-            className='size-6'
+            className='size-6 disabled:opacity-100'
             disabled
             checked={!!ticket}
           />
