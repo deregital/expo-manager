@@ -25,7 +25,7 @@ import {
 import InfoIcon from '@/components/icons/InfoIcon';
 import { type TicketType } from 'expo-backend-types';
 import { iconsAndTexts } from '@/components/ui/ticket/iconsAndTexts';
-import { objectEntries } from '@/lib/utils';
+import { cn, objectEntries } from '@/lib/utils';
 
 interface EventPageProps {
   params: {
@@ -51,6 +51,7 @@ const EventPage = ({ params }: EventPageProps) => {
   const toggleActiveMutation = trpc.event.toggleActive.useMutation();
   const utils = trpc.useUtils();
 
+  const [sureActivate, setSureActivate] = useState(false);
   const [profilesData, setProfilesData] = useState<
     RouterOutputs['profile']['getByTags']
   >([]);
@@ -123,17 +124,34 @@ const EventPage = ({ params }: EventPageProps) => {
       <div className='flex items-center justify-center'>
         <Button
           variant={event?.active ? 'destructive' : 'default'}
+          className={cn(
+            sureActivate && event?.active ? 'bg-red-600 hover:bg-red-700' : '',
+            sureActivate && !event?.active
+              ? 'bg-slate-900 hover:bg-slate-950'
+              : ''
+          )}
           onClick={() => {
+            if (!sureActivate) {
+              setSureActivate(true);
+              return;
+            }
             toggleActiveMutation.mutate(event?.id ?? '');
-            utils.event.getById.invalidate(event?.id);
-            utils.ticket.getByEventId.invalidate(event?.id);
+            utils.event.getById.invalidate(params.eventId);
+            utils.ticket.getByEventId.invalidate(params.eventId);
+            setSureActivate(false);
           }}
           disabled={
             toggleActiveMutation.isLoading ||
             ((ticketsData ?? []).length > 0 && event!.active)
           }
         >
-          {event?.active ? 'Desactivar' : 'Activar'}
+          {sureActivate
+            ? event?.active
+              ? 'Seguro que quieres desactivar?'
+              : 'Seguro que quieres activar?'
+            : event?.active
+              ? 'Desactivar'
+              : 'Activar'}
         </Button>
       </div>
       <div className='flex items-center justify-center gap-x-2 px-2 pb-5'>
