@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { iconsAndTexts } from '@/components/ui/ticket/iconsAndTexts';
 import { getErrorMessage, trpc } from '@/lib/trpc';
+import { objectEntries } from '@/lib/utils';
 import { type TicketType } from 'expo-backend-types';
 import { useState } from 'react';
 import { create } from 'zustand';
@@ -119,14 +120,20 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
             <SelectValue placeholder={iconsAndTexts[modalData.type].text} />
           </SelectTrigger>
           <SelectContent>
-            {Object.entries(iconsAndTexts).map(([key, { icon, text }]) => (
-              <SelectItem key={key} value={key as TicketType}>
-                <div className='flex items-center gap-x-2'>
-                  {icon}
-                  <span>{text}</span>
-                </div>
-              </SelectItem>
-            ))}
+            {objectEntries(iconsAndTexts)
+              .filter((entry) =>
+                (['PARTICIPANT', 'SPECTATOR'] as TicketType[]).includes(
+                  entry[0]
+                )
+              )
+              .map(([key, { icon, text }]) => (
+                <SelectItem key={key} value={key as TicketType}>
+                  <div className='flex items-center gap-x-2'>
+                    {icon}
+                    <span>{text}</span>
+                  </div>
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
         <div className='flex items-center justify-between'>

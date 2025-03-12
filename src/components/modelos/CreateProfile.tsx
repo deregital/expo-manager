@@ -24,6 +24,7 @@ type ProfileModal = {
     | 'password'
     | 'firstTimeMiExpo'
     | 'isPhoneVerified'
+    | 'role'
   > & {
     birthLocation: {
       city: string;
