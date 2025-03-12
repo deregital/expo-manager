@@ -10,24 +10,24 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { iconsAndTexts } from '@/components/ui/ticket/iconsAndTexts';
-import { getErrorMessage, trpc } from '@/lib/trpc';
-import { objectEntries } from '@/lib/utils';
+import { trpc } from '@/lib/trpc';
+import { getErrorMessage, objectEntries } from '@/lib/utils';
 import { type TicketType } from 'expo-backend-types';
 import { useState } from 'react';
 import { create } from 'zustand';
 
 type TicketModalData = {
-  type: TicketType;
+  type: Exclude<TicketType, 'STAFF'>;
   fullName: string;
   email: string;
   reset: () => void;
 };
 
 const useTicketModalData = create<TicketModalData>((set) => ({
-  type: 'PARTICIPANT',
+  type: 'SPECTATOR',
   fullName: '',
   email: '',
-  reset: () => set({ type: 'PARTICIPANT', fullName: '', email: '' }),
+  reset: () => set({ type: 'SPECTATOR', fullName: '', email: '' }),
 }));
 
 type CreateTicketModalProps = {
@@ -111,7 +111,7 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
           value={modalData.type}
           onValueChange={(value) => {
             useTicketModalData.setState({
-              type: value as TicketType,
+              type: value as TicketModalData['type'],
             });
           }}
           defaultValue={modalData.type}
@@ -122,9 +122,7 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
           <SelectContent>
             {objectEntries(iconsAndTexts)
               .filter((entry) =>
-                (['PARTICIPANT', 'SPECTATOR'] as TicketType[]).includes(
-                  entry[0]
-                )
+                (['STAFF', 'SPECTATOR'] as TicketType[]).includes(entry[0])
               )
               .map(([key, { icon, text }]) => (
                 <SelectItem key={key} value={key as TicketType}>
@@ -147,7 +145,9 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
             >
               Cancelar
             </Button>
-            <Button onClick={handleCreate}>Crear</Button>
+            <Button disabled={createTicket.isLoading} onClick={handleCreate}>
+              Crear
+            </Button>
           </div>
         </div>
       </DialogContent>

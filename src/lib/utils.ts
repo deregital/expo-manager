@@ -82,3 +82,16 @@ type Entries<T> = [keyof T, ValueOf<T>][];
 export function objectEntries<T extends object>(obj: T): Entries<T> {
   return Object.entries(obj) as Entries<T>;
 }
+
+export function getErrorMessage(error: any) {
+  const isZodError = error.data.zodError !== null;
+  let errorString = '';
+
+  if (isZodError) {
+    errorString = JSON.parse(error.message)[0].message;
+  } else {
+    errorString = error.message;
+  }
+
+  return errorString;
+}

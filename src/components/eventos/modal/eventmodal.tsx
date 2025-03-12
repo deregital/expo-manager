@@ -1,5 +1,5 @@
 'use client';
-import { getErrorMessage, trpc } from '@/lib/trpc';
+import { trpc } from '@/lib/trpc';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { useState } from 'react';
 import { create } from 'zustand';
@@ -13,7 +13,7 @@ import EventFillIcon from '../../icons/EventFillIcon';
 
 import EventModalForm from '@/components/eventos/modal/EventModalForm';
 import { Button } from '@/components/ui/button';
-import { cn, getTextColorByBg } from '@/lib/utils';
+import { cn, getErrorMessage, getTextColorByBg } from '@/lib/utils';
 import Loader from '@/components/ui/loader';
 import { toast } from 'sonner';
 import { type Tag, type TagGroup, type EventTicket } from 'expo-backend-types';
@@ -66,7 +66,7 @@ const defaultTickets: ModalData['tickets'] = [
     isFree: true,
   },
   {
-    amount: 0,
+    amount: 999999,
     price: null,
     type: 'STAFF',
     isFree: true,
@@ -82,7 +82,7 @@ function generateTicketsArray(
 
     return {
       ...ticket,
-      amount: ticketData.amount ?? 0,
+      amount: ticketData.amount,
       price: ticketData.price,
       isFree: ticketData.price === null,
     };
@@ -361,10 +361,10 @@ const EventModal = ({ action, event }: EventModalProps) => {
               <div className='order-first flex flex-col flex-nowrap md:order-last'>
                 <p className='whitespace-nowrap'>
                   Total de tickets:{' '}
-                  {modalData.tickets.reduce(
-                    (acc, ticket) => acc + ticket.amount,
-                    0
-                  )}
+                  {modalData.tickets.reduce((acc, ticket) => {
+                    if (ticket.type === 'STAFF') return acc;
+                    return acc + ticket.amount;
+                  }, 0)}
                 </p>
               </div>
             </div>

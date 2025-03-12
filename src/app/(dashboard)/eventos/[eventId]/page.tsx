@@ -55,7 +55,11 @@ const EventPage = ({ params }: EventPageProps) => {
     RouterOutputs['profile']['getByTags']
   >([]);
   const eventTicketsTotal = useMemo(
-    () => event?.eventTickets.reduce((acc, curr) => acc + curr.amount, 0),
+    () =>
+      event?.eventTickets.reduce((acc, curr) => {
+        if (curr.type === 'STAFF') return acc;
+        return acc + curr.amount;
+      }, 0),
     [event]
   );
 
@@ -213,7 +217,8 @@ const InfoPopover = ({ eventTickets, tickets }: InfoPopoverProps) => {
           <ul className='list-inside list-disc'>
             {objectEntries(totalPerType).map(([type, { total, emitted }]) => (
               <li key={type}>
-                {iconsAndTexts[type].text}: {emitted} de {total}
+                {iconsAndTexts[type].text}: {emitted} de{' '}
+                {type === 'STAFF' ? '∞' : total}
               </li>
             ))}
           </ul>
