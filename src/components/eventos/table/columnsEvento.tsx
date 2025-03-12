@@ -7,6 +7,7 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  DownloadIcon,
   MoreHorizontal,
   SendIcon,
   TrashIcon,
@@ -25,6 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useState } from 'react';
 import { trpc } from '@/lib/trpc';
+import { toast } from 'sonner';
 
 export function generateParticipantColumns(
   eventTagsId: Tag['id'][],
@@ -316,6 +318,39 @@ export function generateTicketColumns() {
                 >
                   <span>Reenviar</span>
                   <SendIcon />
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className='flex cursor-pointer items-center justify-between'
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    toast.loading('Descargando ticket...', {
+                      id: `downloading-ticket-${ticket.id}`,
+                    });
+                    const res = await fetch('/api/ticket/download', {
+                      method: 'POST',
+                      body: JSON.stringify({ id: ticket.id }),
+                    });
+                    if (res) {
+                      const blob = await res.blob();
+                      const url = URL.createObjectURL(blob);
+
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `Ticket-${ticket.fullName}-${ticket.event.name}.pdf`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+
+                      URL.revokeObjectURL(url); // Libera memoria
+                      setOpen(false);
+                      toast.dismiss(`downloading-ticket-${ticket.id}`);
+                    } else {
+                      toast.error('Error al descargar ticket');
+                    }
+                  }}
+                >
+                  Descargar
+                  <DownloadIcon />
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={async (e) => {
