@@ -51,16 +51,3 @@ export const trpc = createTRPCNext<AppRouter>({
    **/
   //   ssr: true,
 });
-
-export function getErrorMessage(error: any) {
-  const isZodError = error.data.zodError !== null;
-  let errorString = '';
-
-  if (isZodError) {
-    errorString = JSON.parse(error.message)[0].message;
-  } else {
-    errorString = error.message;
-  }
-
-  return errorString;
-}

@@ -11,9 +11,9 @@ export function handleError(error: {
   statusCode: number;
   error: string;
 }): TRPCError | undefined {
-  const { message, statusCode, error: cause } = error;
+  const { statusCode, error: cause, message } = error;
 
-  const messageString = message[0];
+  const messageString = Array.isArray(message) ? message[0] : message;
   const errorCode = statusCode as
     | 200
     | 400

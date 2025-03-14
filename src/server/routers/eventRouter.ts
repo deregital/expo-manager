@@ -2,6 +2,7 @@ import { handleError, protectedProcedure, router } from '@/server/trpc';
 import {
   createEventSchema,
   eventFolderSchema,
+  eventSchema,
   updateEventSchema,
 } from 'expo-backend-types';
 import { z } from 'zod';
@@ -88,6 +89,22 @@ export const eventRouter = router({
           },
         },
       });
+      if (error) throw handleError(error);
+      return data;
+    }),
+  toggleActive: protectedProcedure
+    .input(eventSchema.shape.id)
+    .mutation(async ({ input, ctx }) => {
+      const { data, error } = await ctx.fetch.POST(
+        '/event/toggle-active/{id}',
+        {
+          params: {
+            path: {
+              id: input,
+            },
+          },
+        }
+      );
       if (error) throw handleError(error);
       return data;
     }),

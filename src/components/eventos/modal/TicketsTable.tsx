@@ -27,6 +27,7 @@ const TicketsTable = () => {
       <TableBody>
         {tickets.map((ticket, index) => {
           const { icon, text } = iconsAndTexts[ticket.type];
+          if (ticket.amount === null) return null;
           return (
             <TableRow
               key={ticket.type}

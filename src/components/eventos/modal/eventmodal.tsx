@@ -1,5 +1,5 @@
 'use client';
-import { getErrorMessage, trpc } from '@/lib/trpc';
+import { trpc } from '@/lib/trpc';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { useState } from 'react';
 import { create } from 'zustand';
@@ -13,7 +13,7 @@ import EventFillIcon from '../../icons/EventFillIcon';
 
 import EventModalForm from '@/components/eventos/modal/EventModalForm';
 import { Button } from '@/components/ui/button';
-import { cn, getTextColorByBg } from '@/lib/utils';
+import { cn, getErrorMessage, getTextColorByBg } from '@/lib/utils';
 import Loader from '@/components/ui/loader';
 import { toast } from 'sonner';
 import { type Tag, type TagGroup, type EventTicket } from 'expo-backend-types';
@@ -55,19 +55,19 @@ type ModalData = {
 const defaultTickets: ModalData['tickets'] = [
   {
     amount: 0,
-    price: 0,
+    price: null,
     type: 'PARTICIPANT',
     isFree: true,
   },
   {
     amount: 0,
-    price: 0,
+    price: null,
     type: 'SPECTATOR',
     isFree: true,
   },
   {
-    amount: 0,
-    price: 0,
+    amount: null,
+    price: null,
     type: 'STAFF',
     isFree: true,
   },
@@ -82,7 +82,7 @@ function generateTicketsArray(
 
     return {
       ...ticket,
-      amount: ticketData.amount ?? 0,
+      amount: ticketData.amount,
       price: ticketData.price,
       isFree: ticketData.price === null,
     };
@@ -92,9 +92,9 @@ function generateTicketsArray(
 export const useEventModalData = create<ModalData>((set) => ({
   type: 'CREATE',
   name: '',
-  date: '',
-  startingDate: '',
-  endingDate: '',
+  date: new Date().toISOString(),
+  startingDate: new Date().toISOString(),
+  endingDate: new Date().toISOString(),
   location: '',
   tags: [],
   folderId: null,
@@ -104,9 +104,9 @@ export const useEventModalData = create<ModalData>((set) => ({
     set({
       type: 'CREATE',
       name: '',
-      date: '',
-      startingDate: '',
-      endingDate: '',
+      date: new Date().toISOString(),
+      startingDate: new Date().toISOString(),
+      endingDate: new Date().toISOString(),
       location: '',
       folderId: null,
       tickets: defaultTickets,
@@ -163,7 +163,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
             startingDate: new Date(),
             location: subevento.location,
           })),
-          eventTickets: [], // TODO: Implementar tickets
+          eventTickets: modalData.tickets, // TODO: Implementar tickets
         })
         .then(() => {
           setError('');
@@ -245,8 +245,8 @@ const EventModal = ({ action, event }: EventModalProps) => {
           utils.event.getAll.invalidate();
         })
         .catch((error) => {
-          console.log(error);
-          toast.error('Error al eliminar el evento');
+          toast.error(`Error al eliminar el evento: ${getErrorMessage(error)}`);
+          setError(getErrorMessage(error));
         });
 
       if (createEvent.isSuccess || updateEvent.isSuccess) {
@@ -361,10 +361,10 @@ const EventModal = ({ action, event }: EventModalProps) => {
               <div className='order-first flex flex-col flex-nowrap md:order-last'>
                 <p className='whitespace-nowrap'>
                   Total de tickets:{' '}
-                  {modalData.tickets.reduce(
-                    (acc, ticket) => acc + ticket.amount,
-                    0
-                  )}
+                  {modalData.tickets.reduce((acc, ticket) => {
+                    if (ticket.amount === null) return acc;
+                    return acc + ticket.amount;
+                  }, 0)}
                 </p>
               </div>
             </div>
@@ -374,6 +374,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
             <p className='text-sm font-semibold text-red-500'>
               {createEvent.isError && error}
               {updateEvent.isError && error}
+              {deleteEvent.isError && error}
             </p>
           ) : null}
           <div className='flex gap-x-4'>
