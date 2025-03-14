@@ -1,4 +1,4 @@
-import { type CategoriaPlantilla, type EstadoPlantilla } from '@prisma/client';
+import { type TemplateCategory, type TemplateStatus } from 'expo-backend-types';
 
 export type Body = {
   type: 'BODY';
@@ -30,8 +30,8 @@ export type TemplateEditResponse = {
 
 export type TemplateResponse = {
   id: string;
-  status: EstadoPlantilla;
-  category: CategoriaPlantilla;
+  status: TemplateStatus;
+  category: TemplateCategory;
 };
 
 export type GetTemplatesResponse = {

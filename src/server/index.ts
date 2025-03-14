@@ -11,11 +11,13 @@ import { locationRouter } from '@/server/routers/locationRouter';
 import { eventFolderRouter } from '@/server/routers/event-folderRouter';
 import { cannedResponseRouter } from '@/server/routers/canned-responseRouter';
 import { commentRouter } from '@/server/routers/commentRouter';
+import { ticketRouter } from '@/server/routers/ticketRouter';
 
 export const appRouter = router({
   profile: profileRouter,
   tag: tagRouter,
   message: messageRouter,
+  ticket: ticketRouter,
   tagGroup: tagGroupRouter,
   csv: csvRouter,
   event: eventRouter,

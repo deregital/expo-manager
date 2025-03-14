@@ -2,6 +2,7 @@ import { handleError, protectedProcedure, router } from '@/server/trpc';
 import {
   createEventSchema,
   eventFolderSchema,
+  eventSchema,
   updateEventSchema,
 } from 'expo-backend-types';
 import { z } from 'zod';
@@ -10,16 +11,19 @@ export const eventRouter = router({
   create: protectedProcedure
     .input(createEventSchema)
     .mutation(async ({ input, ctx }) => {
-      const eventDate = input.date.toISOString();
       const sub = input.subEvents?.map((sub) => ({
         ...sub,
         date: sub.date.toISOString(),
+        startingDate: sub.startingDate.toISOString(),
+        endingDate: sub.endingDate.toISOString(),
       }));
 
       const { data, error } = await ctx.fetch.POST('/event/create', {
         body: {
           ...input,
-          date: eventDate,
+          date: input.date.toISOString(),
+          startingDate: input.startingDate.toISOString(),
+          endingDate: input.endingDate.toISOString(),
           subEvents: sub,
         },
       });
@@ -50,11 +54,13 @@ export const eventRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const { id, ...body } = input;
-      const eventDate = input.date.toISOString();
       const sub = input.subEvents?.map((sub) => ({
         ...sub,
         date: sub.date.toISOString(),
+        startingDate: sub.startingDate.toISOString(),
+        endingDate: sub.endingDate.toISOString(),
       }));
+
       const { data, error } = await ctx.fetch.PATCH('/event/{id}', {
         params: {
           path: {
@@ -63,10 +69,13 @@ export const eventRouter = router({
         },
         body: {
           ...body,
-          date: eventDate,
+          date: input.date.toISOString(),
+          startingDate: input.startingDate.toISOString(),
+          endingDate: input.endingDate.toISOString(),
           subEvents: sub,
         },
       });
+
       if (error) throw handleError(error);
       return data;
     }),
@@ -80,6 +89,22 @@ export const eventRouter = router({
           },
         },
       });
+      if (error) throw handleError(error);
+      return data;
+    }),
+  toggleActive: protectedProcedure
+    .input(eventSchema.shape.id)
+    .mutation(async ({ input, ctx }) => {
+      const { data, error } = await ctx.fetch.POST(
+        '/event/toggle-active/{id}',
+        {
+          params: {
+            path: {
+              id: input,
+            },
+          },
+        }
+      );
       if (error) throw handleError(error);
       return data;
     }),

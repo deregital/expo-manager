@@ -1,5 +1,4 @@
 import PDFIcon from '@/components/icons/PDFIcon';
-import { Button } from '@/components/ui/button';
 import { generate } from '@pdfme/generator';
 import type { Plugin } from '@pdfme/common';
 import { barcodes, text, line, tableBeta, readOnlyText } from '@pdfme/schemas';
@@ -31,7 +30,8 @@ const GeneratePDFButton = ({
   className,
   ...props
 }: GeneratePDFButtonProps) => {
-  async function handleGeneratePDF() {
+  async function handleGeneratePDF(e: React.MouseEvent) {
+    e.stopPropagation();
     const confirmedProfiles = profilesData
       .filter((profile) =>
         profile.tags.find(
@@ -93,16 +93,16 @@ const GeneratePDFButton = ({
   }
 
   return (
-    <Button
+    <span
       onClick={handleGeneratePDF}
       className={cn(
-        'rounded-lg bg-gray-400 text-2xl font-bold text-black hover:bg-gray-500',
+        'rounded-lg bg-gray-400 text-2xl font-bold text-black hover:cursor-pointer hover:bg-gray-500',
         className
       )}
       {...props}
     >
       <PDFIcon />
-    </Button>
+    </span>
   );
 };
 
