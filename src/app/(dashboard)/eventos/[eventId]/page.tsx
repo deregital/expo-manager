@@ -58,7 +58,7 @@ const EventPage = ({ params }: EventPageProps) => {
   const eventTicketsTotal = useMemo(
     () =>
       event?.eventTickets.reduce((acc, curr) => {
-        if (curr.type === 'STAFF') return acc;
+        if (curr.amount === null) return acc;
         return acc + curr.amount;
       }, 0),
     [event]

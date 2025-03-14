@@ -66,7 +66,7 @@ const defaultTickets: ModalData['tickets'] = [
     isFree: true,
   },
   {
-    amount: 999999,
+    amount: null,
     price: null,
     type: 'STAFF',
     isFree: true,
@@ -362,7 +362,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
                 <p className='whitespace-nowrap'>
                   Total de tickets:{' '}
                   {modalData.tickets.reduce((acc, ticket) => {
-                    if (ticket.type === 'STAFF') return acc;
+                    if (ticket.amount === null) return acc;
                     return acc + ticket.amount;
                   }, 0)}
                 </p>
