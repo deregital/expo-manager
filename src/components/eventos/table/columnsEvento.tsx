@@ -296,6 +296,7 @@ export function generateTicketColumns() {
           // eslint-disable-next-line react-hooks/rules-of-hooks
           const [open, setOpen] = useState(false);
           const deleteTicketMutation = trpc.ticket.delete.useMutation();
+          const sendTicketMutation = trpc.ticket.send.useMutation();
           const utils = trpc.useUtils();
 
           return (
@@ -311,15 +312,26 @@ export function generateTicketColumns() {
               <DropdownMenuContent align='end'>
                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                 <DropdownMenuItem
+                  disabled={sendTicketMutation.isLoading}
                   className='flex cursor-pointer items-center justify-between'
                   onClick={async (e) => {
-                    /*TODO: ENVIAR EMAIL*/
+                    e.preventDefault();
+                    await sendTicketMutation.mutateAsync(ticket.id, {
+                      onSuccess: () => {
+                        toast.success('Ticket enviado con éxito');
+                      },
+                      onError: (error) => {
+                        toast.error(error.message);
+                      },
+                    });
+                    setOpen(false);
                   }}
                 >
                   <span>Reenviar</span>
                   <SendIcon />
                 </DropdownMenuItem>
                 <DropdownMenuItem
+                  disabled={deleteTicketMutation.isLoading}
                   className='flex cursor-pointer items-center justify-between'
                   onClick={async (e) => {
                     e.preventDefault();

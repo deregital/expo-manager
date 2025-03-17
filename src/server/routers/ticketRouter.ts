@@ -26,7 +26,6 @@ export const ticketRouter = router({
 
       return data.tickets;
     }),
-
   create: protectedProcedure
     .input(createTicketSchema)
     .mutation(async ({ input, ctx }) => {
@@ -48,6 +47,21 @@ export const ticketRouter = router({
           path: {
             id: input,
           },
+        },
+      });
+
+      if (error) {
+        throw handleError(error);
+      }
+
+      return data;
+    }),
+  send: protectedProcedure
+    .input(ticketSchema.shape.id)
+    .mutation(async ({ input, ctx }) => {
+      const { data, error } = await ctx.fetch.POST('/ticket/send-email/{id}', {
+        params: {
+          path: { id: input },
         },
       });
 
