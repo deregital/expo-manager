@@ -58,8 +58,25 @@ const EventPage = ({ params }: EventPageProps) => {
   const eventTicketsTotal = useMemo(
     () =>
       event?.eventTickets.reduce((acc, curr) => {
-        if (curr.amount === null) return acc;
-        return acc + curr.amount;
+        if (curr.amount === null) {
+          return acc;
+        } else {
+          return acc + curr.amount;
+        }
+      }, 0),
+    [event]
+  );
+  const ticketsTotal = useMemo(
+    () =>
+      event?.tickets.reduce((acc, curr) => {
+        const eventTicket = event.eventTickets.find(
+          (et) => et.type === curr.type
+        );
+
+        if (eventTicket?.amount === null) {
+          return acc;
+        }
+        return acc + 1;
       }, 0),
     [event]
   );
@@ -114,7 +131,7 @@ const EventPage = ({ params }: EventPageProps) => {
           <RaiseHand />
         </Button>
         <p className='flex items-center gap-x-0.5'>
-          Tickets emitidos: {ticketsData?.length} de {eventTicketsTotal}
+          Tickets emitidos: {ticketsTotal} de {eventTicketsTotal}
           <InfoPopover
             eventTickets={event!.eventTickets}
             tickets={ticketsData ?? []}

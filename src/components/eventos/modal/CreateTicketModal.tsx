@@ -17,8 +17,9 @@ import { useState } from 'react';
 import { create } from 'zustand';
 
 type TicketModalData = {
-  type: Exclude<TicketType, 'STAFF'>;
+  type: Exclude<TicketType, 'PARTICIPANT'>;
   fullName: string;
+  dni: string;
   email: string;
   reset: () => void;
 };
@@ -26,8 +27,9 @@ type TicketModalData = {
 const useTicketModalData = create<TicketModalData>((set) => ({
   type: 'SPECTATOR',
   fullName: '',
+  dni: '',
   email: '',
-  reset: () => set({ type: 'SPECTATOR', fullName: '', email: '' }),
+  reset: () => set({ type: 'SPECTATOR', fullName: '', email: '', dni: '' }),
 }));
 
 type CreateTicketModalProps = {
@@ -42,6 +44,7 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
     type: state.type,
     fullName: state.fullName,
     email: state.email,
+    dni: state.dni,
     reset: state.reset,
   }));
 
@@ -60,6 +63,7 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
       type: modalData.type,
       fullName: modalData.fullName,
       mail: modalData.email,
+      dni: modalData.dni,
       status: 'FREE',
     });
     setOpen(false);
@@ -101,6 +105,16 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
           onChange={(e) => {
             useTicketModalData.setState({
               email: e.target.value,
+            });
+          }}
+        />
+        <FormTextInput
+          type='text'
+          label='DNI'
+          placeholder='12345678'
+          onChange={(e) => {
+            useTicketModalData.setState({
+              dni: e.target.value,
             });
           }}
         />
