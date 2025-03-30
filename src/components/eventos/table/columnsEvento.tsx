@@ -280,7 +280,7 @@ export function generateTicketColumns() {
               type='checkbox'
               className='size-6'
               disabled
-              checked={/*TODO: CHEQUEO DE SI FUE ESCANEADO*/ false}
+              checked={row.original.scanned}
             />
           );
         },

@@ -26,6 +26,7 @@ import InfoIcon from '@/components/icons/InfoIcon';
 import { type TicketType } from 'expo-backend-types';
 import { iconsAndTexts } from '@/components/ui/ticket/iconsAndTexts';
 import { cn, objectEntries } from '@/lib/utils';
+import Link from 'next/link';
 
 interface EventPageProps {
   params: {
@@ -124,11 +125,14 @@ const EventPage = ({ params }: EventPageProps) => {
         </h3>
 
         <Button
+          asChild
           title='Presentismo'
           className='aspect-square justify-self-center rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500'
-          onClick={() => router.push(`/eventos/${event?.id}/presentismo`)}
+          // onClick={() => router.push(`/eventos/${event?.id}/presentismo`)}
         >
-          <RaiseHand />
+          <Link href={`/eventos/${event?.id}/presentismo`}>
+            <RaiseHand />
+          </Link>
         </Button>
         <p className='flex items-center gap-x-0.5'>
           Tickets emitidos: {ticketsTotal} de {eventTicketsTotal}
