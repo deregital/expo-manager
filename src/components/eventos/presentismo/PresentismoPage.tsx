@@ -10,6 +10,7 @@ import { type TicketType } from 'expo-backend-types';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import TicketTableSection from '@/components/eventos/presentismo/TicketTableSection';
+import ScanTicketModal from '@/components/eventos/presentismo/ScanTicketModal';
 
 interface PresentismoPageProps {
   eventId: string;
@@ -74,6 +75,9 @@ const PresentismoPage = ({ eventId }: PresentismoPageProps) => {
         <h3 className='p-2 text-center text-sm sm:text-base'>
           {event?.location}
         </h3>
+      </div>
+      <div className='mb-4 flex w-full justify-center'>
+        <ScanTicketModal />
       </div>
       <Tabs
         onValueChange={(v) => setTab(v as Lowercase<TicketType>)}
