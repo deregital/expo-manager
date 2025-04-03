@@ -27,6 +27,7 @@ import {
 import { useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
+import { BarcodeScanner } from '@/components/icons/BarcodeScanner';
 
 export function generateParticipantColumns(
   eventTagsId: Tag['id'][],
@@ -297,6 +298,11 @@ export function generateTicketColumns() {
           const [open, setOpen] = useState(false);
           const deleteTicketMutation = trpc.ticket.delete.useMutation();
           const sendTicketMutation = trpc.ticket.send.useMutation();
+          const scanTicketMutation = trpc.ticket.scan.useMutation({
+            onError: (error) => {
+              toast.error(error.message);
+            },
+          });
           const utils = trpc.useUtils();
 
           return (
@@ -363,6 +369,25 @@ export function generateTicketColumns() {
                 >
                   Descargar
                   <DownloadIcon />
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className='flex cursor-pointer items-center justify-between'
+                  onClick={() => {
+                    if (ticket.scanned) {
+                      toast.error('Ticket ya escaneado');
+                      return;
+                    }
+                    scanTicketMutation.mutate({
+                      type: 'id',
+                      value: row.original.id,
+                    });
+                    utils.ticket.getByEventId.invalidate(ticket.eventId);
+                    utils.event.getById.invalidate(ticket.eventId);
+                  }}
+                  disabled={row.original.scanned}
+                >
+                  Escaneo manual
+                  <BarcodeScanner className='size-5' />
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={async (e) => {

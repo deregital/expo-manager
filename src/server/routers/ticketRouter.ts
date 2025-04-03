@@ -2,6 +2,7 @@ import { handleError, protectedProcedure, router } from '@/server/trpc';
 import {
   createTicketSchema,
   eventSchema,
+  scanTicketSchema,
   ticketSchema,
 } from 'expo-backend-types';
 
@@ -63,6 +64,19 @@ export const ticketRouter = router({
         params: {
           path: { id: input },
         },
+      });
+
+      if (error) {
+        throw handleError(error);
+      }
+
+      return data;
+    }),
+  scan: protectedProcedure
+    .input(scanTicketSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { data, error } = await ctx.fetch.POST('/ticket/scan', {
+        body: input,
       });
 
       if (error) {
