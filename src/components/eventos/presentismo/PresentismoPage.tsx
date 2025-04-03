@@ -3,20 +3,39 @@ import Loader from '@/components/ui/loader';
 import { trpc } from '@/lib/trpc';
 import { format } from 'date-fns';
 import { ArrowLeftIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQueryState } from 'nuqs';
 
 import { type TicketType } from 'expo-backend-types';
+import Link from 'next/link';
+import { useMemo } from 'react';
+import TicketTableSection from '@/components/eventos/presentismo/TicketTableSection';
 
 interface PresentismoPageProps {
   eventId: string;
 }
 
 const PresentismoPage = ({ eventId }: PresentismoPageProps) => {
-  const router = useRouter();
   const { data: event, isLoading: isLoadingEvent } =
     trpc.event.getById.useQuery(eventId);
+
+  const { data: tickets } = trpc.ticket.getByEventId.useQuery(eventId);
+
+  const ticketsByType = useMemo(
+    () =>
+      tickets?.reduce(
+        (acc, ticket) => {
+          const ticketType = ticket.type as TicketType;
+          if (!acc[ticketType]) {
+            acc[ticketType] = [];
+          }
+          acc[ticketType].push(ticket);
+          return acc;
+        },
+        {} as Record<TicketType, typeof tickets>
+      ),
+    [tickets]
+  );
 
   const [tab, setTab] = useQueryState<Lowercase<TicketType>>('tab', {
     defaultValue: 'participant',
@@ -39,14 +58,9 @@ const PresentismoPage = ({ eventId }: PresentismoPageProps) => {
 
   return (
     <div>
-      <div>
-        <ArrowLeftIcon
-          className='h-10 w-10 pt-3 hover:cursor-pointer'
-          onClick={() => {
-            router.replace(`/eventos/${eventId}`);
-          }}
-        />
-      </div>
+      <Link href={`/eventos/${eventId}`}>
+        <ArrowLeftIcon className='h-10 w-10 pt-3 hover:cursor-pointer' />
+      </Link>
       <div className='flex items-center justify-center pb-3'>
         <h1 className='text-3xl font-extrabold'>Presentismo</h1>
       </div>
@@ -70,9 +84,15 @@ const PresentismoPage = ({ eventId }: PresentismoPageProps) => {
           <TabsTrigger value='spectator'>Espectador</TabsTrigger>
           <TabsTrigger value='staff'>Staff</TabsTrigger>
         </TabsList>
-        <TabsContent value='participant'>PARTICIPANTE</TabsContent>
-        <TabsContent value='spectator'>ESPECTADOR</TabsContent>
-        <TabsContent value='staff'>STAFF</TabsContent>
+        <TabsContent value='participant'>
+          <TicketTableSection tickets={ticketsByType?.PARTICIPANT ?? []} />
+        </TabsContent>
+        <TabsContent value='spectator'>
+          <TicketTableSection tickets={ticketsByType?.SPECTATOR ?? []} />
+        </TabsContent>
+        <TabsContent value='staff'>
+          <TicketTableSection tickets={ticketsByType?.STAFF ?? []} />
+        </TabsContent>
       </Tabs>
     </div>
   );

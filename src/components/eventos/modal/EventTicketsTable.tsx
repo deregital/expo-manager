@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { iconsAndTexts } from '@/components/ui/ticket/iconsAndTexts';
 
-const TicketsTable = () => {
+const EventTicketsTable = () => {
   const tickets = useEventModalData((s) => s.tickets);
 
   return (
@@ -97,4 +97,4 @@ const TicketsTable = () => {
   );
 };
 
-export default TicketsTable;
+export default EventTicketsTable;
