@@ -8,10 +8,12 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
+import { useRef } from 'react';
 
 const ScanTicketModal = () => {
   const scanMutation = trpc.ticket.scan.useMutation();
-  const utils = trpc.useContext();
+  const utils = trpc.useUtils();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   return (
     <Dialog
@@ -34,18 +36,27 @@ const ScanTicketModal = () => {
         <div>
           <form
             className='flex'
-            onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
-              const inputValue = e.currentTarget.barcode.value as string;
+            onSubmit={async (e: React.SyntheticEvent<HTMLFormElement>) => {
+              const inputValue = inputRef.current?.value || '';
+              if (!inputValue) {
+                return;
+              }
               e.preventDefault();
-              await scanMutation.mutateAsync({
-                type: 'barcode',
-                value: inputValue,
-              });
-              e.currentTarget.reset();
-              await utils.ticket.getByEventId.invalidate();
+              await scanMutation
+                .mutateAsync({
+                  type: 'barcode',
+                  value: inputValue,
+                })
+                .finally(() => {
+                  utils.ticket.getByEventId.invalidate();
+                  if (inputRef.current) {
+                    inputRef.current.value = '';
+                    inputRef.current.focus();
+                  }
+                });
             }}
           >
-            <Input name='barcode' className='rounded-r-none' />
+            <Input ref={inputRef} name='barcode' className='rounded-r-none' />
             <Button
               className='rounded-l-none'
               type='submit'
