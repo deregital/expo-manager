@@ -7,6 +7,7 @@ import EventIcon from '../icons/EventIcon';
 import { useRouter } from 'next/navigation';
 import GeneratePDFButton from '@/components/eventos/GeneratePDFButton';
 import VerifiedIcon from '@/components/icons/VerifiedIcon';
+import Link from 'next/link';
 
 interface EventListTriggerProps {
   event: RouterOutputs['event']['getAll']['withoutFolder'][number];
@@ -30,7 +31,10 @@ const EventListTrigger = ({
   }
 
   return (
-    <div className='flex w-full items-center justify-between'>
+    <Link
+      href={`/eventos/${event.id}`}
+      className='flex w-full items-center justify-between'
+    >
       <div className='block w-full items-center justify-between gap-0.5 hover:no-underline sm:flex sm:items-stretch sm:gap-x-2'>
         <div className='flex gap-x-0.5'>
           {event.active && (
@@ -64,7 +68,7 @@ const EventListTrigger = ({
         />
         <EventModal action='EDIT' event={event} />
       </div>
-    </div>
+    </Link>
   );
 };
 

@@ -32,6 +32,7 @@ const GeneratePDFButton = ({
 }: GeneratePDFButtonProps) => {
   async function handleGeneratePDF(e: React.MouseEvent) {
     e.stopPropagation();
+    e.preventDefault();
     const confirmedProfiles = profilesData
       .filter((profile) =>
         profile.tags.find(

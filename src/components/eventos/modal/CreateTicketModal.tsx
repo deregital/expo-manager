@@ -64,7 +64,6 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
       fullName: modalData.fullName,
       mail: modalData.email,
       dni: modalData.dni,
-      status: 'FREE',
     });
     setOpen(false);
     modalData.reset();

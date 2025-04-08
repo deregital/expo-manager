@@ -17,7 +17,7 @@ import { cn, getErrorMessage, getTextColorByBg } from '@/lib/utils';
 import Loader from '@/components/ui/loader';
 import { toast } from 'sonner';
 import { type Tag, type TagGroup, type EventTicket } from 'expo-backend-types';
-import TicketsTable from '@/components/eventos/modal/TicketsTable';
+import EventTicketsTable from '@/components/eventos/modal/EventTicketsTable';
 import AddEtiquetaCombos from '@/components/ui/AddEtiquetaCombos';
 import { Badge } from '@/components/ui/badge';
 import CircleXIcon from '@/components/icons/CircleX';
@@ -319,7 +319,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
           </p>
           <div className='flex max-h-[70vh] flex-col gap-y-4 overflow-y-auto'>
             <EventModalForm />
-            <TicketsTable />
+            <EventTicketsTable />
             <div className='flex flex-col justify-between md:flex-row'>
               <div className='order-last md:order-first'>
                 <AddEtiquetaCombos
