@@ -31,11 +31,11 @@ const EventListTrigger = ({
   }
 
   return (
-    <Link
-      href={`/eventos/${event.id}`}
-      className='flex w-full items-center justify-between'
-    >
-      <div className='block w-full items-center justify-between gap-0.5 hover:no-underline sm:flex sm:items-stretch sm:gap-x-2'>
+    <div className='flex w-full items-center justify-between'>
+      <Link
+        href={`/eventos/${event.id}`}
+        className='block w-full items-center justify-between gap-0.5 hover:no-underline sm:flex sm:items-stretch sm:gap-x-2'
+      >
         <div className='flex gap-x-0.5'>
           {event.active && (
             <VerifiedIcon className='size-5 self-center fill-inherit' />
@@ -49,7 +49,7 @@ const EventListTrigger = ({
             {event.location}
           </p>
         </div>
-      </div>
+      </Link>
       <div className='flex items-center justify-center gap-x-2'>
         <GeneratePDFButton
           event={event}
@@ -63,12 +63,13 @@ const EventListTrigger = ({
           className='h-5 w-5 hover:text-black'
           onClick={(e) => {
             e.stopPropagation();
+            e.preventDefault();
             redirectToEvent();
           }}
         />
         <EventModal action='EDIT' event={event} />
       </div>
-    </Link>
+    </div>
   );
 };
 
