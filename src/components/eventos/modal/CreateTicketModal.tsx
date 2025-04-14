@@ -108,12 +108,12 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
           }}
         />
         <FormTextInput
-          type='text'
+          type='number'
           label='DNI'
           placeholder='12345678'
           onChange={(e) => {
             useTicketModalData.setState({
-              dni: e.target.value,
+              dni: e.target.value.toString(),
             });
           }}
         />
