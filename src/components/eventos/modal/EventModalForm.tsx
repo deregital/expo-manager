@@ -190,8 +190,6 @@ const EventModalForm = () => {
                   date.setMinutes(Number(minutes));
                   date.setHours(Number(hours));
 
-                  console.log(date);
-
                   useEventModalData.setState({
                     endingDate: date.toISOString(),
                   });

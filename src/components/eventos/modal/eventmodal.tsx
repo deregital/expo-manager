@@ -100,8 +100,8 @@ export const useEventModalData = create<ModalData>((set) => ({
   tags: [],
   folderId: null,
   subEvents: [],
-  tickets: defaultTickets,
-  reset: () =>
+  tickets: structuredClone(defaultTickets),
+  reset: () => {
     set({
       type: 'CREATE',
       name: '',
@@ -110,10 +110,11 @@ export const useEventModalData = create<ModalData>((set) => ({
       endingDate: new Date().toISOString(),
       location: '',
       folderId: null,
-      tickets: defaultTickets,
+      tickets: structuredClone(defaultTickets),
       subEvents: [],
       tags: [],
-    }),
+    });
+  },
 }));
 
 const EventModal = ({ action, event }: EventModalProps) => {
