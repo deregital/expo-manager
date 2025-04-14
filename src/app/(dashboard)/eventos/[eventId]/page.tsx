@@ -157,7 +157,7 @@ const EventPage = ({ params }: EventPageProps) => {
               return;
             }
             toggleActiveMutation.mutate(event?.id ?? '');
-            utils.event.getById.invalidate(params.eventId);
+            utils.event.getById.invalidate();
             utils.ticket.getByEventId.invalidate(params.eventId);
             setSureActivate(false);
           }}
