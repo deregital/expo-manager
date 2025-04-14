@@ -44,7 +44,7 @@ const EventListTrigger = ({
         </div>
         <div className='flex w-full items-center gap-x-1'>
           <p className='text-xs text-inherit opacity-70'>
-            {format(event.date, 'dd/MM/yyyy HH:mm')}
+            {format(event.startingDate, 'dd/MM/yyyy HH:mm')}
             {' - '}
             {event.location}
           </p>

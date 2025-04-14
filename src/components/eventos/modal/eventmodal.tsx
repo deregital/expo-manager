@@ -21,6 +21,7 @@ import EventTicketsTable from '@/components/eventos/modal/EventTicketsTable';
 import AddEtiquetaCombos from '@/components/ui/AddEtiquetaCombos';
 import { Badge } from '@/components/ui/badge';
 import CircleXIcon from '@/components/icons/CircleX';
+import { format } from 'date-fns';
 
 interface EventModalProps {
   action: 'CREATE' | 'EDIT';
@@ -92,7 +93,7 @@ function generateTicketsArray(
 export const useEventModalData = create<ModalData>((set) => ({
   type: 'CREATE',
   name: '',
-  date: new Date().toISOString(),
+  date: format(new Date(), 'yyyy-MM-dd'),
   startingDate: new Date().toISOString(),
   endingDate: new Date().toISOString(),
   location: '',
@@ -104,7 +105,7 @@ export const useEventModalData = create<ModalData>((set) => ({
     set({
       type: 'CREATE',
       name: '',
-      date: new Date().toISOString(),
+      date: format(new Date(), 'yyyy-MM-dd'),
       startingDate: new Date().toISOString(),
       endingDate: new Date().toISOString(),
       location: '',

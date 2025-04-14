@@ -16,7 +16,11 @@ export const FormTextInput = ({
     <Label className='slate-900 text-sm font-medium' htmlFor={name}>
       {label}
     </Label>
-    <Input id={name} className={cn('w-full', className)} {...props} />
+    <Input
+      id={name}
+      className={cn('w-full disabled:opacity-50', className)}
+      {...props}
+    />
   </div>
 );
 

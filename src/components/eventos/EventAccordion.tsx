@@ -96,7 +96,7 @@ const EventAccordion = ({
               <p className='font-semibold'>
                 Fecha del subevento:{' '}
                 <span className='font-normal'>
-                  {format(subevent.date, 'dd/MM/yyyy hh:mm')}
+                  {format(subevent.startingDate, 'dd/MM/yyyy hh:mm')}
                 </span>
               </p>
               <p className='font-semibold'>
