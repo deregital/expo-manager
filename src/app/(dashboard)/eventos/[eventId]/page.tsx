@@ -112,7 +112,7 @@ const EventPage = ({ params }: EventPageProps) => {
       <div className='flex flex-wrap items-center justify-center gap-x-3 pb-3'>
         <h3 className='flex items-center gap-x-1 p-2 text-center align-middle text-sm sm:text-base'>
           <CalendarIcon className='inline h-5 w-5' />
-          {format(event!.date, 'yyyy-MM-dd')}
+          {format(event!.startingDate, 'dd/MM/yyyy')}
         </h3>
         <h3 className='flex items-center gap-x-1 p-2 text-center align-middle text-sm sm:text-base'>
           <ClockIcon className='inline h-5 w-5' />
@@ -128,7 +128,6 @@ const EventPage = ({ params }: EventPageProps) => {
           asChild
           title='Presentismo'
           className='aspect-square justify-self-center rounded-lg bg-gray-400 px-3 py-1.5 text-xl font-bold text-black hover:bg-gray-500'
-          // onClick={() => router.push(`/eventos/${event?.id}/presentismo`)}
         >
           <Link href={`/eventos/${event?.id}/presentismo`}>
             <RaiseHand />

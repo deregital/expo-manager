@@ -71,11 +71,6 @@ export function dateFormatYYYYMMDD(date: Date) {
   return `${date.getFullYear()}-${date.getMonth() + 1 > 10 ? date.getMonth() + 1 : `0${date.getMonth() + 1}`}-${date.getDate() > 10 ? date.getDate() : `0${date.getDate()}`}`;
 }
 
-export function addDays(date: string, days: number) {
-  const daysInMs = days * 24 * 60 * 60 * 1000;
-  return new Date(new Date(date).getTime() + daysInMs - 1);
-}
-
 type ValueOf<T> = T[keyof T];
 type Entries<T> = [keyof T, ValueOf<T>][];
 

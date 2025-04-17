@@ -4,7 +4,6 @@ import { format } from 'date-fns';
 import React from 'react';
 import EventModal from './modal/eventmodal';
 import EventIcon from '../icons/EventIcon';
-import { useRouter } from 'next/navigation';
 import GeneratePDFButton from '@/components/eventos/GeneratePDFButton';
 import VerifiedIcon from '@/components/icons/VerifiedIcon';
 import Link from 'next/link';
@@ -24,18 +23,9 @@ const EventListTrigger = ({
   profilesData,
   isLoadingProfiles,
 }: EventListTriggerProps) => {
-  const router = useRouter();
-
-  function redirectToEvent() {
-    router.push(`/eventos/${event.id}`);
-  }
-
   return (
     <div className='flex w-full items-center justify-between'>
-      <Link
-        href={`/eventos/${event.id}`}
-        className='block w-full items-center justify-between gap-0.5 hover:no-underline sm:flex sm:items-stretch sm:gap-x-2'
-      >
+      <div className='block w-full items-center justify-between gap-0.5 hover:no-underline sm:flex sm:items-stretch sm:gap-x-2'>
         <div className='flex gap-x-0.5'>
           {event.active && (
             <VerifiedIcon className='size-5 self-center fill-inherit' />
@@ -49,7 +39,7 @@ const EventListTrigger = ({
             {event.location}
           </p>
         </div>
-      </Link>
+      </div>
       <div className='flex items-center justify-center gap-x-2'>
         <GeneratePDFButton
           event={event}
@@ -59,14 +49,9 @@ const EventListTrigger = ({
           className='h-6 bg-transparent fill-white p-0 hover:bg-transparent hover:[&>svg]:scale-110'
           style={{ color: iconColor }}
         />
-        <EventIcon
-          className='h-5 w-5 hover:text-black'
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            redirectToEvent();
-          }}
-        />
+        <Link href={`/eventos/${event.id}`}>
+          <EventIcon className='h-5 w-5 hover:text-black' />
+        </Link>
         <EventModal action='EDIT' event={event} />
       </div>
     </div>

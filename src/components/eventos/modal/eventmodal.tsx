@@ -161,8 +161,8 @@ const EventModal = ({ action, event }: EventModalProps) => {
             id: subevento.id,
             name: subevento.name,
             date: new Date(subevento.date),
-            endingDate: new Date(),
-            startingDate: new Date(),
+            endingDate: new Date(subevento.endingDate),
+            startingDate: new Date(subevento.startingDate),
             location: subevento.location,
           })),
           eventTickets: modalData.tickets, // TODO: Implementar tickets
@@ -200,8 +200,8 @@ const EventModal = ({ action, event }: EventModalProps) => {
             id: subEvent.id,
             name: subEvent.name,
             date: new Date(subEvent.date),
-            endingDate: new Date(),
-            startingDate: new Date(),
+            endingDate: new Date(subEvent.endingDate),
+            startingDate: new Date(subEvent.startingDate),
             location: subEvent.location,
           })),
           eventTickets: modalData.tickets.map((ticket) => ({
@@ -388,7 +388,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
                 updatedSubevents.push({
                   id: '',
                   name: '',
-                  date: '',
+                  date: format(new Date(), 'yyyy-MM-dd'),
                   location: '',
                   endingDate: '',
                   startingDate: '',

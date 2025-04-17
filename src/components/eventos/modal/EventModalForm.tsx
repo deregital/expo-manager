@@ -1,6 +1,6 @@
 import { useEventModalData } from '@/components/eventos/modal/eventmodal';
 import { Button } from '@/components/ui/button';
-import { FieldRow, FormTextInput } from '@/components/ui/form';
+import { FieldRow, FormDateInput, FormTextInput } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -9,9 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toInputValueString } from '@/lib/date-utils';
 import { trpc } from '@/lib/trpc';
-import { format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { Trash } from 'lucide-react';
 import { useState } from 'react';
 
@@ -65,21 +64,19 @@ const EventModalForm = () => {
               }
               required
             />
-            <FormTextInput
-              type='date'
+            <FormDateInput
               name='fecha'
-              id='fecha'
               label='Fecha'
-              min={format(new Date(), 'yyyy-MM-dd')}
-              placeholder={format(new Date(2018, 11, 18), 'yyyy-MM-dd')}
-              value={format(
+              min={new Date()}
+              value={
                 modalData && modalData.date.length > 0
-                  ? toInputValueString(new Date(modalData.date))
-                  : new Date().toString().replace(/-/g, '/'),
-                'yyyy-MM-dd'
-              )}
-              onChange={(e) => {
-                useEventModalData.setState({ date: e.target.value });
+                  ? new Date(modalData.date)
+                  : new Date()
+              }
+              onChange={(date) => {
+                if (!date) return;
+
+                useEventModalData.setState({ date: date.toISOString() });
 
                 const startingDate = new Date(
                   useEventModalData.getState().startingDate
@@ -89,14 +86,14 @@ const EventModalForm = () => {
                 );
 
                 startingDate.setFullYear(
-                  Number(e.target.value.split('-')[0]),
-                  Number(e.target.value.split('-')[1]) - 1,
-                  Number(e.target.value.split('-')[2])
+                  date.getFullYear(),
+                  date.getMonth() - 1,
+                  date.getDate()
                 );
                 endingDate.setFullYear(
-                  Number(e.target.value.split('-')[0]),
-                  Number(e.target.value.split('-')[1]) - 1,
-                  Number(e.target.value.split('-')[2])
+                  date.getFullYear(),
+                  date.getMonth() - 1,
+                  date.getDate()
                 );
 
                 useEventModalData.setState({
@@ -104,7 +101,6 @@ const EventModalForm = () => {
                   endingDate: endingDate.toISOString(),
                 });
               }}
-              required
             />
           </FieldRow>
           <FieldRow className='grid grid-cols-1 md:grid-cols-2 md:grid-rows-1'>
@@ -211,6 +207,7 @@ const EventModalForm = () => {
               <FieldRow>
                 <FormTextInput
                   type='text'
+                  name={`subevent-${index}`}
                   label='Nombre del subevento'
                   placeholder='Mi Subevento'
                   value={subevent.name}
@@ -223,21 +220,16 @@ const EventModalForm = () => {
                   }}
                   required // Atributo required agregado aquí
                 />
-                <FormTextInput
-                  type='date'
+                <FormDateInput
+                  name='date'
+                  min={new Date()}
                   label='Fecha del subevento'
-                  placeholder={format(new Date(2018, 11, 18), 'yyyy-MM-dd')}
-                  value={
-                    subevent.date.length > 0
-                      ? format(
-                          toInputValueString(new Date(subevent.date)),
-                          'yyyy-MM-dd'
-                        )
-                      : subevent.date
-                  }
-                  onChange={(e) => {
+                  value={addDays(new Date(subevent.date), 1)}
+                  onChange={(date) => {
+                    if (!date) return;
+
                     const updatedSubevents = [...modalData.subEvents];
-                    updatedSubevents[index].date = e.target.value;
+                    updatedSubevents[index].date = format(date, 'yyyy-MM-dd');
 
                     const updatedStartingDate = new Date(
                       updatedSubevents[index].startingDate
@@ -247,16 +239,15 @@ const EventModalForm = () => {
                     );
 
                     updatedEndingDate.setFullYear(
-                      Number(e.target.value.split('-')[0]),
-                      Number(e.target.value.split('-')[1]) - 1,
-                      Number(e.target.value.split('-')[2])
+                      date.getFullYear(),
+                      date.getMonth() - 1,
+                      date.getDate()
                     );
                     updatedStartingDate.setFullYear(
-                      Number(e.target.value.split('-')[0]),
-                      Number(e.target.value.split('-')[1]) - 1,
-                      Number(e.target.value.split('-')[2])
+                      date.getFullYear(),
+                      date.getMonth() - 1,
+                      date.getDate()
                     );
-
                     updatedSubevents[index].startingDate =
                       updatedStartingDate.toISOString();
                     updatedSubevents[index].endingDate =
@@ -265,11 +256,11 @@ const EventModalForm = () => {
                       subEvents: updatedSubevents,
                     });
                   }}
-                  required // Atributo required agregado aquí
                 />
               </FieldRow>
               <FieldRow className=''>
                 <FormTextInput
+                  name={`location-${index}`}
                   type='text'
                   label='Ubicación del subevento'
                   placeholder='Roxy, Juan B. Justo 1893, Buenos Aires'
