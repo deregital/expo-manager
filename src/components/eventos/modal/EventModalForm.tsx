@@ -9,6 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  applyFullDateToDate,
+  applyHoursAndMinutesToDate,
+} from '@/lib/date-utils';
 import { trpc } from '@/lib/trpc';
 import { addDays, format } from 'date-fns';
 import { Trash } from 'lucide-react';
@@ -67,7 +71,7 @@ const EventModalForm = () => {
             <FormDateInput
               name='fecha'
               label='Fecha'
-              min={new Date()}
+              min={addDays(new Date(), -1)}
               value={
                 modalData && modalData.date.length > 0
                   ? new Date(modalData.date)
@@ -76,27 +80,17 @@ const EventModalForm = () => {
               onChange={(date) => {
                 if (!date) return;
 
-                useEventModalData.setState({ date: date.toISOString() });
-
-                const startingDate = new Date(
-                  useEventModalData.getState().startingDate
+                const startingDate = applyFullDateToDate(
+                  useEventModalData.getState().startingDate,
+                  date
                 );
-                const endingDate = new Date(
-                  useEventModalData.getState().endingDate
-                );
-
-                startingDate.setFullYear(
-                  date.getFullYear(),
-                  date.getMonth() - 1,
-                  date.getDate()
-                );
-                endingDate.setFullYear(
-                  date.getFullYear(),
-                  date.getMonth() - 1,
-                  date.getDate()
+                const endingDate = applyFullDateToDate(
+                  useEventModalData.getState().endingDate,
+                  date
                 );
 
                 useEventModalData.setState({
+                  date: date.toISOString(),
                   startingDate: startingDate.toISOString(),
                   endingDate: endingDate.toISOString(),
                 });
@@ -151,12 +145,10 @@ const EventModalForm = () => {
                     : ''
                 }
                 onChange={(e) => {
-                  const date = new Date(
-                    modalData.date.replace(/-/g, '/').split('T')[0]
+                  const date = applyHoursAndMinutesToDate(
+                    modalData.date,
+                    e.target.value
                   );
-                  const [hours, minutes] = e.target.value.split(':');
-                  date.setMinutes(Number(minutes));
-                  date.setHours(Number(hours));
 
                   useEventModalData.setState({
                     startingDate: date.toISOString(),
@@ -178,13 +170,10 @@ const EventModalForm = () => {
                     : ''
                 }
                 onChange={(e) => {
-                  const date = new Date(
-                    modalData.date.replace(/-/g, '/').split('T')[0]
+                  const date = applyHoursAndMinutesToDate(
+                    modalData.date,
+                    e.target.value
                   );
-
-                  const [hours, minutes] = e.target.value.split(':');
-                  date.setMinutes(Number(minutes));
-                  date.setHours(Number(hours));
 
                   useEventModalData.setState({
                     endingDate: date.toISOString(),
@@ -231,27 +220,15 @@ const EventModalForm = () => {
                     const updatedSubevents = [...modalData.subEvents];
                     updatedSubevents[index].date = format(date, 'yyyy-MM-dd');
 
-                    const updatedStartingDate = new Date(
-                      updatedSubevents[index].startingDate
-                    );
-                    const updatedEndingDate = new Date(
-                      updatedSubevents[index].endingDate
-                    );
+                    updatedSubevents[index].startingDate = applyFullDateToDate(
+                      updatedSubevents[index].startingDate,
+                      date
+                    ).toISOString();
+                    updatedSubevents[index].endingDate = applyFullDateToDate(
+                      updatedSubevents[index].endingDate,
+                      date
+                    ).toISOString();
 
-                    updatedEndingDate.setFullYear(
-                      date.getFullYear(),
-                      date.getMonth() - 1,
-                      date.getDate()
-                    );
-                    updatedStartingDate.setFullYear(
-                      date.getFullYear(),
-                      date.getMonth() - 1,
-                      date.getDate()
-                    );
-                    updatedSubevents[index].startingDate =
-                      updatedStartingDate.toISOString();
-                    updatedSubevents[index].endingDate =
-                      updatedEndingDate.toISOString();
                     useEventModalData.setState({
                       subEvents: updatedSubevents,
                     });
@@ -287,13 +264,12 @@ const EventModalForm = () => {
                       : ''
                   }
                   onChange={(e) => {
-                    const date = new Date(modalData.subEvents[index].date);
-                    const [hours, minutes] = e.target.value.split(':');
-                    date.setMinutes(Number(minutes));
-                    date.setHours(Number(hours));
-
                     const updatedSubevents = [...modalData.subEvents];
-                    updatedSubevents[index].startingDate = date.toISOString();
+                    updatedSubevents[index].startingDate =
+                      applyHoursAndMinutesToDate(
+                        modalData.subEvents[index].date,
+                        e.target.value
+                      ).toISOString();
 
                     useEventModalData.setState({
                       subEvents: updatedSubevents,
@@ -314,13 +290,12 @@ const EventModalForm = () => {
                       : ''
                   }
                   onChange={(e) => {
-                    const date = new Date(modalData.subEvents[index].date);
-                    const [hours, minutes] = e.target.value.split(':');
-                    date.setMinutes(Number(minutes));
-                    date.setHours(Number(hours));
-
                     const updatedSubevents = [...modalData.subEvents];
-                    updatedSubevents[index].endingDate = date.toISOString();
+                    updatedSubevents[index].endingDate =
+                      applyHoursAndMinutesToDate(
+                        modalData.subEvents[index].date,
+                        e.target.value
+                      ).toISOString();
 
                     useEventModalData.setState({
                       subEvents: updatedSubevents,
