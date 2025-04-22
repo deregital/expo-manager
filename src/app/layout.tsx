@@ -12,7 +12,7 @@ const fontSans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: `Expo Manager${process.env.NEXT_PUBLIC_ES_DEMO === 'true' ? ' - Demo' : ''}`,
+  title: `${process.env.NEXT_PUBLIC_ES_DEMO === 'true' ? 'Demo - ' : ''}Expo Manager`,
   description: 'El mejor administrador de eventos',
 };
 

@@ -1,6 +1,6 @@
 import { useEventModalData } from '@/components/eventos/modal/eventmodal';
 import { Button } from '@/components/ui/button';
-import { FieldRow, FormTextInput } from '@/components/ui/form';
+import { FieldRow, FormDateInput, FormTextInput } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -9,9 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { toInputValueString } from '@/lib/date-utils';
+import {
+  applyFullDateToDate,
+  applyHoursAndMinutesToDate,
+} from '@/lib/date-utils';
 import { trpc } from '@/lib/trpc';
-import { format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { Trash } from 'lucide-react';
 import { useState } from 'react';
 
@@ -65,22 +68,33 @@ const EventModalForm = () => {
               }
               required
             />
-            <FormTextInput
-              type='date'
+            <FormDateInput
               name='fecha'
-              id='fecha'
               label='Fecha'
-              placeholder={format(new Date(2018, 11, 18), 'yyyy-MM-dd')}
-              value={format(
+              min={addDays(new Date(), -1)}
+              value={
                 modalData && modalData.date.length > 0
-                  ? toInputValueString(new Date(modalData.date))
-                  : new Date().toString().replace(/-/g, '/'),
-                'yyyy-MM-dd'
-              )}
-              onChange={(e) => {
-                useEventModalData.setState({ date: e.target.value });
+                  ? new Date(modalData.date)
+                  : new Date()
+              }
+              onChange={(date) => {
+                if (!date) return;
+
+                const startingDate = applyFullDateToDate(
+                  useEventModalData.getState().startingDate,
+                  date
+                );
+                const endingDate = applyFullDateToDate(
+                  useEventModalData.getState().endingDate,
+                  date
+                );
+
+                useEventModalData.setState({
+                  date: date.toISOString(),
+                  startingDate: startingDate.toISOString(),
+                  endingDate: endingDate.toISOString(),
+                });
               }}
-              required
             />
           </FieldRow>
           <FieldRow className='grid grid-cols-1 md:grid-cols-2 md:grid-rows-1'>
@@ -131,10 +145,10 @@ const EventModalForm = () => {
                     : ''
                 }
                 onChange={(e) => {
-                  const date = new Date(modalData.date.replace(/-/g, '/'));
-                  const [hours, minutes] = e.target.value.split(':');
-                  date.setMinutes(Number(minutes));
-                  date.setHours(Number(hours));
+                  const date = applyHoursAndMinutesToDate(
+                    modalData.date,
+                    e.target.value
+                  );
 
                   useEventModalData.setState({
                     startingDate: date.toISOString(),
@@ -148,6 +162,7 @@ const EventModalForm = () => {
                 name='endingDate'
                 id='endingDate'
                 label='Horario de cierre'
+                min={format(modalData.startingDate, 'HH:mm')}
                 disabled={modalData.date === ''}
                 value={
                   modalData.endingDate
@@ -155,10 +170,10 @@ const EventModalForm = () => {
                     : ''
                 }
                 onChange={(e) => {
-                  const date = new Date(modalData.date.replace(/-/g, '/'));
-                  const [hours, minutes] = e.target.value.split(':');
-                  date.setMinutes(Number(minutes));
-                  date.setHours(Number(hours));
+                  const date = applyHoursAndMinutesToDate(
+                    modalData.date,
+                    e.target.value
+                  );
 
                   useEventModalData.setState({
                     endingDate: date.toISOString(),
@@ -181,6 +196,7 @@ const EventModalForm = () => {
               <FieldRow>
                 <FormTextInput
                   type='text'
+                  name={`subevent-${index}`}
                   label='Nombre del subevento'
                   placeholder='Mi Subevento'
                   value={subevent.name}
@@ -193,30 +209,35 @@ const EventModalForm = () => {
                   }}
                   required // Atributo required agregado aquí
                 />
-                <FormTextInput
-                  type='date'
+                <FormDateInput
+                  name='date'
+                  min={new Date()}
                   label='Fecha del subevento'
-                  placeholder={format(new Date(2018, 11, 18), 'yyyy-MM-dd')}
-                  value={
-                    subevent.date.length > 0
-                      ? format(
-                          toInputValueString(new Date(subevent.date)),
-                          'yyyy-MM-dd'
-                        )
-                      : subevent.date
-                  }
-                  onChange={(e) => {
+                  value={addDays(new Date(subevent.date), 1)}
+                  onChange={(date) => {
+                    if (!date) return;
+
                     const updatedSubevents = [...modalData.subEvents];
-                    updatedSubevents[index].date = e.target.value;
+                    updatedSubevents[index].date = format(date, 'yyyy-MM-dd');
+
+                    updatedSubevents[index].startingDate = applyFullDateToDate(
+                      updatedSubevents[index].startingDate,
+                      date
+                    ).toISOString();
+                    updatedSubevents[index].endingDate = applyFullDateToDate(
+                      updatedSubevents[index].endingDate,
+                      date
+                    ).toISOString();
+
                     useEventModalData.setState({
                       subEvents: updatedSubevents,
                     });
                   }}
-                  required // Atributo required agregado aquí
                 />
               </FieldRow>
               <FieldRow className=''>
                 <FormTextInput
+                  name={`location-${index}`}
                   type='text'
                   label='Ubicación del subevento'
                   placeholder='Roxy, Juan B. Justo 1893, Buenos Aires'
@@ -243,13 +264,12 @@ const EventModalForm = () => {
                       : ''
                   }
                   onChange={(e) => {
-                    const date = new Date(modalData.subEvents[index].date);
-                    const [hours, minutes] = e.target.value.split(':');
-                    date.setMinutes(Number(minutes));
-                    date.setHours(Number(hours));
-
                     const updatedSubevents = [...modalData.subEvents];
-                    updatedSubevents[index].startingDate = date.toISOString();
+                    updatedSubevents[index].startingDate =
+                      applyHoursAndMinutesToDate(
+                        modalData.subEvents[index].date,
+                        e.target.value
+                      ).toISOString();
 
                     useEventModalData.setState({
                       subEvents: updatedSubevents,
@@ -270,13 +290,12 @@ const EventModalForm = () => {
                       : ''
                   }
                   onChange={(e) => {
-                    const date = new Date(modalData.subEvents[index].date);
-                    const [hours, minutes] = e.target.value.split(':');
-                    date.setMinutes(Number(minutes));
-                    date.setHours(Number(hours));
-
                     const updatedSubevents = [...modalData.subEvents];
-                    updatedSubevents[index].endingDate = date.toISOString();
+                    updatedSubevents[index].endingDate =
+                      applyHoursAndMinutesToDate(
+                        modalData.subEvents[index].date,
+                        e.target.value
+                      ).toISOString();
 
                     useEventModalData.setState({
                       subEvents: updatedSubevents,

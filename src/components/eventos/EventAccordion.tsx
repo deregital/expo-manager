@@ -11,7 +11,7 @@ import { trpc } from '@/lib/trpc';
 import { cn, getTextColorByBg } from '@/lib/utils';
 import { type RouterOutputs } from '@/server';
 import { format } from 'date-fns';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import React from 'react';
 
 interface EventAccordionProps {
@@ -29,7 +29,6 @@ const EventAccordion = ({
   isOpen,
   baseUrl,
 }: EventAccordionProps) => {
-  const router = useRouter();
   const { clickTrigger } = useExpandEventos((s) => ({
     clickTrigger: s.clickTrigger,
   }));
@@ -43,10 +42,6 @@ const EventAccordion = ({
     );
 
   const pdfIconColor = color ? getTextColorByBg(color) : '#FFFFFF';
-
-  function redirectToEvent(subeventId: string) {
-    router.push(`/eventos/${subeventId}`);
-  }
 
   return (
     <AccordionItem
@@ -96,7 +91,7 @@ const EventAccordion = ({
               <p className='font-semibold'>
                 Fecha del subevento:{' '}
                 <span className='font-normal'>
-                  {format(subevent.date, 'dd/MM/yyyy hh:mm')}
+                  {format(new Date(subevent.startingDate), 'dd/MM/yyyy HH:mm')}
                 </span>
               </p>
               <p className='font-semibold'>
@@ -105,13 +100,9 @@ const EventAccordion = ({
               </p>
               <p className='flex gap-x-1 font-semibold'>
                 Confirmación de asistencia al subevento:
-                <EventIcon
-                  className='h-5 w-5 hover:cursor-pointer hover:text-black/60'
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    redirectToEvent(subevent.id);
-                  }}
-                />
+                <Link href={`/eventos/${subevent.id}`}>
+                  <EventIcon className='h-5 w-5 hover:cursor-pointer hover:text-black/60' />
+                </Link>
               </p>
               <p className='flex items-center gap-x-1 font-semibold'>
                 PDF del Evento:

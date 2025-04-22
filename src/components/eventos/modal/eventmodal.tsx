@@ -21,6 +21,7 @@ import EventTicketsTable from '@/components/eventos/modal/EventTicketsTable';
 import AddEtiquetaCombos from '@/components/ui/AddEtiquetaCombos';
 import { Badge } from '@/components/ui/badge';
 import CircleXIcon from '@/components/icons/CircleX';
+import { format } from 'date-fns';
 
 interface EventModalProps {
   action: 'CREATE' | 'EDIT';
@@ -92,27 +93,28 @@ function generateTicketsArray(
 export const useEventModalData = create<ModalData>((set) => ({
   type: 'CREATE',
   name: '',
-  date: new Date().toISOString(),
+  date: format(new Date(), 'yyyy-MM-dd'),
   startingDate: new Date().toISOString(),
   endingDate: new Date().toISOString(),
   location: '',
   tags: [],
   folderId: null,
   subEvents: [],
-  tickets: defaultTickets,
-  reset: () =>
+  tickets: structuredClone(defaultTickets),
+  reset: () => {
     set({
       type: 'CREATE',
       name: '',
-      date: new Date().toISOString(),
+      date: format(new Date(), 'yyyy-MM-dd'),
       startingDate: new Date().toISOString(),
       endingDate: new Date().toISOString(),
       location: '',
       folderId: null,
-      tickets: defaultTickets,
+      tickets: structuredClone(defaultTickets),
       subEvents: [],
       tags: [],
-    }),
+    });
+  },
 }));
 
 const EventModal = ({ action, event }: EventModalProps) => {
@@ -159,8 +161,8 @@ const EventModal = ({ action, event }: EventModalProps) => {
             id: subevento.id,
             name: subevento.name,
             date: new Date(subevento.date),
-            endingDate: new Date(),
-            startingDate: new Date(),
+            endingDate: new Date(subevento.endingDate),
+            startingDate: new Date(subevento.startingDate),
             location: subevento.location,
           })),
           eventTickets: modalData.tickets, // TODO: Implementar tickets
@@ -198,8 +200,8 @@ const EventModal = ({ action, event }: EventModalProps) => {
             id: subEvent.id,
             name: subEvent.name,
             date: new Date(subEvent.date),
-            endingDate: new Date(),
-            startingDate: new Date(),
+            endingDate: new Date(subEvent.endingDate),
+            startingDate: new Date(subEvent.startingDate),
             location: subEvent.location,
           })),
           eventTickets: modalData.tickets.map((ticket) => ({
@@ -386,7 +388,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
                 updatedSubevents.push({
                   id: '',
                   name: '',
-                  date: '',
+                  date: format(new Date(), 'yyyy-MM-dd'),
                   location: '',
                   endingDate: '',
                   startingDate: '',

@@ -37,6 +37,8 @@ export const profileRouter = router({
   getByTags: protectedProcedure
     .input(z.array(tagSchema.shape.id))
     .query(async ({ input, ctx }) => {
+      if (!input.length) return [];
+
       const { error, data } = await ctx.fetch.GET('/profile/find-by-tags', {
         params: {
           query: {

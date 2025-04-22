@@ -88,6 +88,7 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
           Crear ticket para {eventName}
         </p>
         <FormTextInput
+          name='fullName'
           type='text'
           placeholder='María Perez'
           label='Nombre completo'
@@ -98,6 +99,7 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
           }}
         />
         <FormTextInput
+          name='email'
           type='email'
           label='Correo electrónico'
           placeholder='mariaperez@gmail.com'
@@ -108,12 +110,13 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
           }}
         />
         <FormTextInput
-          type='text'
+          name='dni'
+          type='number'
           label='DNI'
           placeholder='12345678'
           onChange={(e) => {
             useTicketModalData.setState({
-              dni: e.target.value,
+              dni: e.target.value.toString(),
             });
           }}
         />

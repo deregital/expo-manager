@@ -67,6 +67,7 @@ export function generateParticipantColumns(
     },
     {
       accessorKey: 'fullName',
+      sortingFn: 'text',
       header: ({ column }) => {
         return (
           <Button
@@ -209,6 +210,7 @@ export function generateTicketColumns() {
       },
       {
         accessorKey: 'fullName',
+        sortingFn: 'text',
         header: ({ column }) => {
           return (
             <Button
@@ -228,7 +230,7 @@ export function generateTicketColumns() {
         maxSize: 50,
         enableResizing: false,
         cell: ({ row }) => {
-          return <p className='w-full'>{row.original.fullName}</p>;
+          return <p className='w-full capitalize'>{row.original.fullName}</p>;
         },
       },
       {
