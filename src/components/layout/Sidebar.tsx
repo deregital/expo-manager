@@ -18,6 +18,8 @@ import PapeleraFillIcon from '../icons/PapeleraFillIcon';
 import SidebarLinkMensajes from '@/components/layout/SidebarLinkMessages';
 import MapIcon from '../icons/MapIcon';
 import MapFillIcon from '../icons/MapFillIcon';
+import ProductionIcon from '@/components/icons/ProductionIcon';
+import ProductionFillIcon from '@/components/icons/ProductionFillIcon';
 
 const Sidebar = () => {
   return (
@@ -80,6 +82,13 @@ const Sidebar = () => {
             iconActive={<MapFillIcon height={24} width={24} />}
           >
             Mapa
+          </SidebarLink>
+          <SidebarLink
+            to='/producciones'
+            icon={<ProductionIcon height={24} width={24} />}
+            iconActive={<ProductionFillIcon height={24} width={24} />}
+          >
+            Producciones
           </SidebarLink>
         </ul>
       </div>
