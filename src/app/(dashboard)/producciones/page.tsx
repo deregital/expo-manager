@@ -1,8 +1,12 @@
-const ProduccionesPage = () => {
+import { CreateProductionModal } from '@/components/producciones/CreateProductionModal';
+import { ProductionList } from '@/components/producciones/ProductionList';
+
+const ProduccionesPage = async () => {
   return (
-    <div>
-      <h1>Producciones</h1>
-      <p>Esta es la página de producciones.</p>
+    <div className='flex flex-col gap-y-4 p-3 md:p-5'>
+      <h1 className='text-xl font-bold md:text-3xl'>Gestor de Producciones</h1>
+      <CreateProductionModal />
+      <ProductionList />
     </div>
   );
 };
