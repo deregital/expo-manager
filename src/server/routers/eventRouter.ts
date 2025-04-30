@@ -48,6 +48,11 @@ export const eventRouter = router({
       if (error) throw handleError(error);
       return data;
     }),
+  getAllStatistics: protectedProcedure.query(async ({ ctx }) => {
+    const { data, error } = await ctx.fetch.GET('/event/statistics');
+    if (error) throw handleError(error);
+    return data;
+  }),
   update: protectedProcedure
     .input(
       updateEventSchema.merge(z.object({ id: eventFolderSchema.shape.id }))
