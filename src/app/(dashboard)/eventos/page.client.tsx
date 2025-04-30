@@ -11,6 +11,18 @@ import { searchNormalize } from '@/lib/utils';
 import { XIcon } from 'lucide-react';
 import EventsFolderModal from '@/components/eventos/modal/EventsFolderModal';
 import EventsList from '@/components/eventos/eventslist';
+import SharedCard from '@/components/dashboard/SharedCard';
+import { AttendanceChart } from '@/components/eventos/estadisticas/AttendanceChart';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
+import { EventStatsTable } from '@/components/eventos/estadisticas/EventStatsTable';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { TopMailList } from '@/components/eventos/estadisticas/TopMailList';
 
 type EventosPageClientProps = {
   hostname: string;
@@ -19,6 +31,8 @@ type EventosPageClientProps = {
 const EventosPageClient = ({ hostname }: EventosPageClientProps) => {
   const [search, setSearch] = useState('');
   const { data, isLoading } = trpc.event.getAll.useQuery();
+  const { data: statistics, isLoading: isLoadingStatistics } =
+    trpc.event.getAllStatistics.useQuery();
   const { expandState, setNone } = useExpandEventos((s) => ({
     setNone: s.none,
     expandState: s.state,
@@ -81,7 +95,107 @@ const EventosPageClient = ({ hostname }: EventosPageClientProps) => {
   }, [folders, eventsWithoutFolder, isLoading, search]);
 
   return (
-    <>
+    <div>
+      {isLoadingStatistics ? (
+        <div className='flex h-64 items-center justify-center'>
+          <Loader />
+        </div>
+      ) : (
+        <>
+          <div className='flex justify-center md:hidden'>
+            <Carousel className='relative w-full max-w-[90rem]'>
+              <CarouselContent>
+                <CarouselItem className=''>
+                  <div className='grid grid-cols-2 grid-rows-1 gap-4 p-3'>
+                    <section className='h-full rounded-md sm:pb-2'>
+                      <SharedCard
+                        title='Ingresos Totales'
+                        content={'$' + statistics?.totalIncome}
+                        isLoading={isLoadingStatistics}
+                        popoverText={
+                          'Ingresos totales en pesos de todos los eventos incluyendo espectadores y participantes'
+                        }
+                      />
+                    </section>
+                    <section className='h-full rounded-md sm:pb-2'>
+                      <SharedCard
+                        title='Emitidas / Cupo'
+                        content={statistics?.attendancePercent + '%'}
+                        isLoading={isLoadingStatistics}
+                        popoverText={
+                          'Porcentaje de entradas emitidas sobre el total de entradas disponibles entre todos los eventos'
+                        }
+                      />
+                    </section>
+                  </div>
+                </CarouselItem>
+                <CarouselItem className=''>
+                  <div className='grid grid-cols-1 grid-rows-1 gap-4 p-3'>
+                    <AttendanceChart />
+                  </div>
+                </CarouselItem>
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          </div>
+          <div className='hidden justify-center md:flex'>
+            <Carousel className='relative w-full max-w-[90rem]'>
+              <CarouselContent>
+                <CarouselItem className=''>
+                  <div className='grid grid-cols-3 grid-rows-1 gap-4 p-3'>
+                    <section className='h-full rounded-md sm:pb-2'>
+                      <SharedCard
+                        title='Ingresos Totales'
+                        content={'$' + statistics?.totalIncome}
+                        isLoading={isLoadingStatistics}
+                        popoverText={
+                          'Ingresos totales en pesos de todos los eventos incluyendo espectadores y participantes'
+                        }
+                      />
+                    </section>
+                    <section className='h-full rounded-md sm:pb-2'>
+                      <SharedCard
+                        title='Emitidas / Cupo'
+                        content={statistics?.attendancePercent + '%'}
+                        isLoading={isLoadingStatistics}
+                        popoverText={
+                          'Porcentaje de entradas emitidas sobre el total de entradas disponibles entre todos los eventos'
+                        }
+                      />
+                    </section>
+                    <AttendanceChart />
+                  </div>
+                </CarouselItem>
+                <CarouselItem className=''>
+                  <section className='grid grid-cols-2 gap-4 rounded-md p-3 sm:self-end sm:pb-2'>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Emails con mas tickets comprados</CardTitle>
+                      </CardHeader>
+                      <TopMailList
+                        mails={statistics!.emailByPurchasedTickets}
+                      />
+                    </Card>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>
+                          Eventos: precio unitario y % de venta
+                        </CardTitle>
+                      </CardHeader>
+                      <EventStatsTable
+                        events={statistics!.eventDataIndividual}
+                      />
+                    </Card>
+                  </section>
+                </CarouselItem>
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          </div>
+        </>
+      )}
       <p className='p-3 text-xl font-bold md:p-5 md:text-3xl'>
         Gestor de Eventos
       </p>
@@ -126,7 +240,7 @@ const EventosPageClient = ({ hostname }: EventosPageClientProps) => {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 
