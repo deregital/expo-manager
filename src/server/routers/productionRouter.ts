@@ -1,5 +1,9 @@
 import { handleError, protectedProcedure, router } from '@/server/trpc';
-import { createProductionSchema } from 'expo-backend-types';
+import {
+  createProductionSchema,
+  productionSchema,
+  updateProductionSchema,
+} from 'expo-backend-types';
 
 export const productionRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -22,6 +26,26 @@ export const productionRouter = router({
         throw handleError(error);
       }
 
+      return data;
+    }),
+  edit: protectedProcedure
+    .input(updateProductionSchema.extend({ id: productionSchema.shape.id }))
+    .mutation(async ({ ctx, input }) => {
+      const { data, error } = await ctx.fetch.PATCH('/production/update/{id}', {
+        params: {
+          path: {
+            id: input.id,
+          },
+        },
+        body: {
+          name: input.name,
+          administratorId: input.administratorId,
+        },
+      });
+
+      if (error) {
+        throw handleError(error);
+      }
       return data;
     }),
 });
