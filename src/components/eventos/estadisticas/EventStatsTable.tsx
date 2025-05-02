@@ -21,10 +21,10 @@ interface EventsTableProps {
 
 export const EventStatsTable = ({ events }: EventsTableProps) => {
   return (
-    <div className='h-48 overflow-auto'>
+    <div className='h-36 overflow-auto'>
       <ScrollArea className='h-full'>
         <Table>
-          <TableHeader>
+          <TableHeader className='bg-gray-100'>
             <TableRow>
               <TableHead>Nombre</TableHead>
               <TableHead>Precio</TableHead>

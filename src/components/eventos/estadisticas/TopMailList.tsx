@@ -17,10 +17,10 @@ interface EventsTableProps {
 
 export const TopMailList = ({ mails }: EventsTableProps) => {
   return (
-    <div className='h-48 overflow-auto'>
+    <div className='h-36 overflow-auto'>
       <ScrollArea className='h-full'>
         <Table>
-          <TableHeader>
+          <TableHeader className='bg-gray-100'>
             <TableRow>
               <TableHead>Email</TableHead>
               <TableHead>Tickets comprados</TableHead>
