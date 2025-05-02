@@ -105,7 +105,7 @@ const EventosPageClient = ({ hostname }: EventosPageClientProps) => {
           <div className='flex justify-center md:hidden'>
             <Carousel className='relative w-full max-w-[90rem]'>
               <CarouselContent>
-                <CarouselItem className=''>
+                <CarouselItem>
                   <div className='grid grid-cols-2 grid-rows-1 gap-4 p-3'>
                     <section className='h-full rounded-md sm:pb-2'>
                       <SharedCard
@@ -129,10 +129,36 @@ const EventosPageClient = ({ hostname }: EventosPageClientProps) => {
                     </section>
                   </div>
                 </CarouselItem>
-                <CarouselItem className=''>
+                <CarouselItem>
                   <div className='grid grid-cols-1 grid-rows-1 gap-4 p-3'>
                     <AttendanceChart />
                   </div>
+                </CarouselItem>
+                <CarouselItem>
+                  <section className='grid grid-cols-1 rounded-md p-3 sm:self-end sm:pb-2'>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Emails con mas tickets comprados</CardTitle>
+                      </CardHeader>
+                      <TopMailList
+                        mails={statistics!.emailByPurchasedTickets}
+                      />
+                    </Card>
+                  </section>
+                </CarouselItem>
+                <CarouselItem>
+                  <section className='grid grid-cols-1 rounded-md p-3 sm:self-end sm:pb-2'>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>
+                          Eventos: precio unitario y % de venta
+                        </CardTitle>
+                      </CardHeader>
+                      <EventStatsTable
+                        events={statistics!.eventDataIndividual}
+                      />
+                    </Card>
+                  </section>
                 </CarouselItem>
               </CarouselContent>
               <CarouselPrevious />
@@ -140,9 +166,9 @@ const EventosPageClient = ({ hostname }: EventosPageClientProps) => {
             </Carousel>
           </div>
           <div className='hidden justify-center md:flex'>
-            <Carousel className='relative w-full max-w-[90rem]'>
+            <Carousel className='relative w-full max-w-[96rem]'>
               <CarouselContent>
-                <CarouselItem className=''>
+                <CarouselItem>
                   <div className='grid grid-cols-3 grid-rows-1 gap-4 p-3'>
                     <section className='h-full rounded-md sm:pb-2'>
                       <SharedCard
@@ -164,10 +190,12 @@ const EventosPageClient = ({ hostname }: EventosPageClientProps) => {
                         }
                       />
                     </section>
-                    <AttendanceChart />
+                    <AttendanceChart
+                      data={statistics!.emmitedticketPerTypeAll}
+                    />
                   </div>
                 </CarouselItem>
-                <CarouselItem className=''>
+                <CarouselItem>
                   <section className='grid grid-cols-2 gap-4 rounded-md p-3 sm:self-end sm:pb-2'>
                     <Card>
                       <CardHeader>
