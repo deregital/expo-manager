@@ -29,9 +29,10 @@ const chartConfig = {
 
 interface AttendanceChartProps {
   data?: Record<string, number | undefined>;
+  title: string;
 }
 
-export const AttendanceChart = ({ data }: AttendanceChartProps) => {
+export const AttendanceChart = ({ data, title }: AttendanceChartProps) => {
   if (!data) {
     return (
       <Card className='flex h-full items-center justify-center'>
@@ -39,16 +40,16 @@ export const AttendanceChart = ({ data }: AttendanceChartProps) => {
       </Card>
     );
   }
-  const chartData = Object.entries(data).map(([type, count]) => ({
+  const chartData = Object.entries(data).map(([type, scanned]) => ({
     type,
-    count,
+    scanned,
   }));
 
   return (
     <>
       <Card>
         <CardHeader className='mb-0 pb-0'>
-          <CardTitle>Asistencia Total</CardTitle>
+          <CardTitle>{title}</CardTitle>
         </CardHeader>
         <CardContent>
           <ChartContainer className='h-36 w-full ' config={chartConfig}>
@@ -70,16 +71,17 @@ export const AttendanceChart = ({ data }: AttendanceChartProps) => {
                 tickFormatter={(value) => value.slice(0, 3)}
                 hide
               />
-              <XAxis dataKey='count' type='number' hide />
+              <XAxis dataKey='scanned' type='number' hide />
               <ChartTooltip
                 cursor={false}
                 content={<ChartTooltipContent indicator='line' />}
               />
               <Bar
-                dataKey='count'
+                dataKey='scanned'
                 layout='vertical'
                 fill='var(--color-desktop)'
                 radius={4}
+                name='Emitidos'
               >
                 <LabelList
                   dataKey='type'
@@ -89,7 +91,7 @@ export const AttendanceChart = ({ data }: AttendanceChartProps) => {
                   fontSize={12}
                 />
                 <LabelList
-                  dataKey='count'
+                  dataKey='scanned'
                   position='right'
                   offset={8}
                   className='fill-foreground'
