@@ -42,7 +42,7 @@
     "cmdk": "^0.2.1",
     "date-fns": "^3.6.0",
     "exceljs": "^4.4.0",
-    "expo-backend-types": "^0.47.0",
+    "expo-backend-types": "^0.49.0-EXPO-355-ExpoBackend-Rutas-de-produccion.9",
     "fast-csv": "^5.0.1",
     "firebase": "^10.13.0",
     "firebase-admin": "^12.3.1",
