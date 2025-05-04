@@ -108,9 +108,6 @@ export const StatisticsCarouselSpecific = ({
             <CarouselItem>
               <Card>
                 <CardContent className='p-0 pb-0'>
-                  <p className='py-2 text-center text-xl font-semibold'>
-                    Tickets emitido en mapa de calor
-                  </p>
                   <HeatmapCalendarTickets data={statistics!.heatMapDates} />
                 </CardContent>
               </Card>
@@ -225,7 +222,7 @@ export const StatisticsCarouselSpecific = ({
                 </div>
                 <section className='col-span-2 h-full rounded-md sm:pb-2'>
                   <Card className='flex '>
-                    <CardHeader className='w-1/4 items-center justify-center lg:w-full'>
+                    <CardHeader className='hidden w-1/4 items-center justify-center lg:block lg:w-full'>
                       <CardTitle className='flex h-full items-center justify-center text-center'>
                         Tickets emitido en mapa de calor
                       </CardTitle>
