@@ -69,10 +69,11 @@ export const eventRouter = router({
         },
         body: {
           ...body,
-          date: input.date.toISOString(),
-          startingDate: input.startingDate.toISOString(),
-          endingDate: input.endingDate.toISOString(),
+          date: input.date?.toISOString(),
+          startingDate: input.startingDate?.toISOString(),
+          endingDate: input.endingDate?.toISOString(),
           subEvents: sub,
+          description: input.description,
         },
       });
 

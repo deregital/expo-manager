@@ -7,6 +7,7 @@ import EventIcon from '../icons/EventIcon';
 import GeneratePDFButton from '@/components/eventos/GeneratePDFButton';
 import VerifiedIcon from '@/components/icons/VerifiedIcon';
 import Link from 'next/link';
+import EventInformationModal from './EventInformationModal';
 
 interface EventListTriggerProps {
   event: RouterOutputs['event']['getAll']['withoutFolder'][number];
@@ -41,6 +42,7 @@ const EventListTrigger = ({
         </div>
       </div>
       <div className='flex items-center justify-center gap-x-2'>
+        <EventInformationModal event={event} />
         <GeneratePDFButton
           event={event}
           profilesData={profilesData ?? []}
