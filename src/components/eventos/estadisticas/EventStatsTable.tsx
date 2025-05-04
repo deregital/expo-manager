@@ -21,7 +21,7 @@ interface EventsTableProps {
 
 export const EventStatsTable = ({ events }: EventsTableProps) => {
   return (
-    <div className='h-36 overflow-auto'>
+    <div className='h-64 w-full overflow-auto'>
       <ScrollArea className='h-full'>
         <Table>
           <TableHeader className='bg-gray-100'>
@@ -29,7 +29,7 @@ export const EventStatsTable = ({ events }: EventsTableProps) => {
               <TableHead>Nombre</TableHead>
               <TableHead>Precio</TableHead>
               <TableHead>%Venta</TableHead>
-              <TableHead>Event Tickets</TableHead>
+              <TableHead>Cupo</TableHead>
               <TableHead>Tickets Vendidos</TableHead>
             </TableRow>
           </TableHeader>
@@ -40,7 +40,9 @@ export const EventStatsTable = ({ events }: EventsTableProps) => {
                 <TableCell>
                   {event.price !== null ? `$${event.price}` : 'Gratis'}
                 </TableCell>
-                <TableCell>{event.purchasePercent}%</TableCell>
+                <TableCell className='font-bold'>
+                  {event.purchasePercent}%
+                </TableCell>
                 <TableCell>{event.spectatorEventTicket}</TableCell>
                 <TableCell>{event.spectatorTicketsSold}</TableCell>
               </TableRow>

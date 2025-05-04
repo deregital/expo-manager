@@ -11,15 +11,6 @@ import {
 } from '@/components/ui/chart';
 import { format } from 'date-fns';
 
-// const chartData = [
-//   { hour: '16:00', scan: 17 },
-//   { hour: '16:30', scan: 32 },
-//   { hour: '17:00', scan: 67 },
-//   { hour: '17:30', scan: 57 },
-//   { hour: '18:00', scan: 47 },
-//   { hour: '18:30', scan: 17 },
-// ];
-
 const chartConfig = {
   scan: {
     label: 'Escaneados',
@@ -50,7 +41,7 @@ export const AttendancePerHourChart = ({
       <CardHeader>
         <CardTitle className='flex justify-between'>
           Presentismo por hora
-          <div className='flex gap-4'>
+          <div className='flex gap-4 text-base md:text-lg'>
             <input
               type='time'
               name='start'
@@ -88,6 +79,7 @@ export const AttendancePerHourChart = ({
               stroke='#090014'
               strokeWidth={2}
               dot={false}
+              name='Escaneados'
             />
           </LineChart>
         </ChartContainer>
@@ -101,33 +93,30 @@ function getScansPerHalfHourFromDates(
   start: Date,
   end: Date
 ): { time: string; count: number }[] {
-  console.log(dateStrings);
   const counts: Record<string, number> = {};
-
-  // Contar fechas por intervalos de 30 min
+  const minuteLap = 30;
   for (const dateStr of dateStrings) {
-    if (!dateStr) continue;
-    const date = new Date(dateStr);
-    const rounded = new Date(date);
-    rounded.setMinutes(date.getMinutes() < 30 ? 0 : 30, 0, 0);
+    if (dateStr) {
+      const date = new Date(dateStr);
+      const rounded = new Date(date);
+      rounded.setMinutes(date.getMinutes() < minuteLap ? 0 : minuteLap, 0, 0);
 
-    const label = rounded.toTimeString().slice(0, 5); // HH:MM
-    counts[label] = (counts[label] || 0) + 1;
+      const label = rounded.toTimeString().slice(0, 5); // HH:MM
+      counts[label] = (counts[label] || 0) + 1;
+    }
   }
 
-  // Generar todos los intervalos desde start hasta end
   const chartData: { time: string; count: number }[] = [];
-  const cursor = new Date(start);
-  cursor.setSeconds(0, 0); // limpiar segundos
+  const current = new Date(start);
+  current.setSeconds(0, 0);
 
-  while (cursor <= end) {
-    const label = cursor.toTimeString().slice(0, 5);
+  while (current <= end) {
+    const label = current.toTimeString().slice(0, 5);
     chartData.push({
       time: label,
       count: counts[label] || 0,
     });
-    cursor.setMinutes(cursor.getMinutes() + 30);
+    current.setMinutes(current.getMinutes() + minuteLap);
   }
-  console.log(chartData);
   return chartData;
 }

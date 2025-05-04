@@ -27,18 +27,8 @@ import { type TicketType } from 'expo-backend-types';
 import { iconsAndTexts } from '@/components/ui/ticket/iconsAndTexts';
 import { cn, objectEntries } from '@/lib/utils';
 import Link from 'next/link';
-import SharedCard from '@/components/dashboard/SharedCard';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-} from '@/components/ui/carousel';
-import { AttendanceChartSpecific } from '@/components/eventos/estadisticas/AttendanceChartSpecific';
-import { CalendarHeatmap } from '@/components/ui/calendar-heatmap';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AttendancePerHourChart } from '@/components/eventos/estadisticas/AttendancePerHourChart';
+
+import { StatisticsCarouselSpecific } from '@/components/eventos/estadisticas/StatisticsCarouselSpecific';
 
 interface EventPageProps {
   params: {
@@ -61,12 +51,6 @@ const EventPage = ({ params }: EventPageProps) => {
       },
     }
   );
-  const { data: statistics, isLoading: isLoadingStatistics } =
-    trpc.event.getStatisticsById.useQuery({
-      id: params.eventId,
-      gte: '',
-      lte: '',
-    });
 
   const toggleActiveMutation = trpc.event.toggleActive.useMutation();
   const utils = trpc.useUtils();
@@ -115,11 +99,6 @@ const EventPage = ({ params }: EventPageProps) => {
       </div>
     );
 
-  const datesEmmitedTickets = statistics!.heatMapDates.map((stringDate) => {
-    const date = new Date(stringDate);
-    return date;
-  });
-
   return (
     <div>
       <div>
@@ -130,136 +109,12 @@ const EventPage = ({ params }: EventPageProps) => {
           }}
         />
       </div>
-      {isLoadingStatistics ? (
-        <div className='flex h-72 items-center justify-center'>
-          <Loader />
-        </div>
-      ) : (
-        <div className='flex h-80 justify-center'>
-          <Carousel className='relative h-64 w-full max-w-[96rem]'>
-            <CarouselContent>
-              <CarouselItem>
-                <div className='grid w-full grid-cols-5 grid-rows-1 gap-4'>
-                  <section className='h-full rounded-md sm:pb-2'>
-                    <SharedCard
-                      title={'Ingresos / Maximo posible'}
-                      content={
-                        '$' +
-                        statistics!.totalIncome +
-                        ' / $' +
-                        statistics!.maxTotalIncome
-                      }
-                      isLoading={isLoadingStatistics}
-                      popoverText={
-                        'Ingresos en pesos recaudados por (/) cantidad maxima posible a recaudar'
-                      }
-                    />
-                  </section>
-                  <section className='h-full rounded-md sm:pb-2'>
-                    <SharedCard
-                      title={'Entradas / Cupo'}
-                      content={statistics!.emittedTicketsPercent + '%'}
-                      isLoading={isLoadingStatistics}
-                      popoverText={
-                        'Porcentaje de entradas emitidas por (/) cupo maximo a emitir'
-                      }
-                    />
-                  </section>
-                  <section className='h-full rounded-md sm:pb-2'>
-                    <SharedCard
-                      title={'Tasa de asistencia'}
-                      content={(statistics!.attendancePercent ?? 0) + '%'}
-                      isLoading={isLoadingStatistics}
-                      popoverText={'Porcentaje de asistencia de espectadores'}
-                    />
-                  </section>
-
-                  <div className='col-span-2'>
-                    <AttendanceChartSpecific
-                      data={statistics!.emmitedticketPerType}
-                    />
-                  </div>
-                </div>
-              </CarouselItem>
-              <CarouselItem>
-                <div className='grid  w-full grid-cols-4 grid-rows-1 gap-4'>
-                  <div className='col-span-2'>
-                    <AttendancePerHourChart
-                      dates={statistics!.attendancePerHour}
-                      starting={event!.startingDate}
-                      ending={event!.endingDate}
-                    />
-                  </div>
-                  <section className='h-full rounded-md sm:pb-2'>
-                    <Card className=''>
-                      <CardHeader>
-                        <CardTitle>
-                          Días donde se emitieron más entradas en vista
-                          calendario con mapa de calor.
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className='h-8 bg-green-400 hover:bg-green-400'></div>
-                        <div className='h-8 bg-green-500 hover:bg-green-500'></div>
-                        <div className='h-8 bg-green-700 hover:bg-green-700'></div>
-                      </CardContent>
-                    </Card>
-                  </section>
-                  <section className='h-full rounded-md sm:pb-2'>
-                    <Card className='flex justify-center'>
-                      <CardContent className='pb-0'>
-                        <CalendarHeatmap
-                          variantClassnames={[
-                            'text-white hover:text-white bg-green-400 hover:bg-green-400',
-                            'text-white hover:text-white bg-green-500 hover:bg-green-500',
-                            'text-white hover:text-white bg-green-700 hover:bg-green-700',
-                          ]}
-                          datesPerVariant={[datesEmmitedTickets]}
-                        />
-                      </CardContent>
-                    </Card>
-                  </section>
-                </div>
-              </CarouselItem>
-              <CarouselItem>
-                <div className='grid h-80 w-full grid-cols-3 grid-rows-1 gap-4'>
-                  <section className='h-full rounded-md sm:pb-2'>
-                    <SharedCard
-                      title={'Ausentes'}
-                      content={statistics!.notScanned?.toString() ?? '0'}
-                      isLoading={isLoadingStatistics}
-                      popoverText={''}
-                    />
-                  </section>
-                  <section className='h-full rounded-md sm:pb-2'>
-                    <SharedCard
-                      title={'Tickets/compra promedio'}
-                      content={
-                        statistics!.avgAmountPerTicketGroup?.toString() ?? '0'
-                      }
-                      isLoading={isLoadingStatistics}
-                      popoverText={''}
-                    />
-                  </section>
-                  <section className='h-full rounded-md sm:pb-2'>
-                    <SharedCard
-                      title={'Escaneados / Total tickets'}
-                      content={
-                        statistics!.totalTicketsScanned +
-                        '/' +
-                        statistics!.emmitedTickets
-                      }
-                      isLoading={isLoadingStatistics}
-                      popoverText={''}
-                    />
-                  </section>
-                </div>
-              </CarouselItem>
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
-        </div>
+      {event && (
+        <StatisticsCarouselSpecific
+          eventId={params.eventId}
+          startingDate={event.startingDate}
+          endingDate={event.endingDate}
+        />
       )}
       <div className='col-span-3 p-2'>
         <h3 className='text-center text-2xl font-bold'>{event?.name}</h3>
