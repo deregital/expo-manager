@@ -30,7 +30,7 @@ export const StatisticsCarousel = () => {
                 <section className='h-full rounded-md sm:pb-2'>
                   <SharedCard
                     title='Ingresos Totales'
-                    content={'$' + statistics?.totalIncome}
+                    content={'$' + statistics!.totalIncome}
                     isLoading={isLoadingStatistics}
                     popoverText={
                       'Ingresos totales en pesos de todos los eventos incluyendo espectadores y participantes'
@@ -40,7 +40,7 @@ export const StatisticsCarousel = () => {
                 <section className='h-full rounded-md sm:pb-2'>
                   <SharedCard
                     title='Entradas emitidas / Cupo'
-                    content={statistics?.attendancePercent + '%'}
+                    content={statistics!.attendancePercent + '%'}
                     isLoading={isLoadingStatistics}
                     popoverText={
                       'Porcentaje de entradas emitidas sobre el total de entradas disponibles entre todos los eventos'
@@ -53,7 +53,7 @@ export const StatisticsCarousel = () => {
               <div className='p-3'>
                 <AttendanceChart
                   data={statistics!.emmitedticketPerTypeAll}
-                  title='Emitidos por tipo'
+                  title='Tickets emitidos por tipo'
                 />
               </div>
             </CarouselItem>
@@ -139,7 +139,7 @@ export const StatisticsCarousel = () => {
                 </section>
                 <AttendanceChart
                   data={statistics!.emmitedticketPerTypeAll}
-                  title='Emitidos por tipo'
+                  title='Tickets emitidos por tipo'
                 />
               </div>
             </CarouselItem>
