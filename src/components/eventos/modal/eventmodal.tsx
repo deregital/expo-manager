@@ -157,6 +157,9 @@ const EventModal = ({ action, event }: EventModalProps) => {
           location: modalData.location,
           tagsId: modalData.tags.map((tag) => tag.id),
           folderId: modalData.folderId,
+          description: null,
+          mainPictureUrl: null,
+          bannerUrl: null,
           subEvents: modalData.subEvents.map((subevento) => ({
             id: subevento.id,
             name: subevento.name,
@@ -164,6 +167,9 @@ const EventModal = ({ action, event }: EventModalProps) => {
             endingDate: new Date(subevento.endingDate),
             startingDate: new Date(subevento.startingDate),
             location: subevento.location,
+            description: null,
+            mainPictureUrl: null,
+            bannerUrl: null,
           })),
           eventTickets: modalData.tickets, // TODO: Implementar tickets
         })
@@ -203,6 +209,9 @@ const EventModal = ({ action, event }: EventModalProps) => {
             endingDate: new Date(subEvent.endingDate),
             startingDate: new Date(subEvent.startingDate),
             location: subEvent.location,
+            description: null,
+            mainPictureUrl: null,
+            bannerUrl: null,
           })),
           eventTickets: modalData.tickets.map((ticket) => ({
             amount: ticket.amount,
