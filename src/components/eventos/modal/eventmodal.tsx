@@ -293,7 +293,7 @@ const EventModal = ({ action, event }: EventModalProps) => {
                     endingDate: event.endingDate,
                     location: event.location,
                     folderId: event.folderId,
-                    tags: event.tags,
+                    tags: event.profileTags,
                     tickets: generateTicketsArray(event.eventTickets),
                     subEvents: event.subEvents.map((subevent) => ({
                       id: subevent.id,

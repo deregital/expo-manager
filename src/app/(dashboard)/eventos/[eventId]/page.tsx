@@ -43,7 +43,7 @@ const EventPage = ({ params }: EventPageProps) => {
     params.eventId
   );
   const { data: profiles } = trpc.profile.getByTags.useQuery(
-    event?.tags.map((t) => t.id) ?? [],
+    event?.profileTags.map((t) => t.id) ?? [],
     {
       enabled: !!event,
       onSuccess(data) {
@@ -194,7 +194,7 @@ const EventPage = ({ params }: EventPageProps) => {
           </h3>
           <DataTable
             columns={generateParticipantColumns(
-              event?.tags.map((t) => t.id) ?? [],
+              event?.profileTags.map((t) => t.id) ?? [],
               ticketsData ?? []
             )}
             data={profilesData}
