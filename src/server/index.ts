@@ -12,6 +12,7 @@ import { eventFolderRouter } from '@/server/routers/event-folderRouter';
 import { cannedResponseRouter } from '@/server/routers/canned-responseRouter';
 import { commentRouter } from '@/server/routers/commentRouter';
 import { ticketRouter } from '@/server/routers/ticketRouter';
+import { productionRouter } from '@/server/routers/productionRouter';
 
 export const appRouter = router({
   profile: profileRouter,
@@ -26,6 +27,7 @@ export const appRouter = router({
   location: locationRouter,
   cannedResponse: cannedResponseRouter,
   comment: commentRouter,
+  production: productionRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;
