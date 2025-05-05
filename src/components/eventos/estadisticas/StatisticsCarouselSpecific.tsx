@@ -35,7 +35,7 @@ export const StatisticsCarouselSpecific = ({
     </div>
   ) : (
     <>
-      <div className='flex h-80 justify-center md:hidden'>
+      <div className='mx-16 flex h-80 select-none justify-center md:hidden'>
         <Carousel className='relative h-64 w-full max-w-[96rem]'>
           <CarouselContent>
             <CarouselItem>
@@ -148,44 +148,38 @@ export const StatisticsCarouselSpecific = ({
           <CarouselNext />
         </Carousel>
       </div>
-      <div className='hidden h-80 justify-center md:flex'>
+      <div className='mx-16 hidden h-80 select-none justify-center md:flex'>
         <Carousel className='relative h-64 w-full max-w-[96rem]'>
           <CarouselContent>
             <CarouselItem>
-              <div className='grid w-full grid-cols-3 grid-rows-1 gap-4'>
-                <section className='h-full rounded-md sm:pb-2'>
-                  <SharedCard
-                    title={'Ingresos / Maximo posible'}
-                    content={
-                      '$' +
-                      statistics!.totalIncome +
-                      ' / $' +
-                      statistics!.maxTotalIncome
-                    }
-                    isLoading={isLoadingStatistics}
-                    popoverText={
-                      'Ingresos en pesos recaudados por (/) cantidad maxima posible a recaudar'
-                    }
-                  />
-                </section>
-                <section className='h-full rounded-md sm:pb-2'>
-                  <SharedCard
-                    title={'Entradas emitidas / Cupo'}
-                    content={statistics!.emittedTicketsPercent + '%'}
-                    isLoading={isLoadingStatistics}
-                    popoverText={
-                      'Porcentaje de entradas emitidas por (/) cupo maximo a emitir'
-                    }
-                  />
-                </section>
-                <section className='h-full rounded-md sm:pb-2'>
-                  <SharedCard
-                    title={'Tasa de asistencia'}
-                    content={(statistics!.attendancePercent ?? 0) + '%'}
-                    isLoading={isLoadingStatistics}
-                    popoverText={'Porcentaje de asistencia de espectadores'}
-                  />
-                </section>
+              <div className='grid h-fit w-full grid-cols-3 grid-rows-1 gap-4'>
+                <SharedCard
+                  title={'Ingresos / Maximo posible'}
+                  content={
+                    '$' +
+                    statistics!.totalIncome +
+                    ' / $' +
+                    statistics!.maxTotalIncome
+                  }
+                  isLoading={isLoadingStatistics}
+                  popoverText={
+                    'Ingresos en pesos recaudados por (/) cantidad maxima posible a recaudar'
+                  }
+                />
+                <SharedCard
+                  title={'Entradas emitidas / Cupo'}
+                  content={statistics!.emittedTicketsPercent + '%'}
+                  isLoading={isLoadingStatistics}
+                  popoverText={
+                    'Porcentaje de entradas emitidas por (/) cupo maximo a emitir'
+                  }
+                />
+                <SharedCard
+                  title={'Tasa de asistencia'}
+                  content={(statistics!.attendancePercent ?? 0) + '%'}
+                  isLoading={isLoadingStatistics}
+                  popoverText={'Porcentaje de asistencia de espectadores'}
+                />
               </div>
             </CarouselItem>
             <CarouselItem>
@@ -196,7 +190,7 @@ export const StatisticsCarouselSpecific = ({
                     data={statistics!.emmitedticketPerType}
                   />
                 </div>
-                <section className='col-span-2 h-full rounded-md sm:pb-2'>
+                <section className='col-span-2 h-full rounded-md [&>*]:h-full'>
                   <SharedCard
                     title={'Tickets promedio por compra'}
                     content={
@@ -212,16 +206,16 @@ export const StatisticsCarouselSpecific = ({
               </div>
             </CarouselItem>
             <CarouselItem>
-              <div className='grid  w-full grid-cols-4 grid-rows-1 gap-4'>
-                <div className='col-span-2'>
+              <div className='grid w-full grid-cols-2 grid-rows-1 gap-4'>
+                <div className='col-span-1 h-full sm:pb-2'>
                   <AttendancePerHourChart
                     dates={statistics!.attendancePerHour}
                     starting={startingDate}
                     ending={endingDate}
                   />
                 </div>
-                <section className='col-span-2 h-full rounded-md sm:pb-2'>
-                  <Card className='flex '>
+                <section className='col-span-1 h-full rounded-md sm:pb-2'>
+                  <Card className='flex h-full'>
                     <CardHeader className='hidden w-1/4 items-center justify-center lg:block lg:w-full'>
                       <CardTitle className='flex h-full items-center justify-center text-center'>
                         Tickets emitido en mapa de calor
@@ -236,33 +230,29 @@ export const StatisticsCarouselSpecific = ({
             </CarouselItem>
             <CarouselItem>
               <div className='grid w-full grid-cols-2 grid-rows-1 gap-4'>
-                <section className='h-full rounded-md sm:pb-2'>
-                  <SharedCard
-                    title={'Ausentes'}
-                    content={
-                      (statistics!.notScanned?.toString() ?? '0') + ' personas'
-                    }
-                    isLoading={isLoadingStatistics}
-                    popoverText={
-                      'Cantidad de tickets no escaneados, o mas bien, cantidad de personas que se ausentaron al evento'
-                    }
-                  />
-                </section>
-                <section className='h-full rounded-md sm:pb-2'>
-                  <SharedCard
-                    title={'Tickets escaneados / Total emitidos'}
-                    content={
-                      statistics!.totalTicketsScanned +
-                      '/' +
-                      statistics!.emmitedTickets +
-                      ' tickets'
-                    }
-                    isLoading={isLoadingStatistics}
-                    popoverText={
-                      'Cantidad de tickets escaneados sobre el total de tickets emitidos'
-                    }
-                  />
-                </section>
+                <SharedCard
+                  title={'Ausentes'}
+                  content={
+                    (statistics!.notScanned?.toString() ?? '0') + ' personas'
+                  }
+                  isLoading={isLoadingStatistics}
+                  popoverText={
+                    'Cantidad de tickets no escaneados, o mas bien, cantidad de personas que se ausentaron al evento'
+                  }
+                />
+                <SharedCard
+                  title={'Tickets escaneados / Total emitidos'}
+                  content={
+                    statistics!.totalTicketsScanned +
+                    '/' +
+                    statistics!.emmitedTickets +
+                    ' tickets'
+                  }
+                  isLoading={isLoadingStatistics}
+                  popoverText={
+                    'Cantidad de tickets escaneados sobre el total de tickets emitidos'
+                  }
+                />
               </div>
             </CarouselItem>
           </CarouselContent>

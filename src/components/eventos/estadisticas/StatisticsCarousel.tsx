@@ -22,31 +22,27 @@ export const StatisticsCarousel = () => {
     </div>
   ) : (
     <>
-      <div className='flex justify-center md:hidden'>
+      <div className='mx-16 flex select-none justify-center md:hidden'>
         <Carousel className='relative w-full max-w-[96rem]'>
           <CarouselContent>
             <CarouselItem>
               <div className='grid grid-rows-2 gap-4 p-3'>
-                <section className='h-full rounded-md sm:pb-2'>
-                  <SharedCard
-                    title='Ingresos Totales'
-                    content={'$' + statistics!.totalIncome}
-                    isLoading={isLoadingStatistics}
-                    popoverText={
-                      'Ingresos totales en pesos de todos los eventos incluyendo espectadores y participantes'
-                    }
-                  />
-                </section>
-                <section className='h-full rounded-md sm:pb-2'>
-                  <SharedCard
-                    title='Entradas emitidas / Cupo'
-                    content={statistics!.attendancePercent + '%'}
-                    isLoading={isLoadingStatistics}
-                    popoverText={
-                      'Porcentaje de entradas emitidas sobre el total de entradas disponibles entre todos los eventos'
-                    }
-                  />
-                </section>
+                <SharedCard
+                  title='Ingresos Totales'
+                  content={'$' + statistics!.totalIncome}
+                  isLoading={isLoadingStatistics}
+                  popoverText={
+                    'Ingresos totales en pesos de todos los eventos incluyendo espectadores y participantes'
+                  }
+                />
+                <SharedCard
+                  title='Entradas emitidas / Cupo'
+                  content={statistics!.attendancePercent + '%'}
+                  isLoading={isLoadingStatistics}
+                  popoverText={
+                    'Porcentaje de entradas emitidas sobre el total de entradas disponibles entre todos los eventos'
+                  }
+                />
               </div>
             </CarouselItem>
             <CarouselItem>
@@ -112,31 +108,27 @@ export const StatisticsCarousel = () => {
           <CarouselNext />
         </Carousel>
       </div>
-      <div className='hidden justify-center md:flex'>
+      <div className='mx-16 hidden select-none justify-center md:flex'>
         <Carousel className='relative w-full max-w-[96rem]'>
           <CarouselContent>
             <CarouselItem>
-              <div className='grid grid-cols-3 grid-rows-1 gap-4 p-3'>
-                <section className='h-full rounded-md sm:pb-2'>
-                  <SharedCard
-                    title='Ingresos Totales'
-                    content={'$' + statistics?.totalIncome}
-                    isLoading={isLoadingStatistics}
-                    popoverText={
-                      'Ingresos totales en pesos de todos los eventos incluyendo espectadores y participantes'
-                    }
-                  />
-                </section>
-                <section className='h-full rounded-md sm:pb-2'>
-                  <SharedCard
-                    title='Entradas emitidas / Cupo'
-                    content={statistics?.attendancePercent + '%'}
-                    isLoading={isLoadingStatistics}
-                    popoverText={
-                      'Porcentaje de entradas emitidas sobre el total de entradas disponibles entre todos los eventos'
-                    }
-                  />
-                </section>
+              <div className='grid grid-cols-3 grid-rows-1 gap-4 p-3 [&>*]:h-fit'>
+                <SharedCard
+                  title='Ingresos Totales'
+                  content={'$' + statistics?.totalIncome}
+                  isLoading={isLoadingStatistics}
+                  popoverText={
+                    'Ingresos totales en pesos de todos los eventos incluyendo espectadores y participantes'
+                  }
+                />
+                <SharedCard
+                  title='Entradas emitidas / Cupo'
+                  content={statistics?.attendancePercent + '%'}
+                  isLoading={isLoadingStatistics}
+                  popoverText={
+                    'Porcentaje de entradas emitidas sobre el total de entradas disponibles entre todos los eventos'
+                  }
+                />
                 <AttendanceChart
                   data={statistics!.emmitedticketPerTypeAll}
                   title='Tickets emitidos por tipo'

@@ -37,7 +37,7 @@ export const AttendancePerHourChart = ({
   );
 
   return (
-    <Card>
+    <Card className='h-full'>
       <CardHeader>
         <CardTitle className='flex justify-between'>
           Presentismo por hora
