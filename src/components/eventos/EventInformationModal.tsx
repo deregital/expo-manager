@@ -10,6 +10,9 @@ import { type RouterOutputs } from '@/server';
 import InfoIcon from '@/components/icons/InfoIcon';
 import { Trash2Icon } from 'lucide-react';
 
+interface EventInformationModalProps {
+  event: RouterOutputs['event']['getAll']['withoutFolder'][number];
+}
 const uploadImage = async (url: string, file: File | null, id: string) => {
   if (!file) {
     toast.error('No se ha seleccionado una imagen');
@@ -28,9 +31,6 @@ const deleteImage = async (url: string, id: string) => {
   return fetch(url, { method: 'DELETE', body: form });
 };
 
-interface EventInformationModalProps {
-  event: RouterOutputs['event']['getAll']['withoutFolder'][number];
-}
 const EventInformationModal = ({ event }: EventInformationModalProps) => {
   // Estados para manejar la descripción y las imágenes
   const [description, setDescription] = useState(event.description || '');
@@ -275,6 +275,7 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
             onDelete={handleDeleteMainPicture}
             isLoading={isLoading}
             inputRef={mainPictureInputRef}
+            eventImageUrl={event.mainPictureUrl || ''}
           />
 
           {/* Foto banner */}
@@ -290,6 +291,7 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
             onDelete={handleDeleteBanner}
             isLoading={isLoading}
             inputRef={bannerPictureInputRef}
+            eventImageUrl={event.bannerUrl || ''}
           />
         </div>
 
@@ -324,11 +326,21 @@ interface EventImageInputProps {
   onDelete: () => void;
   isLoading: boolean;
   inputRef: React.RefObject<HTMLInputElement>;
+  eventImageUrl: string;
 }
 
 const EventImageInput = forwardRef<HTMLInputElement, EventImageInputProps>(
   (
-    { label, inputId, previewUrl, file, onFileChange, onDelete, isLoading },
+    {
+      label,
+      inputId,
+      previewUrl,
+      file,
+      onFileChange,
+      onDelete,
+      isLoading,
+      eventImageUrl,
+    },
     ref
   ) => (
     <div className='flex flex-1 flex-col items-start'>
@@ -368,7 +380,9 @@ const EventImageInput = forwardRef<HTMLInputElement, EventImageInputProps>(
         <div className='mt-2'>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={`${previewUrl}?${new Date().getTime()}`}
+            src={`${previewUrl}${
+              previewUrl === eventImageUrl ? `?${new Date().getTime()}` : ''
+            }`}
             alt={`Vista previa de ${label}`}
             className='max-h-40 w-full rounded-md object-cover'
           />
