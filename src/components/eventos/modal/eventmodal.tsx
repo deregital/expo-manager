@@ -209,9 +209,6 @@ const EventModal = ({ action, event }: EventModalProps) => {
             endingDate: new Date(subEvent.endingDate),
             startingDate: new Date(subEvent.startingDate),
             location: subEvent.location,
-            description: undefined,
-            mainPictureUrl: undefined,
-            bannerUrl: undefined,
           })),
           eventTickets: modalData.tickets.map((ticket) => ({
             amount: ticket.amount,

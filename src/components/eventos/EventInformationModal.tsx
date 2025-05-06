@@ -2,17 +2,35 @@
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { useState, useRef } from 'react';
+import { useState, useRef, forwardRef } from 'react';
+import React from 'react';
 import { toast } from 'sonner';
 import { trpc } from '@/lib/trpc';
 import { type RouterOutputs } from '@/server';
 import InfoIcon from '@/components/icons/InfoIcon';
 import { Trash2Icon } from 'lucide-react';
 
+const uploadImage = async (url: string, file: File | null, id: string) => {
+  if (!file) {
+    toast.error('No se ha seleccionado una imagen');
+    return;
+  }
+
+  const form = new FormData();
+  form.append('imagen', file);
+  form.append('id', id);
+  return fetch(url, { method: 'POST', body: form });
+};
+
+const deleteImage = async (url: string, id: string) => {
+  const form = new FormData();
+  form.append('id', id);
+  return fetch(url, { method: 'DELETE', body: form });
+};
+
 interface EventInformationModalProps {
   event: RouterOutputs['event']['getAll']['withoutFolder'][number];
 }
-
 const EventInformationModal = ({ event }: EventInformationModalProps) => {
   // Estados para manejar la descripción y las imágenes
   const [description, setDescription] = useState(event.description || '');
@@ -53,55 +71,35 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
   const utils = trpc.useUtils();
 
   const handleMainPictureUpload = async () => {
-    if (!mainPicture) {
-      toast.error('No se ha seleccionado una imagen');
-      return;
-    }
-
     setIsLoading(true);
-    const form = new FormData();
-    form.append('imagen', mainPicture);
-    form.append('id', event.id);
-
-    try {
-      await fetch('/api/image/event-picture', {
-        method: 'POST',
-        body: form,
+    await uploadImage('/api/image/event-picture', mainPicture, event.id)
+      .catch(() => {
+        toast.error('Error al subir la foto principal');
+      })
+      .then(() => {
+        toast.success('Foto principal actualizada con éxito');
+        utils.event.getById.invalidate(event.id);
+        utils.event.getAll.invalidate();
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-      toast.success('Foto principal actualizada con éxito');
-      utils.event.getById.invalidate(event.id);
-      utils.event.getAll.invalidate();
-    } catch (error) {
-      toast.error('Error al subir la foto principal');
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleBannerPictureUpload = async () => {
-    if (!bannerPicture) {
-      toast.error('No se ha seleccionado una imagen');
-      return;
-    }
-
     setIsLoading(true);
-    const form = new FormData();
-    form.append('imagen', bannerPicture);
-    form.append('id', event.id);
-
-    try {
-      await fetch('/api/image/event-banner', {
-        method: 'POST',
-        body: form,
+    await uploadImage('/api/image/event-banner', bannerPicture, event.id)
+      .then(() => {
+        toast.success('Banner actualizado con éxito');
+        utils.event.getById.invalidate(event.id);
+        utils.event.getAll.invalidate();
+      })
+      .catch(() => {
+        toast.error('Error al subir el banner');
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-      toast.success('Banner actualizado con éxito');
-      utils.event.getById.invalidate(event.id);
-      utils.event.getAll.invalidate();
-    } catch (error) {
-      toast.error('Error al subir el banner');
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleDescriptionUpdate = async () => {
@@ -114,7 +112,7 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
       toast.success('Descripción actualizada con éxito');
       utils.event.getById.invalidate(event.id);
       utils.event.getAll.invalidate();
-    } catch (error) {
+    } catch {
       toast.error('Error al actualizar la descripción');
     } finally {
       setIsLoading(false);
@@ -137,7 +135,7 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
       }
 
       setOpen(false);
-    } catch (error) {
+    } catch {
       toast.error('Error al guardar los cambios');
     } finally {
       setIsLoading(false);
@@ -148,27 +146,24 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
     if (!event.mainPictureUrl) return;
 
     setIsLoading(true);
-    const form = new FormData();
-    form.append('id', event.id);
 
-    try {
-      await fetch('/api/image/event-picture', {
-        method: 'DELETE',
-        body: form,
+    await deleteImage('/api/image/event-picture', event.id)
+      .then(() => {
+        toast.success('Foto principal eliminada con éxito');
+        setMainPicturePreview(null);
+        setMainPicture(null);
+        if (mainPictureInputRef.current) {
+          mainPictureInputRef.current.value = '';
+        }
+        utils.event.getById.invalidate(event.id);
+        utils.event.getAll.invalidate();
+      })
+      .catch(() => {
+        toast.error('Error al eliminar la foto principal');
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-      toast.success('Foto principal eliminada con éxito');
-      setMainPicturePreview(null);
-      setMainPicture(null);
-      if (mainPictureInputRef.current) {
-        mainPictureInputRef.current.value = '';
-      }
-      utils.event.getById.invalidate(event.id);
-      utils.event.getAll.invalidate();
-    } catch (error) {
-      toast.error('Error al eliminar la foto principal');
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleDeleteBanner = async () => {
@@ -183,57 +178,29 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
       return;
     }
     setIsLoading(true);
-    const form = new FormData();
-    form.append('id', event.id);
 
-    try {
-      await fetch('/api/image/event-banner', {
-        method: 'DELETE',
-        body: form,
+    await deleteImage('/api/image/event-banner', event.id)
+      .then(() => {
+        toast.success('Banner eliminado con éxito');
+        setBannerPicturePreview(null);
+        setBannerPicture(null);
+        if (bannerPictureInputRef.current) {
+          bannerPictureInputRef.current.value = '';
+        }
+        utils.event.getById.invalidate(event.id);
+        utils.event.getAll.invalidate();
+      })
+      .catch(() => {
+        toast.error('Error al eliminar el banner');
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-      toast.success('Banner eliminado con éxito');
-      setBannerPicturePreview(null);
-      setBannerPicture(null);
-      if (bannerPictureInputRef.current) {
-        bannerPictureInputRef.current.value = '';
-      }
-      utils.event.getById.invalidate(event.id);
-      utils.event.getAll.invalidate();
-    } catch (error) {
-      toast.error('Error al eliminar el banner');
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleDeleteData = async () => {
     setIsLoading(true);
     try {
-      await updateEvent.mutateAsync({
-        id: event.id,
-        description: null,
-        date: new Date(event.date),
-        location: event.location,
-        name: event.name,
-        startingDate: new Date(event.startingDate),
-        endingDate: new Date(event.endingDate),
-        tagsId: event.tags.map((tag) => tag.id),
-        folderId: event.folderId,
-        mainPictureUrl: event.mainPictureUrl,
-        bannerUrl: event.bannerUrl,
-        subEvents: event.subEvents.map((subEvent) => ({
-          ...subEvent,
-          date: new Date(subEvent.date),
-          startingDate: new Date(subEvent.startingDate),
-          endingDate: new Date(subEvent.endingDate),
-        })),
-        eventTickets: event.eventTickets.map((ticket) => ({
-          amount: ticket.amount,
-          price: ticket.price,
-          type: ticket.type,
-        })),
-      });
-
       if (event.mainPictureUrl) {
         await handleDeleteMainPicture();
       }
@@ -242,10 +209,16 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
         await handleDeleteBanner();
       }
 
+      await updateEvent.mutateAsync({
+        id: event.id,
+        description: null,
+        mainPictureUrl: null,
+        bannerUrl: null,
+      });
       resetFormStates();
 
       toast.success('Datos eliminados con éxito');
-    } catch (error) {
+    } catch {
       toast.error('Error al eliminar los datos');
     } finally {
       setIsLoading(false);
@@ -263,7 +236,10 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <InfoIcon className='h-5 w-5 cursor-pointer hover:text-black' />
+        <InfoIcon
+          ref={null}
+          className='h-5 w-5 cursor-pointer hover:text-black'
+        />
       </DialogTrigger>
       <DialogContent className='mx-2 flex w-full flex-col gap-y-3 rounded-md bg-slate-100 px-6 py-4 md:max-w-4xl'>
         <h2 className='text-xl font-bold'>
@@ -287,100 +263,34 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
         {/* Sección de imágenes */}
         <div className='flex flex-row items-start justify-start gap-x-4'>
           {/* Foto del evento */}
-          <div className='flex flex-1 flex-col items-start'>
-            <label htmlFor='mainPicture' className='block font-medium'>
-              Foto del evento
-            </label>
-            <div className='mt-2 flex items-center gap-x-2'>
-              <label
-                htmlFor='mainPictureInput'
-                className='flex h-10 cursor-pointer items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent'
-              >
-                {mainPicture ? mainPicture.name : 'Subir archivo'}
-                <input
-                  id='mainPictureInput'
-                  type='file'
-                  className='hidden'
-                  accept='image/jpeg,image/png,image/webp'
-                  ref={mainPictureInputRef}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setMainPicture(file);
-                      setMainPicturePreview(URL.createObjectURL(file));
-                    }
-                  }}
-                />
-              </label>
-              {mainPicturePreview && (
-                <Button
-                  variant='destructive'
-                  size='icon'
-                  onClick={handleDeleteMainPicture}
-                  disabled={isLoading}
-                >
-                  <Trash2Icon className='h-4 w-4' />
-                </Button>
-              )}
-            </div>
-            {mainPicturePreview && (
-              <div className='mt-2'>
-                <img
-                  src={mainPicturePreview}
-                  alt='Vista previa de la foto del evento'
-                  className='max-h-40 w-full rounded-md object-cover'
-                />
-              </div>
-            )}
-          </div>
+          <EventImageInput
+            label='Foto del evento'
+            inputId='mainPictureInput'
+            previewUrl={mainPicturePreview}
+            file={mainPicture}
+            onFileChange={(file) => {
+              setMainPicture(file);
+              setMainPicturePreview(URL.createObjectURL(file));
+            }}
+            onDelete={handleDeleteMainPicture}
+            isLoading={isLoading}
+            inputRef={mainPictureInputRef}
+          />
 
           {/* Foto banner */}
-          <div className='flex flex-1 flex-col items-start'>
-            <label htmlFor='bannerPicture' className='block font-medium'>
-              Foto banner
-            </label>
-            <div className='mt-2 flex items-center gap-x-2'>
-              <label
-                htmlFor='bannerPictureInput'
-                className='flex h-10 cursor-pointer items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent'
-              >
-                {bannerPicture ? bannerPicture.name : 'Subir archivo'}
-                <input
-                  id='bannerPictureInput'
-                  type='file'
-                  className='hidden'
-                  accept='image/jpeg,image/png,image/webp'
-                  ref={bannerPictureInputRef}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setBannerPicture(file);
-                      setBannerPicturePreview(URL.createObjectURL(file));
-                    }
-                  }}
-                />
-              </label>
-              {bannerPicturePreview && (
-                <Button
-                  variant='destructive'
-                  size='icon'
-                  onClick={handleDeleteBanner}
-                  disabled={isLoading}
-                >
-                  <Trash2Icon className='h-4 w-4' />
-                </Button>
-              )}
-            </div>
-            {bannerPicturePreview && (
-              <div className='mt-2'>
-                <img
-                  src={bannerPicturePreview}
-                  alt='Vista previa del banner del evento'
-                  className='max-h-40 w-full rounded-md object-contain'
-                />
-              </div>
-            )}
-          </div>
+          <EventImageInput
+            label='Banner del evento'
+            inputId='bannerPictureInput'
+            previewUrl={bannerPicturePreview}
+            file={bannerPicture}
+            onFileChange={(file) => {
+              setBannerPicture(file);
+              setBannerPicturePreview(URL.createObjectURL(file));
+            }}
+            onDelete={handleDeleteBanner}
+            isLoading={isLoading}
+            inputRef={bannerPictureInputRef}
+          />
         </div>
 
         {/* Botones */}
@@ -404,3 +314,69 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
 };
 
 export default EventInformationModal;
+
+interface EventImageInputProps {
+  label: string;
+  inputId: string;
+  previewUrl: string | null;
+  file: File | null;
+  onFileChange: (file: File) => void;
+  onDelete: () => void;
+  isLoading: boolean;
+  inputRef: React.RefObject<HTMLInputElement>;
+}
+
+const EventImageInput = forwardRef<HTMLInputElement, EventImageInputProps>(
+  (
+    { label, inputId, previewUrl, file, onFileChange, onDelete, isLoading },
+    ref
+  ) => (
+    <div className='flex flex-1 flex-col items-start'>
+      <label htmlFor={inputId} className='block font-medium'>
+        {label}
+      </label>
+      <div className='mt-2 flex items-center gap-x-2'>
+        <label
+          htmlFor={inputId}
+          className='flex h-10 cursor-pointer items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent'
+        >
+          {file ? file.name : 'Subir archivo'}
+          <input
+            id={inputId}
+            type='file'
+            className='hidden'
+            accept='image/jpeg,image/png,image/webp'
+            ref={ref}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) onFileChange(file);
+            }}
+          />
+        </label>
+        {previewUrl && (
+          <Button
+            variant='destructive'
+            size='icon'
+            onClick={onDelete}
+            disabled={isLoading}
+          >
+            <Trash2Icon className='h-4 w-4' />
+          </Button>
+        )}
+      </div>
+      {previewUrl && (
+        <div className='mt-2'>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${previewUrl}?${new Date().getTime()}`}
+            alt={`Vista previa de ${label}`}
+            className='max-h-40 w-full rounded-md object-cover'
+          />
+        </div>
+      )}
+    </div>
+  )
+);
+
+// 👇 Nombre útil para debugging
+EventImageInput.displayName = 'EventImageInput';
