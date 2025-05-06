@@ -10,6 +10,9 @@ import { type RouterOutputs } from '@/server';
 import InfoIcon from '@/components/icons/InfoIcon';
 import { Trash2Icon } from 'lucide-react';
 
+interface EventInformationModalProps {
+  event: RouterOutputs['event']['getAll']['withoutFolder'][number];
+}
 const uploadImage = async (url: string, file: File | null, id: string) => {
   if (!file) {
     toast.error('No se ha seleccionado una imagen');
@@ -28,9 +31,6 @@ const deleteImage = async (url: string, id: string) => {
   return fetch(url, { method: 'DELETE', body: form });
 };
 
-interface EventInformationModalProps {
-  event: RouterOutputs['event']['getAll']['withoutFolder'][number];
-}
 const EventInformationModal = ({ event }: EventInformationModalProps) => {
   // Estados para manejar la descripción y las imágenes
   const [description, setDescription] = useState(event.description || '');
