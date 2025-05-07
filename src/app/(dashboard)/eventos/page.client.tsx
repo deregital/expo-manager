@@ -12,6 +12,8 @@ import { XIcon } from 'lucide-react';
 import EventsFolderModal from '@/components/eventos/modal/EventsFolderModal';
 import EventsList from '@/components/eventos/eventslist';
 
+import { StatisticsCarousel } from '@/components/eventos/estadisticas/StatisticsCarousel';
+
 type EventosPageClientProps = {
   hostname: string;
 };
@@ -19,6 +21,7 @@ type EventosPageClientProps = {
 const EventosPageClient = ({ hostname }: EventosPageClientProps) => {
   const [search, setSearch] = useState('');
   const { data, isLoading } = trpc.event.getAll.useQuery();
+
   const { expandState, setNone } = useExpandEventos((s) => ({
     setNone: s.none,
     expandState: s.state,
@@ -81,7 +84,8 @@ const EventosPageClient = ({ hostname }: EventosPageClientProps) => {
   }, [folders, eventsWithoutFolder, isLoading, search]);
 
   return (
-    <>
+    <div>
+      <StatisticsCarousel />
       <p className='p-3 text-xl font-bold md:p-5 md:text-3xl'>
         Gestor de Eventos
       </p>
@@ -126,7 +130,7 @@ const EventosPageClient = ({ hostname }: EventosPageClientProps) => {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

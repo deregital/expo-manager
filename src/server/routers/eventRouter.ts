@@ -48,6 +48,32 @@ export const eventRouter = router({
       if (error) throw handleError(error);
       return data;
     }),
+  getAllStatistics: protectedProcedure.query(async ({ ctx }) => {
+    const { data, error } = await ctx.fetch.GET('/event/statistics');
+    if (error) throw handleError(error);
+    return data;
+  }),
+  getStatisticsById: protectedProcedure
+    .input(
+      z.object({
+        id: eventSchema.shape.id,
+        gte: z.string(),
+        lte: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { data, error } = await ctx.fetch.GET('/event/{id}/statistics', {
+        params: {
+          path: { id: input.id },
+          query: {
+            gte: '',
+            lte: '',
+          },
+        },
+      });
+      if (error) throw handleError(error);
+      return data;
+    }),
   update: protectedProcedure
     .input(
       updateEventSchema.merge(z.object({ id: eventFolderSchema.shape.id }))

@@ -28,6 +28,8 @@ import { iconsAndTexts } from '@/components/ui/ticket/iconsAndTexts';
 import { cn, objectEntries } from '@/lib/utils';
 import Link from 'next/link';
 
+import { StatisticsCarouselSpecific } from '@/components/eventos/estadisticas/StatisticsCarouselSpecific';
+
 interface EventPageProps {
   params: {
     eventId: string;
@@ -49,6 +51,7 @@ const EventPage = ({ params }: EventPageProps) => {
       },
     }
   );
+
   const toggleActiveMutation = trpc.event.toggleActive.useMutation();
   const utils = trpc.useUtils();
 
@@ -106,6 +109,13 @@ const EventPage = ({ params }: EventPageProps) => {
           }}
         />
       </div>
+      {event && (
+        <StatisticsCarouselSpecific
+          eventId={params.eventId}
+          startingDate={event.startingDate}
+          endingDate={event.endingDate}
+        />
+      )}
       <div className='col-span-3 p-2'>
         <h3 className='text-center text-2xl font-bold'>{event?.name}</h3>
       </div>
