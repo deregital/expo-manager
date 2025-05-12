@@ -12,7 +12,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   const formData = new FormData();
   formData.append('image', filepath, filepath.name);
 
-  const { error } = await fetchClient.PATCH('/image/update/{id}', {
+  const { error } = await fetchClient.PATCH('/event/update-banner/{id}', {
     params: {
       path: {
         id,
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 export async function DELETE(req: NextRequest, res: NextResponse) {
   const form = await req.formData();
   const id = form.get('id') as string;
-  const { response } = await fetchClient.DELETE('/image/delete/{id}', {
+  const { response } = await fetchClient.DELETE('/event/delete-banner/{id}', {
     params: {
       path: {
         id,

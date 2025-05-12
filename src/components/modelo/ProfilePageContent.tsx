@@ -69,7 +69,7 @@ const ProfilePageContent = ({ profile }: ProfilePageContentProps) => {
     const form = new FormData();
     form.append('id', profile.id);
     form.append('url', profilePicUrl ?? '');
-    await fetch('/api/image', {
+    await fetch('/api/image/profile', {
       method: 'DELETE',
       body: form,
     })
@@ -93,7 +93,7 @@ const ProfilePageContent = ({ profile }: ProfilePageContentProps) => {
     form.append('url', profile.profilePictureUrl ?? '');
     toast.loading('Subiendo foto...');
     setEdit(false);
-    await fetch('/api/image', {
+    await fetch('/api/image/profile', {
       method: 'POST',
       body: form,
     })

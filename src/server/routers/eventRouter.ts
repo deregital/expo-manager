@@ -82,9 +82,9 @@ export const eventRouter = router({
       const { id, ...body } = input;
       const sub = input.subEvents?.map((sub) => ({
         ...sub,
-        date: sub.date.toISOString(),
-        startingDate: sub.startingDate.toISOString(),
-        endingDate: sub.endingDate.toISOString(),
+        date: sub.date?.toISOString(),
+        startingDate: sub.startingDate?.toISOString(),
+        endingDate: sub.endingDate?.toISOString(),
       }));
 
       const { data, error } = await ctx.fetch.PATCH('/event/{id}', {
@@ -95,9 +95,9 @@ export const eventRouter = router({
         },
         body: {
           ...body,
-          date: input.date.toISOString(),
-          startingDate: input.startingDate.toISOString(),
-          endingDate: input.endingDate.toISOString(),
+          date: input.date?.toISOString(),
+          startingDate: input.startingDate?.toISOString(),
+          endingDate: input.endingDate?.toISOString(),
           subEvents: sub,
         },
       });

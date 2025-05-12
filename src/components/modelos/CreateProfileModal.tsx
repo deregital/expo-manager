@@ -143,7 +143,7 @@ const ModalCreateProfile = ({ open }: { open: boolean }) => {
     form.append('id', id);
     form.append('url', fotoUrl ?? '');
 
-    await fetch('/api/image', {
+    await fetch('/api/image/profile', {
       method: 'POST',
       body: form,
     })
