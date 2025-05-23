@@ -119,7 +119,8 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
     }
   };
 
-  const handleConfirm = async () => {
+  const handleConfirm = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     setIsLoading(true);
     try {
       if (description !== (event.description || '')) {
@@ -198,7 +199,8 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
       });
   };
 
-  const handleDeleteData = async () => {
+  const handleDeleteData = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     setIsLoading(true);
     try {
       if (event.mainPictureUrl) {
@@ -236,10 +238,9 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <InfoIcon
-          ref={null}
-          className='h-5 w-5 cursor-pointer hover:text-black'
-        />
+        <div role='button' className='h-5 w-5 cursor-pointer'>
+          <InfoIcon className='h-5 w-5 hover:text-black' />
+        </div>
       </DialogTrigger>
       <DialogContent className='mx-2 flex w-full flex-col gap-y-3 rounded-md bg-slate-100 px-6 py-4 md:max-w-4xl'>
         <h2 className='text-xl font-bold'>
@@ -275,7 +276,6 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
             onDelete={handleDeleteMainPicture}
             isLoading={isLoading}
             inputRef={mainPictureInputRef}
-            eventImageUrl={event.mainPictureUrl || ''}
           />
 
           {/* Foto banner */}
@@ -291,7 +291,6 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
             onDelete={handleDeleteBanner}
             isLoading={isLoading}
             inputRef={bannerPictureInputRef}
-            eventImageUrl={event.bannerUrl || ''}
           />
         </div>
 
@@ -299,14 +298,14 @@ const EventInformationModal = ({ event }: EventInformationModalProps) => {
         <div className='mt-4 flex justify-between'>
           <Button
             variant='destructive'
-            onClick={handleDeleteData}
+            onClick={(e) => handleDeleteData(e)}
             disabled={isLoading}
             className='flex items-center gap-x-2'
           >
             <Trash2Icon className='h-4 w-4' />
             Borrar datos actuales
           </Button>
-          <Button onClick={handleConfirm} disabled={isLoading}>
+          <Button onClick={(e) => handleConfirm(e)} disabled={isLoading}>
             Confirmar
           </Button>
         </div>
@@ -326,21 +325,11 @@ interface EventImageInputProps {
   onDelete: () => void;
   isLoading: boolean;
   inputRef: React.RefObject<HTMLInputElement>;
-  eventImageUrl: string;
 }
 
 const EventImageInput = forwardRef<HTMLInputElement, EventImageInputProps>(
   (
-    {
-      label,
-      inputId,
-      previewUrl,
-      file,
-      onFileChange,
-      onDelete,
-      isLoading,
-      eventImageUrl,
-    },
+    { label, inputId, previewUrl, file, onFileChange, onDelete, isLoading },
     ref
   ) => (
     <div className='flex flex-1 flex-col items-start'>
@@ -369,7 +358,10 @@ const EventImageInput = forwardRef<HTMLInputElement, EventImageInputProps>(
           <Button
             variant='destructive'
             size='icon'
-            onClick={onDelete}
+            onClick={(e) => {
+              e.preventDefault();
+              onDelete();
+            }}
             disabled={isLoading}
           >
             <Trash2Icon className='h-4 w-4' />
@@ -380,9 +372,7 @@ const EventImageInput = forwardRef<HTMLInputElement, EventImageInputProps>(
         <div className='mt-2'>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={`${previewUrl}${
-              previewUrl === eventImageUrl ? `?${new Date().getTime()}` : ''
-            }`}
+            src={`${previewUrl}`}
             alt={`Vista previa de ${label}`}
             className='max-h-40 w-full rounded-md object-cover'
           />
