@@ -12,7 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { cn, getTextColorByBg } from '@/lib/utils';
+import { cn, getTextColorByBg, searchNormalize } from '@/lib/utils';
 import { CheckIcon } from 'lucide-react';
 import React, { useMemo } from 'react';
 

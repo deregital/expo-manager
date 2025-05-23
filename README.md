@@ -2,7 +2,7 @@
 
 ## Descripción
 
-Este es un dashboard en donde se van a poder visualizar los datos de los usuarios que se encuentran en la base de datos de la aplicación Expo Manager.
+Este e un dashboard en donde se van a poder visualizar los datos de los usuarios que se encuentran en la base de datos de la aplicación Expo Manager.
 
 ## Instalación
 
