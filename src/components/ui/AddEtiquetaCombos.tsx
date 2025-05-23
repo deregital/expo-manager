@@ -16,7 +16,11 @@ function availableGroups(
   tags: GetGlobalFilterResponseDto['globalFilter'],
   groupsData: NonNullable<RouterOutputs['tagGroup']['getAll']>
 ) {
-  const internalTagTypes: TagType[] = ['PARTICIPANT', 'NOT_IN_SYSTEM'];
+  const internalTagTypes: TagType[] = [
+    'PARTICIPANT',
+    'NOT_IN_SYSTEM',
+    'PRODUCTION_ROLE',
+  ];
 
   return groupsData.filter((group) => {
     if (group.tags.length === 0) return false;
@@ -153,10 +157,7 @@ const AddEtiquetaCombos = ({ tags, handleAddTag }: AddTagCombosProps) => {
       <Button
         onClick={() => {
           if (selectedTag) {
-            handleAddTag(
-              // TODO: Fix this type
-              selectedTag
-            );
+            handleAddTag(selectedTag);
           } else {
             toast.error('Selecciona una etiqueta');
           }

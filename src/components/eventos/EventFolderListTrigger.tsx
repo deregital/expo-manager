@@ -1,4 +1,4 @@
-import EventsFolderModal from '@/components/eventos/EventsFolderModal';
+import EventsFolderModal from '@/components/eventos/modal/EventsFolderModal';
 import FolderIcon from '@/components/icons/FolderIcon';
 import { getTextColorByBg } from '@/lib/utils';
 import { type RouterOutputs } from '@/server';

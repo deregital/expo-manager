@@ -21,6 +21,10 @@ type ProfileModal = {
     | 'residenceLocationId'
     | 'isInTrash'
     | 'movedToTrashDate'
+    | 'password'
+    | 'firstTimeMiExpo'
+    | 'isPhoneVerified'
+    | 'role'
   > & {
     birthLocation: {
       city: string;
@@ -53,6 +57,7 @@ const defaultProfile = {
   dni: null,
   mail: null,
   instagram: null,
+  username: null,
   birthLocation: {
     country: 'Argentina',
     city: '',

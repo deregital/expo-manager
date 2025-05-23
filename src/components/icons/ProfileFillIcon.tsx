@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-const IconDatabase2Fill = (
+const ProfileFillIcon = (
   props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>
 ) => {
   return (
@@ -17,4 +17,4 @@ const IconDatabase2Fill = (
   );
 };
 
-export default IconDatabase2Fill;
+export default ProfileFillIcon;

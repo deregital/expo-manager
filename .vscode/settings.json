@@ -24,5 +24,6 @@
   "eslint.lintTask.enable": true,
   "editor.indentSize": "tabSize",
   "editor.tabSize": 2,
-  "eslint.lintTask.options": ". --fix"
+  "eslint.lintTask.options": ". --fix",
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

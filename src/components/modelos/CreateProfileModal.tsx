@@ -97,6 +97,8 @@ const ModalCreateProfile = ({ open }: { open: boolean }) => {
           alternativeNames: modalProfile.profile.alternativeNames.filter(
             (e) => e !== ''
           ),
+          username: modalProfile.profile.username ?? null,
+          password: null,
           birth: modalProfile.profile.birthLocation,
           residence: modalProfile.profile.residenceLocation,
           comments: modalProfile.profile.comments.map((c) => ({
@@ -141,7 +143,7 @@ const ModalCreateProfile = ({ open }: { open: boolean }) => {
     form.append('id', id);
     form.append('url', fotoUrl ?? '');
 
-    await fetch('/api/image', {
+    await fetch('/api/image/profile', {
       method: 'POST',
       body: form,
     })

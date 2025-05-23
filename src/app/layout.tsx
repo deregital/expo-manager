@@ -4,6 +4,7 @@ import './globals.css';
 import TRPCProvider from '@/app/_trpc/Provider';
 import { cn } from '@/lib/utils';
 import NextAuthProvider from '@/app/_auth/NextAuthProvider';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 const fontSans = Inter({
   subsets: ['latin'],
@@ -11,7 +12,7 @@ const fontSans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: `Expo Manager${process.env.NEXT_PUBLIC_ES_DEMO === 'true' ? ' - Demo' : ''}`,
+  title: `${process.env.NEXT_PUBLIC_ES_DEMO === 'true' ? 'Demo - ' : ''}Expo Manager`,
   description: 'El mejor administrador de eventos',
 };
 
@@ -29,7 +30,9 @@ const RootLayout = ({
         )}
       >
         <NextAuthProvider>
-          <TRPCProvider>{children}</TRPCProvider>
+          <TRPCProvider>
+            <NuqsAdapter>{children}</NuqsAdapter>
+          </TRPCProvider>
         </NextAuthProvider>
       </body>
     </html>

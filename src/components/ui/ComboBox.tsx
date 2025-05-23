@@ -30,7 +30,7 @@ type ComboBoxProps<
   data: TData[];
   filteredData?: TData[];
   id: Id;
-  value: keyof TData;
+  value: keyof TData | ((data: TData) => string);
   onSelect: (_value: string) => void;
   selectedIf: TData[Id];
   checkClassName?: string;
@@ -75,15 +75,22 @@ const ComboBox = <
     ? 'Grupo no encontrado.'
     : 'Etiqueta no encontrada.';
 
+  const val = useMemo(
+    () =>
+      typeof value === 'function'
+        ? value
+        : (item: TData) => item[value] as string,
+    [value]
+  );
+
   const dataSelectedFirst = useMemo(() => {
     const selectedItem = data.find((item) => item[id] === selectedIf);
-
     const sortedData = (filteredData || data)
       .filter((item) => item[id] !== selectedIf)
-      .sort((a, b) => (a[value] as string).localeCompare(b[value] as string));
+      .sort((a, b) => val(a).localeCompare(val(b)));
 
     return selectedItem ? [selectedItem, ...sortedData] : sortedData;
-  }, [data, filteredData, id, selectedIf, value]);
+  }, [data, filteredData, id, selectedIf, val]);
 
   return (
     <Popover modal open={open} onOpenChange={setOpen}>
@@ -140,15 +147,17 @@ const ComboBox = <
                 disabled={enabled && !enabled.includes(item[id])}
                 className='cursor-pointer hover:bg-gray-100'
                 key={item[id] as string}
-                value={item[value] as string}
+                value={val(item)}
                 onSelect={(selectedValue) => {
-                  const selectedItem = data.find((it) =>
-                    searchNormalize(it[value] as string, selectedValue)
+                  const selectedItem = data.find(
+                    (it) =>
+                      val(it).toLowerCase() === selectedValue.toLowerCase()
                   );
 
                   if (!selectedItem) return;
 
                   onSelect(selectedItem[id] as string);
+                  setOpen(false);
                 }}
                 style={
                   isGrupo
@@ -163,7 +172,7 @@ const ComboBox = <
                     : itemStyle
                 }
               >
-                {item[value] as string}
+                {val(item)}
                 <CheckIcon
                   className={cn(
                     'ml-auto h-4 w-4',
