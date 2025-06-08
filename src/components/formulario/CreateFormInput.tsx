@@ -1,5 +1,6 @@
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 import { CheckIcon, PlusIcon } from 'lucide-react';
 
 interface CreateFormInputProps {
@@ -26,9 +27,13 @@ const CreateFormInput = ({
             className='w-full pr-[3.25rem]'
             value={name}
             autoFocus
-            onBlur={() => {
-              setIsCreating(false);
-              setName('');
+            onBlur={(e) => {
+              const isClickingSubmit =
+                e.relatedTarget?.getAttribute('role') === 'button';
+              if (!isClickingSubmit) {
+                setIsCreating(false);
+                setName('');
+              }
             }}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => {
@@ -38,19 +43,22 @@ const CreateFormInput = ({
               }
             }}
           />
-          <Button
-            className='absolute right-0 top-0'
-            type='submit'
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (name.trim() === '') return;
-              onSubmit();
+          <div
+            className={cn(
+              'absolute right-0 top-0 cursor-pointer',
+              buttonVariants({ variant: 'default' }),
+              name.trim() === '' && 'opacity-50'
+            )}
+            role='button'
+            tabIndex={0}
+            onClick={() => {
+              if (name.trim() !== '') {
+                onSubmit();
+              }
             }}
-            disabled={name.trim() === ''}
           >
             <CheckIcon className='block h-4 w-4' />
-          </Button>
+          </div>
         </div>
       ) : (
         <Button onClick={() => setIsCreating(true)}>
