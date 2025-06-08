@@ -16,11 +16,22 @@ interface DynamicFormDisplayProps {
 
 const DynamicFormDisplay = ({ form, refetch }: DynamicFormDisplayProps) => {
   const utils = trpc.useUtils();
-  const editQuestionMutation = trpc.form.edit.useMutation({
+  const editFormMutation = trpc.form.edit.useMutation({
     onSuccess: () => {
       utils.form.getAll.invalidate();
       refetch();
       toast.success('Formulario actualizado correctamente');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const createFormMutation = trpc.form.create.useMutation({
+    onSuccess: () => {
+      utils.form.getAll.invalidate();
+      refetch();
+      toast.success('Formulario creado correctamente');
     },
     onError: (error) => {
       toast.error(error.message);
@@ -32,6 +43,8 @@ const DynamicFormDisplay = ({ form, refetch }: DynamicFormDisplayProps) => {
   }));
 
   async function submitForm() {
+    if (!form) return;
+
     if (form?.type === 'db') {
       const body = {
         id: form.id,
@@ -45,8 +58,21 @@ const DynamicFormDisplay = ({ form, refetch }: DynamicFormDisplayProps) => {
           })),
         })),
       };
-
-      await editQuestionMutation.mutateAsync(body);
+      await editFormMutation.mutateAsync(body);
+    } else {
+      const body = {
+        name: form.name,
+        questions: form.questions.map((q) => ({
+          text: q.text,
+          required: q.required,
+          multipleChoice: q.multipleChoice,
+          disabled: q.disabled,
+          options: q.options.map((o) => ({
+            text: o.text,
+          })),
+        })),
+      };
+      await createFormMutation.mutateAsync(body);
     }
   }
 
@@ -60,7 +86,7 @@ const DynamicFormDisplay = ({ form, refetch }: DynamicFormDisplayProps) => {
           <Button
             variant='outline'
             onClick={submitForm}
-            disabled={editQuestionMutation.isLoading}
+            disabled={editFormMutation.isLoading}
           >
             {form?.type === 'db' ? 'Confirmar edición' : 'Crear'}
           </Button>
