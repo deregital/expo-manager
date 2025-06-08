@@ -39,30 +39,73 @@ const QuestionDisplay = ({
 }: {
   question: DynamicFormForStore['questions'][number];
 }) => {
-  const { editOption } = useDynamicFormStore((state) => ({
+  const { editOption, editQuestion } = useDynamicFormStore((state) => ({
     editOption: state.editOption,
+    editQuestion: state.editQuestion,
   }));
 
   return (
     <div className='flex flex-col gap-y-2'>
       <div className='flex flex-col gap-x-2 md:flex-row'>
-        <p className='rounded-md bg-gray-300 px-2 py-1 text-lg font-bold'>
-          {question.text}
-        </p>
+        <div key={question.id} className='group relative'>
+          <p
+            className='rounded-md bg-gray-300 px-2 py-1 pl-6 text-lg font-bold'
+            contentEditable
+            suppressContentEditableWarning
+            onBlur={(e) => {
+              const newText = e.currentTarget.textContent;
+              const oldText = question.text;
+              if (!newText) {
+                e.currentTarget.textContent = oldText;
+                return;
+              }
+
+              if (newText && newText !== oldText) {
+                editQuestion(question.formId, question.id, {
+                  text: newText,
+                });
+              }
+            }}
+          >
+            {question.text}
+          </p>
+          <EditFillIcon className='absolute left-1 top-1/2 hidden h-4 w-4 -translate-y-1/2 group-hover:block group-active:block' />
+        </div>
         <div className='flex flex-wrap items-center divide-x-2 divide-gray-300'>
           <span className='flex items-center gap-x-0.5 px-2 first:pl-0'>
-            <Checkbox className='self-center' checked={question.required} />
+            <Checkbox
+              className='self-center'
+              checked={question.required}
+              onCheckedChange={(checked) => {
+                editQuestion(question.formId, question.id, {
+                  required: checked === 'indeterminate' ? false : checked,
+                });
+              }}
+            />
             Obligatorio
           </span>
           <span className='flex items-center gap-x-0.5 px-2 first:pl-0'>
             <Checkbox
               className='self-center'
               checked={question.multipleChoice}
+              onCheckedChange={(checked) => {
+                editQuestion(question.formId, question.id, {
+                  multipleChoice: checked === 'indeterminate' ? false : checked,
+                });
+              }}
             />
             Múltiple
           </span>
           <span className='flex items-center gap-x-0.5 px-2 first:pr-0'>
-            <Checkbox className='self-center' checked={question.disabled} />
+            <Checkbox
+              className='self-center'
+              checked={question.disabled}
+              onCheckedChange={(checked) => {
+                editQuestion(question.formId, question.id, {
+                  disabled: checked === 'indeterminate' ? false : checked,
+                });
+              }}
+            />
             Deshabilitada
           </span>
         </div>
