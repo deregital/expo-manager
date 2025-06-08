@@ -1,4 +1,5 @@
 import { handleError, protectedProcedure, router } from '@/server/trpc';
+import { dynamicFormSchema, updateDynamicFormSchema } from 'expo-backend-types';
 
 export const formRouter = router({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -10,4 +11,30 @@ export const formRouter = router({
 
     return data;
   }),
+  edit: protectedProcedure
+    .input(
+      updateDynamicFormSchema.extend({
+        id: dynamicFormSchema.shape.id,
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { id, ...body } = input;
+      const { data, error } = await ctx.fetch.PATCH(
+        '/dynamic-form/update/{id}',
+        {
+          params: {
+            path: {
+              id,
+            },
+          },
+          body: body,
+        }
+      );
+
+      if (error) {
+        throw handleError(error);
+      }
+
+      return data;
+    }),
 });

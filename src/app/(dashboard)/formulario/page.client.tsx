@@ -15,7 +15,7 @@ interface FormularioPageClientProps {
 export const FormularioPageClient = ({
   selectedFormId,
 }: FormularioPageClientProps) => {
-  const { isLoading } = trpc.form.getAll.useQuery(undefined, {
+  const { isLoading, refetch } = trpc.form.getAll.useQuery(undefined, {
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
       if (useDynamicFormStore.getState().forms.length > 0) return;
@@ -95,6 +95,7 @@ export const FormularioPageClient = ({
         />
       </div>
       <DynamicFormDisplay
+        refetch={refetch}
         form={formsStore.forms.find((form) => form.id === tab) ?? null}
       />
     </div>

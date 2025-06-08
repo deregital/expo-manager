@@ -73,6 +73,7 @@ const defaultProfile = {
     city: '',
   },
   comments: [] as ProfileModal['profile']['comments'],
+  referralCode: '',
 } satisfies ProfileModal['profile'];
 
 export const useCreateProfileModal = create<ProfileModal>((set) => ({
