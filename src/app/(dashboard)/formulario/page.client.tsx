@@ -15,13 +15,13 @@ interface FormularioPageClientProps {
 export const FormularioPageClient = ({
   selectedFormId,
 }: FormularioPageClientProps) => {
-  const { isLoading, refetch } = trpc.form.getAll.useQuery(undefined, {
+  const { isLoading } = trpc.form.getAll.useQuery(undefined, {
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
       useDynamicFormStore.setState({
         forms: data.map((form) => ({
           ...form,
-          type: 'db',
+          type: 'db' as const,
         })),
       });
     },
@@ -39,19 +39,13 @@ export const FormularioPageClient = ({
   const createForm = () => {
     if (inputName.trim() === '') return;
 
-    const id = crypto.randomUUID();
-    formsStore.addForm({
-      id,
+    const newForm = formsStore.addForm({
       name: inputName,
-      questions: [],
-      type: 'new',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     });
 
     setIsCreating(false);
     setInputName('');
-    setTab(id);
+    setTab(newForm.id);
   };
 
   return (
@@ -93,7 +87,6 @@ export const FormularioPageClient = ({
         />
       </div>
       <DynamicFormDisplay
-        refetch={refetch}
         form={formsStore.forms.find((form) => form.id === tab) ?? null}
       />
     </div>

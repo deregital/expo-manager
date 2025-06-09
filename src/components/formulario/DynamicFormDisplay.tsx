@@ -15,17 +15,15 @@ import OptionsDisplay from './OptionsDisplay';
 
 interface DynamicFormDisplayProps {
   form: DynamicFormForStore | null;
-  refetch: () => void;
 }
 
-const DynamicFormDisplay = ({ form, refetch }: DynamicFormDisplayProps) => {
+const DynamicFormDisplay = ({ form }: DynamicFormDisplayProps) => {
   const utils = trpc.useUtils();
   const router = useRouter();
 
   const editFormMutation = trpc.form.edit.useMutation({
     onSuccess: () => {
       utils.form.getAll.invalidate();
-      refetch();
       toast.success('Formulario actualizado correctamente');
     },
     onError: (error) => {
@@ -36,7 +34,6 @@ const DynamicFormDisplay = ({ form, refetch }: DynamicFormDisplayProps) => {
   const createFormMutation = trpc.form.create.useMutation({
     onSuccess: (data) => {
       utils.form.getAll.invalidate();
-      refetch();
       toast.success('Formulario creado correctamente');
       router.push(`/formulario?form=${data.id}`);
     },

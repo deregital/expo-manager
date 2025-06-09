@@ -8,7 +8,7 @@ export type DynamicFormForStore = RouterOutputs['form']['getAll'][number] & {
 export const useDynamicFormStore = create<{
   forms: DynamicFormForStore[];
   setForms: (forms: DynamicFormForStore[]) => void;
-  addForm: (form: DynamicFormForStore) => void;
+  addForm: (form: Pick<DynamicFormForStore, 'name'>) => DynamicFormForStore;
   editOption: (
     formId: string,
     questionId: string,
@@ -41,8 +41,20 @@ export const useDynamicFormStore = create<{
 }>((set, get) => ({
   forms: [],
   setForms: (forms: DynamicFormForStore[]) => set({ forms }),
-  addForm: (form: DynamicFormForStore) =>
-    set((state) => ({ forms: [...state.forms, form] })),
+  addForm: (form: Pick<DynamicFormForStore, 'name'>) => {
+    const newForm = {
+      name: form.name,
+      id: crypto.randomUUID(),
+      type: 'new',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      questions: [],
+    } satisfies DynamicFormForStore;
+    set((state) => ({
+      forms: [...state.forms, newForm],
+    }));
+    return newForm;
+  },
   editOption: (formId, questionId, optionId, text) =>
     set((state) => ({
       forms: state.forms.map((form) =>
