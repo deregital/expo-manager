@@ -18,8 +18,6 @@ export const FormularioPageClient = ({
   const { isLoading, refetch } = trpc.form.getAll.useQuery(undefined, {
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
-      if (useDynamicFormStore.getState().forms.length > 0) return;
-
       useDynamicFormStore.setState({
         forms: data.map((form) => ({
           ...form,

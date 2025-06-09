@@ -8,6 +8,10 @@ import EditFillIcon from '@/components/icons/EditFillIcon';
 import { PlusIcon, TrashIcon } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import OptionsDisplay from './OptionsDisplay';
 
 interface DynamicFormDisplayProps {
   form: DynamicFormForStore | null;
@@ -16,6 +20,8 @@ interface DynamicFormDisplayProps {
 
 const DynamicFormDisplay = ({ form, refetch }: DynamicFormDisplayProps) => {
   const utils = trpc.useUtils();
+  const router = useRouter();
+
   const editFormMutation = trpc.form.edit.useMutation({
     onSuccess: () => {
       utils.form.getAll.invalidate();
@@ -28,10 +34,11 @@ const DynamicFormDisplay = ({ form, refetch }: DynamicFormDisplayProps) => {
   });
 
   const createFormMutation = trpc.form.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       utils.form.getAll.invalidate();
       refetch();
       toast.success('Formulario creado correctamente');
+      router.push(`/formulario?form=${data.id}`);
     },
     onError: (error) => {
       toast.error(error.message);
@@ -79,7 +86,7 @@ const DynamicFormDisplay = ({ form, refetch }: DynamicFormDisplayProps) => {
   return (
     form && (
       <div className='px-4 pb-4'>
-        <div className='flex py-4'>
+        <div className='flex flex-col gap-2 py-4 md:flex-row'>
           <h1 className='flex-1 text-center text-2xl font-bold'>
             {form?.name}
           </h1>
@@ -90,6 +97,7 @@ const DynamicFormDisplay = ({ form, refetch }: DynamicFormDisplayProps) => {
           >
             {form?.type === 'db' ? 'Confirmar edición' : 'Crear'}
           </Button>
+          {form.type === 'db' && <DeleteFormButton formId={form.id} />}
         </div>
         <div className='flex w-full flex-col gap-y-4'>
           {form?.questions.map((question, idx) => (
@@ -126,14 +134,10 @@ const QuestionDisplay = ({
 }: {
   question: DynamicFormForStore['questions'][number];
 }) => {
-  const { editOption, editQuestion, addOption, deleteOption, deleteQuestion } =
-    useDynamicFormStore((state) => ({
-      editOption: state.editOption,
-      editQuestion: state.editQuestion,
-      addOption: state.addOption,
-      deleteOption: state.deleteOption,
-      deleteQuestion: state.deleteQuestion,
-    }));
+  const { editQuestion, deleteQuestion } = useDynamicFormStore((state) => ({
+    editQuestion: state.editQuestion,
+    deleteQuestion: state.deleteQuestion,
+  }));
 
   return (
     <div className='flex flex-col gap-y-2'>
@@ -141,7 +145,7 @@ const QuestionDisplay = ({
         <div key={question.id} className='group relative'>
           <p
             id={question.id}
-            className='rounded-md bg-gray-300 px-2 py-1 pl-6 text-lg font-bold'
+            className='single-line rounded-md bg-gray-300 px-2 py-1 pl-6 text-lg font-bold'
             contentEditable
             suppressContentEditableWarning
             onBlur={(e) => {
@@ -214,74 +218,41 @@ const QuestionDisplay = ({
           </Button>
         </div>
       </div>
-      <div className='flex flex-col divide-y-2 divide-gray-300 '>
-        {question.options.map((option) => (
-          <div
-            key={option.id}
-            className='group relative w-full py-1 first:pt-0 last:pb-0'
-          >
-            <div
-              className='single-line block w-full cursor-pointer rounded pl-6 hover:bg-gray-100'
-              contentEditable
-              suppressContentEditableWarning
-              id={option.id}
-              onChange={(e) => {
-                const newText = e.currentTarget.textContent;
-                if (!newText) {
-                  e.currentTarget.contentEditable = 'false';
-                }
-              }}
-              onBlur={(e) => {
-                const newText = e.currentTarget.textContent;
-                const oldText = option.text;
-                if (!newText) {
-                  e.currentTarget.textContent = oldText;
-                  return;
-                }
-
-                if (newText && newText !== oldText) {
-                  editOption(question.formId, question.id, option.id, newText);
-                }
-              }}
-            >
-              {option.text}
-            </div>
-            <EditFillIcon className='absolute left-1 top-1/2 hidden h-4 w-4 -translate-y-1/2 group-hover:block group-active:block' />
-            <Button
-              variant='destructive'
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                deleteOption(question.formId, question.id, option.id);
-              }}
-              className='absolute right-1 top-1/2 hidden aspect-square h-full -translate-y-1/2 items-center p-2 group-hover:flex group-active:block'
-            >
-              <TrashIcon className='size-4' />
-            </Button>
-          </div>
-        ))}
-      </div>
-      <Button
-        variant='outline'
-        size='sm'
-        className='w-fit'
-        onClick={async () => {
-          const newOption = addOption(question.formId, question.id, {
-            text: '',
-          });
-          if (!newOption) return;
-          // wait for the option to be added to the DOM
-          await new Promise((resolve) => setTimeout(resolve, 50));
-          const newOptionElement = document.getElementById(newOption.id);
-          if (newOptionElement) {
-            (newOptionElement as HTMLElement).contentEditable = 'true';
-            (newOptionElement as HTMLElement).focus();
-          }
-        }}
-      >
-        <PlusIcon className='h-4 w-4' />
-        Agregar opción
-      </Button>
+      <OptionsDisplay question={question} />
     </div>
+  );
+};
+
+const DeleteFormButton = ({ formId }: { formId: string }) => {
+  const router = useRouter();
+  const utils = trpc.useUtils();
+  const deleteFormMutation = trpc.form.delete.useMutation({
+    onSuccess: () => {
+      utils.form.getAll.invalidate();
+      toast.success('Formulario eliminado correctamente');
+      router.push('/formulario');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const [wantsToDelete, setWantsToDelete] = useState(false);
+
+  return (
+    <Button
+      variant='destructive'
+      onClick={() => {
+        if (wantsToDelete) {
+          deleteFormMutation.mutate(formId);
+        } else {
+          setWantsToDelete(true);
+        }
+      }}
+      disabled={deleteFormMutation.isLoading}
+      className={cn(wantsToDelete && 'bg-red-700 hover:bg-red-800')}
+    >
+      {wantsToDelete ? 'Confirmar eliminación' : 'Eliminar formulario'}
+    </Button>
   );
 };

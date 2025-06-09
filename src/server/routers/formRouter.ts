@@ -55,4 +55,22 @@ export const formRouter = router({
 
       return data;
     }),
+  delete: protectedProcedure
+    .input(dynamicFormSchema.shape.id)
+    .mutation(async ({ ctx, input }) => {
+      const { data, error } = await ctx.fetch.DELETE(
+        '/dynamic-form/delete/{id}',
+        {
+          params: {
+            path: { id: input },
+          },
+        }
+      );
+
+      if (error) {
+        throw handleError(error);
+      }
+
+      return data;
+    }),
 });
