@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import OptionsDisplay from './OptionsDisplay';
+import { getErrorMessage } from '@/lib/utils';
 
 interface DynamicFormDisplayProps {
   form: DynamicFormForStore | null;
@@ -38,7 +39,7 @@ const DynamicFormDisplay = ({ form }: DynamicFormDisplayProps) => {
       router.push(`/formulario?form=${data.id}`);
     },
     onError: (error) => {
-      toast.error(error.message);
+      toast.error(getErrorMessage(error));
     },
   });
 
