@@ -1,7 +1,7 @@
 'use client';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useProfilesTable } from '@/components/modelos/table/ProfilesTable';
-import SwitchEventos from '@/components/ui/SwitchEventos';
+import SwitchEventos from '@/components/etiquetas/list/SwitchEventos';
 import { create } from 'zustand';
 import Filter from '@/components/ui/filtro/Filtro';
 import {

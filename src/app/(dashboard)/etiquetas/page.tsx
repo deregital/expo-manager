@@ -16,25 +16,39 @@ import ExpandContractTags, {
 import { ModalTriggerCreate } from '@/components/etiquetas/modal/ModalTrigger';
 import Link from 'next/link';
 import StampIcon from '@/components/icons/StampIcon';
-import SwitchEventos from '@/components/ui/SwitchEventos';
+import SwitchEventos from '@/components/etiquetas/list/SwitchEventos';
+import SwitchForm from '@/components/etiquetas/list/SwitchForm';
 import { XIcon } from 'lucide-react';
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useState('');
   const { data: groups, isLoading } = trpc.tag.getByNombre.useQuery();
-  const { state: expandState, none: setNone, showEventos } = useTagsSettings();
+  const {
+    state: expandState,
+    none: setNone,
+    showEventos,
+    showForm,
+  } = useTagsSettings();
 
   const filteredGroups = useMemo(() => {
     if (!groups) return [];
 
-    let g = showEventos
-      ? groups
-      : groups.filter((group) => {
-          return (
-            group.tags.length === 0 ||
-            group.tags.some((tag) => tag.type !== 'EVENT')
-          );
-        });
+    let g = groups;
+
+    if (!showEventos) {
+      g = g.filter((group) => {
+        return (
+          group.tags.length === 0 ||
+          group.tags.some((tag) => tag.type !== 'EVENT')
+        );
+      });
+    }
+
+    if (!showForm) {
+      g = g.filter((group) => {
+        return group.tags.some((tag) => tag.type !== 'FORM_OPTION');
+      });
+    }
 
     if (search !== '') {
       g = g.filter((group) => {
@@ -63,7 +77,7 @@ const EtiquetasPage = () => {
         })),
       };
     });
-  }, [groups, search, showEventos]);
+  }, [groups, search, showEventos, showForm]);
 
   return (
     <>
@@ -82,6 +96,12 @@ const EtiquetasPage = () => {
           </Link>
         </div>
         <div className='flex items-center gap-x-2'>
+          <SwitchForm
+            showForm={showForm}
+            setShowForm={(value) => {
+              useTagsSettings.setState({ showForm: value });
+            }}
+          />
           <SwitchEventos
             showEventos={showEventos}
             setShowEventos={(value) => {

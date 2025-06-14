@@ -20,6 +20,8 @@ import MapIcon from '../icons/MapIcon';
 import MapFillIcon from '../icons/MapFillIcon';
 import ProductionIcon from '@/components/icons/ProductionIcon';
 import ProductionFillIcon from '@/components/icons/ProductionFillIcon';
+import FormIcon from '@/components/icons/FormIcon';
+import FormFillIcon from '@/components/icons/FormFillIcon';
 
 const Sidebar = () => {
   return (
@@ -89,6 +91,13 @@ const Sidebar = () => {
             iconActive={<ProductionFillIcon height={24} width={24} />}
           >
             Producciones
+          </SidebarLink>
+          <SidebarLink
+            to='/formulario'
+            icon={<FormIcon height={24} width={24} />}
+            iconActive={<FormFillIcon height={24} width={24} />}
+          >
+            Formulario
           </SidebarLink>
         </ul>
       </div>
