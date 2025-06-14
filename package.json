@@ -44,7 +44,7 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
     "exceljs": "^4.4.0",
-    "expo-backend-types": "^0.56.0-EXPO-373-EB-CRUD-formulario-dinamico.7",
+    "expo-backend-types": "^0.56.0-EXPO-376-Bugfixing-01.2",
     "fast-csv": "^5.0.1",
     "firebase": "^10.13.0",
     "firebase-admin": "^12.3.1",

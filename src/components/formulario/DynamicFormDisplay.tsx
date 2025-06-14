@@ -28,7 +28,7 @@ const DynamicFormDisplay = ({ form }: DynamicFormDisplayProps) => {
       toast.success('Formulario actualizado correctamente');
     },
     onError: (error) => {
-      toast.error(error.message);
+      toast.error(getErrorMessage(error));
     },
   });
 
