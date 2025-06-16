@@ -20,6 +20,10 @@ const GroupTrigger = ({ group }: GroupTriggerProps) => {
     return group.tags.some((tag) => tag.type === 'PARTICIPANT');
   }, [group.tags]);
 
+  const esForm = useMemo(() => {
+    return group.tags.some((tag) => tag.type === 'FORM_OPTION');
+  }, [group.tags]);
+
   function redirectTable(e: React.MouseEvent<HTMLSpanElement>) {
     e.preventDefault();
     e.stopPropagation();
@@ -43,7 +47,7 @@ const GroupTrigger = ({ group }: GroupTriggerProps) => {
       </div>
       <div className='flex items-center gap-x-2'>
         {group.isExclusive ? <LockIcon className='h-5 w-5' /> : null}
-        {!esEvento && !esAdmin && (
+        {!esEvento && !esAdmin && !esForm && (
           <div onClick={(e) => e.preventDefault()}>
             <TagGroupModal action='EDIT' group={group} />
           </div>

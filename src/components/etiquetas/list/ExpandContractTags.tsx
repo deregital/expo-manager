@@ -6,12 +6,14 @@ import { create } from 'zustand';
 export const useTagsSettings = create<{
   state: 'EXPAND' | 'CONTRACT' | 'NONE';
   showEventos: boolean;
+  showForm: boolean;
   expand: () => void;
   contract: () => void;
   none: () => void;
 }>((set) => ({
   state: 'NONE',
   showEventos: false,
+  showForm: false,
   expand: () => set({ state: 'EXPAND' }),
   contract: () => set({ state: 'CONTRACT' }),
   none: () => set({ state: 'NONE' }),

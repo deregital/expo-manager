@@ -34,7 +34,7 @@ const TagsContent = ({ tag, background }: TagsContentProps) => {
         backgroundColor: `${background}50`,
       }}
     >
-      <p className={cn('capitalize', tag.match && 'underline')}>{tag.name}</p>
+      <p className={cn(tag.match && 'underline')}>{tag.name}</p>
       <div className='flex items-center gap-x-2'>
         {tag.type === 'PROFILE' && <TagModal action='EDIT' tag={tag} />}
         <p className='text-sm font-semibold'>{tag._count.profiles}</p>

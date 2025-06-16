@@ -13,6 +13,7 @@ import { cannedResponseRouter } from '@/server/routers/canned-responseRouter';
 import { commentRouter } from '@/server/routers/commentRouter';
 import { ticketRouter } from '@/server/routers/ticketRouter';
 import { productionRouter } from '@/server/routers/productionRouter';
+import { formRouter } from '@/server/routers/formRouter';
 
 export const appRouter = router({
   profile: profileRouter,
@@ -28,6 +29,7 @@ export const appRouter = router({
   cannedResponse: cannedResponseRouter,
   comment: commentRouter,
   production: productionRouter,
+  form: formRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;
