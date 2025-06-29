@@ -54,10 +54,10 @@ const RoleModal = ({ action, role, refetchRoles }: RoleModalProps) => {
         .then(() => {
           setOpen(!open);
           refetchRoles();
+          setShouldDelete(false);
           toast.success('Rol creado con éxito');
         })
         .catch((error) => {
-          console.log(modalData.name);
           toast.error('Error al crear el rol');
         });
     } else if (action === 'EDIT') {
@@ -66,6 +66,7 @@ const RoleModal = ({ action, role, refetchRoles }: RoleModalProps) => {
         .then(() => {
           setOpen(!open);
           refetchRoles();
+          setShouldDelete(false);
           toast.success('Rol editado con éxito');
         })
         .catch((error) => {
@@ -86,6 +87,7 @@ const RoleModal = ({ action, role, refetchRoles }: RoleModalProps) => {
         .then(() => {
           setOpen(!open);
           refetchRoles();
+          setShouldDelete(false);
           toast.success('Rol eliminado con éxito');
         })
         .catch((error) => {
@@ -158,7 +160,7 @@ const RoleModal = ({ action, role, refetchRoles }: RoleModalProps) => {
                   'Error al crear el rol, asegúrese de poner un nombre único'
                 : ''}
               {editRole.isError
-                ? editRole.error?.data?.zodError?.fieldErrors.name?.[0] ||
+                ? editRole.error?.data?.zodError?.fieldErrors.input?.[0] ||
                   editRole.error.message ||
                   'Error al editar el rol'
                 : ''}
