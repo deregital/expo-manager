@@ -50,7 +50,7 @@ const DynamicFormDisplay = ({ form }: DynamicFormDisplayProps) => {
   async function submitForm() {
     if (!form) return;
 
-    if (form?.type === 'db') {
+    if (form?.from === 'db') {
       const body = {
         id: form.id,
         name: form.name,
@@ -93,9 +93,9 @@ const DynamicFormDisplay = ({ form }: DynamicFormDisplayProps) => {
             onClick={submitForm}
             disabled={editFormMutation.isLoading}
           >
-            {form?.type === 'db' ? 'Confirmar edición' : 'Crear'}
+            {form?.from === 'db' ? 'Confirmar edición' : 'Crear'}
           </Button>
-          {form.type === 'db' && <DeleteFormButton formId={form.id} />}
+          {form.from === 'db' && <DeleteFormButton formId={form.id} />}
         </div>
         <div className='flex w-full flex-col gap-y-4'>
           {form?.questions.map((question, idx) => (
