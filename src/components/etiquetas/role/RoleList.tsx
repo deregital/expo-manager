@@ -8,7 +8,9 @@ const RoleList = () => {
   const { data, isLoading, refetch } = trpc.role.getAll.useQuery();
 
   return isLoading ? (
-    <Loader />
+    <div className='mt-5 flex w-full justify-center'>
+      <Loader />
+    </div>
   ) : (
     <div>
       <RoleModal action='CREATE' refetchRoles={refetch} />
