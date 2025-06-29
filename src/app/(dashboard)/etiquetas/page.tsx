@@ -19,6 +19,7 @@ import StampIcon from '@/components/icons/StampIcon';
 import SwitchEventos from '@/components/etiquetas/list/SwitchEventos';
 import SwitchForm from '@/components/etiquetas/list/SwitchForm';
 import { XIcon } from 'lucide-react';
+import RoleList from '@/components/etiquetas/role/RoleList';
 
 const EtiquetasPage = () => {
   const [search, setSearch] = useState('');
@@ -137,6 +138,12 @@ const EtiquetasPage = () => {
         ) : (
           <TagsList groups={(filteredGroups ?? []) as GroupWithMatch[]} />
         )}
+      </div>
+      <p className='p-3 text-xl font-bold md:p-5 md:text-3xl'>
+        Gestor de Roles
+      </p>
+      <div className='flex flex-col gap-4 px-3 md:flex-row md:px-5'>
+        <RoleList />
       </div>
     </>
   );
