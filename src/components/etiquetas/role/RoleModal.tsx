@@ -36,7 +36,7 @@ export const useRoleModalData = create<ModalData>(() => ({
 const RoleModal = ({ action, role, refetchRoles }: RoleModalProps) => {
   const [open, setOpen] = useState(false);
   const [shouldDelete, setShouldDelete] = useState(false);
-
+  const utils = trpc.useUtils();
   const modalData = useRoleModalData((state) => ({
     roleId: state.roleId,
     type: state.type,
@@ -55,6 +55,7 @@ const RoleModal = ({ action, role, refetchRoles }: RoleModalProps) => {
           setOpen(!open);
           refetchRoles();
           setShouldDelete(false);
+          utils.tag.getByNombre.invalidate();
           toast.success('Rol creado con éxito');
         })
         .catch((error) => {
@@ -67,6 +68,7 @@ const RoleModal = ({ action, role, refetchRoles }: RoleModalProps) => {
           setOpen(!open);
           refetchRoles();
           setShouldDelete(false);
+          utils.tag.getByNombre.invalidate();
           toast.success('Rol editado con éxito');
         })
         .catch((error) => {
@@ -93,6 +95,7 @@ const RoleModal = ({ action, role, refetchRoles }: RoleModalProps) => {
         .catch((error) => {
           toast.error('Error al eliminar el rol');
         });
+      utils.tag.getByNombre.invalidate();
     } else {
       setShouldDelete(true);
     }
@@ -152,7 +155,7 @@ const RoleModal = ({ action, role, refetchRoles }: RoleModalProps) => {
               />
             </div>
           </div>
-          {createRole.isError || editRole.isError ? (
+          {createRole.isError || editRole.isError || deleteRole.isError ? (
             <p className='text-sm font-semibold text-red-500'>
               {createRole.isError
                 ? createRole.error?.data?.zodError?.fieldErrors.name?.[0] ||
@@ -163,6 +166,11 @@ const RoleModal = ({ action, role, refetchRoles }: RoleModalProps) => {
                 ? editRole.error?.data?.zodError?.fieldErrors.input?.[0] ||
                   editRole.error.message ||
                   'Error al editar el rol'
+                : ''}
+              {deleteRole.isError
+                ? deleteRole.error?.data?.zodError?.fieldErrors.input?.[0] ||
+                  deleteRole.error.message ||
+                  'Error al eliminar el rol'
                 : ''}
             </p>
           ) : null}
