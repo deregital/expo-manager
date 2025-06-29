@@ -21,7 +21,7 @@ export const FormularioPageClient = ({
       useDynamicFormStore.setState({
         forms: data.map((form) => ({
           ...form,
-          type: 'db' as const,
+          from: 'db' as const,
         })),
       });
     },

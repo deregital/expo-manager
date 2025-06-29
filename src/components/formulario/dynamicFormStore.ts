@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { type RouterOutputs } from '@/server';
 
 export type DynamicFormForStore = RouterOutputs['form']['getAll'][number] & {
-  type: 'db' | 'new';
+  from: 'db' | 'new';
 };
 
 export const useDynamicFormStore = create<{
@@ -45,10 +45,11 @@ export const useDynamicFormStore = create<{
     const newForm = {
       name: form.name,
       id: crypto.randomUUID(),
-      type: 'new',
+      from: 'new',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       questions: [],
+      type: 'PERSONAL_INFO' as const,
     } satisfies DynamicFormForStore;
     set((state) => ({
       forms: [...state.forms, newForm],
