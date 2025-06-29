@@ -21,6 +21,7 @@ export const ProductionList = () => {
               mode='edit'
               productionId={production.id}
               productionName={production.name}
+              productionDescription={production.description}
               producerId={production.administrator!.id}
             />
           </div>

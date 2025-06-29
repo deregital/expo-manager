@@ -14,6 +14,7 @@ import { commentRouter } from '@/server/routers/commentRouter';
 import { ticketRouter } from '@/server/routers/ticketRouter';
 import { productionRouter } from '@/server/routers/productionRouter';
 import { formRouter } from '@/server/routers/formRouter';
+import { roleRouter } from '@/server/routers/roleRouter';
 
 export const appRouter = router({
   profile: profileRouter,
@@ -30,6 +31,7 @@ export const appRouter = router({
   comment: commentRouter,
   production: productionRouter,
   form: formRouter,
+  role: roleRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;

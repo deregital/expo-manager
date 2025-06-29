@@ -11,15 +11,18 @@ import { type Profile } from 'expo-backend-types';
 import { Pencil } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { create } from 'zustand';
+import { Textarea } from '../ui/textarea';
 
 export const useProductionModalStore = create<{
   name: string;
   producerId: Profile['id'] | null;
+  description: string;
   reset: () => void;
 }>((set) => ({
   name: '',
   producerId: null,
-  reset: () => set({ name: '', producerId: null }),
+  description: '',
+  reset: () => set({ name: '', producerId: null, description: '' }),
 }));
 
 type ProductionModalProps =
@@ -28,12 +31,14 @@ type ProductionModalProps =
       productionName?: never;
       productionId?: never;
       producerId?: never;
+      productionDescription?: never;
     }
   | {
       mode: 'edit';
       productionName: string;
       productionId: string;
       producerId: Profile['id'];
+      productionDescription: string;
     };
 
 export const ProductionModal = ({
@@ -41,6 +46,7 @@ export const ProductionModal = ({
   producerId,
   productionId,
   productionName,
+  productionDescription,
 }: ProductionModalProps) => {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +55,7 @@ export const ProductionModal = ({
     reset,
     producerId: selectedProducerId,
     name,
+    description,
   } = useProductionModalStore();
   const { data: participants } = trpc.profile.getAll.useQuery();
   const utils = trpc.useUtils();
@@ -78,6 +85,7 @@ export const ProductionModal = ({
     if (mode === 'create') {
       await createProduction({
         name,
+        description,
         administratorId: selectedProducer.id,
       });
     } else {
@@ -85,6 +93,7 @@ export const ProductionModal = ({
         id: productionId!,
         name,
         administratorId: selectedProducer.id,
+        description,
       });
     }
 
@@ -111,6 +120,7 @@ export const ProductionModal = ({
               useProductionModalStore.setState({
                 name: productionName ?? '',
                 producerId: producerId ?? null,
+                description: productionDescription ?? '',
               });
               setOpen(true);
             }}
@@ -124,6 +134,7 @@ export const ProductionModal = ({
               useProductionModalStore.setState({
                 name: '',
                 producerId: null,
+                description: '',
               });
               setOpen(true);
             }}
@@ -150,6 +161,21 @@ export const ProductionModal = ({
             onChange={(e) => {
               useProductionModalStore.setState({
                 name: e.target.value,
+              });
+            }}
+          />
+          <Label htmlFor='description' className='w-fit'>
+            Descripción
+          </Label>
+          <Textarea
+            className='max-h-40 resize-y'
+            name='description'
+            value={description}
+            id='description'
+            placeholder='Descripción'
+            onChange={(e) => {
+              useProductionModalStore.setState({
+                description: e.target.value,
               });
             }}
           />
