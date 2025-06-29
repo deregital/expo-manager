@@ -155,7 +155,7 @@ const RoleModal = ({ action, role, refetchRoles }: RoleModalProps) => {
               />
             </div>
           </div>
-          {createRole.isError || editRole.isError || deleteRole.isError ? (
+          {createRole.isError || editRole.isError ? (
             <p className='text-sm font-semibold text-red-500'>
               {createRole.isError
                 ? createRole.error?.data?.zodError?.fieldErrors.name?.[0] ||
@@ -167,13 +167,17 @@ const RoleModal = ({ action, role, refetchRoles }: RoleModalProps) => {
                   editRole.error.message ||
                   'Error al editar el rol'
                 : ''}
+            </p>
+          ) : null}
+          {deleteRole.isError && (
+            <p className='text-sm font-semibold text-red-500'>
               {deleteRole.isError
                 ? deleteRole.error?.data?.zodError?.fieldErrors.input?.[0] ||
                   deleteRole.error.message ||
                   'Error al eliminar el rol'
                 : ''}
             </p>
-          ) : null}
+          )}
           <div className='flex gap-x-4'>
             <Button
               className='w-full max-w-32'
