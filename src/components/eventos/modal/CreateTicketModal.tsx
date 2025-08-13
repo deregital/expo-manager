@@ -64,6 +64,11 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
       fullName: modalData.fullName,
       mail: modalData.email,
       dni: modalData.dni,
+      // [N]
+      instagrams: [],
+      phoneNumber: '',
+      whoToWatch: null,
+      // [/N]
     });
     setOpen(false);
     modalData.reset();

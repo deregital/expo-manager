@@ -16,12 +16,22 @@ import { Button } from '@/components/ui/button';
 import { cn, getErrorMessage, getTextColorByBg } from '@/lib/utils';
 import Loader from '@/components/ui/loader';
 import { toast } from 'sonner';
-import { type Tag, type TagGroup, type EventTicket } from 'expo-backend-types';
+import {
+  type Tag,
+  type TagGroup,
+  type EventTicket,
+  // [N]
+  type EventProducerLogin,
+  // [/N]
+} from 'expo-backend-types';
 import EventTicketsTable from '@/components/eventos/modal/EventTicketsTable';
 import AddEtiquetaCombos from '@/components/ui/AddEtiquetaCombos';
 import { Badge } from '@/components/ui/badge';
 import CircleXIcon from '@/components/icons/CircleX';
 import { format } from 'date-fns';
+// [N]
+import EventProducerLoginForm from '@/components/eventos/modal/[N]EventProducerLoginForm';
+// [/N]
 
 interface EventModalProps {
   action: 'CREATE' | 'EDIT';
@@ -50,6 +60,11 @@ type ModalData = {
   tickets: (Pick<EventTicket, 'amount' | 'price' | 'type'> & {
     isFree: boolean;
   })[];
+  // [N]
+  eventProducerLogin: Array<
+    Pick<EventProducerLogin, 'mail' | 'password' | 'isActive'>
+  >;
+  // [/N]
   reset: () => void;
 };
 
@@ -101,6 +116,9 @@ export const useEventModalData = create<ModalData>((set) => ({
   folderId: null,
   subEvents: [],
   tickets: structuredClone(defaultTickets),
+  // [N]
+  eventProducerLogin: [],
+  // [/N]
   reset: () => {
     set({
       type: 'CREATE',
@@ -113,6 +131,9 @@ export const useEventModalData = create<ModalData>((set) => ({
       tickets: structuredClone(defaultTickets),
       subEvents: [],
       tags: [],
+      // [N]
+      eventProducerLogin: [],
+      // [/N]
     });
   },
 }));
@@ -129,6 +150,9 @@ const EventModal = ({ action, event }: EventModalProps) => {
     location: state.location,
     subEvents: state.subEvents,
     tickets: state.tickets,
+    // [N]
+    eventProducerLogin: state.eventProducerLogin,
+    // [/N]
     reset: state.reset,
   }));
 
@@ -172,6 +196,9 @@ const EventModal = ({ action, event }: EventModalProps) => {
             bannerUrl: null,
           })),
           eventTickets: modalData.tickets, // TODO: Implementar tickets
+          // [N]
+          eventProducerLogin: modalData.eventProducerLogin,
+          // [/N]
         })
         .then(() => {
           setError('');
@@ -216,6 +243,9 @@ const EventModal = ({ action, event }: EventModalProps) => {
             type: ticket.type,
           })),
           tagsId: modalData.tags.map((tag) => tag.id),
+          // [N]
+          eventProducerLogin: modalData.eventProducerLogin,
+          // [/N]
         })
         .then(() => {
           setError('');
@@ -309,6 +339,9 @@ const EventModal = ({ action, event }: EventModalProps) => {
                       startingDate: subevent.startingDate,
                       endingDate: subevent.endingDate,
                     })),
+                    // [N]
+                    eventProducerLogin: event.eventProducerLogin,
+                    // [/N]
                   });
                 }}
               >
@@ -376,6 +409,9 @@ const EventModal = ({ action, event }: EventModalProps) => {
                 </p>
               </div>
             </div>
+            {/* [N] */}
+            <EventProducerLoginForm />
+            {/* [/N] */}
           </div>
 
           {createEvent.isError || updateEvent.isError ? (
