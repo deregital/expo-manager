@@ -21,6 +21,7 @@ type TicketModalData = {
   fullName: string;
   dni: string;
   email: string;
+  phoneNumber: string;
   reset: () => void;
 };
 
@@ -29,7 +30,15 @@ const useTicketModalData = create<TicketModalData>((set) => ({
   fullName: '',
   dni: '',
   email: '',
-  reset: () => set({ type: 'SPECTATOR', fullName: '', email: '', dni: '' }),
+  phoneNumber: '',
+  reset: () =>
+    set({
+      type: 'SPECTATOR',
+      fullName: '',
+      email: '',
+      dni: '',
+      phoneNumber: '',
+    }),
 }));
 
 type CreateTicketModalProps = {
@@ -46,6 +55,7 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
     email: state.email,
     dni: state.dni,
     reset: state.reset,
+    phoneNumber: state.phoneNumber,
   }));
 
   const createTicket = trpc.ticket.create.useMutation();
@@ -66,7 +76,7 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
       dni: modalData.dni,
       // [N]
       instagrams: [],
-      phoneNumber: '',
+      phoneNumber: modalData.phoneNumber,
       whoToWatch: null,
       // [/N]
     });
@@ -125,6 +135,19 @@ const CreateTicketModal = ({ eventName, eventId }: CreateTicketModalProps) => {
             });
           }}
         />
+        {/* [N] */}
+        <FormTextInput
+          name='phoneNumber'
+          type='tel'
+          label='Número de teléfono'
+          placeholder='1234567890'
+          onChange={(e) => {
+            useTicketModalData.setState({
+              phoneNumber: e.target.value,
+            });
+          }}
+        />
+        {/* [/N] */}
         <Label className='slate-900 text-sm font-medium'>Tipo</Label>
         <Select
           open={typeSelectOpen}
